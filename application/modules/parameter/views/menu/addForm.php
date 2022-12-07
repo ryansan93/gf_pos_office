@@ -4,60 +4,57 @@
 </div>
 <div class="modal-body body">
 	<div class="row">
-		<div class="col-sm-12 no-padding">
-			<table class="table no-border" style="margin-bottom: 0px;">
-				<tbody>
-					<tr>
-						<td class="col-sm-2">				
-							<label class="control-label">Nama</label>
-						</td>
-						<td class="col-sm-10">
-							<input type="text" class="col-sm-6 form-control nama uppercase" placeholder="Nama" data-required="1">
-						</td>
-					</tr>
-					<tr>
-						<td class="col-sm-2">				
-							<label class="control-label">Deskripsi</label>
-						</td>
-						<td class="col-sm-10">
-							<textarea class="col-sm-12 form-control deskripsi uppercase" placeholder="Deskripsi"></textarea>
-						</td>
-					</tr>
-					<tr>
-						<td class="col-sm-2">				
-							<label class="control-label">Kategori</label>
-						</td>
-						<td class="col-sm-10">
-							<select class="col-sm-4 form-control kategori">
-								<option value="">-- Pilih Kategori --</option>
-								<?php if ( !empty($kategori) ): ?>
-									<?php foreach ($kategori as $key => $val): ?>
-										<option value="<?php echo $val['id']; ?>"><?php echo strtoupper($val['nama']); ?></option>
-									<?php endforeach ?>
-								<?php endif ?>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td class="col-sm-2">				
-							<label class="control-label">Induk Menu</label>
-						</td>
-						<td class="col-sm-10">
-							<select class="col-sm-4 form-control induk_menu" data-required="1">
-								<option value="">-- Pilih Induk Menu --</option>
-								<?php if ( !empty($induk_menu) ): ?>
-									<?php foreach ($induk_menu as $key => $val): ?>
-										<option value="<?php echo $val['id']; ?>"><?php echo strtoupper($val['nama']); ?></option>
-									<?php endforeach ?>
-								<?php endif ?>
-							</select>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+		<div class="col-xs-12 no-padding">
+			<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
+				<div class="col-xs-12 no-padding"><label class="control-label">Nama</label></div>
+				<div class="col-xs-12 no-padding">
+					<input type="text" class="form-control nama uppercase" placeholder="Nama" data-required="1">
+				</div>
+			</div>
+			<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
+				<div class="col-xs-12 no-padding"><label class="control-label">Deskripsi</label></div>
+				<div class="col-xs-12 no-padding">
+					<textarea class="form-control deskripsi uppercase" placeholder="Deskripsi"></textarea>
+				</div>
+			</div>
+			<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
+				<div class="col-xs-12 no-padding"><label class="control-label">Kategori</label></div>
+				<div class="col-xs-12 no-padding">
+					<select class="form-control kategori" data-required="1">
+						<?php if ( !empty($kategori) ): ?>
+							<?php foreach ($kategori as $key => $val): ?>
+								<option value="<?php echo $val['id']; ?>"><?php echo strtoupper($val['nama']); ?></option>
+							<?php endforeach ?>
+						<?php endif ?>
+					</select>
+				</div>
+			</div>
+			<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
+				<div class="col-xs-12 no-padding"><label class="control-label">Branch</label></div>
+				<div class="col-xs-12 no-padding">
+					<select class="form-control branch" name="branch[]" multiple="multiple" data-required="1">
+						<?php if ( !empty($branch) ): ?>
+							<?php foreach ($branch as $key => $val): ?>
+								<option value="<?php echo $val['kode_branch']; ?>"><?php echo strtoupper($val['nama']); ?></option>
+							<?php endforeach ?>
+						<?php endif ?>
+					</select>
+				</div>
+			</div>
+			<div class="col-xs-12 no-padding">
+				<div class="col-xs-12 no-padding"><label class="control-label">Additional</label></div>
+				<div class="col-xs-12 no-padding" style="padding-left: 15px;">
+					<input type="radio" id="1" name="age" value="1">
+  					<label for="1">Ya</label><br>
+  					<input type="radio" id="0" name="age" value="0" checked>
+  					<label for="0">Tidak</label><br>
+				</div>
+			</div>
 		</div>
-		<div class="col-sm-12 no-padding" style="padding-left: 8px; padding-right: 8px;">
-			<hr>
+		<div class="col-xs-12 no-padding">
+			<hr style="margin-top: 10px; margin-bottom: 10px;">
+		</div>
+		<div class="col-xs-12 no-padding">
 			<button type="button" class="btn btn-primary pull-right" onclick="menu.save()">
 				<i class="fa fa-save"></i>
 				Save

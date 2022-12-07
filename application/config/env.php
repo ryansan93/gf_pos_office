@@ -13,7 +13,7 @@ $config['connection'] = array(
 
 		// NOTE : LIVE DATABASE
 		// 'host'      => '103.137.111.6',
-		// 'database'  => 'mgb_pos',
+		// 'database'  => 'gf_pos',
 		// 'username'  => 'sa',
 		// 'password'  => 'Mgb654321',
 

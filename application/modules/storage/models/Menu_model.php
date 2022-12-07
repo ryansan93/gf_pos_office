@@ -17,4 +17,9 @@ class Menu_model extends Conf{
 	{
 		return $this->hasOne('\Model\Storage\IndukMenu_model', 'id', 'induk_menu_id');
 	}
+
+	public function branch()
+	{
+		return $this->hasOne('\Model\Storage\Branch_model', 'kode_branch', 'branch_kode');
+	}
 }

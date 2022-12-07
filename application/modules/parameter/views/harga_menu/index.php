@@ -1,7 +1,7 @@
 <div class="row content-panel detailed">
 	<div class="col-lg-12 detailed">
 		<div class="col-lg-8 search left-inner-addon no-padding">
-			<i class="glyphicon glyphicon-search"></i><input class="form-control" type="search" data-table="tbl_diskon" placeholder="Search" onkeyup="filter_all(this)">
+			<i class="glyphicon glyphicon-search"></i><input class="form-control" type="search" data-table="tbl_harga" placeholder="Search" onkeyup="filter_all(this)">
 		</div>
 		<div class="col-lg-4 action no-padding">
 			<?php if ( $akses['a_submit'] == 1 ) { ?>
@@ -15,7 +15,7 @@
 			<?php } ?>
 		</div>
 		<small>
-			<table class="table table-bordered table-hover tbl_diskon" id="dataTable" width="100%" cellspacing="0">
+			<table class="table table-bordered table-hover tbl_harga" id="dataTable" width="100%" cellspacing="0">
 				<thead>
 					<tr>
 						<th class="col-sm-3 text-center">Menu</th>
@@ -28,7 +28,7 @@
 				<tbody class="list">
 					<?php if ( !empty($data) ): ?>
 						<?php foreach ($data as $k_data => $v_data): ?>
-							<tr class="head">
+							<tr class="search head">
 								<td class="menu" data-val="<?php echo $v_data['menu_kode']; ?>"><?php echo strtoupper($v_data['menu']['nama']); ?></td>
 								<td class="jenis_pesanan" data-val="<?php echo $v_data['jenis_pesanan_kode']; ?>"><?php echo strtoupper($v_data['jenis_pesanan']['nama']); ?></td>
 								<td class="text-center tgl_mulai" data-val="<?php echo $v_data['tgl_mulai']; ?>"><?php echo tglIndonesia($v_data['tgl_mulai'], '-', ' '); ?></td>

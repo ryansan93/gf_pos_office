@@ -56,7 +56,7 @@ var jual = {
 	                if ( data.status == 1 ) {
 	                	$('table.tbl_report_harian tbody').html( data.content.list_report_harian );
 	                	$('table.tbl_report_harian_produk tbody').html( data.content.list_report_harian_produk );
-	                	$('table.tbl_report_by_induk_menu tbody').html( data.content.list_report_by_induk_menu );
+	                	// $('table.tbl_report_by_induk_menu tbody').html( data.content.list_report_by_induk_menu );
 	                	$('table.tbl_detail_pembayaran tbody').html( data.content.list_report_detail_pembayaran );
 	                } else {
 	                    bootbox.alert(data.message);

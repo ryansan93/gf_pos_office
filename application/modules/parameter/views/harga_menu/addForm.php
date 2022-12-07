@@ -22,7 +22,7 @@
 							</select>
 						</td>
 					</tr>
-					<tr>
+					<!-- <tr>
 						<td class="col-sm-2">				
 							<label class="control-label">Jenis Pesanan</label>
 						</td>
@@ -36,7 +36,7 @@
 								<?php endif ?>
 							</select>
 						</td>
-					</tr>
+					</tr> -->
 					<tr>
 						<td class="col-sm-2">				
 							<label class="control-label">Tgl Berlaku</label>
@@ -50,16 +50,43 @@
 						    </div>
 						</td>
 					</tr>
-					<tr>
+					<!-- <tr>
 						<td class="col-sm-2">				
 							<label class="control-label">Harga</label>
 						</td>
 						<td class="col-sm-10">
 							<input type="text" class="col-sm-3 form-control text-right harga uppercase" placeholder="Harga" data-required="1" data-tipe="decimal">
 						</td>
-					</tr>
+					</tr> -->
 				</tbody>
 			</table>
+
+			<small>
+				<table class="table table-bordered tbl_jenis_pesanan" style="margin-bottom: 0px;">
+					<thead>
+						<tr>
+							<th class="col-xs-8">Jenis Pesanan</th>
+							<th class="col-xs-4">Harga</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php if ( !empty($jenis_pesanan) ): ?>
+							<?php foreach ($jenis_pesanan as $key => $val): ?>
+								<tr class="data">
+									<td class="kode" data-val="<?php echo $val['kode']; ?>"><?php echo strtoupper($val['nama']); ?></td>
+									<td>
+										<input type="text" class="form-control text-right harga" data-required="1" data-tipe="decimal" placeholder="Harga" maxlength="14">
+									</td>
+								</tr>
+							<?php endforeach ?>
+						<?php else: ?>
+							<tr>
+								<td colspan="2">Data jenis pesanan tidak ditemukan.</td>
+							</tr>
+						<?php endif ?>
+					</tbody>
+				</table>
+			</small>
 		</div>
 		<div class="col-sm-12 no-padding" style="padding-left: 8px; padding-right: 8px;">
 			<hr>

@@ -23,10 +23,11 @@ class HargaMenu extends Public_Controller {
     {
         if ( $this->hakAkses['a_view'] == 1 ) {
             $this->add_external_js(array(
-                "assets/jquery/list.min.js",
+                "assets/select2/js/select2.min.js",
                 "assets/parameter/harga_menu/js/harga-menu.js",
             ));
             $this->add_external_css(array(
+                "assets/select2/css/select2.min.css",
                 "assets/parameter/harga_menu/css/harga-menu.css",
             ));
 
@@ -89,15 +90,17 @@ class HargaMenu extends Public_Controller {
         $params = $this->input->post('params');
 
         try {
-            $m_hm = new \Model\Storage\HargaMenu_model();
-            $m_hm->jenis_pesanan_kode = $params['jenis_pesanan'];
-            $m_hm->menu_kode = $params['menu'];
-            $m_hm->harga = $params['harga'];
-            $m_hm->tgl_mulai = $params['tgl_berlaku'];
-            $m_hm->save();
+            foreach ($params['list_jenis_pesanan'] as $key => $value) {
+                $m_hm = new \Model\Storage\HargaMenu_model();
+                $m_hm->jenis_pesanan_kode = $value['jenis_pesanan'];
+                $m_hm->menu_kode = $params['menu'];
+                $m_hm->harga = $value['harga'];
+                $m_hm->tgl_mulai = $params['tgl_berlaku'];
+                $m_hm->save();
 
-            $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $m_hm, $deskripsi_log );
+                $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                Modules::run( 'base/event/save', $m_hm, $deskripsi_log );
+            }
 
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di simpan.';

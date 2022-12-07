@@ -1,8 +1,3 @@
-var menu = null;
-var jenis_pesanan = null;
-var tgl_berlaku = null;
-var harga = null;
-
 var hm = {
 	start_up: function () {
 	}, // end - start_up
@@ -33,10 +28,8 @@ var hm = {
 		            minDate: moment(new Date((today+' 00:00:00')))
 		        });
 
-		        $(this).find('.menu').val(menu);
-				$(this).find('.jenis_pesanan').val(jenis_pesanan);
-				$(this).find('#TglBerlaku').data('DateTimePicker').date(moment(new Date(tgl_berlaku)));
-				$(this).find('.harga').val(numeral.formatDec(harga));
+		        $(this).find('.menu').select2();
+		        $(this).removeAttr('tabindex');
             });
         },'html');
 	}, // end - modalAddForm
@@ -106,45 +99,54 @@ var hm = {
 		} else {
 			$('.modal').modal('hide');
 
-			menu = $(div).find('.menu').val();
-			jenis_pesanan = $(div).find('.jenis_pesanan').val();
-			tgl_berlaku = dateSQL($(div).find('#TglBerlaku').data('DateTimePicker').date());
-			harga = numeral.unformat($(div).find('.harga').val());
+			var menu = $(div).find('.menu').val();
+			var list_jenis_pesanan = $.map( $(div).find('.tbl_jenis_pesanan tbody tr.data'), function (tr) {
+				var _data = {
+					'jenis_pesanan': $(tr).find('td.kode').attr('data-val'),
+					'harga': numeral.unformat( $(tr).find('input').val() )
+				};
 
-			bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
-				if ( result ) {
-					var data = {
-						'menu': menu,
-						'jenis_pesanan': jenis_pesanan,
-						'tgl_berlaku': tgl_berlaku,
-						'harga': harga
-					};
-
-			        $.ajax({
-			            url: 'parameter/HargaMenu/save',
-			            data: {
-			                'params': data
-			            },
-			            type: 'POST',
-			            dataType: 'JSON',
-			            beforeSend: function() { showLoading(); },
-			            success: function(data) {
-			                hideLoading();
-			                if ( data.status == 1 ) {
-			                	bootbox.alert(data.message, function() {
-			                		location.reload();
-			                	});
-			                } else {
-			                    bootbox.alert(data.message, function() {
-			                    	hm.modalAddForm();
-			                    });
-			                }
-			            }
-			        });
-				} else {
-					hm.modalAddForm();
-				}
+				return _data;
 			});
+			var tgl_berlaku = dateSQL($(div).find('#TglBerlaku').data('DateTimePicker').date());
+
+			if ( list_jenis_pesanan.length > 0 ) {
+				bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
+					if ( result ) {
+						var data = {
+							'menu': menu,
+							'list_jenis_pesanan': list_jenis_pesanan,
+							'tgl_berlaku': tgl_berlaku
+						};
+
+				        $.ajax({
+				            url: 'parameter/HargaMenu/save',
+				            data: {
+				                'params': data
+				            },
+				            type: 'POST',
+				            dataType: 'JSON',
+				            beforeSend: function() { showLoading(); },
+				            success: function(data) {
+				                hideLoading();
+				                if ( data.status == 1 ) {
+				                	bootbox.alert(data.message, function() {
+				                		location.reload();
+				                	});
+				                } else {
+				                    bootbox.alert(data.message, function() {
+				                    	hm.modalAddForm();
+				                    });
+				                }
+				            }
+				        });
+					} else {
+						hm.modalAddForm();
+					}
+				});
+			} else {
+				bootbox.alert('Jenis pesanan tidak ditemukan.');
+			}
 		}
 	}, // end - save
 

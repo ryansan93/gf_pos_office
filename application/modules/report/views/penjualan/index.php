@@ -58,9 +58,6 @@
 						<li class="nav-item">
 							<a class="nav-link" data-toggle="tab" href="#penjualan_harian" data-tab="penjualan_harian">PENJUALAN HARIAN</a>
 						</li>
-						<li class="nav-item">
-							<a class="nav-link" data-toggle="tab" href="#penjualan_by_induk_menu" data-tab="penjualan_by_induk_menu">PENJUALAN BY INDUK MENU</a>
-						</li>
 					</ul>
 				</div>
 				<div class="panel-body no-padding">
@@ -71,10 +68,6 @@
 
 						<div id="penjualan_harian" class="tab-pane fade" role="tabpanel" style="padding-top: 10px;">
 							<?php echo $report_harian; ?>
-						</div>
-
-						<div id="penjualan_by_induk_menu" class="tab-pane fade" role="tabpanel" style="padding-top: 10px;">
-							<?php echo $report_by_induk_menu; ?>
 						</div>
 					</div>
 				</div>

@@ -1,7 +1,7 @@
 <div class="row content-panel detailed">
 	<div class="col-lg-12 detailed">
 		<div class="col-lg-8 search left-inner-addon no-padding">
-			<i class="glyphicon glyphicon-search"></i><input class="form-control" type="search" data-table="tbl_diskon" placeholder="Search" onkeyup="filter_all(this)">
+			<i class="glyphicon glyphicon-search"></i><input class="form-control" type="search" data-table="tbl_menu" placeholder="Search" onkeyup="filter_all(this)">
 		</div>
 		<div class="col-lg-4 action no-padding">
 			<?php if ( $akses['a_submit'] == 1 ) { ?>
@@ -15,26 +15,36 @@
 			<?php } ?>
 		</div>
 		<small>
-			<table class="table table-bordered table-hover tbl_diskon" id="dataTable" width="100%" cellspacing="0">
+			<table class="table table-bordered table-hover tbl_menu" id="dataTable" width="100%" cellspacing="0">
 				<thead>
 					<tr>
 						<th class="col-sm-1 text-center">Kode</th>
-						<th class="col-sm-3 text-center">Nama</th>
+						<th class="col-sm-2 text-center">Nama</th>
 						<th class="col-sm-3 text-center">Deskripsi</th>
 						<th class="col-sm-2 text-center">Kategori</th>
-						<th class="col-sm-2 text-center">Induk Menu</th>
+						<th class="col-sm-1 text-center">Branch</th>
+						<th class="col-sm-1 text-center">Additional</th>
+						<th class="col-sm-1 text-center">Status</th>
 						<th class="col-sm-1 text-center">Action</th>
 					</tr>
 				</thead>
 				<tbody class="list">
 					<?php if ( !empty($data) ): ?>
 						<?php foreach ($data as $k_data => $v_data): ?>
-							<tr class="head" data-kode="<?php echo $v_data['kode_menu']; ?>">
+							<?php 
+								$status = 'removed';
+								if ( $v_data['status'] == 1 ) {
+									$status = 'submitted';
+								}
+							?>
+							<tr class="search head <?php echo $status; ?>" data-kode="<?php echo $v_data['kode_menu']; ?>">
 								<td><?php echo strtoupper($v_data['kode_menu']); ?></td>
 								<td><?php echo strtoupper($v_data['nama']); ?></td>
 								<td><?php echo empty($v_data['deskripsi']) ? '-' : strtoupper($v_data['deskripsi']); ?></td>
 								<td><?php echo empty($v_data['kategori']) ? '-' : strtoupper($v_data['kategori']['nama']); ?></td>
-								<td><?php echo !empty($v_data['induk_menu_id']) ? strtoupper($v_data['induk_menu']['nama']) : '-'; ?></td>
+								<td><?php echo $v_data['branch']['nama']; ?></td>
+								<td class="text-center"><?php echo ($v_data['additional'] == 0) ? 'NO' : 'YES'; ?></td>
+								<td class="text-center status"><b><?php echo strtoupper($status); ?></b></td>
 								<td>
 									<div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
 										<?php if ( $akses['a_edit'] == 1 ) { ?>

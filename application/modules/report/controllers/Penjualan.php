@@ -83,7 +83,7 @@ class Penjualan extends Public_Controller {
 
             $mappingDataReportHarian = $this->mappingDataReportHarian( $data );
             $mappingDataReportHarianProduk = $this->mappingDataReportHarianProduk( $data );
-            $mappingDataReportByIndukMenu = $this->mappingDataReportByIndukMenu( $data );
+            // $mappingDataReportByIndukMenu = $this->mappingDataReportByIndukMenu( $data );
             $mappingDataReportDetailPembayaran = $this->mappingDataReportDetailPembayaran( $data );
 
             $content_report_harian['data'] = $mappingDataReportHarian;
@@ -92,16 +92,12 @@ class Penjualan extends Public_Controller {
             $content_report_harian_produk['data'] = $mappingDataReportHarianProduk;
             $html_report_harian_produk = $this->load->view($this->pathView . 'list_report_harian_produk', $content_report_harian_produk, TRUE);
 
-            $content_report_by_induk_menu['data'] = $mappingDataReportByIndukMenu;
-            $html_report_by_induk_menu = $this->load->view($this->pathView . 'list_report_by_induk_menu', $content_report_by_induk_menu, TRUE);
-
             $content_report_detail_pembayaran['data'] = $mappingDataReportDetailPembayaran;
             $html_report_detail_pembayaran = $this->load->view($this->pathView . 'list_report_detail_pembayaran', $content_report_detail_pembayaran, TRUE);
 
             $list_html = array(
                 'list_report_harian' => $html_report_harian,
                 'list_report_harian_produk' => $html_report_harian_produk,
-                'list_report_by_induk_menu' => $html_report_by_induk_menu,
                 'list_report_detail_pembayaran' => $html_report_detail_pembayaran
             );
 
@@ -202,87 +198,6 @@ class Penjualan extends Public_Controller {
                         $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] = $grand_total;
                     }
                     $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['detail'] = $v_det['detail'];
-
-                    // foreach ($v_det['detail'] as $k_di => $v_di) {
-
-                    //     $key_kategori = $v_di['menu']['kategori']['id'];
-                    //     $key_menu = $v_di['menu_kode'];
-                    //     $data[ $key_kategori ]['id'] = $key_kategori;
-                    //     $data[ $key_kategori ]['nama'] = $v_di['menu']['kategori']['nama'];
-                    //     $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
-                    //     $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['kode'] = $key_menu;
-                    //     $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['member'] = $v_data['member'];
-                    //     $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['nama'] = $v_di['menu']['nama'];
-                    //     if ( isset($data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah']) ) {
-                    //         $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] += $v_di['jumlah'];
-                    //     } else {
-                    //         $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] = $v_di['jumlah'];
-                    //         $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] = 0;
-                    //     }
-                    // }
-                }
-            }
-        }
-
-        return $data;
-    }
-
-    public function mappingDataReportByIndukMenu($_data)
-    {
-        $data = null;
-        if ( !empty($_data) ) {
-            foreach ($_data as $k_data => $v_data) {
-                $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
-
-                $ppn_persen = ($v_data['ppn'] > 0) ? $v_data['total'] / $v_data['ppn'] : 0;
-
-                foreach ($v_data['detail'] as $k_det => $v_det) {
-                    $key_induk_menu = !empty($v_det['menu']['induk_menu_id']) ? $v_det['menu']['induk_menu']['id'] : '-';
-                    $key_menu = $v_det['menu_kode'];
-                    $data[ $key_induk_menu ]['id'] = $key_induk_menu;
-                    $data[ $key_induk_menu ]['nama'] = !empty($v_det['menu']['induk_menu_id']) ? $v_det['menu']['induk_menu']['nama'] : '-';
-
-                    if ( !empty($v_det['detail']) ) {
-                        foreach ($v_det['detail'] as $k_di => $v_di) {
-                            $key_menu .= ' | '.$v_di['menu_kode'];
-                        }
-                    }
-
-                    $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
-                    $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['kode'] = $key_menu;
-                    $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['nama'] = $v_det['menu']['nama'];
-                    $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['harga'] = $v_det['harga'];
-
-                    $ppn_nilai = ($ppn_persen > 0) ? $v_det['total'] * ($ppn_persen / 100) : 0;
-                    $grand_total = $ppn_nilai + $v_det['total'];
-                    if ( isset($data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah']) ) {
-                        $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] += $v_det['jumlah'];
-                        $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] += $v_det['total'];
-                        $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] += $ppn_nilai;
-                        $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] += $grand_total;
-                    } else {
-                        $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] = $v_det['jumlah'];
-                        $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] = $v_det['total'];
-                        $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] = $ppn_nilai;
-                        $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] = $grand_total;
-                    }
-                    $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['detail'] = $v_det['detail'];
-
-                    // foreach ($v_det['detail'] as $k_di => $v_di) {
-                    //     $key_induk_menu = !empty($v_di['menu']['induk_menu_id']) ? $v_di['menu']['induk_menu']['id'] : '-';
-                    //     $key_menu = $v_di['menu_kode'];
-                    //     $data[ $key_induk_menu ]['id'] = $key_induk_menu;
-                    //     $data[ $key_induk_menu ]['nama'] = !empty($v_di['menu']['induk_menu_id']) ? $v_di['menu']['induk_menu']['nama'] : '-';
-                    //     $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
-                    //     $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['kode'] = $key_menu;
-                    //     $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['nama'] = $v_di['menu']['nama'];
-                    //     if ( isset($data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah']) ) {
-                    //         $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] += $v_di['jumlah'];
-                    //     } else {
-                    //         $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] = $v_di['jumlah'];
-                    //         $data[ $key_induk_menu ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] = 0;
-                    //     }
-                    // }
                 }
             }
         }
@@ -301,26 +216,28 @@ class Penjualan extends Public_Controller {
                 }
 
                 if ( $v_data['lunas'] == 1 ) {
-                    foreach ($v_data['bayar'] as $k_bayar => $v_bayar) {
+                    foreach ($v_data['bayar'] as $k_byr => $v_byr) {
                         if ( $v_data['mstatus'] == 1 && $v_data['lunas'] == 1 ) {
-                            if ( $v_bayar['jml_tagihan'] <= $v_bayar['jml_bayar'] ) {
-                                if ( $v_bayar['jenis_bayar'] == 'tunai' ) {
-                                    if ( $v_bayar['jml_tagihan'] > 0 ) {
-                                        if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]) ) {
-                                            $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['nama'] = $v_bayar['jenis_bayar'];
-                                            $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['total'] = $v_bayar['jml_tagihan'];
-                                        } else {
-                                            $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['total'] += $v_bayar['jml_tagihan'];
+                            if ( $v_byr['jml_tagihan'] <= $v_byr['jml_bayar'] ) {
+                                foreach ($v_byr['bayar_det'] as $k_bayar => $v_bayar) {
+                                    if ( stristr($v_bayar['jenis_bayar'], 'tunai') !== false || stristr($v_bayar['jenis_bayar'], 'saldo member') !== false ) {
+                                        if ( $v_byr['jml_tagihan'] > 0 ) {
+                                            if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]) ) {
+                                                $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['nama'] = $v_bayar['jenis_bayar'];
+                                                $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['total'] = $v_byr['jml_tagihan'];
+                                            } else {
+                                                $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['total'] += $v_byr['jml_tagihan'];
+                                            }
                                         }
-                                    }
-                                } else {
-                                    $key_jb = strtolower($v_bayar['jenis_kartu']['nama']);
-
-                                    if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]) ) {
-                                        $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['nama'] = $key_jb;
-                                        $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] = $v_bayar['jml_tagihan'];
                                     } else {
-                                        $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] += $v_bayar['jml_tagihan'];
+                                        $key_jb = strtolower($v_bayar['jenis_kartu']['nama']);
+
+                                        if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]) ) {
+                                            $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['nama'] = $key_jb;
+                                            $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] = $v_byr['jml_tagihan'];
+                                        } else {
+                                            $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] += $v_byr['jml_tagihan'];
+                                        }
                                     }
                                 }
                             }

@@ -23,17 +23,18 @@ class Menu extends Public_Controller {
     {
         if ( $this->hakAkses['a_view'] == 1 ) {
             $this->add_external_js(array(
-                "assets/jquery/list.min.js",
+                "assets/select2/js/select2.min.js",
                 "assets/parameter/menu/js/menu.js",
             ));
             $this->add_external_css(array(
+                "assets/select2/css/select2.min.css",
                 "assets/parameter/menu/css/menu.css",
             ));
 
             $data = $this->includes;
 
             $m_jp = new \Model\Storage\Menu_model();
-            $d_jp = $m_jp->orderBy('nama', 'asc')->with(['kategori', 'induk_menu'])->get()->toArray();
+            $d_jp = $m_jp->orderBy('nama', 'asc')->with(['kategori', 'induk_menu', 'branch'])->get()->toArray();
 
             $content['akses'] = $this->hakAkses;
             $content['data'] = $d_jp;
@@ -48,14 +49,14 @@ class Menu extends Public_Controller {
         }
     }
 
-    public function getDataIndukMenu()
+    public function getBranch()
     {
-        $m_im = new \Model\Storage\IndukMenu_model();
-        $d_im = $m_im->where('status', 1)->get();
+        $m_branch = new \Model\Storage\Branch_model();
+        $d_branch = $m_branch->get();
 
         $data = null;
-        if ( $d_im->count() ) {
-            $data = $d_im->toArray();
+        if ( $d_branch->count() ) {
+            $data = $d_branch->toArray();
         }
 
         return $data;
@@ -72,7 +73,7 @@ class Menu extends Public_Controller {
         }
 
         $content['kategori'] = $kategori;
-        $content['induk_menu'] = $this->getDataIndukMenu();
+        $content['branch'] = $this->getBranch();
 
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
 
@@ -84,20 +85,23 @@ class Menu extends Public_Controller {
         $params = $this->input->post('params');
 
         try {
-            $m_menu = new \Model\Storage\Menu_model();
+            foreach ($params['branch'] as $k_branch => $v_branch) {
+                $m_menu = new \Model\Storage\Menu_model();
 
-            $kode = $m_menu->getNextId();
+                $kode = $m_menu->getNextId();
 
-            $m_menu->kode_menu = $kode;
-            $m_menu->nama = $params['nama'];
-            $m_menu->deskripsi = isset($params['deskripsi']) ? $params['deskripsi'] : null;
-            $m_menu->kategori_menu_id = isset($params['kategori']) ? $params['kategori'] : null;
-            $m_menu->status = 1;
-            $m_menu->induk_menu_id = $params['induk_menu_id'];
-            $m_menu->save();
+                $m_menu->kode_menu = $kode;
+                $m_menu->nama = $params['nama'];
+                $m_menu->deskripsi = isset($params['deskripsi']) ? $params['deskripsi'] : null;
+                $m_menu->kategori_menu_id = isset($params['kategori']) ? $params['kategori'] : null;
+                $m_menu->branch_kode = $v_branch;
+                $m_menu->additional = $params['additional'];
+                $m_menu->status = 1;
+                $m_menu->save();
 
-            $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $m_menu, $deskripsi_log );
+                $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                Modules::run( 'base/event/save', $m_menu, $deskripsi_log );
+            }
 
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di simpan.';
@@ -124,7 +128,7 @@ class Menu extends Public_Controller {
         }
 
         $content['kategori'] = $kategori;
-        $content['induk_menu'] = $this->getDataIndukMenu();
+        $content['branch'] = $this->getBranch();
         $content['data'] = $d_menu;
 
         $html = $this->load->view($this->pathView . 'editForm', $content, TRUE);
@@ -143,8 +147,8 @@ class Menu extends Public_Controller {
                     'nama' => $params['nama'],
                     'deskripsi' => isset($params['deskripsi']) ? $params['deskripsi'] : null,
                     'kategori_menu_id' => isset($params['kategori']) ? $params['kategori'] : null,
-                    'status' => 1,
-                    'induk_menu_id' => $params['induk_menu_id']
+                    'additional' => $params['additional'],
+                    'status' => 1
                 )
             );
 
