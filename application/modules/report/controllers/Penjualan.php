@@ -253,12 +253,12 @@ class Penjualan extends Public_Controller {
                     }
                 }
 
-                if ( isset($data[ $key_tanggal ]) && !empty($data[ $key_tanggal ]) ) {
+                if ( isset($data[ $key_tanggal ]['jenis_pembayaran']) && !empty($data[ $key_tanggal ]['jenis_pembayaran']) ) {
                     ksort( $data[ $key_tanggal ]['jenis_pembayaran'] );
                 }
             }
 
-            if ( !empty($data[ $key_tanggal ]) ) {
+            if ( !empty($data) ) {
                 ksort( $data );
             }
         }
