@@ -23,7 +23,6 @@ class Item extends Public_Controller {
     {
         if ( $this->hakAkses['a_view'] == 1 ) {
             $this->add_external_js(array(
-                "assets/jquery/list.min.js",
                 "assets/parameter/item/js/item.js",
             ));
             $this->add_external_css(array(
@@ -33,7 +32,7 @@ class Item extends Public_Controller {
             $data = $this->includes;
 
             $m_item = new \Model\Storage\Item_model();
-            $d_item = $m_item->with(['group'])->orderBy('nama', 'asc')->get()->toArray();
+            $d_item = $m_item->with(['group', 'satuan'])->orderBy('nama', 'asc')->get()->toArray();
 
             $content['akses'] = $this->hakAkses;
             $content['data'] = $d_item;
@@ -64,7 +63,6 @@ class Item extends Public_Controller {
     public function modalAddForm()
     {
         $content['group'] = $this->getGroupItem();
-
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
 
         echo $html;
@@ -76,22 +74,34 @@ class Item extends Public_Controller {
 
         try {
             $m_item = new \Model\Storage\Item_model();
+            $d_item_kode = $m_item->where('kode', $params['kode'])->first();
 
-            $kode = $m_item->getNextId();
+            if ( !$d_item_kode ) {
+                // $kode = $m_item->getNextId();
 
-            $m_item->kode = $kode;
-            $m_item->nama = $params['nama'];
-            $m_item->brand = $params['brand'];
-            $m_item->satuan = $params['satuan'];
-            $m_item->group_kode = $params['group'];
-            $m_item->keterangan = $params['keterangan'];
-            $m_item->save();
+                $m_item->kode = $params['kode'];
+                $m_item->nama = $params['nama'];
+                $m_item->brand = $params['brand'];
+                $m_item->group_kode = $params['group'];
+                $m_item->keterangan = $params['keterangan'];
+                $m_item->save();
 
-            $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $m_item, $deskripsi_log );
+                foreach ($params['satuan'] as $k_satuan => $v_satuan) {
+                    $m_is = new \Model\Storage\ItemSatuan_model();
+                    $m_is->item_kode = $params['kode'];
+                    $m_is->satuan = $v_satuan['satuan'];
+                    $m_is->pengali = $v_satuan['pengali'];
+                    $m_is->save();
+                }
 
-            $this->result['status'] = 1;
-            $this->result['message'] = 'Data berhasil di simpan.';
+                $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                Modules::run( 'base/event/save', $m_item, $deskripsi_log );
+
+                $this->result['status'] = 1;
+                $this->result['message'] = 'Data berhasil di simpan.';
+            } else {
+                $this->result['message'] = 'Kode yang anda input sudah ada di data item.';
+            }
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
         }
@@ -104,7 +114,7 @@ class Item extends Public_Controller {
         $kode = $this->input->get('kode');
 
         $m_item = new \Model\Storage\Item_model();
-        $d_item = $m_item->where('kode', $kode)->first()->toArray();
+        $d_item = $m_item->where('kode', $kode)->with(['satuan'])->first()->toArray();
 
         $content['data'] = $d_item;
         $content['group'] = $this->getGroupItem();
@@ -124,11 +134,21 @@ class Item extends Public_Controller {
                 array(
                     'nama' => $params['nama'],
                     'brand' => $params['brand'],
-                    'satuan' => $params['satuan'],
                     'group_kode' => $params['group'],
                     'keterangan' => $params['keterangan']
                 )
             );
+
+            $m_is = new \Model\Storage\ItemSatuan_model();
+            $m_is->where('item_kode', $params['kode'])->delete();
+
+            foreach ($params['satuan'] as $k_satuan => $v_satuan) {
+                $m_is = new \Model\Storage\ItemSatuan_model();
+                $m_is->item_kode = $params['kode'];
+                $m_is->satuan = $v_satuan['satuan'];
+                $m_is->pengali = $v_satuan['pengali'];
+                $m_is->save();
+            }
 
             $d_item = $m_item->where('kode', $params['kode'])->first();
 

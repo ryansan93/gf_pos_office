@@ -12,4 +12,9 @@ class Item_model extends Conf {
 	{
 		return $this->hasOne('\Model\Storage\GroupItem_model', 'kode', 'group_kode');
 	}
+
+	public function satuan()
+	{
+		return $this->hasMany('\Model\Storage\ItemSatuan_model', 'item_kode', 'kode');
+	}
 }

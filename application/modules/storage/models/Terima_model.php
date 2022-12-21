@@ -8,9 +8,9 @@ class Terima_model extends Conf{
 	protected $kodeTable = 'TR';
 	public $timestamps = false;
 
-	public function beli()
+	public function gudang()
 	{
-		return $this->hasOne('\Model\Storage\Beli_model', 'kode_beli', 'beli_kode')->with(['supplier', 'branch', 'detail']);
+		return $this->hasOne('\Model\Storage\Gudang_model', 'kode_gudang', 'gudang_kode');
 	}
 
 	public function detail()

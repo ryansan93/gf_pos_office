@@ -1,19 +1,21 @@
 <?php if ( !empty($data) && count($data) > 0 ): ?>
-	<?php $grand_total = 0; $grand_jumlah = 0; $grand_total_ppn = 0; $grand_total_after_ppn = 0; ?>
+	<?php $grand_total = 0; $grand_jumlah = 0; $grand_total_ppn = 0;  $grand_total_service_charge = 0; $grand_total_after_ppn = 0; ?>
 	<?php foreach ($data as $k_tanggal => $v_tanggal): ?>
 		<tr class="tanggal">
-			<th colspan="7" style="background-color: #dedede;"><?php echo strtoupper(tglIndonesia($v_tanggal['tanggal'], '-', ' ')); ?></th>
+			<th colspan="9" style="background-color: #dedede;"><?php echo strtoupper(tglIndonesia($v_tanggal['tanggal'], '-', ' ')); ?></th>
 		</tr>
 		<?php $total = 0; ?>
 		<?php $total_ppn = 0; ?>
+		<?php $total_service_charge = 0; ?>
 		<?php $total_after_ppn = 0; ?>
 		<?php $jumlah = 0; ?>
 		<?php foreach ($v_tanggal['kasir'] as $k_kasir => $v_kasir): ?>
 			<tr class="kasir">
-				<th colspan="7" style="background-color: #99ccff;"><?php echo strtoupper($v_kasir['nama_kasir']); ?></th>
+				<th colspan="9" style="background-color: #99ccff;"><?php echo strtoupper($v_kasir['nama_kasir']); ?></th>
 			</tr>
 			<?php $total_kasir_non_ppn = 0; ?>
 			<?php $total_kasir_ppn = 0; ?>
+			<?php $total_kasir_service_charge = 0; ?>
 			<?php $total_kasir_after_ppn = 0; ?>
 			<?php $jumlah_kasir = 0; ?>
 			<?php foreach ($v_kasir['faktur'] as $k_faktur => $v_faktur): ?>
@@ -26,9 +28,11 @@
 						<?php endif ?>
 						<td><?php echo strtoupper($v_menu['nama']); ?></td>
 						<td class="text-right"><?php echo angkaRibuan($v_menu['jumlah']); ?></td>
+						<td class="text-right"><?php echo angkaRibuan($v_menu['harga']); ?></td>
 						<?php if ( $idx_faktur == 0 ): ?>
 							<td class="text-right" rowspan="<?php echo count($v_faktur['menu']); ?>"><?php echo angkaDecimal($v_faktur['total']); ?></td>
 							<td class="text-right" rowspan="<?php echo count($v_faktur['menu']); ?>"><?php echo angkaDecimal($v_faktur['ppn']); ?></td>
+							<td class="text-right" rowspan="<?php echo count($v_faktur['menu']); ?>"><?php echo angkaDecimal($v_faktur['service_charge']); ?></td>
 							<td class="text-right" rowspan="<?php echo count($v_faktur['menu']); ?>"><?php echo angkaDecimal($v_faktur['grand_total']); ?></td>
 						<?php endif ?>
 
@@ -39,14 +43,17 @@
 				<?php endforeach ?>
 				<?php $total += $v_faktur['total']; ?>
 				<?php $total_ppn += $v_faktur['ppn']; ?>
+				<?php $total_service_charge += $v_faktur['service_charge']; ?>
 				<?php $total_after_ppn += $v_faktur['grand_total']; ?>
 
 				<?php $total_kasir_non_ppn += $v_faktur['total']; ?>
 				<?php $total_kasir_ppn += $v_faktur['ppn']; ?>
+				<?php $total_kasir_service_charge += $v_faktur['service_charge']; ?>
 				<?php $total_kasir_after_ppn += $v_faktur['grand_total']; ?>
 
 				<?php $grand_total += $v_faktur['total']; ?>
 				<?php $grand_total_ppn += $v_faktur['ppn']; ?>
+				<?php $grand_total_service_charge += $v_faktur['service_charge']; ?>
 				<?php $grand_total_after_ppn += $v_faktur['grand_total']; ?>
 			<?php endforeach ?>
 			<tr class="total">
@@ -54,6 +61,7 @@
 				<td class="text-right"><b><?php echo angkaRibuan($jumlah_kasir); ?></b></td>
 				<td class="text-right"><b><?php echo angkaDecimal($total_kasir_non_ppn); ?></b></td>
 				<td class="text-right"><b><?php echo angkaDecimal($total_kasir_ppn); ?></b></td>
+				<td class="text-right"><b><?php echo angkaDecimal($total_kasir_service_charge); ?></b></td>
 				<td class="text-right"><b><?php echo angkaDecimal($total_kasir_after_ppn); ?></b></td>
 			</tr>
 		<?php endforeach ?>
@@ -62,6 +70,7 @@
 			<td class="text-right"><b><?php echo angkaRibuan($jumlah); ?></b></td>
 			<td class="text-right"><b><?php echo angkaDecimal($total); ?></b></td>
 			<td class="text-right"><b><?php echo angkaDecimal($total_ppn); ?></b></td>
+			<td class="text-right"><b><?php echo angkaDecimal($total_service_charge); ?></b></td>
 			<td class="text-right"><b><?php echo angkaDecimal($total_after_ppn); ?></b></td>
 		</tr>
 	<?php endforeach ?>
@@ -70,10 +79,11 @@
 		<td class="text-right"><b><?php echo angkaRibuan($grand_jumlah); ?></b></td>
 		<td class="text-right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
 		<td class="text-right"><b><?php echo angkaDecimal($grand_total_ppn); ?></b></td>
+		<td class="text-right"><b><?php echo angkaDecimal($grand_total_service_charge); ?></b></td>
 		<td class="text-right"><b><?php echo angkaDecimal($grand_total_after_ppn); ?></b></td>
 	</tr>
 <?php else: ?>
 	<tr>
-		<td colspan="7">Data tidak ditemukan.</td>
+		<td colspan="9">Data tidak ditemukan.</td>
 	</tr>
 <?php endif ?>

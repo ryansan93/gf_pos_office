@@ -18,13 +18,13 @@
 			<table class="table table-bordered table-hover tbl_item" id="dataTable" width="100%" cellspacing="0">
 				<thead>
 					<tr>
-						<th class="col-sm-1 text-center">Kode</th>
-						<th class="col-sm-2 text-center">Nama</th>
-						<th class="col-sm-1 text-center">Brand</th>
-						<th class="col-sm-1 text-center">Satuan</th>
-						<th class="col-sm-1 text-center">Group</th>
-						<th class="col-sm-4 text-center">Keterangan</th>
-						<th class="col-sm-2 text-center">Action</th>
+						<th class="col-xs-1 text-center">Kode</th>
+						<th class="col-xs-2 text-center">Nama</th>
+						<th class="col-xs-1 text-center">Brand</th>
+						<th class="col-xs-1 text-center">Satuan</th>
+						<th class="col-xs-1 text-center">Group</th>
+						<th class="col-xs-4 text-center">Keterangan</th>
+						<th class="col-xs-2 text-center">Action</th>
 					</tr>
 				</thead>
 				<tbody class="list">
@@ -34,18 +34,32 @@
 								<td><?php echo $v_data['kode']; ?></td>
 								<td><?php echo $v_data['nama']; ?></td>
 								<td><?php echo $v_data['brand']; ?></td>
-								<td><?php echo $v_data['satuan']; ?></td>
+								<td>
+									<?php 
+										$idx = 0;
+										foreach ($v_data['satuan'] as $k_satuan => $v_satuan) {
+											$ket = $v_satuan['satuan'].' ( '.angkaRibuan($v_satuan['pengali']).' )';
+
+											$idx++;
+											if ( count($v_data['satuan']) > $idx ) {
+												$ket .= '<br>';
+											}
+
+											echo $ket;
+										} 
+									?>
+								</td>
 								<td><?php echo $v_data['group']['nama']; ?></td>
 								<td><?php echo $v_data['keterangan']; ?></td>
 								<td>
-									<div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
-										<?php if ( $akses['a_edit'] == 1 ) { ?>
-											<button class="btn btn-primary" onclick="item.modalEditForm(this);"><i class="fa fa-edit"></i></button>
+									<div class="col-xs-6 no-padding" style="padding-right: 5px;">
+										<?php if ( $akses['a_delete'] == 1 ) { ?>
+											<button class="col-xs-12 btn btn-danger" onclick="item.delete(this);"><i class="fa fa-trash"></i></button>
 										<?php } ?>
 									</div>
-									<div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
-										<?php if ( $akses['a_delete'] == 1 ) { ?>
-											<button class="btn btn-danger" onclick="item.delete(this);"><i class="fa fa-trash"></i></button>
+									<div class="col-xs-6 no-padding" style="padding-left: 5px;">
+										<?php if ( $akses['a_edit'] == 1 ) { ?>
+											<button class="col-xs-12 btn btn-primary" onclick="item.modalEditForm(this);"><i class="fa fa-edit"></i></button>
 										<?php } ?>
 									</div>
 								</td>

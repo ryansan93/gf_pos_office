@@ -4,14 +4,12 @@ var terima = {
 	}, // end - start_up
 
 	setting_up: function() {
-        $("#StartDate, #StartDateBeli").datetimepicker({
+        var today = moment(new Date()).format('YYYY-MM-DD');
+        $("#StartDate, #EndDate").datetimepicker({
             locale: 'id',
             format: 'DD MMM Y'
         });
-        $("#EndDate, #EndDateBeli").datetimepicker({
-            locale: 'id',
-            format: 'DD MMM Y'
-        });
+
         $("#StartDate").on("dp.change", function (e) {
             var minDate = dateSQL($("#StartDate").data("DateTimePicker").date())+' 00:00:00';
             $("#EndDate").data("DateTimePicker").minDate(moment(new Date(minDate)));
@@ -22,18 +20,7 @@ var terima = {
                 $("#StartDate").data("DateTimePicker").maxDate(moment(new Date(maxDate)));
             }
         });
-        $("#StartDateBeli").on("dp.change", function (e) {
-            var minDate = dateSQL($("#StartDateBeli").data("DateTimePicker").date())+' 00:00:00';
-            $("#EndDateBeli").data("DateTimePicker").minDate(moment(new Date(minDate)));
-        });
-        $("#EndDateBeli").on("dp.change", function (e) {
-            var maxDate = dateSQL($("#EndDateBeli").data("DateTimePicker").date())+' 23:59:59';
-            if ( maxDate >= (today+' 00:00:00') ) {
-                $("#StartDateBeli").data("DateTimePicker").maxDate(moment(new Date(maxDate)));
-            }
-        });
 
-        var today = moment(new Date()).format('YYYY-MM-DD');
         $("#TglTerima").datetimepicker({
             locale: 'id',
             format: 'DD MMM Y',
@@ -48,78 +35,81 @@ var terima = {
             $(this).priceFormat(Config[$(this).data('tipe')]);
         });
 
-        $('.no_faktur').selectpicker();
+        $('.gudang').select2();
+        $('.item').select2().on('select2:select', function (e) {
+            var _tr = $(this).closest('tr');
+            var select_satuan = $(_tr).find('select.satuan');
+
+            var data = e.params.data.element.dataset;
+            var satuan = JSON.parse( data.satuan );
+
+            var opt = '<option value="">Pilih Satuan</option>';
+            for (var i = 0; i < satuan.length; i++) {
+                opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'">'+satuan[i].satuan+'</option>';
+            }
+
+            $(select_satuan).html( opt );
+            $(select_satuan).removeAttr('disabled');
+            $(_tr).find('.jumlah').removeAttr('disabled');
+            $(_tr).find('.harga').removeAttr('disabled');
+        });
     }, // end - setting_up
 
-	listFakturPembelian: function() {
-		var start_date = $('#StartDateBeli').find('input').val();
-		var end_date = $('#EndDateBeli').find('input').val();
+    addRow: function (elm) {
+        var tr = $(elm).closest('tr');
+        var tbody = $(tr).closest('tbody');
 
-		if ( empty(start_date) || empty(end_date) ) {
-			bootbox.alert('Harap isi periode pembelian terlebih dahulu.');
-		} else {
-			var params = {
-				'start_date': dateSQL( $('#StartDateBeli').data('DateTimePicker').date() ),
-				'end_date': dateSQL( $('#EndDateBeli').data('DateTimePicker').date() )
-			};
+        $(tr).find('select.item').select2('destroy')
+                                   .removeAttr('data-live-search')
+                                   .removeAttr('data-select2-id')
+                                   .removeAttr('aria-hidden')
+                                   .removeAttr('tabindex');
+        $(tr).find('select.item option').removeAttr('data-select2-id');
 
-			$.ajax({
-                url: 'transaksi/Penerimaan/listFakturPembelian',
-                dataType: 'json',
-                type: 'post',
-                data: {
-                	'params': params
-                },
-                beforeSend: function() {
-                    showLoading();
-                },
-                success: function(data) {
-                    hideLoading();
-                    if ( data.status == 1 ) {
-                        var opt = '<option>-- Pilih No. Faktur --</option>';
-                        for (var i = 0; i < data.content.list.length; i++) {
-                        	opt += '<option value="'+data.content.list[i].kode_beli+'">'+data.content.list[i].supplier+' | '+data.content.list[i].no_faktur+'</option>';
-                        }
+        var tr_clone = $(tr).clone();
 
-                        $('select.no_faktur').html( opt );
-                        $('.no_faktur').selectpicker('refresh');
-                    } else {
-                        bootbox.alert(data.message);
-                    };
-                },
+        $(tr_clone).find('input, select').val('');
+        $(tr_clone).find('select.satuan').html('<option value="">Pilih Satuan</option>');
+        $(tr_clone).find('select.satuan').attr('disabled', 'disabled');
+        $(tr_clone).find('.jumlah').attr('disabled', 'disabled');
+        $(tr_clone).find('.harga').attr('disabled', 'disabled');
+
+        $(tr_clone).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
+            $(this).priceFormat(Config[$(this).data('tipe')]);
+        });
+
+        $(tbody).append( $(tr_clone) );
+
+        $.each($(tbody).find('select.item'), function(a) {
+            $(this).select2();
+            $(this).on('select2:select', function (e) {
+                var _tr = $(this).closest('tr');
+                var select_satuan = $(_tr).find('select.satuan');
+
+                var data = e.params.data.element.dataset;
+                var satuan = JSON.parse( data.satuan );
+
+                var opt = '<option value="">Pilih Satuan</option>';
+                for (var i = 0; i < satuan.length; i++) {
+                    opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'">'+satuan[i].satuan+'</option>';
+                }
+
+                $(select_satuan).html( opt );
+                $(select_satuan).removeAttr('disabled');
+                $(_tr).find('.jumlah').removeAttr('disabled');
+                $(_tr).find('.harga').removeAttr('disabled');
             });
-		}
-	}, // end - listFakturPembelian
+        });
+    }, // end - addRow
 
-	dataBeli: function(elm) {
-		var val = $(elm).val();
+    removeRow: function (elm) {
+        var tr = $(elm).closest('tr');
+        var tbody = $(tr).closest('tbody');
 
-		if ( empty(val) ) {
-			$('.dataBeli').html('');
-		} else {
-			$.ajax({
-                url: 'transaksi/Penerimaan/dataBeli',
-                dataType: 'json',
-                type: 'post',
-                data: {
-                	'kode_beli': val
-                },
-                beforeSend: function() {
-                    showLoading();
-                },
-                success: function(data) {
-                    hideLoading();
-                    if ( data.status == 1 ) {
-                    	$('.dataBeli').html(data.content.html);
-
-                    	terima.setting_up();
-                    } else {
-                        bootbox.alert(data.message);
-                    };
-                },
-            });
-		}
-	}, // end - dataBeli
+        if ( $(tbody).find('tr').length > 0 ) {
+            $(tr).remove();
+        }
+    }, // end - addRow
 
 	changeTabActive: function(elm) {
         var vhref = $(elm).data('href');
@@ -219,11 +209,13 @@ var terima = {
 		} else {
 			bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
 				if ( result ) {
-					var detail = $.map( $(dcontent).find('.tbl_detail tr.data'), function(tr) {
+					var detail = $.map( $(dcontent).find('.tbl_detail tbody tr'), function(tr) {
 						var _detail = {
-							'item_kode': $(tr).data('item'),
-							'jumlah_terima': numeral.unformat($(tr).find('input.jumlah_terima').val()),
-							'harga': $(tr).data('harga')
+                            'item_kode': $(tr).find('.item').select2('val'),
+                            'satuan': $(tr).find('.satuan').val(),
+							'pengali': $(tr).find('.satuan option:selected').attr('data-pengali'),
+							'jumlah_terima': numeral.unformat($(tr).find('input.jumlah').val()),
+							'harga': numeral.unformat($(tr).find('input.harga').val())
 						};
 
 						return _detail;
@@ -231,7 +223,10 @@ var terima = {
 
 					var data = {
 						'tgl_terima': dateSQL( $(dcontent).find('#TglTerima').data('DateTimePicker').date() ),
-						'beli_kode': $(dcontent).find('select.no_faktur').val(),
+                        'no_faktur': $(dcontent).find('.no_faktur').val(),
+                        'nama_pic': $(dcontent).find('.nama_pic').val(),
+                        'gudang': $(dcontent).find('.gudang').select2('val'),
+						'supplier': $(dcontent).find('.supplier').val(),
 						'detail': detail
 					};
 

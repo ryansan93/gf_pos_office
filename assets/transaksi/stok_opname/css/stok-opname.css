@@ -44,11 +44,8 @@ span.select2-selection__arrow {
 }
 
 span.select2-selection {
-    padding-top: 2px!important;
-}
-
-.select2-container .select2-selection--single {
 	height: 34px!important;
+    padding-top: 2px!important;
 }
 
 .has-error .select2-selection {

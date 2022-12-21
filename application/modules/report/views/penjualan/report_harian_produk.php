@@ -7,16 +7,18 @@
 			<thead>
 				<tr>
 					<th class="col-xs-2">Tanggal</th>
-					<th class="col-xs-4">Produk</th>
-					<th class="col-xs-1">Jumlah</th>
-					<th class="col-xs-2">Nilai</th>
-					<th class="col-xs-1">PPN (10%)</th>
-					<th class="col-xs-2">Total</th>
+					<th class="col-xs-2">Menu</th>
+					<th class="col-xs-1">Qty</th>
+					<th class="col-xs-1">Price</th>
+					<th class="col-xs-2">Sub Total</th>
+					<th class="col-xs-1">PB1</th>
+					<th class="col-xs-1">Service Charge</th>
+					<th class="col-xs-2">Grand Total</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="6">Data tidak ditemukan.</td>
+					<td colspan="7">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>

@@ -21,4 +21,9 @@ class Jual_model extends Conf{
 	{
 		return $this->hasOne('\Model\Storage\Branch_model', 'kode_branch', 'branch');
 	}
+
+	public function pesanan()
+	{
+		return $this->hasOne('\Model\Storage\Pesanan_model', 'kode_pesanan', 'pesanan_kode');
+	}
 }

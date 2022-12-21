@@ -2,8 +2,9 @@
 namespace Model\Storage;
 use \Model\Storage\Conf as Conf;
 
-class TerimaItem_model extends Conf{
-	protected $table = 'terima_item';
+class StokOpnameDet_model extends Conf{
+	protected $table = 'stok_opname_det';
+	protected $primaryKey = 'id';
 	public $timestamps = false;
 
 	public function item()

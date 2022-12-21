@@ -1,5 +1,5 @@
-<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
-	<button type="button" class="col-xs-12 btn btn-success pull-right" onclick="terima.changeTabActive(this)" data-href="action" data-edit=""><i class="fa fa-plus"></i> ADD</button>
+<div class="col-xs-12 no-padding">
+	<button type="button" class="col-xs-12 btn btn-success pull-right" onclick="bom.changeTabActive(this)" data-href="action" data-edit=""><i class="fa fa-plus"></i> ADD</button>
 </div>
 
 <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
@@ -32,8 +32,22 @@
 	</div>
 </div>
 
-<div class="col-xs-12 no-padding">
-	<button type="button" class="col-xs-12 btn btn-primary pull-right tampilkan_riwayat" onclick="terima.getLists(this)"><i class="fa fa-search"></i> Tampilkan</button>
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+	<div class="col-xs-12 no-padding">
+		<label class="control-label">Menu</label>
+	</div>
+	<div class="col-xs-12 no-padding">
+		<select class="form-control menu_riwayat" multiple="multiple" data-required="1">
+			<option value="all">ALL</option>
+			<?php foreach ($menu as $k_menu => $v_menu): ?>
+				<option value="<?php echo $v_menu['kode_menu']; ?>"><?php echo strtoupper($v_menu['branch_kode'].' | '.$v_menu['nama']); ?></option>
+			<?php endforeach ?>
+		</select>
+	</div>
+</div>
+
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+	<button type="button" class="col-xs-12 btn btn-primary pull-right tampilkan_riwayat" onclick="bom.getLists(this)"><i class="fa fa-search"></i> Tampilkan</button>
 </div>
 
 <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
@@ -42,22 +56,20 @@
 	<i class="fa fa-search"></i><input class="form-control" type="search" data-table="tbl_riwayat" placeholder="Search" onkeyup="filter_all(this)">
 </div>
 
-<div class="col-xs-12 no-padding">
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
 	<span>* Klik pada baris untuk melihat detail</span>
 	<small>
 		<table class="table table-bordered tbl_riwayat">
 			<thead>
 				<tr>
-					<th class="col-xs-1">No. Faktur</th>
-					<th class="col-xs-1">Tanggal Terima</th>
-					<th class="col-xs-1">Kode Terima</th>
-					<th class="col-xs-2">Gudang</th>
-					<th class="col-xs-2">Supplier</th>
+					<th class="col-xs-3">Tanggal</th>
+					<th class="col-xs-3">Branch</th>
+					<th class="col-xs-6">Menu</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="5">Data tidak ditemukan.</td>
+					<td colspan="3">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>

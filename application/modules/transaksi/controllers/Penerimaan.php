@@ -23,17 +23,15 @@ class Penerimaan extends Public_Controller {
     {
         if ( $this->hakAkses['a_view'] == 1 ) {
             $this->add_external_js(array(
-                "assets/jquery/list.min.js",
+                "assets/select2/js/select2.min.js",
                 "assets/transaksi/penerimaan/js/penerimaan.js",
             ));
             $this->add_external_css(array(
+                "assets/select2/css/select2.min.css",
                 "assets/transaksi/penerimaan/css/penerimaan.css",
             ));
 
             $data = $this->includes;
-
-            // $m_item = new \Model\Storage\Item_model();
-            // $d_item = $m_item->orderBy('nama', 'asc')->get()->toArray();
 
             $content['akses'] = $this->hakAkses;
             $content['riwayat'] = $this->load->view($this->pathView . 'riwayat', null, TRUE);
@@ -47,6 +45,32 @@ class Penerimaan extends Public_Controller {
         } else {
             showErrorAkses();
         }
+    }
+
+    public function getItem()
+    {
+        $m_item = new \Model\Storage\Item_model();
+        $d_item = $m_item->with(['satuan'])->orderBy('nama', 'asc')->get();
+
+        $data_item = null;
+        if ( $d_item->count() > 0 ) {
+            $data_item = $d_item->toArray();
+        }
+
+        return $data_item;
+    }
+
+    public function getGudang()
+    {
+        $m_gudang = new \Model\Storage\Gudang_model();
+        $d_gudang = $m_gudang->orderBy('nama', 'asc')->get();
+
+        $data = null;
+        if ( $d_gudang->count() > 0 ) {
+            $data = $d_gudang->toArray();
+        }
+
+        return $data;
     }
 
     public function loadForm()
@@ -66,79 +90,6 @@ class Penerimaan extends Public_Controller {
         echo $html;
     }
 
-    public function listFakturPembelian()
-    {
-        $params = $this->input->post('params');
-        try {
-            $tgl_stok_opname = $this->config->item('tgl_stok_opname');
-
-            $start_date = ($params['start_date'] >= $tgl_stok_opname) ? $params['start_date'] : $tgl_stok_opname;
-            $end_date = $params['end_date'];
-
-            $m_beli = new \Model\Storage\Beli_model();
-            $d_beli = $m_beli->whereBetween('tgl_beli', [$start_date, $end_date])->with(['supplier', 'branch'])->get();
-
-            $data = null;
-            if ( $d_beli->count() > 0 ) {
-                $_data = null;
-                $d_beli = $d_beli->toArray();
-                foreach ($d_beli as $k_beli => $v_beli) {
-                    $m_terima = new \Model\Storage\Terima_model();
-                    $d_terima = $m_terima->where('beli_kode', $v_beli['kode_beli'])->first();
-
-                    if ( !$d_terima ) {
-                        $key = $v_beli['supplier']['nama'].'|'.$v_beli['kode_beli'];
-
-                        $_data[ $key ] = array(
-                            'kode_beli' => $v_beli['kode_beli'],
-                            'no_faktur' => $v_beli['no_faktur'],
-                            'supplier' => $v_beli['supplier']['nama'],
-                            'branch' => $v_beli['branch']['nama']
-                        );
-                    }
-                }
-
-                if ( !empty($_data) ) {
-                    ksort($_data);
-                    foreach ($_data as $key => $value) {
-                        $data[] = $value;
-                    }
-                }
-            }
-
-            $this->result['status'] = 1;
-            $this->result['content'] = array('list' => $data);
-        } catch (Exception $e) {
-            $this->result['message'] = $e->getMessage();
-        }
-
-        display_json( $this->result );
-    }
-
-    public function dataBeli()
-    {
-        $kode_beli = $this->input->post('kode_beli');
-        try {
-            $m_beli = new \Model\Storage\Beli_model();
-            $d_beli = $m_beli->where('kode_beli', $kode_beli)->with(['supplier', 'branch', 'detail'])->first();
-
-            $data = null;
-            if ( $d_beli ) {
-                $data = $d_beli->toArray();
-            }
-
-            $content['data'] = $data;
-            $html = $this->load->view($this->pathView . 'dataBeliForm', $content, TRUE);
-            
-            $this->result['status'] = 1;
-            $this->result['content'] = array('html' => $html);
-        } catch (Exception $e) {
-            $this->result['message'] = $e->getMessage();
-        }
-
-        display_json( $this->result );
-    }
-
     public function getLists()
     {
         $params = $this->input->get('params');
@@ -146,7 +97,7 @@ class Penerimaan extends Public_Controller {
         $tgl_stok_opname = $this->config->item('tgl_stok_opname');
 
         $m_terima = new \Model\Storage\Terima_model();
-        $d_terima = $m_terima->where('tgl_terima', '>', $tgl_stok_opname)->with(['beli'])->orderBy('tgl_terima', 'desc')->get();
+        $d_terima = $m_terima->where('tgl_terima', '>', $tgl_stok_opname)->with(['gudang'])->orderBy('tgl_terima', 'desc')->get();
 
         $data = null;
         if ( $d_terima->count() > 0 ) {
@@ -162,19 +113,11 @@ class Penerimaan extends Public_Controller {
     public function viewForm($kode)
     {
         $m_terima = new \Model\Storage\Terima_model();
-        $d_terima = $m_terima->where('kode_terima', $kode)->with(['beli', 'detail'])->first();
+        $d_terima = $m_terima->where('kode_terima', $kode)->with(['gudang', 'detail'])->first();
 
         $data = null;
         if ( $d_terima ) {
-            $d_terima = $d_terima->toArray();
-
-            $data = $d_terima;
-            foreach ($d_terima['detail'] as $k_det => $v_det) {
-                $m_belii = new \Model\Storage\BeliItem_model();
-                $d_belii = $m_belii->where('beli_kode', $data['beli_kode'])->where('item_kode', $v_det['item_kode'])->sum('jumlah');
-
-                $data['detail'][$k_det]['jumlah'] = $d_belii;
-            }
+            $data = $d_terima->toArray();
         }
 
         $content['data'] = $data;
@@ -186,7 +129,10 @@ class Penerimaan extends Public_Controller {
 
     public function addForm()
     {
-        $html = $this->load->view($this->pathView . 'addForm', null, TRUE);
+        $content['item'] = $this->getItem();
+        $content['gudang'] = $this->getGudang();
+
+        $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
 
         return $html;
     }
@@ -195,63 +141,7 @@ class Penerimaan extends Public_Controller {
     {
         $params = $this->input->post('params');
 
-        try {
-            $m_beli = new \Model\Storage\Beli_model();
-            $d_beli = $m_beli->where('kode_beli', $params['beli_kode'])->first();
-
-            /* STOK */
-            $date = $this->config->item('date');
-            $tgl_stok_opname = $this->config->item('tgl_stok_opname');
-
-            if ( $date >= $tgl_stok_opname ) {
-                $m_stokt = new \Model\Storage\StokTanggal_model();
-                $d_stokt = $m_stokt->where('tanggal', $date)->where('branch_kode', $d_beli->branch_kode)->first();
-
-                $id_header = null;
-                if ( $d_stokt ) {
-                    $id_header = $d_stokt->id;
-                } else {
-                    $m_stokt->tanggal = $date;
-                    $m_stokt->branch_kode = $d_beli->branch_kode;
-                    $m_stokt->save();
-
-                    $id_header = $m_stokt->id;
-                }
-
-                $d_stokt_prev = $m_stokt->where('tanggal', '<', $date)->where('branch_kode', $d_beli->branch_kode)->orderBy('tanggal', 'desc')->first();
-
-                if ( $d_stokt_prev ) {
-                    $m_stok = new \Model\Storage\Stok_model();
-                    $d_stok = $m_stok->where('id_header', $d_stokt_prev->id)->where('sisa_stok', '>', 0)->get();
-
-                    if ( $d_stok->count() > 0 ) {
-                        $d_stok = $d_stok->toArray();
-
-                        foreach ($d_stok as $k_stok => $v_stok) {
-                            $m_stok = new \Model\Storage\Stok_model();
-                            $d_stok_cek = $m_stok->where('id_header', $id_header)->where('kode_trans', $v_stok['kode_trans'])->where('branch_kode', $v_stok['branch_kode'])->where('item_kode', $v_stok['item_kode'])->first();
-
-                            if ( !$d_stok_cek ) {
-                                $m_stok = new \Model\Storage\Stok_model();
-                                $m_stok->id_header = $id_header;
-                                $m_stok->tgl_trans = $v_stok['tgl_trans'];
-                                $m_stok->tanggal = $v_stok['tanggal'];
-                                $m_stok->kode_trans = $v_stok['kode_trans'];
-                                $m_stok->branch_kode = $v_stok['branch_kode'];
-                                $m_stok->item_kode = $v_stok['item_kode'];
-                                $m_stok->harga_beli = $v_stok['harga_beli'];
-                                $m_stok->harga_jual = $v_stok['harga_jual'];
-                                $m_stok->jumlah = $v_stok['jumlah'];
-                                $m_stok->sisa_stok = $v_stok['sisa_stok'];
-                                $m_stok->tbl_name = $v_stok['tbl_name'];
-                                $m_stok->save();
-                            }
-                        }
-                    }
-                }
-            }
-            /* END - STOK */
-            
+        try {            
             $m_terima = new \Model\Storage\Terima_model();
             $now = $m_terima->getDate();
 
@@ -259,7 +149,10 @@ class Penerimaan extends Public_Controller {
 
             $m_terima->kode_terima = $kode_terima;
             $m_terima->tgl_terima = $params['tgl_terima'];
-            $m_terima->beli_kode = $params['beli_kode'];
+            $m_terima->no_faktur = $params['no_faktur'];
+            $m_terima->supplier = $params['supplier'];
+            $m_terima->pic = $params['nama_pic'];
+            $m_terima->gudang_kode = $params['gudang'];
             $m_terima->save();
 
             foreach ($params['detail'] as $k_det => $v_det) {
@@ -268,23 +161,9 @@ class Penerimaan extends Public_Controller {
                 $m_terimai->item_kode = $v_det['item_kode'];
                 $m_terimai->harga = $v_det['harga'];
                 $m_terimai->jumlah_terima = $v_det['jumlah_terima'];
+                $m_terimai->satuan = $v_det['satuan'];
+                $m_terimai->pengali = $v_det['pengali'];
                 $m_terimai->save();
-
-                if ( $date >= $tgl_stok_opname ) {
-                    $m_stok = new \Model\Storage\Stok_model();
-                    $m_stok->id_header = $id_header;
-                    $m_stok->tgl_trans = $now['waktu'];
-                    $m_stok->tanggal = $params['tgl_terima'];
-                    $m_stok->kode_trans = $kode_terima;
-                    $m_stok->branch_kode = $d_beli->branch_kode;
-                    $m_stok->item_kode = $v_det['item_kode'];
-                    $m_stok->harga_beli = $v_det['harga'];
-                    $m_stok->harga_jual = $v_det['harga'];
-                    $m_stok->jumlah = $v_det['jumlah_terima'];
-                    $m_stok->sisa_stok = $v_det['jumlah_terima'];
-                    $m_stok->tbl_name = $m_terima->getTable();
-                    $m_stok->save();
-                }
             }
 
             $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
