@@ -30,6 +30,18 @@
 				</div>
 			</div>
 			<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
+				<div class="col-xs-12 no-padding"><label class="control-label">Jenis</label></div>
+				<div class="col-xs-12 no-padding">
+					<select class="form-control jenis" data-required="1">
+						<?php if ( !empty($jenis) ): ?>
+							<?php foreach ($jenis as $key => $val): ?>
+								<option value="<?php echo $val['id']; ?>"><?php echo strtoupper($val['nama']); ?></option>
+							<?php endforeach ?>
+						<?php endif ?>
+					</select>
+				</div>
+			</div>
+			<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
 				<div class="col-xs-12 no-padding"><label class="control-label">Branch</label></div>
 				<div class="col-xs-12 no-padding">
 					<select class="form-control branch" name="branch[]" multiple="multiple" data-required="1">

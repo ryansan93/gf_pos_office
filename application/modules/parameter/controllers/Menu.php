@@ -34,7 +34,7 @@ class Menu extends Public_Controller {
             $data = $this->includes;
 
             $m_jp = new \Model\Storage\Menu_model();
-            $d_jp = $m_jp->orderBy('nama', 'asc')->with(['kategori', 'induk_menu', 'branch'])->get()->toArray();
+            $d_jp = $m_jp->orderBy('nama', 'asc')->with(['kategori', 'jenis', 'induk_menu', 'branch'])->get()->toArray();
 
             $content['akses'] = $this->hakAkses;
             $content['data'] = $d_jp;
@@ -72,7 +72,16 @@ class Menu extends Public_Controller {
             $kategori = $d_km->toArray();
         }
 
+        $m_jm = new \Model\Storage\JenisMenu_model();
+        $d_jm = $m_jm->where('status', 1)->orderBy('nama', 'asc')->get();
+
+        $jenis = null;
+        if ( $d_jm->count() > 0 ) {
+            $jenis = $d_jm->toArray();
+        }
+
         $content['kategori'] = $kategori;
+        $content['jenis'] = $jenis;
         $content['branch'] = $this->getBranch();
 
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
@@ -93,6 +102,7 @@ class Menu extends Public_Controller {
                 $m_menu->kode_menu = $kode;
                 $m_menu->nama = $params['nama'];
                 $m_menu->deskripsi = isset($params['deskripsi']) ? $params['deskripsi'] : null;
+                $m_menu->jenis_menu_id = isset($params['jenis']) ? $params['jenis'] : null;
                 $m_menu->kategori_menu_id = isset($params['kategori']) ? $params['kategori'] : null;
                 $m_menu->branch_kode = $v_branch;
                 $m_menu->additional = $params['additional'];
@@ -127,7 +137,16 @@ class Menu extends Public_Controller {
             $kategori = $d_km->toArray();
         }
 
+        $m_jm = new \Model\Storage\JenisMenu_model();
+        $d_jm = $m_jm->where('status', 1)->orderBy('nama', 'asc')->get();
+
+        $jenis = null;
+        if ( $d_jm->count() > 0 ) {
+            $jenis = $d_jm->toArray();
+        }
+
         $content['kategori'] = $kategori;
+        $content['jenis'] = $jenis;
         $content['branch'] = $this->getBranch();
         $content['data'] = $d_menu;
 
@@ -146,6 +165,7 @@ class Menu extends Public_Controller {
                 array(
                     'nama' => $params['nama'],
                     'deskripsi' => isset($params['deskripsi']) ? $params['deskripsi'] : null,
+                    'jenis_menu_id' => isset($params['jenis']) ? $params['jenis'] : null,
                     'kategori_menu_id' => isset($params['kategori']) ? $params['kategori'] : null,
                     'additional' => $params['additional'],
                     'status' => 1

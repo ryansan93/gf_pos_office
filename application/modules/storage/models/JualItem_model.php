@@ -14,6 +14,6 @@ class JualItem_model extends Conf{
 
 	public function menu()
 	{
-		return $this->hasOne('\Model\Storage\Menu_model', 'kode_menu', 'menu_kode')->with(['kategori', 'induk_menu']);
+		return $this->hasOne('\Model\Storage\Menu_model', 'kode_menu', 'menu_kode')->with(['kategori', 'jenis', 'induk_menu']);
 	}
 }

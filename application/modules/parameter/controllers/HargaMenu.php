@@ -52,7 +52,7 @@ class HargaMenu extends Public_Controller {
     public function getMenu()
     {
         $m_menu = new \Model\Storage\Menu_model();
-        $d_menu = $m_menu->where('status', 1)->orderBy('nama', 'asc')->with(['kategori'])->get();
+        $d_menu = $m_menu->where('status', 1)->orderBy('nama', 'asc')->with(['jenis'])->get();
 
         $data = null;
         if ( $d_menu->count() > 0 ) {

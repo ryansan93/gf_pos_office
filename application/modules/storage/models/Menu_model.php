@@ -13,6 +13,11 @@ class Menu_model extends Conf{
 		return $this->hasOne('\Model\Storage\KategoriMenu_model', 'id', 'kategori_menu_id');
 	}
 
+	public function jenis()
+	{
+		return $this->hasOne('\Model\Storage\JenisMenu_model', 'id', 'jenis_menu_id');
+	}
+
 	public function induk_menu()
 	{
 		return $this->hasOne('\Model\Storage\IndukMenu_model', 'id', 'induk_menu_id');

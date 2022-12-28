@@ -21,7 +21,8 @@
 						<th class="col-sm-1 text-center">Kode</th>
 						<th class="col-sm-2 text-center">Nama</th>
 						<th class="col-sm-3 text-center">Deskripsi</th>
-						<th class="col-sm-2 text-center">Kategori</th>
+						<th class="col-sm-1 text-center">Jenis</th>
+						<th class="col-sm-1 text-center">Kategori</th>
 						<th class="col-sm-1 text-center">Branch</th>
 						<th class="col-sm-1 text-center">Additional</th>
 						<th class="col-sm-1 text-center">Status</th>
@@ -41,6 +42,7 @@
 								<td><?php echo strtoupper($v_data['kode_menu']); ?></td>
 								<td><?php echo strtoupper($v_data['nama']); ?></td>
 								<td><?php echo empty($v_data['deskripsi']) ? '-' : strtoupper($v_data['deskripsi']); ?></td>
+								<td><?php echo empty($v_data['jenis']) ? '-' : strtoupper($v_data['jenis']['nama']); ?></td>
 								<td><?php echo empty($v_data['kategori']) ? '-' : strtoupper($v_data['kategori']['nama']); ?></td>
 								<td><?php echo $v_data['branch']['nama']; ?></td>
 								<td class="text-center"><?php echo ($v_data['additional'] == 0) ? 'NO' : 'YES'; ?></td>

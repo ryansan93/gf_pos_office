@@ -22,7 +22,7 @@
 												$selected = 'selected';
 											}
 										?>
-										<option value="<?php echo $val['kode_menu']; ?>" <?php echo $selected; ?> ><?php echo strtoupper($val['kategori']['nama']).' | '.strtoupper($val['nama']); ?></option>
+										<option value="<?php echo $val['kode_menu']; ?>" <?php echo $selected; ?> ><?php echo strtoupper($val['jenis']['nama']).' | '.strtoupper($val['nama']); ?></option>
 									<?php endforeach ?>
 								<?php endif ?>
 							</select>

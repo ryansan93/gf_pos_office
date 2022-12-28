@@ -169,10 +169,10 @@ class Penjualan extends Public_Controller {
                 $service_charge_persen = ($v_data['service_charge'] > 0) ? ($v_data['service_charge'] / $v_data['total']) * 100 : 0;
 
                 foreach ($v_data['detail'] as $k_det => $v_det) {
-                    $key_kategori = $v_det['menu']['kategori']['id'];
+                    $key_jenis = $v_det['menu']['jnis']['id'];
                     $key_menu = $v_det['menu_kode'];
-                    $data[ $key_kategori ]['id'] = $key_kategori;
-                    $data[ $key_kategori ]['nama'] = $v_det['menu']['kategori']['nama'];
+                    $data[ $key_jenis ]['id'] = $key_jenis;
+                    $data[ $key_jenis ]['nama'] = $v_det['menu']['jnis']['nama'];
 
                     if ( !empty($v_det['detail']) ) {
                         foreach ($v_det['detail'] as $k_di => $v_di) {
@@ -180,29 +180,29 @@ class Penjualan extends Public_Controller {
                         }
                     }
 
-                    $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
-                    $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['kode'] = $key_menu;
-                    $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['member'] = $v_data['member'];
-                    $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['nama'] = $v_det['menu']['nama'];
-                    $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['harga'] = $v_det['harga'];
+                    $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
+                    $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['kode'] = $key_menu;
+                    $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['member'] = $v_data['member'];
+                    $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['nama'] = $v_det['menu']['nama'];
+                    $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['harga'] = $v_det['harga'];
 
                     $ppn_nilai = ($ppn_persen > 0) ? $v_det['total'] * ($ppn_persen / 100) : 0;
                     $service_charge_nilai = ($service_charge_persen > 0) ? $v_det['total'] * ($service_charge_persen / 100) : 0;
                     $grand_total = $ppn_nilai + $service_charge_nilai + $v_det['total'];
-                    if ( isset($data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah']) ) {
-                        $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] += $v_det['jumlah'];
-                        $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] += $v_det['total'];
-                        $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] += $ppn_nilai;
-                        $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] += $service_charge_nilai;
-                        $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] += $grand_total;
+                    if ( isset($data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah']) ) {
+                        $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] += $v_det['jumlah'];
+                        $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] += $v_det['total'];
+                        $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] += $ppn_nilai;
+                        $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] += $service_charge_nilai;
+                        $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] += $grand_total;
                     } else {
-                        $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] = $v_det['jumlah'];
-                        $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] = $v_det['total'];
-                        $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] = $ppn_nilai;
-                        $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] = $service_charge_nilai;
-                        $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] = $grand_total;
+                        $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] = $v_det['jumlah'];
+                        $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] = $v_det['total'];
+                        $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] = $ppn_nilai;
+                        $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] = $service_charge_nilai;
+                        $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] = $grand_total;
                     }
-                    $data[ $key_kategori ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['detail'] = $v_det['detail'];
+                    $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['detail'] = $v_det['detail'];
                 }
             }
         }

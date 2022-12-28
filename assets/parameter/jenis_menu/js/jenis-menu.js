@@ -1,9 +1,13 @@
-var menu = {
+var nama = null;
+
+var jm = {
 	start_up: function () {
 	}, // end - start_up
 
 	modalAddForm: function () {
-        $.get('parameter/Menu/modalAddForm',{
+		$('.modal').modal('hide');
+
+        $.get('parameter/JenisMenu/modalAddForm',{
         },function(data){
             var _options = {
                 className : 'large',
@@ -19,13 +23,7 @@ var menu = {
 					$(this).priceFormat(Config[$(this).data('tipe')]);
 				});
 
-		        $(this).find('textarea').addClass('uppercase');
-
-		        $(this).find('.jenis').select2({placeholder: 'Pilih Jenis'});
-		        $(this).find('.kategori').select2({placeholder: 'Pilih Kategori'});
-		        $(this).find('.branch').select2({placeholder: 'Pilih Branch'});
-
-		        $(this).removeAttr('tabindex');
+		        $(this).find('.nama').val(nama);
             });
         },'html');
 	}, // end - modalAddForm
@@ -33,7 +31,9 @@ var menu = {
 	modalEditForm: function (elm) {
 		var tr = $(elm).closest('tr');
 
-        $.get('parameter/Menu/modalEditForm',{
+		$('.modal').modal('hide');
+
+        $.get('parameter/JenisMenu/modalEditForm',{
         	'kode': $(tr).data('kode')
         },function(data){
             var _options = {
@@ -50,13 +50,8 @@ var menu = {
 					$(this).priceFormat(Config[$(this).data('tipe')]);
 				});
 
-				$(this).find('textarea').addClass('uppercase');
-
-				$(this).find('.jenis').select2({placeholder: 'Pilih Jenis'});
-				$(this).find('.kategori').select2({placeholder: 'Pilih Kategori'});
-		        $(this).find('.branch').select2({placeholder: 'Pilih Branch'});
-
-		        $(this).removeAttr('tabindex');
+		  //       $(this).find('.nama').val(nama);
+				// $(this).find('.status').val(status);
             });
         },'html');
 	}, // end - modalEditForm
@@ -79,26 +74,16 @@ var menu = {
 		} else {
 			$('.modal').modal('hide');
 
-			var nama = $(div).find('.nama').val().toUpperCase();
-			var deskripsi = $(div).find('.deskripsi').val();
-			var jenis = $(div).find('.jenis').select2('val');
-			var kategori = $(div).find('.kategori').select2('val');
-			var branch = $(div).find('.branch').select2('val');
-			var additional = $(div).find('input[type=radio]:checked').val();
+			nama = $(div).find('.nama').val().toUpperCase();
 
 			bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
 				if ( result ) {
 					var data = {
-						'nama': nama,
-						'deskripsi': !empty(deskripsi) ? deskripsi.toUpperCase() : deskripsi,
-						'jenis': jenis,
-						'kategori': kategori,
-						'branch': branch,
-						'additional': additional
+						'nama': nama
 					};
 
 			        $.ajax({
-			            url: 'parameter/Menu/save',
+			            url: 'parameter/JenisMenu/save',
 			            data: {
 			                'params': data
 			            },
@@ -113,11 +98,13 @@ var menu = {
 			                	});
 			                } else {
 			                    bootbox.alert(data.message, function() {
-			                    	menu.modalAddForm();
+			                    	jm.modalAddForm();
 			                    });
 			                }
 			            }
 			        });
+				} else {
+					jm.modalAddForm();
 				}
 			});
 		}
@@ -142,25 +129,17 @@ var menu = {
 			$('.modal').modal('hide');
 
 			var kode = $(elm).data('kode');
-			var nama = $(div).find('.nama').val().toUpperCase();
-			var deskripsi = $(div).find('.deskripsi').val();
-			var jenis = $(div).find('.jenis').val();
-			var kategori = $(div).find('.kategori').val();
-			var additional = $(div).find('input[type=radio]:checked').val();
+			nama = $(div).find('.nama').val().toUpperCase();
 
 			bootbox.confirm('Apakah anda yakin ingin meng-ubah data ?', function(result) {
 				if ( result ) {
 					var data = {
 						'kode': kode,
-						'nama': nama,
-						'deskripsi': deskripsi,
-						'jenis': jenis,
-						'kategori': kategori,
-						'additional': additional
+						'nama': nama
 					};
 
 			        $.ajax({
-			            url: 'parameter/Menu/edit',
+			            url: 'parameter/JenisMenu/edit',
 			            data: {
 			                'params': data
 			            },
@@ -175,11 +154,13 @@ var menu = {
 			                	});
 			                } else {
 			                    bootbox.alert(data.message, function() {
-			                    	menu.modalEditForm();
+			                    	jm.modalEditForm();
 			                    });
 			                }
 			            }
 			        });
+				} else {
+					jm.modalEditForm();
 				}
 			});
 		}
@@ -193,7 +174,7 @@ var menu = {
 				kode = $(tr).data('kode');
 
 		        $.ajax({
-		            url: 'parameter/Menu/delete',
+		            url: 'parameter/JenisMenu/delete',
 		            data: {
 		                'kode': kode
 		            },
@@ -216,4 +197,4 @@ var menu = {
     }, // end - delete
 };
 
-menu.start_up();
+jm.start_up();

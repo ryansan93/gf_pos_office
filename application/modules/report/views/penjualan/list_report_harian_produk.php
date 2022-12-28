@@ -4,16 +4,16 @@
 	<?php $grand_total_ppn = 0; ?>
 	<?php $grand_total_service_charge = 0; ?>
 	<?php $grand_total_after_ppn = 0; ?>
-	<?php foreach ($data as $k_kategori => $v_kategori): ?>
-		<tr class="kategori">
-			<th colspan="8" style="background-color: #dedede;"><?php echo strtoupper($v_kategori['nama']); ?></th>
+	<?php foreach ($data as $k_jenis => $v_jenis): ?>
+		<tr class="jenis">
+			<th colspan="8" style="background-color: #dedede;"><?php echo strtoupper($v_jenis['nama']); ?></th>
 		</tr>
 		<?php $jumlah = 0; ?>
 		<?php $total = 0; ?>
 		<?php $total_ppn = 0; ?>
 		<?php $total_service_charge = 0; ?>
 		<?php $total_after_ppn = 0; ?>
-		<?php foreach ($v_kategori['list_tanggal'] as $k_tanggal => $v_tanggal): ?>
+		<?php foreach ($v_jenis['list_tanggal'] as $k_tanggal => $v_tanggal): ?>
 			<?php $jml_by_tgl = 0; ?>
 			<?php $total_by_tgl = 0; ?>
 			<?php $total_ppn_by_tgl = 0; ?>
