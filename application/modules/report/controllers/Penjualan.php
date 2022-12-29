@@ -169,10 +169,10 @@ class Penjualan extends Public_Controller {
                 $service_charge_persen = ($v_data['service_charge'] > 0) ? ($v_data['service_charge'] / $v_data['total']) * 100 : 0;
 
                 foreach ($v_data['detail'] as $k_det => $v_det) {
-                    $key_jenis = $v_det['menu']['jnis']['id'];
+                    $key_jenis = $v_det['menu']['jenis']['id'];
                     $key_menu = $v_det['menu_kode'];
                     $data[ $key_jenis ]['id'] = $key_jenis;
-                    $data[ $key_jenis ]['nama'] = $v_det['menu']['jnis']['nama'];
+                    $data[ $key_jenis ]['nama'] = $v_det['menu']['jenis']['nama'];
 
                     if ( !empty($v_det['detail']) ) {
                         foreach ($v_det['detail'] as $k_di => $v_di) {
