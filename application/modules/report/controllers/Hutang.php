@@ -53,7 +53,18 @@ class Hutang extends Public_Controller {
         $data = null;
 
         $m_jual = new \Model\Storage\Jual_model();
-        $d_jual_hutang = $m_jual->whereBetween('tgl_trans', [$start_date, $end_date])->where('lunas', 0)->with(['pesanan'])->get();
+        $sql = "
+            select j.*, p.tgl_pesan from jual j
+            right join
+                pesanan p
+                on
+                    j.pesanan_kode = p.kode_pesanan
+            where
+                j.tgl_trans between '".$start_date."' and '".$end_date."' and
+                (j.lunas = 0 or hutang = 1)
+        ";
+
+        $d_jual_hutang = $m_jual->hydrateRaw( $sql );
 
         if ( $d_jual_hutang->count() > 0 ) {
             $d_jual_hutang = $d_jual_hutang->toArray();
@@ -77,11 +88,23 @@ class Hutang extends Public_Controller {
                     $total_bayar = $d_bayar_hutang->toArray()[0]['total_bayar'];
                 }
 
-                $tgl = !empty($value['pesanan']) ? $value['pesanan']['tgl_pesan'] : $value['tgl_trans'];
+                $tgl = !empty($value['tgl_pesan']) ? $value['tgl_pesan'] : $value['tgl_trans'];
 
                 $key = str_replace('-', '', $tgl).' | '.$value['kode_faktur'].' | '.$value['member'];
 
+                $member_group = null;
+
+                if ( !empty($value['kode_member']) ) {
+                    $m_member = new \Model\Storage\Member_model();
+                    $d_member = $m_member->where('kode_member', $value['kode_member'])->with(['member_group'])->first()->toArray();
+
+                    if ( !empty($d_member['member_group']) ) {
+                        $member_group = $d_member['member_group']['nama'];
+                    }
+                }
+
                 $data[ $key ] = array(
+                    'member_group' => $member_group,
                     'member' => $value['member'],
                     'tgl_pesan' => $tgl,
                     'faktur_kode' => $value['kode_faktur'],
@@ -100,8 +123,8 @@ class Hutang extends Public_Controller {
     {
         $params = $this->input->get('params');
 
-        $start_date = $params['start_date'];
-        $end_date = $params['end_date'];
+        $start_date = $params['start_date'].' 00:00:00';
+        $end_date = $params['end_date'].' 23:59:59';
 
         $data = $this->getDataHutang( $start_date, $end_date );
 

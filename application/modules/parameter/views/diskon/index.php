@@ -18,11 +18,11 @@
 			<table class="table table-bordered table-hover tbl_diskon" id="dataTable" width="100%" cellspacing="0">
 				<thead>
 					<tr>
+						<th class="col-sm-2 text-center">Branch</th>
 						<th class="col-sm-2 text-center">Nama</th>
 						<th class="col-sm-4 text-center">Deskripsi</th>
 						<th class="col-sm-1 text-center">Mulai</th>
 						<th class="col-sm-1 text-center">AKhir</th>
-						<th class="col-sm-1 text-center">Level</th>
 						<th class="col-sm-1 text-center">Action</th>
 					</tr>
 				</thead>
@@ -30,11 +30,11 @@
 					<?php if ( !empty($data) ): ?>
 						<?php foreach ($data as $k_data => $v_data): ?>
 							<tr class="head" data-kode="<?php echo $v_data['kode']; ?>">
+								<td><?php echo $v_data['branch']['nama']; ?></td>
 								<td><?php echo $v_data['nama']; ?></td>
 								<td><?php echo $v_data['deskripsi']; ?></td>
 								<td class="text-center"><?php echo tglIndonesia($v_data['start_date'], '-', ' '); ?></td>
 								<td class="text-center"><?php echo tglIndonesia($v_data['end_date'], '-', ' '); ?></td>
-								<td class="text-center"><?php echo $v_data['level']; ?></td>
 								<td>
 									<div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
 										<?php if ( $akses['a_edit'] == 1 ) { ?>

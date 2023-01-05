@@ -106,6 +106,8 @@ class Menu extends Public_Controller {
                 $m_menu->kategori_menu_id = isset($params['kategori']) ? $params['kategori'] : null;
                 $m_menu->branch_kode = $v_branch;
                 $m_menu->additional = $params['additional'];
+                $m_menu->ppn = $params['ppn'];
+                $m_menu->service_charge = $params['service_charge'];
                 $m_menu->status = 1;
                 $m_menu->save();
 
@@ -168,6 +170,8 @@ class Menu extends Public_Controller {
                     'jenis_menu_id' => isset($params['jenis']) ? $params['jenis'] : null,
                     'kategori_menu_id' => isset($params['kategori']) ? $params['kategori'] : null,
                     'additional' => $params['additional'],
+                    'ppn' => $params['ppn'],
+                    'service_charge' => $params['service_charge'],
                     'status' => 1
                 )
             );

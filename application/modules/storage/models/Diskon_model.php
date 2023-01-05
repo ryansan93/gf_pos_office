@@ -8,8 +8,23 @@ class Diskon_model extends Conf{
 	protected $kodeTable = 'DSK';
 	public $timestamps = false;
 
-	public function detail()
+	public function branch()
 	{
-		return $this->hasMany('\Model\Storage\DiskonDet_model', 'diskon_kode', 'kode');
+		return $this->hasOne('\Model\Storage\Branch_model', 'kode_branch', 'branch_kode');
+	}
+
+	public function diskon_jenis_kartu()
+	{
+		return $this->hasMany('\Model\Storage\DiskonJenisKartu_model', 'diskon_kode', 'kode');
+	}
+
+	public function diskon_menu()
+	{
+		return $this->hasMany('\Model\Storage\DiskonMenu_model', 'diskon_kode', 'kode');
+	}
+
+	public function diskon_beli_dapat()
+	{
+		return $this->hasMany('\Model\Storage\DiskonBeliDapat_model', 'diskon_kode', 'kode');
 	}
 }

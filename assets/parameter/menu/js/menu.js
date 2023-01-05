@@ -85,6 +85,14 @@ var menu = {
 			var kategori = $(div).find('.kategori').select2('val');
 			var branch = $(div).find('.branch').select2('val');
 			var additional = $(div).find('input[type=radio]:checked').val();
+			var ppn = 0;
+			if ( $(div).find('input.ppn').is(':checked') ) {
+				ppn = 1;
+			}
+			var service_charge = 0;
+			if ( $(div).find('input.service_charge').is(':checked') ) {
+				service_charge = 1;
+			}
 
 			bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
 				if ( result ) {
@@ -94,7 +102,9 @@ var menu = {
 						'jenis': jenis,
 						'kategori': kategori,
 						'branch': branch,
-						'additional': additional
+						'additional': additional,
+						'ppn': ppn,
+						'service_charge': service_charge
 					};
 
 			        $.ajax({
@@ -147,6 +157,14 @@ var menu = {
 			var jenis = $(div).find('.jenis').val();
 			var kategori = $(div).find('.kategori').val();
 			var additional = $(div).find('input[type=radio]:checked').val();
+			var ppn = 0;
+			if ( $(div).find('input.ppn').is(':checked') ) {
+				ppn = 1;
+			}
+			var service_charge = 0;
+			if ( $(div).find('input.service_charge').is(':checked') ) {
+				service_charge = 1;
+			}
 
 			bootbox.confirm('Apakah anda yakin ingin meng-ubah data ?', function(result) {
 				if ( result ) {
@@ -156,7 +174,9 @@ var menu = {
 						'deskripsi': deskripsi,
 						'jenis': jenis,
 						'kategori': kategori,
-						'additional': additional
+						'additional': additional,
+						'ppn': ppn,
+						'service_charge': service_charge
 					};
 
 			        $.ajax({

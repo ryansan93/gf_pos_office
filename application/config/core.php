@@ -60,3 +60,10 @@ $config['nama_aplikasi'] = 'GRAHA FAMILY OFFICE';
 $config['date'] = date('Y-m-d');
 
 $config['tgl_stok_opname'] = '2022-10-13';
+
+/*DISKON TIPE*/
+$config['diskon_tipe'] = array(
+	1 => 'Semua Produk (Diskon Nota)',
+	2 => 'Kategori / Produk Tertentu',
+	// 3 => 'Beli dan Dapatkan'
+);

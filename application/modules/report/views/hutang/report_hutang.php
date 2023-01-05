@@ -8,7 +8,8 @@
 				<tr>
 					<th class="col-xs-1">Tgl Faktur</th>
 					<th class="col-xs-2">Kode Faktur</th>
-					<th class="col-xs-2">Pelanggan</th>
+					<th class="col-xs-2">Group Member</th>
+					<th class="col-xs-2">Member</th>
 					<th class="col-xs-1">Hutang</th>
 					<th class="col-xs-1">Bayar</th>
 				</tr>

@@ -4,6 +4,7 @@
 		<tr class="search">
 			<td><?php echo tglIndonesia($v_data['tgl_pesan'], '-', ' '); ?></td>
 			<td><?php echo $v_data['faktur_kode']; ?></td>
+			<td><?php echo !empty($v_data['member_group']) ? $v_data['member_group'] : '-'; ?></td>
 			<td><?php echo $v_data['member']; ?></td>
 			<td class="text-right"><?php echo angkaRibuan($v_data['hutang']); ?></td>
 			<td class="text-right"><?php echo angkaRibuan($v_data['bayar']); ?></td>
