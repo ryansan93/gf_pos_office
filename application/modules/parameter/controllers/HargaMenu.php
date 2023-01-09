@@ -49,6 +49,19 @@ class HargaMenu extends Public_Controller {
         }
     }
 
+    public function getBranch()
+    {
+        $m_branch = new \Model\Storage\Branch_model();
+        $d_branch = $m_branch->orderBy('nama', 'asc')->get();
+
+        $data = null;
+        if ( $d_branch->count() > 0 ) {
+            $data = $d_branch->toArray();
+        }
+
+        return $data;
+    }
+
     public function getMenu()
     {
         $m_menu = new \Model\Storage\Menu_model();
@@ -77,6 +90,7 @@ class HargaMenu extends Public_Controller {
 
     public function modalAddForm()
     {
+        $content['branch'] = $this->getBranch();
         $content['menu'] = $this->getMenu();
         $content['jenis_pesanan'] = $this->getJenisPesanan();
 
@@ -118,6 +132,7 @@ class HargaMenu extends Public_Controller {
         $m_jp = new \Model\Storage\JenisPesanan_model();
         $d_jp = $m_jp->where('kode', $kode)->first()->toArray();
 
+        $content['branch'] = $this->getBranch();
         $content['data'] = $d_jp;
 
         $html = $this->load->view($this->pathView . 'editForm', $content, TRUE);

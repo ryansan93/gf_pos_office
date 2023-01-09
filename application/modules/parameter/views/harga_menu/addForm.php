@@ -9,6 +9,21 @@
 				<tbody>
 					<tr>
 						<td class="col-sm-2">				
+							<label class="control-label">Branch</label>
+						</td>
+						<td class="col-sm-10">
+							<select class="col-sm-8 form-control branch" data-required="1">
+								<option>-- Pilih Branch --</option>
+								<?php if ( !empty($branch) ): ?>
+									<?php foreach ($branch as $key => $val): ?>
+										<option value="<?php echo $val['kode_branch']; ?>"><?php echo strtoupper($val['kode_branch']).' | '.strtoupper($val['nama']); ?></option>
+									<?php endforeach ?>
+								<?php endif ?>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="col-sm-2">				
 							<label class="control-label">Menu</label>
 						</td>
 						<td class="col-sm-10">
@@ -16,7 +31,7 @@
 								<option>-- Pilih Menu --</option>
 								<?php if ( !empty($menu) ): ?>
 									<?php foreach ($menu as $key => $val): ?>
-										<option value="<?php echo $val['kode_menu']; ?>"><?php echo strtoupper($val['jenis']['nama']).' | '.strtoupper($val['nama']); ?></option>
+										<option value="<?php echo $val['kode_menu']; ?>" data-branch="<?php echo $val['branch_kode']; ?>"><?php echo strtoupper($val['jenis']['nama']).' | '.strtoupper($val['nama']); ?></option>
 									<?php endforeach ?>
 								<?php endif ?>
 							</select>

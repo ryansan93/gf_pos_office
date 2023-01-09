@@ -19,7 +19,7 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="7">Data tidak ditemukan.</td>
+					<td colspan="9">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>

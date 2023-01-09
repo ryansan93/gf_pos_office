@@ -7,16 +7,18 @@
 			<thead>
 				<tr>
 					<th class="col-xs-1">Tgl Faktur</th>
+					<th class="col-xs-2">Kasir</th>
 					<th class="col-xs-2">Kode Faktur</th>
-					<th class="col-xs-2">Group Member</th>
+					<th class="col-xs-1">Group Member</th>
 					<th class="col-xs-2">Member</th>
 					<th class="col-xs-1">Hutang</th>
 					<th class="col-xs-1">Bayar</th>
+					<th class="col-xs-2">Remark</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="5">Data tidak ditemukan.</td>
+					<td colspan="8">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>

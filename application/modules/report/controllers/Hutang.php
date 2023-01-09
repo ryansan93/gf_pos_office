@@ -61,7 +61,8 @@ class Hutang extends Public_Controller {
                     j.pesanan_kode = p.kode_pesanan
             where
                 j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                (j.lunas = 0 or hutang = 1)
+                (j.hutang = 1 or j.lunas = 0) and
+                mstatus = 1
         ";
 
         $d_jual_hutang = $m_jual->hydrateRaw( $sql );
@@ -106,10 +107,12 @@ class Hutang extends Public_Controller {
                 $data[ $key ] = array(
                     'member_group' => $member_group,
                     'member' => $value['member'],
+                    'nama_kasir' => $value['nama_kasir'],
                     'tgl_pesan' => $tgl,
                     'faktur_kode' => $value['kode_faktur'],
                     'hutang' => $value['grand_total'],
-                    'bayar' => $total_bayar
+                    'bayar' => $total_bayar,
+                    'remark' => $value['remark']
                 );
             }
 

@@ -45,51 +45,12 @@
 				</div>
 
 				<div class="col-xs-12 no-padding">
-					<button type="button" class="col-xs-12 btn btn-primary pull-right tampilkan_riwayat" onclick="jual.getLists(this)"><i class="fa fa-search"></i> Tampilkan</button>
+					<button type="button" class="col-xs-12 btn btn-primary pull-right tampilkan_riwayat" onclick="sh.getLists(this)"><i class="fa fa-search"></i> Tampilkan</button>
 				</div>
 			</div>
 			<div class="col-xs-12 no-padding"><hr></div>
 			<div class="col-xs-12 no-padding">
-				<div class="panel-heading no-padding">
-					<ul class="nav nav-tabs nav-justified">
-						<li class="nav-item">
-							<a class="nav-link active" data-toggle="tab" href="#penjualan_produk" data-tab="penjualan_produk">PENJUALAN PRODUK</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" data-toggle="tab" href="#penjualan_harian" data-tab="penjualan_harian">PENJUALAN HARIAN</a>
-						</li>
-					</ul>
-				</div>
-				<div class="panel-body no-padding">
-					<div class="tab-content">
-						<div id="penjualan_produk" class="tab-pane fade show active" role="tabpanel" style="padding-top: 10px;">
-							<?php echo $report_harian_produk; ?>
-						</div>
-
-						<div id="penjualan_harian" class="tab-pane fade" role="tabpanel" style="padding-top: 10px;">
-							<?php echo $report_harian; ?>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-xs-12 no-padding"><hr></div>
-			<div class="col-xs-12 no-padding">
-				<small>
-					<table class="table table-bordered tbl_detail_pembayaran">
-						<thead>
-							<tr>
-								<th class="col-xs-1">Tanggal</th>
-								<th class="col-xs-7">Jenis Pembayaran</th>
-								<th class="col-xs-4">Nilai</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td colspan="2">Data tidak ditemukan.</td>
-							</tr>
-						</tbody>
-					</table>
-				</small>
+				<?php echo $report; ?>
 			</div>
 		</form>
 	</div>

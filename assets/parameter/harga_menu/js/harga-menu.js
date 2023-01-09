@@ -28,7 +28,18 @@ var hm = {
 		            minDate: moment(new Date((today+' 00:00:00')))
 		        });
 
+		        $('.menu').find('option').removeAttr('disabled');
+
 		        $(this).find('.menu').select2();
+		        $(this).find('.branch').select2();
+		        $(this).find('.branch').on('select2:select', function (e) {
+		        	var val = e.params.data.id;
+
+		        	console.log( val );
+
+		        	$('.menu').find('option:not([data-branch='+val+'])').attr('disabled', 'disabled');
+		        	$('.menu').select2();
+		        });
 		        $(this).removeAttr('tabindex');
             });
         },'html');
