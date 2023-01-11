@@ -1,13 +1,15 @@
 <div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
 	<div class="col-xs-12 no-padding">
-		<label class="control-label">Branch</label>
+		<label class="control-label">Gudang</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<!-- <input type="text" class="col-xs-12 form-control supplier uppercase" placeholder="Supplier" data-required="1"> -->
-		<select class="form-control branch selectpicker" data-live-search="true" data-required="1">
-			<?php foreach ($branch as $key => $value): ?>
-				<option value="<?php echo $value['kode_branch']; ?>"><?php echo $value['nama']; ?></option>
-			<?php endforeach ?>
+		<select class="form-control gudang" data-required="1">
+			<option value="">Pilih Gudang</option>
+			<?php if ( !empty($gudang) ): ?>
+				<?php foreach ($gudang as $key => $value): ?>
+					<option value="<?php echo $value['kode_gudang']; ?>"><?php echo $value['nama']; ?></option>
+				<?php endforeach ?>
+			<?php endif ?>
 		</select>
 	</div>
 </div>
@@ -42,7 +44,6 @@
 		<table class="table table-bordered" style="margin-bottom: 0px;">
 			<thead>
 				<tr>
-					<th class="col-xs-1">Group</th>
 					<th class="col-xs-2">Item</th>
 					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
@@ -52,20 +53,19 @@
 			<tbody>
 				<tr>
 					<td>
-						<input type="text" class="form-control group uppercase" placeholder="Group" data-required="1" readonly>
-					</td>
-					<td>
 						<select class="form-control item" data-required="1">
 							<option value="">-- Pilih Item --</option>
 							<?php if ( !empty($item) ): ?>
 								<?php foreach ($item as $k_item => $v_item): ?>
-									<option value="<?php echo $v_item['kode']; ?>" data-namagroup="<?php echo $v_item['group']['nama']; ?>" data-satuan="<?php echo $v_item['satuan']; ?>"><?php echo strtoupper($v_item['nama']); ?></option>
+									<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>'><?php echo strtoupper($v_item['nama']); ?></option>
 								<?php endforeach ?>
 							<?php endif ?>
 						</select>
 					</td>
 					<td>
-						<input type="text" class="form-control satuan uppercase" placeholder="Satuan" data-required="1" readonly>
+						<select class="form-control satuan" data-required="1" disabled>
+							<option value="">Pilih Satuan</option>
+						</select>
 					</td>
 					<td>
 						<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-tipe="decimal" data-required="1" maxlength="10">

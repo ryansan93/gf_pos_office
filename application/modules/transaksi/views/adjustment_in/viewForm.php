@@ -1,9 +1,18 @@
 <div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
 	<div class="col-xs-2 no-padding">
-		<label class="control-label">Branch</label>
+		<label class="control-label">No. Adjin</label>
 	</div>
 	<div class="col-xs-10 no-padding">
-		<label class="control-label">: <?php echo $data['branch']['nama']; ?></label>
+		<label class="control-label">: <?php echo $data['kode_adjin']; ?></label>
+	</div>
+</div>
+
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+	<div class="col-xs-2 no-padding">
+		<label class="control-label">Gudang</label>
+	</div>
+	<div class="col-xs-10 no-padding">
+		<label class="control-label">: <?php echo $data['gudang']['nama']; ?></label>
 	</div>
 </div>
 
@@ -17,17 +26,17 @@
 </div>
 
 <div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
-	<div class="col-xs-12 no-padding">
+	<div class="col-xs-2 no-padding">
 		<label class="control-label">Keterangan</label>
 	</div>
-	<div class="col-xs-12 no-padding">
-		<?php echo $data['keterangan']; ?>
+	<div class="col-xs-10 no-padding">
+		<label class="control-label">: <?php echo $data['keterangan']; ?></label>
 	</div>
 </div>
 
-<div class="col-xs-12 no-padding"><hr></div>
+<div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 
-<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+<div class="col-xs-12 no-padding">
 	<small>
 		<table class="table table-bordered" style="margin-bottom: 0px;">
 			<thead>
@@ -52,4 +61,21 @@
 			</tbody>
 		</table>
 	</small>
+</div>
+
+<div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
+
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+	<div class="col-xs-12 no-padding">
+		<label class="control-label">History :</label>
+	</div>
+</div>
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+	<div class="col-xs-12 no-padding">
+		<ul>
+			<?php foreach ($data['logs'] as $k_log => $v_log): ?>
+				<li><?php echo $v_log['deskripsi'].' '.tglIndonesia($v_log['waktu'], '-', ' ').' '.substr($v_log['waktu'], 11, 5); ?></li>
+			<?php endforeach ?>
+		</ul>
+	</div>
 </div>

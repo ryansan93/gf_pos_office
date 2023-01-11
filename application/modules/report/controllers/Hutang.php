@@ -62,7 +62,7 @@ class Hutang extends Public_Controller {
             where
                 j.tgl_trans between '".$start_date."' and '".$end_date."' and
                 (j.hutang = 1 or j.lunas = 0) and
-                mstatus = 1
+                j.mstatus = 1
         ";
 
         $d_jual_hutang = $m_jual->hydrateRaw( $sql );

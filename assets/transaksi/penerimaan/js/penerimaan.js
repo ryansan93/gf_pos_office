@@ -24,7 +24,7 @@ var terima = {
         $("#TglTerima").datetimepicker({
             locale: 'id',
             format: 'DD MMM Y',
-            minDate: moment(new Date((today+' 00:00:00'))).subtract(7, 'days')
+            minDate: moment(new Date((today+' 00:00:00')))
         });
         if ( !empty($("#TglTerima").find('input').data('tgl')) ) {
             var tgl = $("#TglTerima").find('input').data('tgl');

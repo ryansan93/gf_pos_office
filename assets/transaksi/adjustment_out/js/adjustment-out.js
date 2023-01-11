@@ -38,31 +38,40 @@ var adjout = {
             $(this).priceFormat(Config[$(this).data('tipe')]);
         });
 
-        $('select.branch').select2();
+        $('select.gudang').select2();
         $('select.item').select2().on('select2:select', function (e) {
-            var data = e.params.data.element.dataset;
-
             var _tr = $(this).closest('tr');
+            var select_satuan = $(_tr).find('select.satuan');
 
-            $(_tr).find('.satuan').val( data.satuan );
-            $(_tr).find('.group').val( data.namagroup );
+            var data = e.params.data.element.dataset;
+            var satuan = JSON.parse( data.satuan );
+
+            var opt = '<option value="">Pilih Satuan</option>';
+            for (var i = 0; i < satuan.length; i++) {
+                opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'">'+satuan[i].satuan+'</option>';
+            }
+
+            $(select_satuan).html( opt );
+            $(select_satuan).removeAttr('disabled');
+            $(_tr).find('.jumlah').removeAttr('disabled');
+            $(_tr).find('.harga').removeAttr('disabled');
         });
 
-        $('select.branch_riwayat').select2();
-        $('.branch_riwayat').select2({placeholder: 'Pilih Item'}).on("select2:select", function (e) {
-            var branch = $('.branch_riwayat').select2().val();
+        $('select.gudang_riwayat').select2();
+        $('.gudang_riwayat').select2({placeholder: 'Pilih Item'}).on("select2:select", function (e) {
+            var branch = $('.gudang_riwayat').select2().val();
 
             for (var i = 0; i < branch.length; i++) {
                 if ( branch[i] == 'all' ) {
-                    $('.branch_riwayat').select2().val('all').trigger('change');
+                    $('.gudang_riwayat').select2().val('all').trigger('change');
 
                     i = branch.length;
                 }
             }
 
-            $('.branch_riwayat').next('span.select2').css('width', '100%');
+            $('.gudang_riwayat').next('span.select2').css('width', '100%');
         });
-        $('.branch_riwayat').next('span.select2').css('width', '100%');
+        $('.gudang_riwayat').next('span.select2').css('width', '100%');
     }, // end - setting_up
 
     showNameFile : function(elm, isLable = 1) {
@@ -205,7 +214,7 @@ var adjout = {
             var params = {
                 'start_date': dateSQL( $(dcontent).find('#StartDate').data('DateTimePicker').date() ),
                 'end_date': dateSQL( $(dcontent).find('#EndDate').data('DateTimePicker').date() ),
-                'branch_kode': $(dcontent).find('.branch_riwayat').select2().val(),
+                'gudang_kode': $(dcontent).find('.gudang_riwayat').select2().val(),
             };
 
             $.ajax({
@@ -245,14 +254,16 @@ var adjout = {
 					var detail = $.map( $(dcontent).find('table tbody tr'), function(_tr) {
                         var _detail = {
                             'item_kode': $(_tr).find('.item').val(),
-                            'jumlah': numeral.unformat( $(_tr).find('.jumlah').val() )
+                            'jumlah': numeral.unformat( $(_tr).find('.jumlah').val() ),
+                            'satuan': $(_tr).find('.satuan').val(),
+                            'pengali': $(_tr).find('.satuan option:selected').attr('data-pengali')
                         };
 
                         return _detail;
                     });
 
                     var data = {
-                        'branch': $(dcontent).find('select.branch').val(),
+                        'gudang': $(dcontent).find('select.gudang').val(),
                         'tgl_adjust': dateSQL( $(dcontent).find('#TglAdjust').data('DateTimePicker').date() ),
                         'keterangan': $(dcontent).find('.keterangan').val().toUpperCase(),
                         'detail': detail

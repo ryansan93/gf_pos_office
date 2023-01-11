@@ -65,7 +65,7 @@
 							<?php echo strtoupper($v_det['item']['nama']); ?>
 						</td>
 						<td class="text-center">
-							<?php echo strtoupper($v_det['satuan']); ?>
+							<?php echo angkaRibuan($v_det['pengali']).' '.strtoupper($v_det['satuan']); ?>
 						</td>
 						<td class="text-right">
 							<?php echo angkaDecimal($v_det['jumlah_terima']); ?>

@@ -8,9 +8,9 @@ class Adjout_model extends Conf{
 	protected $kodeTable = 'AO';
 	public $timestamps = false;
 
-	public function branch()
+	public function gudang()
 	{
-		return $this->hasOne('\Model\Storage\Branch_model', 'kode_branch', 'branch_kode');
+		return $this->hasOne('\Model\Storage\Gudang_model', 'kode_gudang', 'gudang_kode');
 	}
 
 	public function detail()
@@ -18,8 +18,8 @@ class Adjout_model extends Conf{
 		return $this->hasMany('\Model\Storage\AdjoutItem_model', 'adjout_kode', 'kode_adjout')->with(['item']);
 	}
 
-	public function log_tables()
+	public function logs()
 	{
-		return $this->hasMany('\Model\Storage\LogTables_model', 'tbl_id', 'kode_adjout')->where('tbl_name', $this->tbl_name);
+		return $this->hasMany('\Model\Storage\LogTables_model', 'tbl_id', 'kode_adjout')->where('tbl_name', $this->table)->orderBy('waktu', 'asc');
 	}
 }

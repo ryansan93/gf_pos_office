@@ -35,7 +35,7 @@ class AdjustmentIn extends Public_Controller {
             $data = $this->includes;
 
             $content['akses'] = $this->hakAkses;
-            $r_content['branch'] = $this->getBranch();
+            $r_content['gudang'] = $this->getGudang();
             $content['riwayat'] = $this->load->view($this->pathView . 'riwayat', $r_content, TRUE);
             $content['add_form'] = $this->addForm();
             $content['title_panel'] = 'Adjustment In';
@@ -49,14 +49,14 @@ class AdjustmentIn extends Public_Controller {
         }
     }
 
-    public function getBranch()
+    public function getGudang()
     {
-        $m_branch = new \Model\Storage\Branch_model();
-        $d_branch = $m_branch->orderBy('nama', 'asc')->get();
+        $m_gudang = new \Model\Storage\Gudang_model();
+        $d_gudang = $m_gudang->orderBy('nama', 'asc')->get();
 
         $data = null;
-        if ( $d_branch->count() > 0 ) {
-            $data = $d_branch->toArray();
+        if ( $d_gudang->count() > 0 ) {
+            $data = $d_gudang->toArray();
         }
 
         return $data;
@@ -65,7 +65,7 @@ class AdjustmentIn extends Public_Controller {
     public function getItem()
     {
         $m_item = new \Model\Storage\Item_model();
-        $d_item = $m_item->with(['group'])->orderBy('nama', 'asc')->get();
+        $d_item = $m_item->with(['satuan'])->orderBy('nama', 'asc')->get();
 
         $data_item = null;
         if ( $d_item->count() > 0 ) {
@@ -102,7 +102,7 @@ class AdjustmentIn extends Public_Controller {
         $end_date = $params['end_date'];
 
         $m_adjin = new \Model\Storage\Adjin_model();
-        $d_adjin = $m_adjin->whereBetween('tgl_adjin', [$start_date, $end_date])->whereIn('branch_kode', $params['branch_kode'])->with(['branch'])->orderBy('tgl_adjin', 'desc')->get();
+        $d_adjin = $m_adjin->whereBetween('tgl_adjin', [$start_date, $end_date])->whereIn('gudang_kode', $params['gudang_kode'])->with(['gudang'])->orderBy('tgl_adjin', 'desc')->get();
 
         $data = null;
         if ( $d_adjin->count() > 0 ) {
@@ -118,7 +118,7 @@ class AdjustmentIn extends Public_Controller {
     public function viewForm($kode)
     {
         $m_adjin = new \Model\Storage\Adjin_model();
-        $d_adjin = $m_adjin->where('kode_adjin', $kode)->with(['branch', 'detail'])->first();
+        $d_adjin = $m_adjin->where('kode_adjin', $kode)->with(['gudang', 'detail', 'logs'])->first();
 
         $data = null;
         if ( $d_adjin ) {
@@ -136,7 +136,7 @@ class AdjustmentIn extends Public_Controller {
     public function addForm()
     {
         $content['item'] = $this->getItem();
-        $content['branch'] = $this->getBranch();
+        $content['gudang'] = $this->getGudang();
 
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
 
@@ -149,56 +149,56 @@ class AdjustmentIn extends Public_Controller {
 
         try {
             /* STOK */
-            $date = $this->config->item('date');
-            $tgl_stok_opname = $this->config->item('tgl_stok_opname');
+            // $date = $this->config->item('date');
+            // $tgl_stok_opname = $this->config->item('tgl_stok_opname');
 
-            if ( $date >= $tgl_stok_opname ) {
-                $m_stokt = new \Model\Storage\StokTanggal_model();
-                $d_stokt = $m_stokt->where('tanggal', $date)->where('branch_kode', $params['branch'])->first();
+            // if ( $date >= $tgl_stok_opname ) {
+            //     $m_stokt = new \Model\Storage\StokTanggal_model();
+            //     $d_stokt = $m_stokt->where('tanggal', $date)->where('branch_kode', $params['branch'])->first();
 
-                $id_header = null;
-                if ( $d_stokt ) {
-                    $id_header = $d_stokt->id;
-                } else {
-                    $m_stokt->tanggal = $date;
-                    $m_stokt->branch_kode = $params['branch'];
-                    $m_stokt->save();
+            //     $id_header = null;
+            //     if ( $d_stokt ) {
+            //         $id_header = $d_stokt->id;
+            //     } else {
+            //         $m_stokt->tanggal = $date;
+            //         $m_stokt->branch_kode = $params['branch'];
+            //         $m_stokt->save();
 
-                    $id_header = $m_stokt->id;
-                }
+            //         $id_header = $m_stokt->id;
+            //     }
 
-                $d_stokt_prev = $m_stokt->where('tanggal', '<', $date)->where('branch_kode', $params['branch'])->orderBy('tanggal', 'desc')->first();
+            //     $d_stokt_prev = $m_stokt->where('tanggal', '<', $date)->where('branch_kode', $params['branch'])->orderBy('tanggal', 'desc')->first();
 
-                if ( $d_stokt_prev ) {
-                    $m_stok = new \Model\Storage\Stok_model();
-                    $d_stok = $m_stok->where('id_header', $d_stokt_prev->id)->where('sisa_stok', '>', 0)->get();
+            //     if ( $d_stokt_prev ) {
+            //         $m_stok = new \Model\Storage\Stok_model();
+            //         $d_stok = $m_stok->where('id_header', $d_stokt_prev->id)->where('sisa_stok', '>', 0)->get();
 
-                    if ( $d_stok->count() > 0 ) {
-                        $d_stok = $d_stok->toArray();
+            //         if ( $d_stok->count() > 0 ) {
+            //             $d_stok = $d_stok->toArray();
 
-                        foreach ($d_stok as $k_stok => $v_stok) {
-                            $m_stok = new \Model\Storage\Stok_model();
-                            $d_stok_cek = $m_stok->where('id_header', $id_header)->where('kode_trans', $v_stok['kode_trans'])->where('branch_kode', $v_stok['branch_kode'])->where('item_kode', $v_stok['item_kode'])->first();
+            //             foreach ($d_stok as $k_stok => $v_stok) {
+            //                 $m_stok = new \Model\Storage\Stok_model();
+            //                 $d_stok_cek = $m_stok->where('id_header', $id_header)->where('kode_trans', $v_stok['kode_trans'])->where('branch_kode', $v_stok['branch_kode'])->where('item_kode', $v_stok['item_kode'])->first();
 
-                            if ( !$d_stok_cek ) {
-                                $m_stok = new \Model\Storage\Stok_model();
-                                $m_stok->id_header = $id_header;
-                                $m_stok->tgl_trans = $v_stok['tgl_trans'];
-                                $m_stok->tanggal = $v_stok['tanggal'];
-                                $m_stok->kode_trans = $v_stok['kode_trans'];
-                                $m_stok->branch_kode = $v_stok['branch_kode'];
-                                $m_stok->item_kode = $v_stok['item_kode'];
-                                $m_stok->harga_beli = $v_stok['harga_beli'];
-                                $m_stok->harga_jual = $v_stok['harga_jual'];
-                                $m_stok->jumlah = $v_stok['jumlah'];
-                                $m_stok->sisa_stok = $v_stok['sisa_stok'];
-                                $m_stok->tbl_name = $v_stok['tbl_name'];
-                                $m_stok->save();
-                            }
-                        }
-                    }
-                }
-            }
+            //                 if ( !$d_stok_cek ) {
+            //                     $m_stok = new \Model\Storage\Stok_model();
+            //                     $m_stok->id_header = $id_header;
+            //                     $m_stok->tgl_trans = $v_stok['tgl_trans'];
+            //                     $m_stok->tanggal = $v_stok['tanggal'];
+            //                     $m_stok->kode_trans = $v_stok['kode_trans'];
+            //                     $m_stok->branch_kode = $v_stok['branch_kode'];
+            //                     $m_stok->item_kode = $v_stok['item_kode'];
+            //                     $m_stok->harga_beli = $v_stok['harga_beli'];
+            //                     $m_stok->harga_jual = $v_stok['harga_jual'];
+            //                     $m_stok->jumlah = $v_stok['jumlah'];
+            //                     $m_stok->sisa_stok = $v_stok['sisa_stok'];
+            //                     $m_stok->tbl_name = $v_stok['tbl_name'];
+            //                     $m_stok->save();
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
             /* END - STOK */
             
             $m_adjin = new \Model\Storage\Adjin_model();
@@ -208,7 +208,7 @@ class AdjustmentIn extends Public_Controller {
 
             $m_adjin->kode_adjin = $kode_adjin;
             $m_adjin->tgl_adjin = $params['tgl_adjust'];
-            $m_adjin->branch_kode = $params['branch'];
+            $m_adjin->gudang_kode = $params['gudang'];
             $m_adjin->keterangan = $params['keterangan'];
             $m_adjin->save();
 
@@ -218,21 +218,23 @@ class AdjustmentIn extends Public_Controller {
                 $m_adjini->item_kode = $v_det['item_kode'];
                 $m_adjini->jumlah = $v_det['jumlah'];
                 $m_adjini->harga = $v_det['harga'];
+                $m_adjini->satuan = $v_det['satuan'];
+                $m_adjini->pengali = $v_det['pengali'];
                 $m_adjini->save();
 
-                $m_stok = new \Model\Storage\Stok_model();
-                $m_stok->id_header = $id_header;
-                $m_stok->tgl_trans = $now['waktu'];
-                $m_stok->tanggal = $params['tgl_adjust'];
-                $m_stok->kode_trans = $kode_adjin;
-                $m_stok->branch_kode = $params['branch'];
-                $m_stok->item_kode = $v_det['item_kode'];
-                $m_stok->harga_beli = $v_det['harga'];
-                $m_stok->harga_jual = $v_det['harga'];
-                $m_stok->jumlah = $v_det['jumlah'];
-                $m_stok->sisa_stok = $v_det['jumlah'];
-                $m_stok->tbl_name = $m_adjin->getTable();
-                $m_stok->save();
+                // $m_stok = new \Model\Storage\Stok_model();
+                // $m_stok->id_header = $id_header;
+                // $m_stok->tgl_trans = $now['waktu'];
+                // $m_stok->tanggal = $params['tgl_adjust'];
+                // $m_stok->kode_trans = $kode_adjin;
+                // $m_stok->branch_kode = $params['branch'];
+                // $m_stok->item_kode = $v_det['item_kode'];
+                // $m_stok->harga_beli = $v_det['harga'];
+                // $m_stok->harga_jual = $v_det['harga'];
+                // $m_stok->jumlah = $v_det['jumlah'];
+                // $m_stok->sisa_stok = $v_det['jumlah'];
+                // $m_stok->tbl_name = $m_adjin->getTable();
+                // $m_stok->save();
             }
 
             $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
