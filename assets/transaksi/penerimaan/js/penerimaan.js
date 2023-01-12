@@ -277,6 +277,17 @@ var terima = {
             }
         });
     }, // end - hitungStok
+
+    hitTotal: function (elm) {
+        var tr = $(elm).closest('tr');
+
+        var jumlah = numeral.unformat($(tr).find('.jumlah').val());
+        var harga = numeral.unformat($(tr).find('.harga').val());
+
+        var total = harga * jumlah;
+
+        $(tr).find('.total').val( numeral.formatDec(total) );
+    }, // end - hitTotal
 };
 
 terima.start_up();

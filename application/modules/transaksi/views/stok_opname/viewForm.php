@@ -31,7 +31,8 @@
 					<th class="col-xs-2">Item</th>
 					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
-					<th class="col-xs-1">Harga (Rp.)</th>
+					<th class="col-xs-1">Harga Satuan (Rp.)</th>
+					<th class="col-xs-1">Total</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -42,6 +43,7 @@
 						<td class="text-center"><?php echo $v_det['satuan']; ?></td>
 						<td class="text-right"><?php echo angkaDecimal($v_det['jumlah']); ?></td>
 						<td class="text-right"><?php echo angkaDecimal($v_det['harga']); ?></td>
+						<td class="text-right"><?php echo angkaDecimal($v_det['jumlah'] * $v_det['harga']); ?></td>
 					</tr>
 				<?php endforeach ?>
 			</tbody>

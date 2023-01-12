@@ -65,7 +65,8 @@
 					<th class="col-xs-4">Item</th>
 					<th class="col-xs-2">Satuan</th>
 					<th class="col-xs-2">Jumlah</th>
-					<th class="col-xs-2">Harga</th>
+					<th class="col-xs-2">Harga Satuan (Rp.)</th>
+					<th class="col-xs-2">Total</th>
 					<th class="col-xs-1"></th>
 				</tr>
 			</thead>
@@ -85,10 +86,13 @@
 						</select>
 					</td>
 					<td>
-						<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-required="1" data-tipe="decimal" maxlength="12" disabled>
+						<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-required="1" data-tipe="decimal" maxlength="12" onblur="terima.hitTotal(this)" disabled>
 					</td>
 					<td>
-						<input type="text" class="form-control text-right harga uppercase" placeholder="Harga" data-tipe="decimal" data-required="1" maxlength="14" disabled>
+						<input type="text" class="form-control text-right harga uppercase" placeholder="Harga" data-tipe="decimal" data-required="1" maxlength="14" onblur="terima.hitTotal(this)" disabled>
+					</td>
+					<td>
+						<input type="text" class="form-control text-right total uppercase" placeholder="Total" data-tipe="decimal" data-required="1" maxlength="14" disabled>
 					</td>
 					<td>
 						<div class="col-xs-12 no-padding">

@@ -47,7 +47,7 @@
 					<th class="col-xs-2">Item</th>
 					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
-					<th class="col-xs-1">Harga</th>
+					<th class="col-xs-1">Harga Satuan (Rp.)</th>
 					<th class="col-xs-1">Total</th>
 					<th class="col-xs-1">Action</th>
 				</tr>

@@ -41,21 +41,21 @@
 		<table class="table table-bordered" style="margin-bottom: 0px;">
 			<thead>
 				<tr>
-					<th class="col-xs-1">Group</th>
 					<th class="col-xs-2">Item</th>
 					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
-					<th class="col-xs-1">Harga</th>
+					<th class="col-xs-1">Harga Satuan (Rp.)</th>
+					<th class="col-xs-1">Total</th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php foreach ($data['detail'] as $k_det => $v_det): ?>
 					<tr>
-						<td class="text-center"><?php echo $v_det['item']['group']['nama']; ?></td>
 						<td><?php echo $v_det['item']['nama']; ?></td>
 						<td class="text-center"><?php echo $v_det['item']['satuan']; ?></td>
 						<td class="text-right"><?php echo angkaDecimal($v_det['jumlah']); ?></td>
 						<td class="text-right"><?php echo angkaDecimal($v_det['harga']); ?></td>
+						<td class="text-right"><?php echo angkaDecimal($v_det['jumlah'] * $v_det['harga']); ?></td>
 					</tr>
 				<?php endforeach ?>
 			</tbody>

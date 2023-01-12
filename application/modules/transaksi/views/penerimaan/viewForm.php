@@ -53,7 +53,7 @@
 					<th class="col-xs-4">Item</th>
 					<th class="col-xs-2">Satuan</th>
 					<th class="col-xs-2">Jumlah</th>
-					<th class="col-xs-2">Harga</th>
+					<th class="col-xs-2">Harga Satuan (Rp.)</th>
 					<th class="col-xs-2">Total</th>
 				</tr>
 			</thead>
