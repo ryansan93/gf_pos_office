@@ -1,8 +1,8 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class AdjustmentIn extends Public_Controller {
+class PenerimaanBarangMutasi extends Public_Controller {
 
-    private $pathView = 'transaksi/adjustment_in/';
+    private $pathView = 'transaksi/penerimaan_barang_mutasi/';
     private $url;
     private $hakAkses;
 
@@ -24,24 +24,21 @@ class AdjustmentIn extends Public_Controller {
         if ( $this->hakAkses['a_view'] == 1 ) {
             $this->add_external_js(array(
                 "assets/select2/js/select2.min.js",
-                "assets/jquery/list.min.js",
-                "assets/transaksi/adjustment_in/js/adjustment-in.js"
+                "assets/transaksi/penerimaan_barang_mutasi/js/penerimaan-barang-mutasi.js",
             ));
             $this->add_external_css(array(
                 "assets/select2/css/select2.min.css",
-                "assets/transaksi/adjustment_in/css/adjustment-in.css"
+                "assets/transaksi/penerimaan_barang_mutasi/css/penerimaan-barang-mutasi.css",
             ));
 
             $data = $this->includes;
 
             $content['akses'] = $this->hakAkses;
-            $r_content['gudang'] = $this->getGudang();
-            $content['riwayat'] = $this->load->view($this->pathView . 'riwayat', $r_content, TRUE);
-            $content['add_form'] = $this->addForm();
-            $content['title_panel'] = 'Adjustment In';
+            $content['riwayat'] = $this->load->view($this->pathView . 'riwayat', null, TRUE);
+            $content['title_panel'] = 'Penerimaan Barang Mutasi';
 
             // Load Indexx
-            $data['title_menu'] = 'Adjustment In';
+            $data['title_menu'] = 'Penerimaan Barang Mutasi';
             $data['view'] = $this->load->view($this->pathView . 'index', $content, TRUE);
             $this->load->view($this->template, $data);
         } else {
@@ -101,12 +98,12 @@ class AdjustmentIn extends Public_Controller {
         $start_date = ($params['start_date'] >= $tgl_stok_opname) ? $params['start_date'] : $tgl_stok_opname;
         $end_date = $params['end_date'];
 
-        $m_adjin = new \Model\Storage\Adjin_model();
-        $d_adjin = $m_adjin->whereBetween('tgl_adjin', [$start_date, $end_date])->whereIn('gudang_kode', $params['gudang_kode'])->with(['gudang'])->orderBy('tgl_adjin', 'desc')->get();
+        $m_mutasi = new \Model\Storage\Mutasi_model();
+        $d_mutasi = $m_mutasi->whereBetween('tgl_mutasi', [$start_date, $end_date])->with(['gudang_asal', 'gudang_tujuan'])->orderBy('tgl_mutasi', 'desc')->get();
 
         $data = null;
-        if ( $d_adjin->count() > 0 ) {
-            $data = $d_adjin->toArray();
+        if ( $d_mutasi->count() > 0 ) {
+            $data = $d_mutasi->toArray();
         }
 
         $content['data'] = $data;
@@ -117,12 +114,12 @@ class AdjustmentIn extends Public_Controller {
 
     public function viewForm($kode)
     {
-        $m_adjin = new \Model\Storage\Adjin_model();
-        $d_adjin = $m_adjin->where('kode_adjin', $kode)->with(['gudang', 'detail', 'logs'])->first();
+        $m_mutasi = new \Model\Storage\Mutasi_model();
+        $d_mutasi = $m_mutasi->where('kode_mutasi', $kode)->with(['gudang_asal', 'gudang_tujuan', 'detail'])->first();
 
         $data = null;
-        if ( $d_adjin ) {
-            $data = $d_adjin->toArray();
+        if ( $d_mutasi ) {
+            $data = $d_mutasi->toArray();
         }
 
         $content['akses'] = $this->hakAkses;
@@ -133,54 +130,30 @@ class AdjustmentIn extends Public_Controller {
         return $html;
     }
 
-    public function addForm()
+    public function approve()
     {
-        $content['item'] = $this->getItem();
-        $content['gudang'] = $this->getGudang();
-
-        $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
-
-        return $html;
-    }
-
-    public function save()
-    {
-        $params = $this->input->post('params');
+        $kode_mutasi = $this->input->post('kode_mutasi');
 
         try {
-            
-            $m_adjin = new \Model\Storage\Adjin_model();
-            $now = $m_adjin->getDate();
-
-            $kode_adjin = $m_adjin->getNextIdRibuan();
+            $m_mutasi = new \Model\Storage\Mutasi_model();
+            $now = $m_mutasi->getDate();
 
             $conf = new \Model\Storage\Conf();
-            $sql = "EXEC sp_hitung_stok_awal @tanggal = '".$params['tgl_adjust']."'";
+            $sql = "EXEC sp_hitung_stok_awal @tanggal = '".$now['waktu']."'";
 
-            $d_conf = $conf->hydrateRaw($sql);
+            $m_mutasi->where('kode_mutasi', $kode_mutasi)->update(
+                array(
+                    'g_status' => getStatus('approve')
+                )
+            );
 
-            $m_adjin->kode_adjin = $kode_adjin;
-            $m_adjin->tgl_adjin = $params['tgl_adjust'];
-            $m_adjin->gudang_kode = $params['gudang'];
-            $m_adjin->keterangan = $params['keterangan'];
-            $m_adjin->save();
+            $d_mutasi = $m_mutasi->where('kode_mutasi', $kode_mutasi)->first();
 
-            foreach ($params['detail'] as $k_det => $v_det) {
-                $m_adjini = new \Model\Storage\AdjinItem_model();
-                $m_adjini->adjin_kode = $kode_adjin;
-                $m_adjini->item_kode = $v_det['item_kode'];
-                $m_adjini->jumlah = $v_det['jumlah'];
-                $m_adjini->harga = $v_det['harga'];
-                $m_adjini->satuan = $v_det['satuan'];
-                $m_adjini->pengali = $v_det['pengali'];
-                $m_adjini->save();
-            }
-
-            $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $m_adjin, $deskripsi_log, $kode_adjin );
+            $deskripsi_log = 'di-terima oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/update', $d_mutasi, $deskripsi_log, $kode_mutasi );
 
             $this->result['status'] = 1;
-            $this->result['content'] = array('id' => $kode_adjin);
+            $this->result['content'] = array('id' => $kode_mutasi);
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
         }
@@ -196,12 +169,12 @@ class AdjustmentIn extends Public_Controller {
             $kode = $params['kode'];
 
             $conf = new \Model\Storage\Conf();
-            $sql = "EXEC sp_tambah_stok @kode = '".$kode."', @table = 'adjin'";
+            $sql = "EXEC sp_tambah_stok @kode = '".$kode."', @table = 'mutasi'";
 
             $d_conf = $conf->hydrateRaw($sql);
 
             $this->result['status'] = 1;
-            $this->result['message'] = 'Data berhasil di simpan.';
+            $this->result['message'] = 'Data berhasil di terima.';
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
         }

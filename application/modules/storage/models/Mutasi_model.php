@@ -8,14 +8,14 @@ class Mutasi_model extends Conf{
 	protected $kodeTable = 'MT';
 	public $timestamps = false;
 
-	public function branch_asal()
+	public function gudang_asal()
 	{
-		return $this->hasOne('\Model\Storage\Branch_model', 'kode_branch', 'asal');
+		return $this->hasOne('\Model\Storage\Gudang_model', 'kode_gudang', 'asal');
 	}
 
-	public function branch_tujuan()
+	public function gudang_tujuan()
 	{
-		return $this->hasOne('\Model\Storage\Branch_model', 'kode_branch', 'tujuan');
+		return $this->hasOne('\Model\Storage\Gudang_model', 'kode_gudang', 'tujuan');
 	}
 
 	public function detail()

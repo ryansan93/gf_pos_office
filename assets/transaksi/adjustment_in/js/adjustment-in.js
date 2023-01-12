@@ -27,7 +27,7 @@ var adjin = {
         $("#TglAdjust").datetimepicker({
             locale: 'id',
             format: 'DD MMM Y',
-            minDate: moment(new Date((today+' 00:00:00'))).subtract(7, 'days')
+            minDate: moment(new Date((today+' 00:00:00')))
         });
         if ( !empty($("#TglAdjust").find('input').data('tgl')) ) {
             var tgl = $("#TglAdjust").find('input').data('tgl');
@@ -283,9 +283,7 @@ var adjin = {
 		                success: function(data) {
 		                    hideLoading();
 		                    if ( data.status == 1 ) {
-		                    	bootbox.alert(data.message, function() {
-		                    		location.reload();
-		                    	});
+		                    	adjin.hitungStok( data.content.id );
 		                    } else {
 		                        bootbox.alert(data.message);
 		                    };
@@ -295,6 +293,30 @@ var adjin = {
 			});
 		}
 	}, // end - save
+
+    hitungStok: function (kode) {
+        var params = {'kode': kode};
+
+        $.ajax({
+            url: 'transaksi/AdjustmentIn/hitungStok',
+            data: {
+                'params': params
+            },
+            type: 'POST',
+            dataType: 'JSON',
+            beforeSend: function() { showLoading(); },
+            success: function(data) {
+                hideLoading();
+                if ( data.status == 1 ) {
+                    bootbox.alert( data.message, function () {
+                        location.reload();
+                    });
+                } else {
+                    bootbox.alert( data.message );
+                }
+            }
+        });
+    }, // end - hitungStok
 
     hitTotal: function (elm) {
         var tr = $(elm).closest('tr');

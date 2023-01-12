@@ -87,17 +87,10 @@
 
 <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 
-<?php if ( $data['g_status'] == getStatus('submit') ): ?>
-	<?php if ( $akses['a_edit'] == 1 || $akses['a_delete'] == 1 ): ?>
-		<?php if ( $akses['a_edit'] == 1 ): ?>
-			<div class="col-xs-12 no-padding" style="padding-bottom: 5px;">
-				<button type="button" class="col-xs-12 btn btn-primary pull-right" onclick="mutasi.changeTabActive(this)" data-id="<?php echo $data['kode_mutasi']; ?>" data-href="action" data-edit="edit"><i class="fa fa-edit"></i> Edit</button>
-			</div>
-		<?php endif ?>
-		<?php if ( $akses['a_delete'] == 1 ): ?>
-			<div class="col-xs-12 no-padding" style="padding-top: 5px;">
-				<button type="button" class="col-xs-12 btn btn-danger pull-right" onclick="mutasi.delete(this)" data-kode="<?php echo $data['kode_mutasi']; ?>"><i class="fa fa-trash"></i> Hapus</button>
-			</div>
-		<?php endif ?>
+<?php if ( $akses['a_approve'] == 1 ): ?>
+	<?php if ( $data['g_status'] == getStatus('submit') ): ?>
+		<div class="col-xs-12 no-padding">
+			<button type="button" class="btn btn-primary pull-right" onclick="pbm.approve(this)" data-kode="<?php echo $data['kode_mutasi']; ?>"><i class="fa fa-check"></i> Terima</button>
+		</div>
 	<?php endif ?>
 <?php endif ?>

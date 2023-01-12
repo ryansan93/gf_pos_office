@@ -147,6 +147,9 @@ class Penerimaan extends Public_Controller {
 
             $kode_terima = $m_terima->getNextIdRibuan();
 
+            $conf = new \Model\Storage\Conf();
+            $sql = "EXEC sp_hitung_stok_awal @tanggal = '".$params['tgl_terima']."'";
+
             $m_terima->kode_terima = $kode_terima;
             $m_terima->tgl_terima = $params['tgl_terima'];
             $m_terima->no_faktur = $params['no_faktur'];
@@ -171,6 +174,26 @@ class Penerimaan extends Public_Controller {
 
             $this->result['status'] = 1;
             $this->result['content'] = array('id' => $kode_terima);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function hitungStok()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $kode = $params['kode'];
+
+            $conf = new \Model\Storage\Conf();
+            $sql = "EXEC sp_tambah_stok @kode = '".$kode."', @table = 'terima'";
+
+            $d_conf = $conf->hydrateRaw($sql);
+
+            $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di simpan.';
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();

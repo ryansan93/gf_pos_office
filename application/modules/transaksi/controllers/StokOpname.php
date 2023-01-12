@@ -163,8 +163,12 @@ class StokOpname extends Public_Controller {
 
         try {
             $m_so = new \Model\Storage\StokOpname_model();
+
+            $kode_stok_opname = $m_so->getNextIdRibuan();
+
             $m_so->tanggal = $params['tanggal'];
             $m_so->gudang_kode = $params['gudang_kode'];
+            $m_so->kode_stok_opname = $kode_stok_opname;
             $m_so->save();
 
             foreach ($params['list_item'] as $k_li => $v_li) {
@@ -180,6 +184,27 @@ class StokOpname extends Public_Controller {
 
             $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
             Modules::run( 'base/event/save', $m_so, $deskripsi_log );
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('kode' => $kode_stok_opname);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function hitungStokOpname()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $kode = $params['kode'];
+
+            $conf = new \Model\Storage\Conf();
+            $sql = "EXEC sp_stok_opname @kode = '$kode'";
+
+            $d_conf = $conf->hydrateRaw($sql);
 
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di simpan.';

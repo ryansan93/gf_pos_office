@@ -12,17 +12,19 @@
 		<label class="control-label">Asal</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<!-- <input type="text" class="col-xs-12 form-control supplier uppercase" placeholder="Supplier" data-required="1"> -->
-		<select class="form-control asal selectpicker" data-live-search="true" data-required="1">
-			<?php foreach ($branch as $key => $value): ?>
-				<?php
-					$selected = null;
-					if ( $value['kode_branch'] == $data['asal'] ) {
-						$selected = 'selected';
-					}
-				?>
-				<option value="<?php echo $value['kode_branch']; ?>" <?php echo $selected; ?> ><?php echo $value['nama']; ?></option>
-			<?php endforeach ?>
+		<select class="form-control asal" data-required="1">
+			<option value="">Pilih Gudang</option>
+			<?php if ( !empty($gudang) ): ?>
+				<?php foreach ($gudang as $key => $value): ?>
+					<?php
+						$selected = null;
+						if ( $value['kode_gudang'] == $data['asal'] ) {
+							$selected = 'selected';
+						}
+					?>
+					<option value="<?php echo $value['kode_gudang']; ?>" <?php echo $selected; ?> ><?php echo $value['nama']; ?></option>
+				<?php endforeach ?>
+			<?php endif ?>
 		</select>
 	</div>
 </div>
@@ -32,17 +34,19 @@
 		<label class="control-label">Tujuan</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<!-- <input type="text" class="col-xs-12 form-control supplier uppercase" placeholder="Supplier" data-required="1"> -->
-		<select class="form-control tujuan selectpicker" data-live-search="true" data-required="1">
-			<?php foreach ($branch as $key => $value): ?>
-				<?php
-					$selected = null;
-					if ( $value['kode_branch'] == $data['tujuan'] ) {
-						$selected = 'selected';
-					}
-				?>
-				<option value="<?php echo $value['kode_branch']; ?>" <?php echo $selected; ?> ><?php echo $value['nama']; ?></option>
-			<?php endforeach ?>
+		<select class="form-control tujuan" data-required="1">
+			<option value="">Pilih Gudang</option>
+			<?php if ( !empty($gudang) ): ?>
+				<?php foreach ($gudang as $key => $value): ?>
+					<?php
+						$selected = null;
+						if ( $value['kode_gudang'] == $data['tujuan'] ) {
+							$selected = 'selected';
+						}
+					?>
+					<option value="<?php echo $value['kode_gudang']; ?>" <?php echo $selected; ?> ><?php echo $value['nama']; ?></option>
+				<?php endforeach ?>
+			<?php endif ?>
 		</select>
 	</div>
 </div>
@@ -92,7 +96,6 @@
 		<table class="table table-bordered" style="margin-bottom: 0px;">
 			<thead>
 				<tr>
-					<th class="col-xs-1">Group</th>
 					<th class="col-xs-2">Item</th>
 					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
@@ -102,9 +105,6 @@
 			<tbody>
 				<?php foreach ($data['detail'] as $k_det => $v_det): ?>
 					<tr>
-						<td>
-							<input type="text" class="form-control group uppercase" placeholder="Group" data-required="1" value="<?php echo $v_det['item']['group']['nama']; ?>" readonly>
-						</td>
 						<td>
 							<select class="form-control item" data-required="1">
 								<option value="">-- Pilih Item --</option>
@@ -116,13 +116,15 @@
 												$selected = 'selected';
 											}
 										?>
-										<option value="<?php echo $v_item['kode']; ?>" data-namagroup="<?php echo $v_item['group']['nama']; ?>" data-satuan="<?php echo $v_item['satuan']; ?>" <?php echo $selected; ?> ><?php echo strtoupper($v_item['nama']); ?></option>
+										<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' <?php echo $selected; ?> ><?php echo strtoupper($v_item['nama']); ?></option>
 									<?php endforeach ?>
 								<?php endif ?>
 							</select>
 						</td>
 						<td>
-							<input type="text" class="form-control satuan uppercase" placeholder="Satuan" data-required="1" value="<?php echo $v_det['item']['satuan']; ?>" readonly>
+							<select class="form-control satuan" data-required="1" data-val="<?php echo $v_det['satuan']; ?>" disabled>
+								<option value="">Pilih Satuan</option>
+							</select>
 						</td>
 						<td>
 							<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-tipe="decimal" data-required="1" maxlength="10" value="<?php echo angkaDecimal($v_det['jumlah']); ?>">

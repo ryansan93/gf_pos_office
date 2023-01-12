@@ -41,12 +41,30 @@ var mutasi = {
         $('select.asal').select2();
         $('select.tujuan').select2();
         $('select.item').select2().on('select2:select', function (e) {
-            var data = e.params.data.element.dataset;
-
             var _tr = $(this).closest('tr');
+            var select_satuan = $(_tr).find('select.satuan');
 
-            $(_tr).find('.satuan').val( data.satuan );
-            $(_tr).find('.group').val( data.namagroup );
+            var val_satuan = $(select_satuan).attr('data-val');
+
+            var data = e.params.data.element.dataset;
+            var satuan = JSON.parse( data.satuan );
+
+            var opt = '<option value="">Pilih Satuan</option>';
+            for (var i = 0; i < satuan.length; i++) {
+                var selected = null;
+                if ( !empty(select_satuan) ) {
+                    if ( satuan[i].satuan == val_satuan ) {
+                        selected = 'selected';
+                    }
+                }
+
+                opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" '+selected+' >'+satuan[i].satuan+'</option>';
+            }
+
+            $(select_satuan).html( opt );
+            $(select_satuan).removeAttr('disabled');
+            $(_tr).find('.jumlah').removeAttr('disabled');
+            $(_tr).find('.harga').removeAttr('disabled');
         });
     }, // end - setting_up
 
@@ -152,8 +170,6 @@ var mutasi = {
     loadForm: function(v_id = null, resubmit = null) {
         var dcontent = $('div#action');
 
-        console.log( v_id+' |'+resubmit );
-
         $.ajax({
             url : 'transaksi/Mutasi/loadForm',
             data : {
@@ -167,6 +183,36 @@ var mutasi = {
                 hideLoading();
                 $(dcontent).html(html);
                 mutasi.setting_up();
+
+                if ( !empty(v_id) && !empty(resubmit) ) {
+                    $.map( $(dcontent).find('select.item'), function (select) {
+                        var _tr = $(select).closest('tr');
+                        var select_satuan = $(_tr).find('select.satuan');
+
+                        var val_satuan = $(select_satuan).attr('data-val');
+
+                        var data = $(select).find('option:selected').attr('data-satuan');
+
+                        var satuan = JSON.parse( data );
+
+                        var opt = '<option value="">Pilih Satuan</option>';
+                        for (var i = 0; i < satuan.length; i++) {
+                            var selected = null;
+                            if ( !empty(select_satuan) ) {
+                                if ( satuan[i].satuan == val_satuan ) {
+                                    selected = 'selected';
+                                }
+                            }
+
+                            opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" '+selected+' >'+satuan[i].satuan+'</option>';
+                        }
+
+                        $(select_satuan).html( opt );
+                        $(select_satuan).removeAttr('disabled');
+                        $(_tr).find('.jumlah').removeAttr('disabled');
+                        $(_tr).find('.harga').removeAttr('disabled');
+                    });
+                }
             },
         });
     }, // end - loadForm
@@ -231,7 +277,9 @@ var mutasi = {
 					var detail = $.map( $(dcontent).find('table tbody tr'), function(_tr) {
                         var _detail = {
                             'item_kode': $(_tr).find('.item').val(),
-                            'jumlah': numeral.unformat( $(_tr).find('.jumlah').val() )
+                            'jumlah': numeral.unformat( $(_tr).find('.jumlah').val() ),
+                            'satuan': $(_tr).find('.satuan').val(),
+                            'pengali': $(_tr).find('.satuan option:selected').attr('data-pengali')
                         };
 
                         return _detail;
@@ -302,7 +350,9 @@ var mutasi = {
                     var detail = $.map( $(dcontent).find('table tbody tr'), function(_tr) {
                         var _detail = {
                             'item_kode': $(_tr).find('.item').val(),
-                            'jumlah': numeral.unformat( $(_tr).find('.jumlah').val() )
+                            'jumlah': numeral.unformat( $(_tr).find('.jumlah').val() ),
+                            'satuan': $(_tr).find('.satuan').val(),
+                            'pengali': $(_tr).find('.satuan option:selected').attr('data-pengali')
                         };
 
                         return _detail;

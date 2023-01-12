@@ -7,7 +7,7 @@
 			}
 		?>
 
-		<tr class="cursor-p" onclick="mutasi.changeTabActive(this)" data-href="action" data-id="<?php echo $v_data['kode_mutasi']; ?>" data-edit="" style="background-color: <?php echo $bg_color; ?>">
+		<tr class="cursor-p" onclick="pbm.changeTabActive(this)" data-href="action" data-id="<?php echo $v_data['kode_mutasi']; ?>" data-edit="" style="background-color: <?php echo $bg_color; ?>">
 			<td class="text-center"><?php echo strtoupper(tglIndonesia($v_data['tgl_mutasi'], '-', ' ')); ?></td>
 			<td class="text-center"><?php echo $v_data['kode_mutasi']; ?></td>
 			<td><?php echo strtoupper($v_data['nama_pic']); ?></td>

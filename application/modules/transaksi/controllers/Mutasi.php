@@ -51,14 +51,14 @@ class Mutasi extends Public_Controller {
         }
     }
 
-    public function getBranch()
+    public function getGudang()
     {
-        $m_branch = new \Model\Storage\Branch_model();
-        $d_branch = $m_branch->orderBy('nama', 'asc')->get();
+        $m_gudang = new \Model\Storage\Gudang_model();
+        $d_gudang = $m_gudang->orderBy('nama', 'asc')->get();
 
         $data = null;
-        if ( $d_branch->count() > 0 ) {
-            $data = $d_branch->toArray();
+        if ( $d_gudang->count() > 0 ) {
+            $data = $d_gudang->toArray();
         }
 
         return $data;
@@ -67,7 +67,7 @@ class Mutasi extends Public_Controller {
     public function getItem()
     {
         $m_item = new \Model\Storage\Item_model();
-        $d_item = $m_item->with(['group'])->orderBy('nama', 'asc')->get();
+        $d_item = $m_item->with(['satuan'])->orderBy('nama', 'asc')->get();
 
         $data_item = null;
         if ( $d_item->count() > 0 ) {
@@ -104,7 +104,7 @@ class Mutasi extends Public_Controller {
         $end_date = $params['end_date'];
 
         $m_mutasi = new \Model\Storage\Mutasi_model();
-        $d_mutasi = $m_mutasi->whereBetween('tgl_mutasi', [$start_date, $end_date])->with(['branch_asal', 'branch_tujuan'])->orderBy('tgl_mutasi', 'desc')->get();
+        $d_mutasi = $m_mutasi->whereBetween('tgl_mutasi', [$start_date, $end_date])->with(['gudang_asal', 'gudang_tujuan'])->orderBy('tgl_mutasi', 'desc')->get();
 
         $data = null;
         if ( $d_mutasi->count() > 0 ) {
@@ -120,7 +120,7 @@ class Mutasi extends Public_Controller {
     public function viewForm($kode)
     {
         $m_mutasi = new \Model\Storage\Mutasi_model();
-        $d_mutasi = $m_mutasi->where('kode_mutasi', $kode)->with(['branch_asal', 'branch_tujuan', 'detail'])->first();
+        $d_mutasi = $m_mutasi->where('kode_mutasi', $kode)->with(['gudang_asal', 'gudang_tujuan', 'detail'])->first();
 
         $data = null;
         if ( $d_mutasi ) {
@@ -138,7 +138,7 @@ class Mutasi extends Public_Controller {
     public function addForm()
     {
         $content['item'] = $this->getItem();
-        $content['branch'] = $this->getBranch();
+        $content['gudang'] = $this->getGudang();
 
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
 
@@ -148,7 +148,7 @@ class Mutasi extends Public_Controller {
     public function editForm($kode)
     {
         $m_mutasi = new \Model\Storage\Mutasi_model();
-        $d_mutasi = $m_mutasi->where('kode_mutasi', $kode)->with(['branch_asal', 'branch_tujuan', 'detail'])->first();
+        $d_mutasi = $m_mutasi->where('kode_mutasi', $kode)->with(['gudang_asal', 'gudang_tujuan', 'detail'])->first();
 
         $data = null;
         if ( $d_mutasi ) {
@@ -158,7 +158,7 @@ class Mutasi extends Public_Controller {
         $content['akses'] = $this->hakAkses;
         $content['data'] = $data;
         $content['item'] = $this->getItem();
-        $content['branch'] = $this->getBranch();
+        $content['gudang'] = $this->getGudang();
 
         // cetak_r( $data );
 
@@ -202,6 +202,8 @@ class Mutasi extends Public_Controller {
                 $m_mutasii->mutasi_kode = $kode_mutasi;
                 $m_mutasii->item_kode = $v_det['item_kode'];
                 $m_mutasii->jumlah = $v_det['jumlah'];
+                $m_mutasii->satuan = $v_det['satuan'];
+                $m_mutasii->pengali = $v_det['pengali'];
                 $m_mutasii->save();
             }
 
@@ -258,6 +260,8 @@ class Mutasi extends Public_Controller {
                 $m_mutasii->mutasi_kode = $kode_mutasi;
                 $m_mutasii->item_kode = $v_det['item_kode'];
                 $m_mutasii->jumlah = $v_det['jumlah'];
+                $m_mutasii->satuan = $v_det['satuan'];
+                $m_mutasii->pengali = $v_det['pengali'];
                 $m_mutasii->save();
             }
 
@@ -298,210 +302,6 @@ class Mutasi extends Public_Controller {
             $this->result['status'] = 1;
             $this->result['content'] = array('id' => $kode_mutasi);
             $this->result['message'] = 'Data berhasil di hapus.';
-        } catch (Exception $e) {
-            $this->result['message'] = $e->getMessage();
-        }
-
-        display_json( $this->result );
-    }
-
-    public function approve()
-    {
-        $kode_mutasi = $this->input->post('kode_mutasi');
-
-        try {
-            $m_mutasi = new \Model\Storage\Mutasi_model();
-            $now = $m_mutasi->getDate();
-
-            $m_mutasi->where('kode_mutasi', $kode_mutasi)->update(
-                array(
-                    'g_status' => getStatus('approve')
-                )
-            );
-
-            $d_mutasi = $m_mutasi->where('kode_mutasi', $kode_mutasi)->with(['detail'])->first();
-
-            if ( $d_mutasi ) {
-                $date = $this->config->item('date');
-                $tgl_stok_opname = $this->config->item('tgl_stok_opname');
-
-                if ( $date >= $tgl_stok_opname ) {
-                    /* STOK */
-                    $m_stokt = new \Model\Storage\StokTanggal_model();
-                    $d_stokt_asal = $m_stokt->where('tanggal', $date)->where('branch_kode', $d_mutasi['asal'])->first();
-                    $d_stokt_tujuan = $m_stokt->where('tanggal', $date)->where('branch_kode', $d_mutasi['tujuan'])->first();
-
-                    $id_header_asal = null;
-                    if ( $d_stokt_asal ) {
-                        $id_header_asal = $d_stokt_asal->id;
-                    } else {
-                        $m_stokt->tanggal = $date;
-                        $m_stokt->branch_kode = $d_mutasi['asal'];
-                        $m_stokt->save();
-
-                        $id_header_asal = $m_stokt->id;
-                    }
-
-                    $d_stokt_prev_asal = $m_stokt->where('tanggal', '<', $date)->where('branch_kode', $d_mutasi['asal'])->orderBy('tanggal', 'desc')->first();
-
-                    if ( $d_stokt_prev_asal ) {
-                        $m_stok = new \Model\Storage\Stok_model();
-                        $d_stok = $m_stok->where('id_header', $d_stokt_prev_asal->id)->where('sisa_stok', '>', 0)->get();
-
-                        if ( $d_stok->count() > 0 ) {
-                            $d_stok = $d_stok->toArray();
-
-                            foreach ($d_stok as $k_stok => $v_stok) {
-                                $m_stok = new \Model\Storage\Stok_model();
-                                $d_stok_cek = $m_stok->where('id_header', $id_header_asal)->where('kode_trans', $v_stok['kode_trans'])->where('branch_kode', $v_stok['branch_kode'])->where('item_kode', $v_stok['item_kode'])->first();
-
-                                if ( !$d_stok_cek ) {
-                                    $m_stok = new \Model\Storage\Stok_model();
-                                    $m_stok->id_header = $id_header_asal;
-                                    $m_stok->tgl_trans = $v_stok['tgl_trans'];
-                                    $m_stok->tanggal = $v_stok['tanggal'];
-                                    $m_stok->kode_trans = $v_stok['kode_trans'];
-                                    $m_stok->branch_kode = $v_stok['branch_kode'];
-                                    $m_stok->item_kode = $v_stok['item_kode'];
-                                    $m_stok->harga_beli = $v_stok['harga_beli'];
-                                    $m_stok->harga_jual = $v_stok['harga_jual'];
-                                    $m_stok->jumlah = $v_stok['jumlah'];
-                                    $m_stok->sisa_stok = $v_stok['sisa_stok'];
-                                    $m_stok->tbl_name = $v_stok['tbl_name'];
-                                    $m_stok->save();
-                                }
-                            }
-                        }
-                    }
-
-                    $id_header_tujuan = null;
-                    if ( $d_stokt_tujuan ) {
-                        $id_header_tujuan = $d_stokt_tujuan->id;
-                    } else {
-                        $m_stokt->tanggal = $date;
-                        $m_stokt->branch_kode = $d_mutasi['tujuan'];
-                        $m_stokt->save();
-
-                        $id_header_tujuan = $m_stokt->id;
-                    }
-
-                    $d_stokt_prev_tujuan = $m_stokt->where('tanggal', '<', $date)->where('branch_kode', $d_mutasi['tujuan'])->orderBy('tanggal', 'desc')->first();
-
-                    if ( $d_stokt_prev_tujuan ) {
-                        $m_stok = new \Model\Storage\Stok_model();
-                        $d_stok = $m_stok->where('id_header', $d_stokt_prev_tujuan->id)->where('sisa_stok', '>', 0)->get();
-
-                        if ( $d_stok->count() > 0 ) {
-                            $d_stok = $d_stok->toArray();
-
-                            foreach ($d_stok as $k_stok => $v_stok) {
-                                $m_stok = new \Model\Storage\Stok_model();
-                                $d_stok_cek = $m_stok->where('id_header', $id_header_tujuan)->where('kode_trans', $v_stok['kode_trans'])->where('branch_kode', $v_stok['branch_kode'])->where('item_kode', $v_stok['item_kode'])->first();
-
-                                if ( !$d_stok_cek ) {
-                                    $m_stok = new \Model\Storage\Stok_model();
-                                    $m_stok->id_header = $id_header_tujuan;
-                                    $m_stok->tgl_trans = $v_stok['tgl_trans'];
-                                    $m_stok->tanggal = $v_stok['tanggal'];
-                                    $m_stok->kode_trans = $v_stok['kode_trans'];
-                                    $m_stok->branch_kode = $v_stok['branch_kode'];
-                                    $m_stok->item_kode = $v_stok['item_kode'];
-                                    $m_stok->harga_beli = $v_stok['harga_beli'];
-                                    $m_stok->harga_jual = $v_stok['harga_jual'];
-                                    $m_stok->jumlah = $v_stok['jumlah'];
-                                    $m_stok->sisa_stok = $v_stok['sisa_stok'];
-                                    $m_stok->tbl_name = $v_stok['tbl_name'];
-                                    $m_stok->save();
-                                }
-                            }
-                        }
-                    }
-                    /* END - STOK */
-
-                    $data = $d_mutasi->toArray();
-
-                    foreach ($data['detail'] as $k_det => $v_det) {
-                        $jml_keluar = $v_det['jumlah'];
-                        while ($jml_keluar > 0) {
-                            $m_stok = new \Model\Storage\Stok_model();
-                            $d_stok = $m_stok->where('id_header', $id_header_asal)->where('item_kode', $v_det['item_kode'])->where('branch_kode', $data['asal'])->where('sisa_stok', '>', 0)->orderBy('tgl_trans', 'asc')->first();
-                            
-                            if ( $d_stok ) {
-                                if ( $d_stok->sisa_stok > $jml_keluar ) {
-                                    $m_stok = new \Model\Storage\Stok_model();
-                                    $m_stok->where('id', $d_stok->id)->update(
-                                        array(
-                                            'sisa_stok' => ($d_stok->sisa_stok - $jml_keluar)
-                                        )
-                                    );
-
-                                    $m_stokt = new \Model\Storage\StokTrans_model();
-                                    $m_stokt->id_header = $d_stok->id;
-                                    $m_stokt->kode_trans = $kode_mutasi;
-                                    $m_stokt->jumlah = $jml_keluar;
-                                    $m_stokt->tbl_name = $m_mutasi->getTable();
-                                    $m_stokt->save();
-
-                                    $m_stok = new \Model\Storage\Stok_model();
-                                    $m_stok->id_header = $id_header_tujuan;
-                                    $m_stok->tgl_trans = $now['waktu'];
-                                    $m_stok->tanggal = $data['tgl_mutasi'];
-                                    $m_stok->kode_trans = $kode_mutasi;
-                                    $m_stok->branch_kode = $data['tujuan'];
-                                    $m_stok->item_kode = $v_det['item_kode'];
-                                    $m_stok->harga_beli = $d_stok->harga_beli;
-                                    $m_stok->harga_jual = $d_stok->harga_jual;
-                                    $m_stok->jumlah = $jml_keluar;
-                                    $m_stok->sisa_stok = $jml_keluar;
-                                    $m_stok->tbl_name = $m_mutasi->getTable();
-                                    $m_stok->save();
-
-                                    $jml_keluar = 0;
-                                } else {
-                                    $m_stok = new \Model\Storage\Stok_model();
-                                    $m_stok->where('id', $d_stok->id)->update(
-                                        array(
-                                            'sisa_stok' => 0
-                                        )
-                                    );
-
-                                    $m_stokt = new \Model\Storage\StokTrans_model();
-                                    $m_stokt->id_header = $d_stok->id;
-                                    $m_stokt->kode_trans = $kode_mutasi;
-                                    $m_stokt->jumlah = $d_stok->sisa_stok;
-                                    $m_stokt->tbl_name = $m_mutasi->getTable();
-                                    $m_stokt->save();
-
-                                    $m_stok = new \Model\Storage\Stok_model();
-                                    $m_stok->id_header = $id_header_tujuan;
-                                    $m_stok->tgl_trans = $now['waktu'];
-                                    $m_stok->tanggal = $data['tgl_mutasi'];
-                                    $m_stok->kode_trans = $kode_mutasi;
-                                    $m_stok->branch_kode = $data['tujuan'];
-                                    $m_stok->item_kode = $v_det['item_kode'];
-                                    $m_stok->harga_beli = $d_stok->harga_beli;
-                                    $m_stok->harga_jual = $d_stok->harga_jual;
-                                    $m_stok->jumlah = $d_stok->sisa_stok;
-                                    $m_stok->sisa_stok = $d_stok->sisa_stok;
-                                    $m_stok->tbl_name = $m_mutasi->getTable();
-                                    $m_stok->save();
-
-                                    $jml_keluar = $jml_keluar - $d_stok->sisa_stok;
-                                }
-                            } else {
-                                $jml_keluar = 0;
-                            }
-                        }
-                    }
-                }
-            }
-
-            $deskripsi_log = 'di-terima oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/update', $d_mutasi, $deskripsi_log, $kode_mutasi );
-
-            $this->result['status'] = 1;
-            $this->result['content'] = array('id' => $kode_mutasi);
-            $this->result['message'] = 'Data berhasil di terima.';
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
         }

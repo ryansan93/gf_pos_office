@@ -40,7 +40,8 @@
 					<th class="col-xs-2">Item</th>
 					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
-					<th class="col-xs-1">Harga (Rp.)</th>
+					<th class="col-xs-1">Harga Satuan (Rp.)</th>
+					<th class="col-xs-1"></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -51,17 +52,20 @@
 							<?php echo strtoupper($v_item['nama']); ?>
 						</td>
 						<td>
-							<select class="form-control satuan" data-required="1">
+							<select class="form-control satuan" data-required="1" disabled>
 								<?php foreach ($v_item['satuan'] as $k_satuan => $v_satuan): ?>									
 									<option value="<?php echo $v_satuan['satuan']; ?>" data-pengali="<?php echo $v_satuan['pengali']; ?>"><?php echo $v_satuan['satuan']; ?></option>
 								<?php endforeach ?>
 							</select>
 						</td>
 						<td>
-							<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-tipe="decimal"  maxlength="10">
+							<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-tipe="decimal"  maxlength="10" disabled>
 						</td>
 						<td>
-							<input type="text" class="form-control text-right harga uppercase" placeholder="Harga" data-tipe="decimal"  maxlength="10">
+							<input type="text" class="form-control text-right harga uppercase" placeholder="Harga" data-tipe="decimal"  maxlength="10" disabled>
+						</td>
+						<td class="text-center">
+							<input type="checkbox" onchange="so.choseItem(this)">
 						</td>
 					</tr>
 				<?php endforeach ?>

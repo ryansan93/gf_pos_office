@@ -243,9 +243,7 @@ var terima = {
 		                success: function(data) {
 		                    hideLoading();
 		                    if ( data.status == 1 ) {
-		                    	bootbox.alert(data.message, function() {
-		                    		location.reload();
-		                    	});
+		                    	terima.hitungStok( data.content.id );
 		                    } else {
 		                        bootbox.alert(data.message);
 		                    };
@@ -255,6 +253,30 @@ var terima = {
 			});
 		}
 	}, // end - save
+
+    hitungStok: function (kode) {
+        var params = {'kode': kode};
+
+        $.ajax({
+            url: 'transaksi/Penerimaan/hitungStok',
+            data: {
+                'params': params
+            },
+            type: 'POST',
+            dataType: 'JSON',
+            beforeSend: function() { showLoading(); },
+            success: function(data) {
+                hideLoading();
+                if ( data.status == 1 ) {
+                    bootbox.alert( data.message, function () {
+                        location.reload();
+                    });
+                } else {
+                    bootbox.alert( data.message );
+                }
+            }
+        });
+    }, // end - hitungStok
 };
 
 terima.start_up();
