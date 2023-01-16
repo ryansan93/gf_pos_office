@@ -47,7 +47,7 @@
 </div>
 
 <div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
-	<button type="button" class="col-xs-12 btn btn-primary pull-right tampilkan_riwayat" onclick="adjout.getLists(this)"><i class="fa fa-search"></i> Tampilkan</button>
+	<button type="button" class="col-xs-12 btn btn-primary pull-right tampilkan_riwayat" onclick="so.getLists(this)"><i class="fa fa-search"></i> Tampilkan</button>
 </div>
 
 <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>

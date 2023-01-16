@@ -175,7 +175,7 @@ var so = {
                         var _list_item = {
                             'item_kode': $(tr).find('td.kode').text(),
                             'satuan': $(tr).find('select.satuan').val(),
-                            'pengali': numeral.unformat( $(tr).find('select.satuan option:selected').attr('data-pengali') ),
+                            'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
                             'jumlah': numeral.unformat( jumlah ),
                             'harga': numeral.unformat( harga )
                         };

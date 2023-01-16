@@ -282,9 +282,7 @@ var adjout = {
 		                success: function(data) {
 		                    hideLoading();
 		                    if ( data.status == 1 ) {
-		                    	bootbox.alert(data.message, function() {
-		                    		location.reload();
-		                    	});
+		                    	adjout.hitungStok( data.content.id );
 		                    } else {
 		                        bootbox.alert(data.message);
 		                    };
@@ -294,6 +292,30 @@ var adjout = {
 			});
 		}
 	}, // end - save
+
+    hitungStok: function (kode) {
+        var params = {'kode': kode};
+
+        $.ajax({
+            url: 'transaksi/AdjustmentOut/hitungStok',
+            data: {
+                'params': params
+            },
+            type: 'POST',
+            dataType: 'JSON',
+            beforeSend: function() { showLoading(); },
+            success: function(data) {
+                hideLoading();
+                if ( data.status == 1 ) {
+                    bootbox.alert( data.message, function () {
+                        location.reload();
+                    });
+                } else {
+                    bootbox.alert( data.message );
+                }
+            }
+        });
+    }, // end - hitungStok
 };
 
 adjout.start_up();

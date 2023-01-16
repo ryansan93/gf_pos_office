@@ -30,7 +30,7 @@
 				<tbody class="list">
 					<?php if ( !empty($data) ): ?>
 						<?php foreach ($data as $k_data => $v_data): ?>
-							<tr class="head" data-kode="<?php echo $v_data['kode']; ?>">
+							<tr class="search head" data-kode="<?php echo $v_data['kode']; ?>">
 								<td><?php echo $v_data['kode']; ?></td>
 								<td><?php echo $v_data['nama']; ?></td>
 								<td><?php echo $v_data['brand']; ?></td>

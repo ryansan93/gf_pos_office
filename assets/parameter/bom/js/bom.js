@@ -68,6 +68,10 @@ var bom = {
             $(select_satuan).html( opt );
             $(select_satuan).removeAttr('disabled');
         });
+
+        $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
+            $(this).priceFormat(Config[$(this).data('tipe')]);
+        });
 	}, // end - settingUp
 
     addRow: function (elm) {
@@ -227,7 +231,7 @@ var bom = {
                         var _list_item = {
                             'item_kode': $(tr).find('select.item').val(),
                             'satuan': $(tr).find('select.satuan').val(),
-                            'pengali': numeral.unformat( $(tr).find('select.satuan option:selected').attr('data-pengali') ),
+                            'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
                             'jumlah': numeral.unformat( $(tr).find('input.jumlah').val() )
                         };
 
@@ -235,7 +239,7 @@ var bom = {
                     });
 
                     var params = {
-                        'menu_kode': $('.menu').select2('val'),
+                        'menu_kode': $(div).find('.menu').select2('val'),
                         'tanggal': dateSQL( $('#TglBerlaku').data('DateTimePicker').date() ),
                         'list_item': list_item
                     };
@@ -287,7 +291,7 @@ var bom = {
                         var _list_item = {
                             'item_kode': $(tr).find('select.item').val(),
                             'satuan': $(tr).find('select.satuan').val(),
-                            'pengali': numeral.unformat( $(tr).find('select.satuan option:selected').attr('data-pengali') ),
+                            'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
                             'jumlah': numeral.unformat( $(tr).find('input.jumlah').val() )
                         };
 

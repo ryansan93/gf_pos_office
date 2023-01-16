@@ -7,9 +7,9 @@ class Stok_model extends Conf{
 	protected $primaryKey = 'id';
 	public $timestamps = false;
 
-	public function branch()
+	public function gudang()
 	{
-		return $this->hasOne('\Model\Storage\Branch_model', 'kode_branch', 'branch_kode');
+		return $this->hasOne('\Model\Storage\Gudang_model', 'kode_gudang', 'gudang_kode');
 	}
 
 	public function item()

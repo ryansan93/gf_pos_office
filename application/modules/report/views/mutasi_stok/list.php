@@ -1,12 +1,12 @@
 <?php if ( !empty($data) && count($data) > 0 ): ?>
-	<?php foreach ($data as $k_branch => $v_branch): ?>
+	<?php foreach ($data as $k_gudang => $v_gudang): ?>
 		<tbody>
 			<tr>
-				<td colspan="11" style="background-color: #ededed;"><b><?php echo $v_branch['nama']; ?></b></td>
+				<td colspan="11" style="background-color: #ededed;"><b><?php echo $v_gudang['nama']; ?></b></td>
 			</tr>
 		</tbody>
 		<?php $urut_item = 0; ?>
-		<?php foreach ($v_branch['detail'] as $k_item => $v_item): ?>
+		<?php foreach ($v_gudang['detail'] as $k_item => $v_item): ?>
 			<?php $saldo = 0; ?>
 			<?php $nilai_saldo = 0; ?>
 			<?php $idx_item = 0; ?>
@@ -71,7 +71,9 @@
 		<?php endforeach ?>
 	<?php endforeach ?>
 <?php else: ?>
-	<tr>
-		<td colspan="11">Data tidak ditemukan.</td>
-	</tr>
+	<tbody>
+		<tr>
+			<td colspan="11">Data tidak ditemukan.</td>
+		</tr>
+	</tbody>
 <?php endif ?>

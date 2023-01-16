@@ -42,7 +42,6 @@
 					<th class="col-xs-1">Jumlah</th>
 					<th class="col-xs-1">Harga Satuan (Rp.)</th>
 					<th class="col-xs-1">Total</th>
-					<th class="col-xs-1"></th>
 				</tr>
 			</thead>
 			<tbody>

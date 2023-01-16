@@ -66,6 +66,8 @@ class JenisPesanan extends Public_Controller {
 
             $m_jp->kode = $kode;
             $m_jp->nama = $params['nama'];
+            $m_jp->exclude = $params['exclude'];
+            $m_jp->include = $params['include'];
             $m_jp->save();
 
             $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
@@ -102,7 +104,9 @@ class JenisPesanan extends Public_Controller {
             $m_jp = new \Model\Storage\JenisPesanan_model();
             $m_jp->where('kode', $params['kode'])->update(
                 array(
-                    'nama' => $params['nama']
+                    'nama' => $params['nama'],
+                    'exclude' => $params['exclude'],
+                    'include' => $params['include']
                 )
             );
 

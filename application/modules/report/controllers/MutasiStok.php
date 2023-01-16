@@ -37,7 +37,7 @@ class MutasiStok extends Public_Controller {
             $data = $this->includes;
 
             $content['report'] = $this->load->view($this->pathView . 'report', null, TRUE);
-            $content['branch'] = $this->getBranch();
+            $content['gudang'] = $this->getGudang();
             $content['item'] = $this->getItem();
             $content['akses'] = $this->hakAkses;
 
@@ -50,14 +50,14 @@ class MutasiStok extends Public_Controller {
         }
     }
 
-    public function getBranch()
+    public function getGudang()
     {
-        $m_branch = new \Model\Storage\Branch_model();
-        $d_branch = $m_branch->orderBy('nama', 'asc')->get();
+        $m_gdg = new \Model\Storage\Gudang_model();
+        $d_gdg = $m_gdg->orderBy('nama', 'asc')->get();
 
         $data = null;
-        if ( $d_branch->count() > 0 ) {
-            $data = $d_branch->toArray();
+        if ( $d_gdg->count() > 0 ) {
+            $data = $d_gdg->toArray();
         }
 
         return $data;
@@ -85,18 +85,18 @@ class MutasiStok extends Public_Controller {
 
             $start_date = ($params['start_date'] >= $tgl_stok_opname) ? $params['start_date'] : $tgl_stok_opname;
             $end_date = $params['end_date'];
-            $branch = $params['branch'];
+            $gudang = $params['gudang'];
             $item = $params['item'];
 
             $m_stokt = new \Model\Storage\StokTanggal_model();
-            $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('branch_kode', $branch)->with(['branch'])->orderBy('tanggal', 'asc')->get();
+            $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
 
             $data = null;
             if ( $d_stokt->count() > 0 ) {
                 $data = $d_stokt->toArray();
             }
 
-            $mappingDataReport = $this->mappingDataReport( $data, $item, $branch );
+            $mappingDataReport = $this->mappingDataReport( $data, $item, $gudang );
 
             $content_report['data'] = $mappingDataReport;
             $html_report = $this->load->view($this->pathView . 'list', $content_report, TRUE);
@@ -114,7 +114,7 @@ class MutasiStok extends Public_Controller {
         display_json( $this->result );
     }
 
-    public function mappingDataReport($_data, $_item, $_branch)
+    public function mappingDataReport($_data, $_item, $_gudang)
     {
         $kode_item = array();
         if ( !empty( $_item ) ) {
@@ -142,36 +142,38 @@ class MutasiStok extends Public_Controller {
         $data = null;
         if ( !empty($_data) ) {
             foreach ($_data as $k_data => $v_data) {
-                $data[ $v_data['branch_kode'] ]['kode'] = $v_data['branch_kode'];
-                $data[ $v_data['branch_kode'] ]['nama'] = $v_data['branch']['nama'];
+                $data[ $v_data['gudang_kode'] ]['kode'] = $v_data['gudang_kode'];
+                $data[ $v_data['gudang_kode'] ]['nama'] = $v_data['gudang']['nama'];
 
                 $_kode_item = "'".implode("', '", $kode_item)."'";
 
                 $id_stok_tanggal = $v_data['id'];
-                $kode_branch = $v_data['branch_kode'];
+                $kode_gudang = $v_data['gudang_kode'];
 
                 $conf = new \Model\Storage\Conf();
                 $sql = "
                     select 
                         s.id_header,
                         s.item_kode,
+                        s.tgl_trans,
                         s.tanggal,
                         s.kode_trans,
                         s.harga_beli,
                         sum(s.sisa_stok) as sisa_stok,
                         i.nama as nama 
                     from stok s
-                    left join
+                    right join
                         item i
                         on
                             s.item_kode = i.kode
                     where
                         s.id_header = $id_stok_tanggal and
-                        s.branch_kode = '$kode_branch' and
+                        s.gudang_kode = '$kode_gudang' and
                         s.item_kode in ($_kode_item)
                     group by
                         s.id_header,
                         s.item_kode,
+                        s.tgl_trans,
                         s.tanggal,
                         s.kode_trans,
                         s.harga_beli,
@@ -184,121 +186,152 @@ class MutasiStok extends Public_Controller {
                     $d_conf_stok = $d_conf_stok->toArray();
 
                     foreach ($d_conf_stok as $k_det => $v_det) {
-                        // if ( $v_det['kode_trans'] == 'AI22100008' && $v_data['tanggal'] == '2022-10-26' && $v_det['item_kode'] == 'ITM2210025' ) {
-                        //     cetak_r( $v_det );
-                        // }
+                        $id_header = $v_det['id_header'];
+                        $item_kode = $v_det['item_kode'];
+                        $tanggal = substr($v_det['tanggal'], 0, 10);
+                        $kode_trans = $v_det['kode_trans'];
 
-                        // if ( in_array(trim($v_det['item_kode']), $kode_item) ) {
-                            // $id_stok = $v_det['id'];
-                            $id_header = $v_det['id_header'];
-                            $item_kode = $v_det['item_kode'];
-                            $tanggal = $v_det['tanggal'];
-                            $kode_trans = $v_det['kode_trans'];
-                            $harga_beli = $v_det['harga_beli'];
+                        $conf = new \Model\Storage\Conf();
+                        $sql = "
+                            select * from stok_harga sh
+                            where
+                                sh.id_header = $id_header and
+                                sh.item_kode = '$item_kode'
+                        ";
+                        $d_harga = $conf->hydrateRaw($sql);
 
-                            $conf = new \Model\Storage\Conf();
-                            $sql = "
-                                select st.* from stok_trans st
-                                left join
-                                    stok s
-                                    on
-                                        st.id_header = s.id
-                                where
-                                    s.id_header = $id_header and
-                                    s.item_kode = '$item_kode' and
-                                    s.tanggal = '$tanggal' and
-                                    s.kode_trans = '$kode_trans' and
-                                    s.harga_beli = $harga_beli 
-                            ";
+                        $harga_beli = 0;
+                        if ( $d_harga->count() > 0 ) {
+                            $d_harga = $d_harga->toArray();
 
-                            $d_conf_stokt = $conf->hydrateRaw($sql);
-                            $data_stokt = null;
-                            if ( $d_conf_stokt->count() > 0 ) {
-                                $data_stokt = $d_conf_stokt->toArray();
+                            $harga_beli = $d_harga[0]['harga'];
+                        }
+                        // $harga_beli = $v_det['harga_beli'];
 
-                                // if ( $v_det['kode_trans'] == 'AI22100008' && $v_data['tanggal'] == '2022-10-26' && $v_det['item_kode'] == 'ITM2210025' ) {
-                                //     cetak_r( $data_stokt );
-                                // }
-                            }
+                        $conf = new \Model\Storage\Conf();
+                        $sql = "
+                            select st.* from stok_trans st
+                            left join
+                                stok s
+                                on
+                                    st.id_header = s.id
+                            where
+                                s.id_header = $id_header and
+                                s.item_kode = '$item_kode' and
+                                s.tanggal = '$tanggal' and
+                                s.kode_trans = '$kode_trans'
+                        ";
 
-                            $key_item = $v_det['nama'].' | '.$v_det['item_kode'];
+                        $d_conf_stokt = $conf->hydrateRaw($sql);
+                        $data_stokt = null;
+                        if ( $d_conf_stokt->count() > 0 ) {
+                            $data_stokt = $d_conf_stokt->toArray();
+                        }
 
-                            $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['kode'] = $v_det['item_kode'];
-                            $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['nama'] = $v_det['nama'];
+                        $key_item = $v_det['nama'].' | '.$v_det['item_kode'];
 
-                            $key_masuk = str_replace('-', '', $v_det['tanggal']).'-'.$v_det['kode_trans'];
+                        $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['kode'] = $v_det['item_kode'];
+                        $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['nama'] = $v_det['nama'];
 
-                            if ( !isset($data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]) ) {
-                                $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['kode'] = $v_det['kode_trans'];
-                                $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['tgl_trans'] = $v_det['tanggal'];
-                                $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['masuk'] = $v_det['sisa_stok'];
-                                $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['keluar'] = 0;
-                                $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['stok_akhir'] = $v_det['sisa_stok'];
-                                $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['harga'] = $v_det['harga_beli'];
-                                $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['nilai'] = ($v_det['sisa_stok'] * $v_det['harga_beli']);
+                        $key_masuk = $v_det['tgl_trans'].' | '.str_replace('-', '', substr($v_det['tanggal'], 0, 10)).'-'.$v_det['kode_trans'].'-'.$harga_beli; 
 
-                                if ( !empty($data_stokt) ) {
-                                    foreach ($data_stokt as $k => $v) {
-                                        // if ( $v_det['kode_trans'] == 'AI22100008' && $v_data['tanggal'] == '2022-10-26' && $v_det['item_kode'] == 'ITM2210025' ) {
-                                        //     cetak_r( $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['masuk'] );
-                                        //     cetak_r( $v['jumlah'] );
-                                        // }
-
-                                        $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['masuk'] += $v['jumlah'];
-                                        $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['stok_akhir'] += $v['jumlah'];
-                                        $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['nilai'] += ($v['jumlah'] * $v_det['harga_beli']);
-                                    }
-                                }
-                            }
+                        if ( !isset($data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]) ) {
+                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['kode'] = $v_det['kode_trans'];
+                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['tgl_trans'] = substr($v_det['tanggal'], 0, 10);
+                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] = $v_det['sisa_stok'];
+                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['keluar'] = 0;
+                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['stok_akhir'] = $v_det['sisa_stok'];
+                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['harga'] = $harga_beli;
+                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] = ($v_det['sisa_stok'] * $harga_beli);
 
                             if ( !empty($data_stokt) ) {
-                                foreach ($data_stokt as $k_detd => $v_detd) {                                
-                                    $tanggal = null;
-                                    $m_conf = new \Model\Storage\Conf();
+                                foreach ($data_stokt as $k => $v) {
+                                    $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] += $v['jumlah'];
+                                    $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['stok_akhir'] += $v['jumlah'];
+                                    $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] += ($v['jumlah'] * $harga_beli);
+                                }
+                            }
+                        }
 
-                                    $tbl_name = $v_detd['tbl_name'];
-                                    $column_name = 'kode_'.$tbl_name;
+                        if ( !empty($data_stokt) ) {
+                            foreach ($data_stokt as $k_detd => $v_detd) {                                
+                                $tanggal = null;
+                                $m_conf = new \Model\Storage\Conf();
 
-                                    $kode_trans = $v_detd['kode_trans'];
+                                $tbl_name = $v_detd['tbl_name'];
+                                $column_name = null;
+                                $kode_trans_nama = null;
+
+                                if ( $tbl_name == 'jual' ) { 
+                                    $column_name = 'kode_faktur'; 
+                                    $kode_trans_nama = $v_detd['kode_trans'];
+                                } else if ( $tbl_name == 'waste_menu' ) {
+                                    $column_name = 'id';
 
                                     $sql = "
-                                        select * from $tbl_name where $column_name = '$kode_trans'
+                                        select pesanan_kode from waste_menu_item where id_header = ".$v_detd['kode_trans']." group by pesanan_kode
                                     ";
 
                                     $d_conf = $m_conf->hydrateRaw($sql);
                                     if ( $d_conf->count() > 0 ) {
-                                        $d_trans = $d_conf->toArray();
+                                        $d_conf = $d_conf->toArray();
 
-                                        foreach ($d_trans as $k_trans => $v_trans) {
-                                            $column_name = 'tgl_'.$tbl_name;
-
-                                            $tanggal = $v_trans[$column_name];
-                                        }
+                                        $kode_trans_nama = 'WM ('.$d_conf[0]['pesanan_kode'].')';
+                                    } else {
+                                        $kode_trans_nama = 'WM';
                                     }
-
-                                    $key_keluar = str_replace('-', '', $tanggal).'-'.$v_detd['id'];
-
-                                    $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $tanggal ]['keluar'][ $key_keluar ]['kode'] = $v_detd['kode_trans'];
-                                    $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $tanggal ]['keluar'][ $key_keluar ]['tgl_trans'] = $tanggal;
-                                    $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $tanggal ]['keluar'][ $key_keluar ]['masuk'] = 0;
-                                    $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $tanggal ]['keluar'][ $key_keluar ]['keluar'] = $v_detd['jumlah'];
-                                    $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $tanggal ]['keluar'][ $key_keluar ]['stok_akhir'] = $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk'][ $key_masuk ]['masuk'] - $v_detd['jumlah'];
-                                    $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $tanggal ]['keluar'][ $key_keluar ]['harga'] = $v_det['harga_beli'];
-                                    $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $tanggal ]['keluar'][ $key_keluar ]['nilai'] = ($v_detd['jumlah'] * $v_det['harga_beli']);
+                                } else {
+                                    $column_name = 'kode_'.$tbl_name;
+                                    $kode_trans_nama = $v_detd['kode_trans'];
                                 }
 
-                                if ( isset($data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk']) && !empty($data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk']) ) {
-                                    ksort( $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['masuk']);
+                                $kode_trans = $v_detd['kode_trans'];
+
+                                $sql = "
+                                    select * from $tbl_name where $column_name = '$kode_trans'
+                                ";
+
+                                $d_conf = $m_conf->hydrateRaw($sql);
+                                if ( $d_conf->count() > 0 ) {
+                                    $d_trans = $d_conf->toArray();
+
+                                    foreach ($d_trans as $k_trans => $v_trans) {
+                                        $column_name = null;
+
+                                        if ( $tbl_name == 'jual' ) { 
+                                            $column_name = 'tgl_trans'; 
+                                        } else if ( $tbl_name == 'waste_menu' ) {
+                                            $column_name = 'tanggal';
+                                        } else {
+                                            $column_name = 'tgl_'.$tbl_name;
+                                        }
+
+                                        $tanggal = $v_trans[$column_name];
+                                    }
                                 }
 
-                                if ( isset($data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['keluar']) && !empty($data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['keluar']) ) {
-                                    ksort( $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'][ $v_det['tanggal'] ]['keluar']);
-                                }
+                                $key_keluar = str_replace('-', '', substr($tanggal, 0, 10)).'-'.$v_detd['id'];
+
+                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['kode'] = $kode_trans_nama;
+                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['tgl_trans'] = substr($tanggal, 0, 10);
+                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['masuk'] = 0;
+                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['keluar'] = $v_detd['jumlah'];
+                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['stok_akhir'] = $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] - $v_detd['jumlah'];
+                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['harga'] = $harga_beli;
+                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['nilai'] = ($v_detd['jumlah'] * $harga_beli);
                             }
 
-                            ksort( $data[ $v_data['branch_kode'] ]['detail'] );
-                            ksort( $data[ $v_data['branch_kode'] ]['detail'][ $key_item ]['detail'] );
-                        // }
+                            if ( isset($data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk']) && !empty($data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk']) ) {
+                                ksort( $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk']);
+                            }
+
+                            if ( isset($data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['keluar']) && !empty($data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['keluar']) ) {
+                                ksort( $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['keluar']);
+                            }
+                        }
+
+                        ksort( $data[ $v_data['gudang_kode'] ]['detail'] );
+                        ksort( $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'] );
                     }
                 }
             }

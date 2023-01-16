@@ -81,7 +81,9 @@ var jp = {
 			bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
 				if ( result ) {
 					var data = {
-						'nama': nama
+						'nama': nama,
+						'exclude': ( $(div).find('input#exclude').is(':checked') ) ? '1' : '0',
+						'include': ( $(div).find('input#include').is(':checked') ) ? '1' : '0'
 					};
 
 			        $.ajax({
@@ -137,7 +139,9 @@ var jp = {
 				if ( result ) {
 					var data = {
 						'kode': kode,
-						'nama': nama
+						'nama': nama,
+						'exclude': ( $(div).find('input#exclude').is(':checked') ) ? '1' : '0',
+						'include': ( $(div).find('input#include').is(':checked') ) ? '1' : '0'
 					};
 
 			        $.ajax({

@@ -1,6 +1,6 @@
-var ms = {
+var ps = {
 	start_up: function () {
-		ms.setting_up();
+		ps.setting_up();
 	}, // end - start_up
 
 	setting_up: function() {
@@ -61,7 +61,7 @@ var ms = {
 			};
 
 			$.ajax({
-	            url: 'report/MutasiStok/getLists',
+	            url: 'report/PosisiStok/getLists',
 	            data: {
 	                'params': params
 	            },
@@ -94,4 +94,4 @@ var ms = {
 	}, // end - export_excel
 };
 
-ms.start_up();
+ps.start_up();

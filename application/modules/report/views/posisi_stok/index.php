@@ -59,7 +59,7 @@
 				</div>
 
 				<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
-					<button type="button" class="col-xs-12 btn btn-primary pull-right tampilkan_riwayat" onclick="ms.getLists(this)"><i class="fa fa-search"></i> Tampilkan</button>
+					<button type="button" class="col-xs-12 btn btn-primary pull-right tampilkan_riwayat" onclick="ps.getLists(this)"><i class="fa fa-search"></i> Tampilkan</button>
 				</div>
 			</div>
 			<div class="col-xs-12 no-padding"><hr></div>
