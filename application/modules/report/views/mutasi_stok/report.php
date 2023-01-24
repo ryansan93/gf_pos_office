@@ -12,6 +12,7 @@
 					<th class="text-center col-lg-2">Transaksi</th>
 					<th class="text-center col-lg-1">Jenis</th>
 					<th class="text-center col-lg-1" style="width: 5%;">Qty</th>
+					<th class="text-center col-lg-1">Satuan</th>
 					<th class="text-center col-lg-1">Hrg (Rp.)</th>
 					<th class="text-center col-lg-1">Sub Total (Rp.)</th>
 					<th class="text-center col-lg-1" style="width: 5%;">Stok</th>
@@ -20,7 +21,7 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="11">Data tidak ditemukan.</td>
+					<td colspan="12">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>

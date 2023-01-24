@@ -16,6 +16,7 @@
 						<?php endif ?>
 						<td class="text-center"><?php echo tglIndonesia($v_tgl['tanggal'], '-', ' '); ?></td>
 						<td class="text-right"><?php echo angkaDecimal($v_tgl['jumlah']); ?></td>
+						<td class="text-center"><?php echo $v_item['satuan']; ?></td>
 						<td class="text-right"><?php echo angkaDecimal($v_tgl['harga']); ?></td>
 						<td class="text-right"><?php echo angkaDecimal($v_tgl['nilai_stok']); ?></td>
 					</tr>

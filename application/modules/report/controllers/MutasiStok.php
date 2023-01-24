@@ -160,12 +160,26 @@ class MutasiStok extends Public_Controller {
                         s.kode_trans,
                         s.harga_beli,
                         sum(s.sisa_stok) as sisa_stok,
-                        i.nama as nama 
+                        i.nama as nama,
+                        isatuan.satuan
                     from stok s
                     right join
                         item i
                         on
                             s.item_kode = i.kode
+                    right join
+                        (
+                            select is1.* from item_satuan is1
+                            right join
+                                (
+                                    select max(id) as id, item_kode from item_satuan where pengali = 1 group by item_kode
+                                ) is2
+                                on
+                                    is1.id = is2.id
+
+                        ) isatuan
+                        on
+                            i.kode = isatuan.item_kode
                     where
                         s.id_header = $id_stok_tanggal and
                         s.gudang_kode = '$kode_gudang' and
@@ -177,7 +191,8 @@ class MutasiStok extends Public_Controller {
                         s.tanggal,
                         s.kode_trans,
                         s.harga_beli,
-                        i.nama
+                        i.nama,
+                        isatuan.satuan
                 ";
 
                 $d_conf_stok = $conf->hydrateRaw($sql);
@@ -232,6 +247,7 @@ class MutasiStok extends Public_Controller {
 
                         $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['kode'] = $v_det['item_kode'];
                         $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['nama'] = $v_det['nama'];
+                        $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['satuan'] = $v_det['satuan'];
 
                         $key_masuk = $v_det['tgl_trans'].' | '.str_replace('-', '', substr($v_det['tanggal'], 0, 10)).'-'.$v_det['kode_trans'].'-'.$harga_beli; 
 

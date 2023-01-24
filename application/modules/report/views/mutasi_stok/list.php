@@ -37,6 +37,7 @@
 							<td><?php echo $v_masuk['kode']; ?></td>
 							<td>Masuk</td>
 							<td class="text-right"><?php echo angkaDecimal($v_masuk['masuk']); ?></td>
+							<td class="text-center"><?php echo $v_item['satuan']; ?></td>
 							<td class="text-right"><?php echo angkaDecimal($v_masuk['harga']); ?></td>
 							<td class="text-right"><?php echo angkaDecimal($v_masuk['nilai']); ?></td>
 							<td class="text-right"><?php echo angkaDecimal($saldo); ?></td>
@@ -60,6 +61,7 @@
 							<td><?php echo $v_keluar['kode']; ?></td>
 							<td>Keluar</td>
 							<td class="text-right"><?php echo angkaDecimal($v_keluar['keluar']); ?></td>
+							<td class="text-center"><?php echo $v_item['satuan']; ?></td>
 							<td class="text-right"><?php echo angkaDecimal($v_keluar['harga']); ?></td>
 							<td class="text-right"><?php echo angkaDecimal($v_keluar['nilai']); ?></td>
 							<td class="text-right"><?php echo angkaDecimal($saldo); ?></td>
@@ -73,7 +75,7 @@
 <?php else: ?>
 	<tbody>
 		<tr>
-			<td colspan="11">Data tidak ditemukan.</td>
+			<td colspan="12">Data tidak ditemukan.</td>
 		</tr>
 	</tbody>
 <?php endif ?>
