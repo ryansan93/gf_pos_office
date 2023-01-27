@@ -24,6 +24,18 @@ var km = {
 				});
 
 		        $(this).find('.nama').val(nama);
+
+		        $('.user').select2().on('select2:select', function (e) {
+		            var user = $('.user').select2().val();
+
+		            for (var i = 0; i < user.length; i++) {
+		                if ( user[i] == 'all' ) {
+		                    $('.user').select2().val('all').trigger('change');
+
+		                    i = user.length;
+		                }
+		            }
+		        });
             });
         },'html');
 	}, // end - modalAddForm
@@ -50,8 +62,17 @@ var km = {
 					$(this).priceFormat(Config[$(this).data('tipe')]);
 				});
 
-		  //       $(this).find('.nama').val(nama);
-				// $(this).find('.status').val(status);
+		  		$('.user').select2().on('select2:select', function (e) {
+		            var user = $('.user').select2().val();
+
+		            for (var i = 0; i < user.length; i++) {
+		                if ( user[i] == 'all' ) {
+		                    $('.user').select2().val('all').trigger('change');
+
+		                    i = user.length;
+		                }
+		            }
+		        });
             });
         },'html');
 	}, // end - modalEditForm
@@ -79,7 +100,9 @@ var km = {
 			bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
 				if ( result ) {
 					var data = {
-						'nama': nama
+						'nama': nama,
+						'print_cl': ( $(div).find('input#ya').is(':checked') ) ? '1' : '0',
+						'user': $(div).find('select.user').select2('val')
 					};
 
 			        $.ajax({
@@ -135,7 +158,9 @@ var km = {
 				if ( result ) {
 					var data = {
 						'kode': kode,
-						'nama': nama
+						'nama': nama,
+						'print_cl': ( $(div).find('input#ya').is(':checked') ) ? '1' : '0',
+						'user': $(div).find('select.user').select2('val')
 					};
 
 			        $.ajax({

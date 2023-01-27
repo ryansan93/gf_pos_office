@@ -141,6 +141,8 @@ class PenerimaanBarangMutasi extends Public_Controller {
             $conf = new \Model\Storage\Conf();
             $sql = "EXEC sp_hitung_stok_awal @tanggal = '".$now['waktu']."'";
 
+            $d_conf = $conf->hydrateRaw($sql);
+
             $m_mutasi->where('kode_mutasi', $kode_mutasi)->update(
                 array(
                     'g_status' => getStatus('approve')

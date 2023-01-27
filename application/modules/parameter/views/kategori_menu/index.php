@@ -18,8 +18,10 @@
 			<table class="table table-bordered table-hover tbl_diskon" id="dataTable" width="100%" cellspacing="0">
 				<thead>
 					<tr>
-						<th class="col-sm-8 text-center">Nama</th>
-						<th class="col-sm-2 text-center">Status</th>
+						<th class="col-sm-4 text-center">Nama</th>
+						<th class="col-sm-1 text-center">Print Check List</th>
+						<th class="col-sm-4 text-center">User</th>
+						<th class="col-sm-1 text-center">Status</th>
 						<th class="col-sm-2 text-center">Action</th>
 					</tr>
 				</thead>
@@ -28,7 +30,18 @@
 						<?php foreach ($data as $k_data => $v_data): ?>
 							<tr class="head" data-kode="<?php echo $v_data['id']; ?>">
 								<td><?php echo strtoupper($v_data['nama']); ?></td>
-								<td><?php echo ($v_data['status'] == 1) ? 'AKTIF' : 'NON AKTIF'; ?></td>
+								<td class="text-center"><?php echo ($v_data['print_cl'] == 1) ? 'YA' : 'TIDAK'; ?></td>
+								<td>
+									<?php
+										foreach ($v_data['user'] as $k_user => $v_user) {
+											echo $v_user['nama_group'].' | '.$v_user['nama_user'];
+											if ( isset($v_data['user'][ $k_user+1 ]) ) {
+												echo '<br>';
+											}
+										} 
+									?>
+								</td>
+								<td class="text-center"><?php echo ($v_data['status'] == 1) ? 'AKTIF' : 'NON AKTIF'; ?></td>
 								<td>
 									<div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
 										<?php if ( $akses['a_edit'] == 1 ) { ?>

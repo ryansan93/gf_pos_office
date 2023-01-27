@@ -237,10 +237,10 @@ class Penjualan extends Public_Controller {
                                             }
                                         }
                                     } else {
-                                        $key_jb = strtolower($v_bayar['jenis_kartu']['nama']);
+                                        $key_jb = strtolower($v_bayar['jenis_bayar']);
 
                                         if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]) ) {
-                                            $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['nama'] = $key_jb;
+                                            $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['nama'] = $v_bayar['jenis_bayar'];
                                             $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] = $v_byr['jml_tagihan'];
                                         } else {
                                             $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] += $v_byr['jml_tagihan'];

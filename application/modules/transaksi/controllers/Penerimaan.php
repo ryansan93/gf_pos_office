@@ -150,6 +150,8 @@ class Penerimaan extends Public_Controller {
             $conf = new \Model\Storage\Conf();
             $sql = "EXEC sp_hitung_stok_awal @tanggal = '".$params['tgl_terima']."'";
 
+            $d_conf = $conf->hydrateRaw($sql);
+
             $m_terima->kode_terima = $kode_terima;
             $m_terima->tgl_terima = $params['tgl_terima'];
             $m_terima->no_faktur = $params['no_faktur'];
