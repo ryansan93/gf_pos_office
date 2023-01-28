@@ -114,8 +114,17 @@ class SummaryPenjualanHarian extends Public_Controller {
                 jl.tgl_trans,
                 km.id,
                 km.nama,
-                (sum(ji.total) + sum(ji.ppn) + sum(ji.service_charge)) as total
+                case
+                    when jp.exclude = 1 then
+                        (sum(ji.total) + sum(ji.ppn) + sum(ji.service_charge))
+                    when jp.include = 1 then
+                        sum(ji.total)
+                end as total
             from jual_item ji
+            right join
+                jenis_pesanan jp
+                on
+                    jp.kode = ji.kode_jenis_pesanan
             right join
                 menu m
                 on
@@ -179,6 +188,8 @@ class SummaryPenjualanHarian extends Public_Controller {
             group by
                 jl.kode_faktur,
                 jl.tgl_trans,
+                jp.exclude,
+                jp.include,
                 km.id,
                 km.nama
         ";
@@ -485,8 +496,17 @@ class SummaryPenjualanHarian extends Public_Controller {
             select 
                 jl.kode_faktur,
                 jl.tgl_trans,
-                (sum(ji.total) + sum(ji.ppn) + sum(ji.service_charge)) as total
+                case
+                    when jp.exclude = 1 then
+                        (sum(ji.total) + sum(ji.ppn) + sum(ji.service_charge))
+                    when jp.include = 1 then
+                        sum(ji.total)
+                end as total
             from jual_item ji
+            right join
+                jenis_pesanan jp
+                on
+                    jp.kode = ji.kode_jenis_pesanan
             right join
                 menu m
                 on
@@ -543,7 +563,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                 jl.kode_faktur is not null
             group by
                 jl.kode_faktur,
-                jl.tgl_trans
+                jl.tgl_trans,
+                jp.exclude,
+                jp.include
         ";
 
         $d_jual_by_faktur = $m_jual->hydrateRaw( $sql );

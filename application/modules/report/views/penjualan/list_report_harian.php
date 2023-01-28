@@ -59,6 +59,7 @@
 			<tr class="total">
 				<td class="text-right" colspan="3"><b>TOTAL PER KASIR</b></td>
 				<td class="text-right"><b><?php echo angkaRibuan($jumlah_kasir); ?></b></td>
+				<td class="text-right"></td>
 				<td class="text-right"><b><?php echo angkaDecimal($total_kasir_non_ppn); ?></b></td>
 				<td class="text-right"><b><?php echo angkaDecimal($total_kasir_ppn); ?></b></td>
 				<td class="text-right"><b><?php echo angkaDecimal($total_kasir_service_charge); ?></b></td>
@@ -68,6 +69,7 @@
 		<tr class="total">
 			<td class="text-right" colspan="3"><b>TOTAL PER TANGGAL</b></td>
 			<td class="text-right"><b><?php echo angkaRibuan($jumlah); ?></b></td>
+			<td class="text-right"></td>
 			<td class="text-right"><b><?php echo angkaDecimal($total); ?></b></td>
 			<td class="text-right"><b><?php echo angkaDecimal($total_ppn); ?></b></td>
 			<td class="text-right"><b><?php echo angkaDecimal($total_service_charge); ?></b></td>
@@ -77,6 +79,7 @@
 	<tr class="grand_total">
 		<td class="text-right" colspan="3"><b>GRAND TOTAL</b></td>
 		<td class="text-right"><b><?php echo angkaRibuan($grand_jumlah); ?></b></td>
+		<td class="text-right"></td>
 		<td class="text-right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
 		<td class="text-right"><b><?php echo angkaDecimal($grand_total_ppn); ?></b></td>
 		<td class="text-right"><b><?php echo angkaDecimal($grand_total_service_charge); ?></b></td>

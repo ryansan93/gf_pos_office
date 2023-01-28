@@ -33,12 +33,14 @@
 								<td class="text-center"><?php echo ($v_data['print_cl'] == 1) ? 'YA' : 'TIDAK'; ?></td>
 								<td>
 									<?php
+									if ( !empty($v_data['user']) && count($v_data['user']) ) {
 										foreach ($v_data['user'] as $k_user => $v_user) {
 											echo $v_user['nama_group'].' | '.$v_user['nama_user'];
 											if ( isset($v_data['user'][ $k_user+1 ]) ) {
 												echo '<br>';
 											}
 										} 
+									}
 									?>
 								</td>
 								<td class="text-center"><?php echo ($v_data['status'] == 1) ? 'AKTIF' : 'NON AKTIF'; ?></td>
