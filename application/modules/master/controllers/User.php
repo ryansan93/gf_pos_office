@@ -142,7 +142,8 @@ class User extends Public_Controller
 				// ENCRYPT PASSWORD
 				// $this->load->helper('phppass');
 				// $hasher = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
-				$password = $id_user;
+				// $password = $id_user;
+				$password = $params['password'];
 				// $hash_password = $hasher->HashPassword($password);
 				$hash_password = password_hash($password, PASSWORD_BCRYPT);
 
@@ -246,13 +247,15 @@ class User extends Public_Controller
 		$now = $m_usr->getDate();
 
 		$m_usr->where('id_user', $params['id_user'])->update(
-				array('username_user'=>$params['username'],
-					  'status_user'=>$params['status_user'])
-			);
-					  // 'nama_user'=>$params['nama_user'],
-					  // 'jk_user'=>$params['jenis_kelamin'],
-					  // 'email_user'=>$params['email'],
-					  // 'id_group'=>$params['id_group']
+			array(
+				'username_user'=>$params['username'],
+				'status_user'=>$params['status_user'],
+				'nama_user'=>$params['nama_user'],
+				'jk_user'=>$params['jenis_kelamin'],
+				'email_user'=>$params['email'],
+				'id_group'=>$params['id_group']
+			)
+		);
 
 		$m_dusr = new \Model\Storage\DetUser_model();
 		$d_dusr = $m_dusr->where('id_detuser', $params['id_detuser'])->first();
@@ -386,12 +389,13 @@ class User extends Public_Controller
 	public function reset_password()
 	{
 		$id_user = $this->input->post('id_user');
+		$password = $this->input->post('password');
 
 		try {
 			// $this->load->helper('phppass');
 			// $hasher = new PasswordHash(PHPASS_HASH_STRENGTH, PHPASS_HASH_PORTABLE);
 			// $hash_password = $hasher->HashPassword($id_user);
-			$hash_password = password_hash($id_user, PASSWORD_BCRYPT);
+			$hash_password = password_hash($password, PASSWORD_BCRYPT);
 
 			$m_usr = new \Model\Storage\User_model();
 			$now = $m_usr->getDate();
@@ -427,7 +431,7 @@ class User extends Public_Controller
 			$m_dusr->save();
 
 		    $this->result['status'] = 1;
-			$this->result['message'] = 'Password berhasil di reset.<br>Password baru anda adalah : <b>'.$id_user.'</b>';
+			$this->result['message'] = 'Password berhasil di reset.<br>Password baru anda adalah : <b>'.$password.'</b>';
 		} catch (\Illuminate\Database\QueryException $e) {
 			$this->result['message'] = "Gagal : " . $e->getMessage();
 		}

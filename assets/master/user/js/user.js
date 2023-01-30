@@ -98,6 +98,7 @@ var user = {
 					var email = $('#email').val();
 					var username = $('#username').val().toUpperCase();
 					var id_group = $('#id_group').val();
+					var password = $('.password').val();
 
 					var data = {
 						'nama_user' : nama_user,
@@ -105,7 +106,8 @@ var user = {
 						'no_tlp' : no_tlp,
 						'email' : email,
 						'username' : username,
-						'id_group' : id_group
+						'id_group' : id_group,
+						'password' : password
 					};
 
 					user.exec_save(data, _filetmp);
@@ -308,32 +310,72 @@ var user = {
 		var tr_head = $(tr_det).prev('tr.head');
 		var id_user = $(tr_head).find('td.id_user').html();
 
-		bootbox.confirm('Apakah anda yakin ingin me reset password ?', function(result){
-			if (result) {
-				$.ajax({
-					url : 'master/User/reset_password',
-					dataType: 'json',
-					type: 'post',
-					data: {
-						'id_user' : id_user,
-					},
-					beforeSend : function(){
-						showLoading();
-					},
-					success : function(data){
-						hideLoading();
-						if ( data.status == 1 ) {
-							bootbox.alert(data.message, function(){
-								location.reload();
-								bootbox.hideAll();
-							});
-						} else {
-							bootbox.alert(data.message);
-						}
-					}
-				});
-			};
-		});
+		bootbox.dialog({
+            message: '<p>Masukkan Password Baru.</p><p><input type="text" class="form-control text-center password" placeholder="Password" /></p>',
+            buttons: {
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Batal',
+                    className: 'btn-danger',
+                    callback: function(){}
+                },
+                ok: {
+                    label: '<i class="fa fa-check"></i> Simpan',
+                    className: 'btn-primary',
+                    callback: function(){
+                        password = $('.password:last').val();
+
+                        $.ajax({
+                            url: 'master/User/reset_password',
+                            data: {
+                            	'id_user' : id_user,
+                                'password': password
+                            },
+                            type: 'POST',
+                            dataType: 'JSON',
+                            beforeSend: function() { showLoading(); },
+                            success: function(data) {
+                                hideLoading();
+                                if ( data.status == 1 ) {
+									bootbox.alert(data.message, function(){
+										location.reload();
+										bootbox.hideAll();
+									});
+								} else {
+									bootbox.alert(data.message);
+								}
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+		// bootbox.confirm('Apakah anda yakin ingin me reset password ?', function(result){
+		// 	if (result) {
+		// 		$.ajax({
+		// 			url : 'master/User/reset_password',
+		// 			dataType: 'json',
+		// 			type: 'post',
+		// 			data: {
+		// 				'id_user' : id_user,
+		// 			},
+		// 			beforeSend : function(){
+		// 				showLoading();
+		// 			},
+		// 			success : function(data){
+		// 				hideLoading();
+		// 				if ( data.status == 1 ) {
+		// 					bootbox.alert(data.message, function(){
+		// 						location.reload();
+		// 						bootbox.hideAll();
+		// 					});
+		// 				} else {
+		// 					bootbox.alert(data.message);
+		// 				}
+		// 			}
+		// 		});
+		// 	};
+		// });
 	}, // end - reset_password
 
 	showHideDetail: function() {

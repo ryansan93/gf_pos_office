@@ -64,6 +64,12 @@
 						</select>
 					</div>
 				</div>
+				<div class="form-group">
+					<label class="col-lg-2 control-label">Password</label>
+					<div class="col-lg-4">
+						<input type="text" class="form-control password" placeholder="Password" data-required="1">
+					</div>
+				</div>
 				<hr>
 				<div class="form-group">
 					<div class="col-lg-3">
