@@ -177,10 +177,44 @@ class BillOfMaterial extends Public_Controller {
         $params = $this->input->post('params');
 
         try {
-            foreach ($params['menu_kode'] as $k_menu => $v_menu) {
+            if ( isset($params['menu_kode']) && !empty($params['menu_kode']) ) {
+                foreach ($params['menu_kode'] as $k_menu => $v_menu) {
+                    $m_bom = new \Model\Storage\Bom_model();
+                    $m_bom->tgl_berlaku = $params['tanggal'];
+                    $m_bom->menu_kode = $v_menu;
+                    $m_bom->additional = $params['additional'];
+                    $m_bom->nama = $params['nama'];
+                    $m_bom->save();
+
+                    foreach ($params['list_item'] as $k_lm => $v_lm) {
+                        $m_bd = new \Model\Storage\BomDet_model();
+                        $m_bd->id_header = $m_bom->id;
+                        $m_bd->item_kode = $v_lm['item_kode'];
+                        $m_bd->satuan = $v_lm['satuan'];
+                        $m_bd->pengali = $v_lm['pengali'];
+                        $m_bd->jumlah = $v_lm['jumlah'];
+                        $m_bd->save();
+                    }
+
+                    if ( isset($params['satuan_bom']) && !empty($params['satuan_bom']) ) {
+                        foreach ($params['satuan_bom'] as $k_sb => $v_sb) {
+                            $m_sb = new \Model\Storage\SatuanBom_model();
+                            $m_sb->id_header = $m_bom->id;
+                            $m_sb->satuan = $v_sb['satuan'];
+                            $m_sb->pengali = $v_sb['pengali'];
+                            $m_sb->save();
+                        }
+                    }
+
+                    $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                    Modules::run( 'base/event/save', $m_bom, $deskripsi_log );
+                }
+            } else {
                 $m_bom = new \Model\Storage\Bom_model();
                 $m_bom->tgl_berlaku = $params['tanggal'];
-                $m_bom->menu_kode = $v_menu;
+                $m_bom->menu_kode = null;
+                $m_bom->additional = $params['additional'];
+                $m_bom->nama = $params['nama'];
                 $m_bom->save();
 
                 foreach ($params['list_item'] as $k_lm => $v_lm) {
@@ -191,6 +225,16 @@ class BillOfMaterial extends Public_Controller {
                     $m_bd->pengali = $v_lm['pengali'];
                     $m_bd->jumlah = $v_lm['jumlah'];
                     $m_bd->save();
+                }
+
+                if ( isset($params['satuan_bom']) && !empty($params['satuan_bom']) ) {
+                    foreach ($params['satuan_bom'] as $k_sb => $v_sb) {
+                        $m_sb = new \Model\Storage\SatuanBom_model();
+                        $m_sb->id_header = $m_bom->id;
+                        $m_sb->satuan = $v_sb['satuan'];
+                        $m_sb->pengali = $v_sb['pengali'];
+                        $m_sb->save();
+                    }
                 }
 
                 $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
