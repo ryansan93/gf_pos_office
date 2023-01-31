@@ -82,6 +82,14 @@
 				</select>
 			</div>
 		</div>
+		<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+			<div class="col-xs-12 no-padding">
+				<label class="control-label">Jumlah Print</label>
+			</div>
+			<div class="col-xs-12 no-padding">
+				<input type="text" class="form-control text-right jml_print" placeholder="Jumlah" data-tipe="integer" data-required="1" value="<?php echo angkaRibuan($data['jml_print']); ?>">
+			</div>
+		</div>
 		<div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 		<div class="col-xs-12 no-padding">
 			<button type="button" class="btn btn-primary pull-right" onclick="printer.edit(this)" data-id="<?php echo $data['id']; ?>">
