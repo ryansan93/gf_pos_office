@@ -8,7 +8,7 @@ class HargaMenu_model extends Conf{
 
 	public function menu()
 	{
-		return $this->hasOne('\Model\Storage\Menu_model', 'kode_menu', 'menu_kode');
+		return $this->hasOne('\Model\Storage\Menu_model', 'kode_menu', 'menu_kode')->with(['branch']);
 	}
 
 	public function jenis_pesanan()

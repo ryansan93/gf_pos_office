@@ -38,6 +38,9 @@ class HargaMenu extends Public_Controller {
 
             $content['akses'] = $this->hakAkses;
             $content['data'] = $d_hm;
+            $content['branch'] = $this->getBranch();
+            $content['menu'] = $this->getMenu();
+            $content['jenis_pesanan'] = $this->getJenisPesanan();
             $content['title_panel'] = 'Master Harga Menu';
 
             // Load Indexx
@@ -86,6 +89,35 @@ class HargaMenu extends Public_Controller {
         }
 
         return $data;
+    }
+
+    public function getMenuByBranch()
+    {
+        $kode_branch = $this->input->get('kode_branch');
+
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select jm.nama as nama_jenis, m.kode_menu, m.nama as nama_menu, m.branch_kode from menu m
+            right join
+                jenis_menu jm
+                on
+                    m.jenis_menu_id = jm.id
+            where
+                m.branch_kode = '".$kode_branch."'
+        ";
+
+        $d_menu = $m_conf->hydrateRaw( $sql );
+
+        $html = '<option value="">-- Pilih Menu --</option>';
+        if ( $d_menu->count() > 0 ) {
+            $d_menu = $d_menu->toArray();
+
+            foreach ($d_menu as $k_menu => $v_menu) {
+                $html .= '<option value="'.$v_menu['kode_menu'].'" data-branch="'.$v_menu['branch_kode'].'" >'.$v_menu['nama_jenis'].' | '.$v_menu['nama_menu'].'</option>';
+            }
+        }
+
+        echo $html;
     }
 
     public function modalAddForm()

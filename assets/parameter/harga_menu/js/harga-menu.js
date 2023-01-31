@@ -1,6 +1,74 @@
 var hm = {
 	start_up: function () {
+		$('.tbl_harga select.branch').select2();
+		$('.tbl_harga select.menu').select2();
+
+		$('.tbl_harga select.branch').on('select2:select', function (e) {
+			var val = e.params.data.id;
+
+			if ( !empty(val) ) {
+				$('.tbl_harga select.menu').removeAttr('disabled');
+	        	$('.tbl_harga select.menu').find('option:not([data-branch='+val+'])').attr('disabled', 'disabled');
+	        	$('.tbl_harga select.menu').select2();
+			} else {
+				$('.tbl_harga select.menu').attr('disabled', 'disabled');
+				$('.tbl_harga select.menu').select2('val', '');
+			}
+
+        	hm.search();
+		});
+
+		$('.tbl_harga select.menu').on('select2:select', function (e) {
+        	hm.search();
+		});
+
+		$('.tbl_harga select.jenis_pesanan').on('change', function () {
+        	hm.search();
+		});
 	}, // end - start_up
+
+	search: function () {
+		var branch = $('.tbl_harga select.branch').select2('val');
+		var menu = $('.tbl_harga select.menu').select2('val');
+		var jenis_pesanan = $('.tbl_harga select.jenis_pesanan').val();
+
+		var search = '';
+
+		$('.tbl_harga').find('tbody tr').removeClass('hide');
+		if ( !empty(branch) ) {
+			search += '[data-branch="'+branch+'"]';
+		}
+		if ( !empty(menu) ) {
+			search += '[data-menu="'+menu+'"]';
+		}
+		if ( !empty(jenis_pesanan) ) {
+			search += '[data-jp="'+jenis_pesanan+'"]';
+		}
+
+		if ( !empty(search) ) {
+			$('.tbl_harga').find('tbody tr:not('+search+')').addClass('hide');
+		}
+	}, // end - search
+
+	getMenuByBranch: function (kode_branch) {
+		var modal = $('.modal');
+
+		$.ajax({
+            url: 'parameter/HargaMenu/getMenuByBranch',
+            data: {
+                'kode_branch': kode_branch
+            },
+            type: 'GET',
+            dataType: 'HTML',
+            beforeSend: function() { showLoading(); },
+            success: function(html) {
+                hideLoading();
+
+            	$('.menu').html(html);
+	        	$('.menu').select2();
+            }
+        });
+	}, // end - getMenu
 
 	modalAddForm: function () {
 		$('.modal').modal('hide');
@@ -28,17 +96,17 @@ var hm = {
 		            minDate: moment(new Date((today+' 00:00:00')))
 		        });
 
-		        $('.menu').find('option').removeAttr('disabled');
+		        $('.modal .menu').find('option').removeAttr('disabled');
 
 		        $(this).find('.menu').select2();
 		        $(this).find('.branch').select2();
 		        $(this).find('.branch').on('select2:select', function (e) {
 		        	var val = e.params.data.id;
 
-		        	console.log( val );
+		        	// hm.getMenuByBranch( val );
 
-		        	$('.menu').find('option:not([data-branch='+val+'])').attr('disabled', 'disabled');
-		        	$('.menu').select2();
+		        	$('.modal .menu').find('option:not([data-branch='+val+'])').attr('disabled', 'disabled');
+		        	$('.modal .menu').select2();
 		        });
 		        $(this).removeAttr('tabindex');
             });
