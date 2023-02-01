@@ -43,13 +43,13 @@ var diskon = {
 	addDaftarJenisMenu: function (elm) {
 		var div = $(elm).closest('.contain_tipe_diskon');
 
-		var jenis_menu = $(div).find('.jenis_menu').select2('val');
-		var text_jenis_menu = $(div).find('.jenis_menu option:selected').text();
-		var menu = $(div).find('.menu').select2('val');
-		var text_menu = $(div).find('.menu option:selected').text();
-		var diskon = numeral.unformat($(div).find('.diskon').val());
-		var diskon_jenis = $(div).find('.diskon_jenis').val();
-		var text_diskon_jenis = $(div).find('.diskon_jenis option:selected').text();
+		var jenis_menu = $(div).find('select.jenis_menu').select2('val');
+		var text_jenis_menu = $(div).find('select.jenis_menu option:selected').text();
+		var menu = $(div).find('select.menu').select2('val');
+		var text_menu = $(div).find('select.menu option:selected').text();
+		var diskon = numeral.unformat($(div).find('input.diskon').val());
+		var diskon_jenis = $(div).find('select.diskon_jenis').val();
+		var text_diskon_jenis = $(div).find('select.diskon_jenis option:selected').text();
 		var _text_diskon = numeral.formatDec(diskon);
 		var text_diskon = (diskon_jenis == 'persen') ? _text_diskon+' '+text_diskon_jenis : text_diskon_jenis+' '+_text_diskon;
 

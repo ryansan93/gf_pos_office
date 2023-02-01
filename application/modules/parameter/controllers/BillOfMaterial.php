@@ -63,12 +63,46 @@ class BillOfMaterial extends Public_Controller {
 
     public function getItem()
     {
-        $m_item = new \Model\Storage\Item_model();
-        $d_item = $m_item->with(['satuan'])->orderBy('nama', 'asc')->get();
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select * from (
+                select items.satuan, items.pengali, cast(i.kode as varchar(20)) as kode, i.nama, 'item' as jenis from item i 
+                right join
+                    item_satuan items
+                    on
+                        i.kode = items.item_kode
+                        
+                union all
+                
+                select bs.satuan, bs.pengali, cast(b.id as varchar(20)) as kode, b.nama, 'bom' as jenis from bom b 
+                right join
+                    bom_satuan bs 
+                    on
+                        b.id = bs.id_header 
+                where
+                    b.additional = 1
+            ) as data
+            where
+                data.satuan is not null
+        ";
+        $d_item = $m_conf->hydrateRaw( $sql );
+
+        // $m_item = new \Model\Storage\Item_model();
+        // $d_item = $m_item->with(['satuan'])->orderBy('nama', 'asc')->get();
 
         $data_item = null;
         if ( $d_item->count() > 0 ) {
-            $data_item = $d_item->toArray();
+            $d_item = $d_item->toArray();
+
+            foreach ($d_item as $k_di => $v_di) {
+                $data_item[ $v_di['kode'] ]['kode'] = $v_di['kode'];
+                $data_item[ $v_di['kode'] ]['nama'] = $v_di['nama'];
+                $data_item[ $v_di['kode'] ]['jenis'] = $v_di['jenis'];
+                $data_item[ $v_di['kode'] ]['satuan'][] = array(
+                    'satuan' => $v_di['satuan'],
+                    'pengali' => $v_di['pengali']
+                );
+            }
         }
 
         return $data_item;
@@ -106,12 +140,12 @@ class BillOfMaterial extends Public_Controller {
 
         $m_bom = new \Model\Storage\Bom_model();
         $sql = "
-            select b.id, b.tgl_berlaku, m.nama, br.nama as nama_branch from bom b
-            right join
+            select b.id, b.tgl_berlaku, m.nama as nama_menu, b.nama as nama_bom, br.nama as nama_branch from bom b
+            left join
                 menu m
                 on
                     b.menu_kode = m.kode_menu
-            right join
+            left join
                 branch br
                 on
                     m.branch_kode = br.kode_branch
@@ -176,6 +210,8 @@ class BillOfMaterial extends Public_Controller {
     {
         $params = $this->input->post('params');
 
+        // cetak_r( $params, 1 );
+
         try {
             if ( isset($params['menu_kode']) && !empty($params['menu_kode']) ) {
                 foreach ($params['menu_kode'] as $k_menu => $v_menu) {
@@ -184,6 +220,7 @@ class BillOfMaterial extends Public_Controller {
                     $m_bom->menu_kode = $v_menu;
                     $m_bom->additional = $params['additional'];
                     $m_bom->nama = $params['nama'];
+                    $m_bom->jml_porsi = $params['jml_porsi'];
                     $m_bom->save();
 
                     foreach ($params['list_item'] as $k_lm => $v_lm) {
@@ -193,16 +230,17 @@ class BillOfMaterial extends Public_Controller {
                         $m_bd->satuan = $v_lm['satuan'];
                         $m_bd->pengali = $v_lm['pengali'];
                         $m_bd->jumlah = $v_lm['jumlah'];
+                        $m_bd->jenis = $v_lm['jenis'];
                         $m_bd->save();
                     }
 
-                    if ( isset($params['satuan_bom']) && !empty($params['satuan_bom']) ) {
-                        foreach ($params['satuan_bom'] as $k_sb => $v_sb) {
-                            $m_sb = new \Model\Storage\SatuanBom_model();
-                            $m_sb->id_header = $m_bom->id;
-                            $m_sb->satuan = $v_sb['satuan'];
-                            $m_sb->pengali = $v_sb['pengali'];
-                            $m_sb->save();
+                    if ( isset($params['bom_satuan']) && !empty($params['bom_satuan']) ) {
+                        foreach ($params['bom_satuan'] as $k_bs => $v_bs) {
+                            $m_bs = new \Model\Storage\BomSatuan_model();
+                            $m_bs->id_header = $m_bom->id;
+                            $m_bs->satuan = $v_bs['satuan'];
+                            $m_bs->pengali = $v_bs['pengali'];
+                            $m_bs->save();
                         }
                     }
 
@@ -215,6 +253,7 @@ class BillOfMaterial extends Public_Controller {
                 $m_bom->menu_kode = null;
                 $m_bom->additional = $params['additional'];
                 $m_bom->nama = $params['nama'];
+                $m_bom->jml_porsi = $params['jml_porsi'];
                 $m_bom->save();
 
                 foreach ($params['list_item'] as $k_lm => $v_lm) {
@@ -224,16 +263,17 @@ class BillOfMaterial extends Public_Controller {
                     $m_bd->satuan = $v_lm['satuan'];
                     $m_bd->pengali = $v_lm['pengali'];
                     $m_bd->jumlah = $v_lm['jumlah'];
+                    $m_bd->jenis = $v_lm['jenis'];
                     $m_bd->save();
                 }
 
-                if ( isset($params['satuan_bom']) && !empty($params['satuan_bom']) ) {
-                    foreach ($params['satuan_bom'] as $k_sb => $v_sb) {
-                        $m_sb = new \Model\Storage\SatuanBom_model();
-                        $m_sb->id_header = $m_bom->id;
-                        $m_sb->satuan = $v_sb['satuan'];
-                        $m_sb->pengali = $v_sb['pengali'];
-                        $m_sb->save();
+                if ( isset($params['bom_satuan']) && !empty($params['bom_satuan']) ) {
+                    foreach ($params['bom_satuan'] as $k_bs => $v_bs) {
+                        $m_bs = new \Model\Storage\BomSatuan_model();
+                        $m_bs->id_header = $m_bom->id;
+                        $m_bs->satuan = $v_bs['satuan'];
+                        $m_bs->pengali = $v_bs['pengali'];
+                        $m_bs->save();
                     }
                 }
 

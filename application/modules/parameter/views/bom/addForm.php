@@ -34,6 +34,15 @@
 	</div>
 </div>
 
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+	<div class="col-xs-12 no-padding">
+		<label class="control-label">Jumlah Porsi</label>
+	</div>
+	<div class="col-xs-12 no-padding">
+		<input type="text" class="form-control text-right jml_porsi" placeholder="Jumlah" data-tipe="integer" data-required="1" />
+	</div>
+</div>
+
 <div class="col-xs-12 no-padding">
 	<div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 
@@ -102,7 +111,7 @@
 						<select class="form-control item" data-required="1">
 							<option value="">Pilih Item</option>
 							<?php foreach ($item as $k_item => $v_item): ?>
-								<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>'><?php echo strtoupper($v_item['nama']); ?></option>
+								<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' data-jenis="<?php echo $v_item['jenis']; ?>"><?php echo strtoupper($v_item['nama']); ?></option>
 							<?php endforeach ?>
 						</select>
 					</td>

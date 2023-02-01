@@ -62,14 +62,15 @@
 		<table class="table table-bordered tbl_riwayat">
 			<thead>
 				<tr>
-					<th class="col-xs-3">Tanggal</th>
-					<th class="col-xs-3">Branch</th>
-					<th class="col-xs-6">Menu</th>
+					<th class="col-xs-2">Tanggal</th>
+					<th class="col-xs-4">Nama BOM</th>
+					<th class="col-xs-2">Branch</th>
+					<th class="col-xs-4">Menu</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="3">Data tidak ditemukan.</td>
+					<td colspan="4">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>
