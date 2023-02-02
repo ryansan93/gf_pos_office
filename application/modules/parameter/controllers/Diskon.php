@@ -314,11 +314,17 @@ class Diskon extends Public_Controller {
 
         try {
             $m_diskon = new \Model\Storage\Diskon_model();
+            $m_diskon->where('kode', $kode)->update( 
+                array(
+                    'mstatus' => 0
+                ) 
+            );
             $d_kode = $m_diskon->where('kode', $kode)->first();
 
-            $m_diskond = new \Model\Storage\DiskonDet_model();
-            $m_diskon->where('kode', $kode)->delete();
-            $m_diskond->where('diskon_kode', $kode)->delete();
+            // $m_diskond = new \Model\Storage\DiskonDet_model();
+
+            // $m_diskond->where('diskon_kode', $kode)->delete();
+            // $m_diskon->where('kode', $kode)->delete();
 
             $deskripsi_log = 'di-delete oleh ' . $this->userdata['detail_user']['nama_detuser'];
             Modules::run( 'base/event/delete', $d_kode, $deskripsi_log );

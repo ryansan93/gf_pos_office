@@ -292,7 +292,7 @@ var bom = {
                         additional = 1;
                         nama = $(div).find('.nama').val();
                     } else {
-                        menu_kode = $(div).find('.menu').select2('val');
+                        menu_kode = $(div).find('select.menu').select2('val');
                     }
 
                     var params = {

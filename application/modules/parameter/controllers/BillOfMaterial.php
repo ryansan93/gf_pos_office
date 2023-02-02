@@ -181,10 +181,95 @@ class BillOfMaterial extends Public_Controller {
 
     public function viewForm($id)
     {
-        $m_bom = new \Model\Storage\Bom_model();
-        $d_bom = $m_bom->where('id', $id)->with(['menu', 'detail'])->first()->toArray();
+        // $m_bom = new \Model\Storage\Bom_model();
+        // $d_bom = $m_bom->where('id', $id)->with(['menu', 'detail'])->first()->toArray();
 
-        $content['data'] = $d_bom;
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select
+                b.id,
+                b.nama as nama_bom,
+                m.nama as nama_menu,
+                b.tgl_berlaku,
+                b.additional,
+                b.jml_porsi,
+                bd.item_kode,
+                i.nama,
+                i.satuan,
+                bd.jumlah
+            from bom b
+            left join
+                menu m
+                on
+                    b.menu_kode = m.kode_menu
+            right join
+                bom_det bd
+                on
+                    b.id = bd.id_header
+            right join
+                (
+                    select * from (
+                        select items.satuan, items.pengali, cast(i.kode as varchar(20)) as kode, i.nama, 'item' as jenis from item i 
+                        right join
+                            item_satuan items
+                            on
+                                i.kode = items.item_kode
+                                
+                        union all
+                        
+                        select bs.satuan, bs.pengali, cast(b.id as varchar(20)) as kode, b.nama, 'bom' as jenis from bom b 
+                        right join
+                            bom_satuan bs 
+                            on
+                                b.id = bs.id_header 
+                        where
+                            b.additional = 1
+                    ) as data
+                    where
+                        data.satuan is not null
+                ) i
+                on
+                    bd.item_kode = i.kode
+            where
+                b.id = ".$id."
+        ";
+        $d_bom = $m_conf->hydrateRaw( $sql );
+
+        $data = null;
+        if ( $d_bom->count() > 0 ) {
+            $d_bom = $d_bom->toArray();
+
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select
+                    *
+                from bom_satuan bs
+                where
+                    bs.id_header = ".$id."
+            ";
+            $d_bom_satuan = $m_conf->hydrateRaw( $sql );
+
+            $data = array(
+                'id' => $d_bom[0]['id'],
+                'nama_bom' => $d_bom[0]['nama_bom'],
+                'nama_menu' => $d_bom[0]['nama_menu'],
+                'tgl_berlaku' => $d_bom[0]['tgl_berlaku'],
+                'additional' => $d_bom[0]['additional'],
+                'jml_porsi' => $d_bom[0]['jml_porsi'],
+                'satuan' => ($d_bom_satuan->count() > 0) ? $d_bom_satuan->toArray() : null
+            );
+
+            foreach ($d_bom as $k_bom => $v_bom) {
+                $data['detail'][ $k_bom ] = array(
+                    'item_kode' => $v_bom['item_kode'],
+                    'nama' => $v_bom['nama'],
+                    'satuan' => $v_bom['satuan'],
+                    'jumlah' => $v_bom['jumlah']
+                );
+            }
+        }
+
+        $content['data'] = $data;
 
         $html = $this->load->view($this->pathView . 'viewForm', $content, TRUE);
 
@@ -193,10 +278,95 @@ class BillOfMaterial extends Public_Controller {
 
     public function editForm($id)
     {
-        $m_bom = new \Model\Storage\Bom_model();
-        $d_bom = $m_bom->where('id', $id)->with(['menu', 'detail'])->first()->toArray();
+        // $m_bom = new \Model\Storage\Bom_model();
+        // $d_bom = $m_bom->where('id', $id)->with(['menu', 'detail'])->first()->toArray();
 
-        $content['data'] = $d_bom;
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select
+                b.id,
+                b.nama as nama_bom,
+                m.nama as nama_menu,
+                b.tgl_berlaku,
+                b.additional,
+                b.jml_porsi,
+                bd.item_kode,
+                i.nama,
+                i.satuan,
+                bd.jumlah
+            from bom b
+            left join
+                menu m
+                on
+                    b.menu_kode = m.kode_menu
+            right join
+                bom_det bd
+                on
+                    b.id = bd.id_header
+            right join
+                (
+                    select * from (
+                        select items.satuan, items.pengali, cast(i.kode as varchar(20)) as kode, i.nama, 'item' as jenis from item i 
+                        right join
+                            item_satuan items
+                            on
+                                i.kode = items.item_kode
+                                
+                        union all
+                        
+                        select bs.satuan, bs.pengali, cast(b.id as varchar(20)) as kode, b.nama, 'bom' as jenis from bom b 
+                        right join
+                            bom_satuan bs 
+                            on
+                                b.id = bs.id_header 
+                        where
+                            b.additional = 1
+                    ) as data
+                    where
+                        data.satuan is not null
+                ) i
+                on
+                    bd.item_kode = i.kode
+            where
+                b.id = ".$id."
+        ";
+        $d_bom = $m_conf->hydrateRaw( $sql );
+
+        $data = null;
+        if ( $d_bom->count() > 0 ) {
+            $d_bom = $d_bom->toArray();
+
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select
+                    *
+                from bom_satuan bs
+                where
+                    bs.id_header = ".$id."
+            ";
+            $d_bom_satuan = $m_conf->hydrateRaw( $sql );
+
+            $data = array(
+                'id' => $d_bom[0]['id'],
+                'nama_bom' => $d_bom[0]['nama_bom'],
+                'nama_menu' => $d_bom[0]['nama_menu'],
+                'tgl_berlaku' => $d_bom[0]['tgl_berlaku'],
+                'additional' => $d_bom[0]['additional'],
+                'jml_porsi' => $d_bom[0]['jml_porsi'],
+                'satuan' => ($d_bom_satuan->count() > 0) ? $d_bom_satuan->toArray() : null
+            );
+
+            foreach ($d_bom as $k_bom => $v_bom) {
+                $data['detail'][ $k_bom ] = array(
+                    'item_kode' => $v_bom['item_kode'],
+                    'nama' => $v_bom['nama'],
+                    'satuan' => $v_bom['satuan'],
+                    'jumlah' => $v_bom['jumlah']
+                );
+            }
+        }
+
+        $content['data'] = $data;
 
         $content['item'] = $this->getItem();
         $content['menu'] = $this->getMenu();

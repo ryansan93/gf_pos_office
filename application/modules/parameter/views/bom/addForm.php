@@ -13,10 +13,10 @@
 
 <div class="col-xs-6 no-padding additional_form hide" style="margin-bottom: 5px; padding-right:5px;">
 	<div class="col-xs-12 no-padding">
-		<label class="control-label">Nama</label>
+		<label class="control-label">Nama BOM</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<input type="text" class="form-control text-center nama" placeholder="Nama" data-required="1" maxlength="50" />
+		<input type="text" class="form-control text-center nama" placeholder="Nama" maxlength="50" />
 	</div>
 </div>
 
@@ -69,10 +69,10 @@
 					<tbody>
 						<tr>
 							<td>
-								<input type="text" class="form-control uppercase satuan" placeholder="SATUAN" data-required="1" maxlength="10">
+								<input type="text" class="form-control uppercase satuan" placeholder="SATUAN" maxlength="10">
 							</td>
 							<td>
-								<input type="text" class="form-control uppercase text-right pengali" placeholder="PENGALI" data-tipe="decimal" data-required="1" maxlength="11">
+								<input type="text" class="form-control uppercase text-right pengali" placeholder="PENGALI" data-tipe="decimal" maxlength="11">
 							</td>
 							<td>
 								<div class="col-xs-12 no-padding">

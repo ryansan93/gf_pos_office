@@ -23,6 +23,7 @@
 						<th class="col-sm-4 text-center">Deskripsi</th>
 						<th class="col-sm-1 text-center">Mulai</th>
 						<th class="col-sm-1 text-center">Akhir</th>
+						<th class="col-sm-1 text-center">Status</th>
 						<th class="col-sm-1 text-center">Action</th>
 					</tr>
 				</thead>
@@ -35,6 +36,7 @@
 								<td><?php echo $v_data['deskripsi']; ?></td>
 								<td class="text-center"><?php echo tglIndonesia($v_data['start_date'], '-', ' '); ?></td>
 								<td class="text-center"><?php echo tglIndonesia($v_data['end_date'], '-', ' '); ?></td>
+								<td class="text-center" style="color: <?php echo ($v_data['mstatus'] == 1) ? '#000000' : 'RED'; ?>"><b><?php echo ($v_data['mstatus'] == 1) ? 'SUBMITTED' : 'REMOVED'; ?></b></td>
 								<td>
 									<!-- <div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
 										<?php if ( $akses['a_edit'] == 1 ) { ?>
