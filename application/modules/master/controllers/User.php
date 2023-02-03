@@ -249,11 +249,11 @@ class User extends Public_Controller
 		$m_usr->where('id_user', $params['id_user'])->update(
 			array(
 				'username_user'=>$params['username'],
-				'status_user'=>$params['status_user'],
-				'nama_user'=>$params['nama_user'],
-				'jk_user'=>$params['jenis_kelamin'],
-				'email_user'=>$params['email'],
-				'id_group'=>$params['id_group']
+				'status_user'=>$params['status_user']
+				// 'nama_user'=>$params['nama_user'],
+				// 'jk_user'=>$params['jenis_kelamin'],
+				// 'email_user'=>$params['email'],
+				// 'id_group'=>$params['id_group']
 			)
 		);
 

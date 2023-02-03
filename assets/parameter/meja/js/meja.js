@@ -11,7 +11,8 @@ var meja = {
         $(tr_clone).find('input, select').val('');
 
         $(tr_clone).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
-            $(this).priceFormat(Config[$(this).data('tipe')]);
+            // $(this).priceFormat(Config[$(this).data('tipe')]);
+            priceFormat( $(this).val() );
         });
 
         $(tbody).append( $(tr_clone) );
@@ -40,7 +41,8 @@ var meja = {
                 $(this).find('.modal-dialog').css({'width': '70%', 'max-width': '100%'});
 
                 $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
-					$(this).priceFormat(Config[$(this).data('tipe')]);
+					// $(this).priceFormat(Config[$(this).data('tipe')]);
+					priceFormat( $(this).val() );
 				});
 
 				$(this).find('.branch').select2({placeholder: 'Pilih Branch'});

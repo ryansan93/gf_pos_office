@@ -146,67 +146,72 @@ class Diskon extends Public_Controller {
         $params = $this->input->post('params');
 
         try {
-            $m_diskon = new \Model\Storage\Diskon_model();
+            foreach ($params['branch'] as $k_branch => $v_branch) {
+                $m_diskon = new \Model\Storage\Diskon_model();
 
-            $kode = $m_diskon->getNextId();
+                $kode = $m_diskon->getNextId();
 
-            $m_diskon->kode = $kode;
-            $m_diskon->branch_kode = $params['branch'];
-            $m_diskon->nama = $params['nama'];
-            $m_diskon->deskripsi = $params['deskripsi'];
-            $m_diskon->diskon_tipe = $params['tipe_diskon'];
-            $m_diskon->member = $params['member'];
-            $m_diskon->non_member = $params['non_member'];
-            $m_diskon->ppn = $params['ppn'];
-            $m_diskon->service_charge = $params['status_service_charge'];
-            $m_diskon->start_date = $params['tgl_mulai'];
-            $m_diskon->end_date = $params['tgl_akhir'];
-            $m_diskon->start_time = $params['jam_mulai'];
-            $m_diskon->end_time = $params['jam_akhir'];
-            $m_diskon->diskon = $params['diskon'];
-            $m_diskon->diskon_jenis = $params['diskon_jenis'];
-            $m_diskon->min_beli = $params['min_beli'];
-            $m_diskon->save();
+                $m_diskon->kode = $kode;
+                $m_diskon->branch_kode = $v_branch;
+                $m_diskon->nama = $params['nama'];
+                $m_diskon->deskripsi = $params['deskripsi'];
+                $m_diskon->diskon_tipe = $params['tipe_diskon'];
+                $m_diskon->member = $params['member'];
+                $m_diskon->non_member = $params['non_member'];
+                $m_diskon->ppn = $params['ppn'];
+                $m_diskon->service_charge = $params['status_service_charge'];
+                $m_diskon->start_date = $params['tgl_mulai'];
+                $m_diskon->end_date = $params['tgl_akhir'];
+                $m_diskon->start_time = $params['jam_mulai'];
+                $m_diskon->end_time = $params['jam_akhir'];
+                $m_diskon->diskon = $params['diskon'];
+                $m_diskon->diskon_jenis = $params['diskon_jenis'];
+                $m_diskon->min_beli = $params['min_beli'];
+                $m_diskon->mstatus = 1;
+                $m_diskon->save();
 
-            if ( isset($params['jenis_kartu']) && !empty($params['jenis_kartu']) ) {
-                foreach ($params['jenis_kartu'] as $k_jk => $v_jk) {
-                    $m_diskonjk = new \Model\Storage\DiskonJenisKartu_model();
-                    $m_diskonjk->diskon_kode = $kode;
-                    $m_diskonjk->jenis_kartu_kode = $v_jk;
-                    $m_diskonjk->save();
+                if ( isset($params['jenis_kartu']) && !empty($params['jenis_kartu']) ) {
+                    foreach ($params['jenis_kartu'] as $k_jk => $v_jk) {
+                        $m_diskonjk = new \Model\Storage\DiskonJenisKartu_model();
+                        $m_diskonjk->diskon_kode = $kode;
+                        $m_diskonjk->jenis_kartu_kode = $v_jk;
+                        $m_diskonjk->save();
+                    }
                 }
-            }
 
-            if ( isset($params['diskon_menu']) && !empty($params['diskon_menu']) ) {
-                foreach ($params['diskon_menu'] as $k_dm => $v_dm) {
-                    $m_dm = new \Model\Storage\DiskonMenu_model();
-                    $m_dm->diskon_kode = $kode;
-                    $m_dm->jenis_menu_id = $v_dm['jenis_menu_id'];
-                    $m_dm->menu_kode = $v_dm['menu_kode'];
-                    $m_dm->diskon = $v_dm['diskon'];
-                    $m_dm->diskon_jenis = $v_dm['diskon_jenis'];
-                    $m_dm->save();
+                if ( isset($params['diskon_menu']) && !empty($params['diskon_menu']) ) {
+                    foreach ($params['diskon_menu'] as $k_dm => $v_dm) {
+                        if ( $v_dm['branch_kode'] == $v_branch ) {
+                            $m_dm = new \Model\Storage\DiskonMenu_model();
+                            $m_dm->diskon_kode = $kode;
+                            $m_dm->jenis_menu_id = $v_dm['jenis_menu_id'];
+                            $m_dm->menu_kode = $v_dm['menu_kode'];
+                            $m_dm->diskon = $v_dm['diskon'];
+                            $m_dm->diskon_jenis = $v_dm['diskon_jenis'];
+                            $m_dm->save();
+                        }
+                    }
                 }
-            }
 
-            if ( isset($params['diskon_beli_dapat']) && !empty($params['diskon_beli_dapat']) ) {
-                foreach ($params['diskon_beli_dapat'] as $k_dbd => $v_dbd) {
-                    $m_dbd = new \Model\Storage\DiskonBeliDapat_model();
-                    $m_dbd->diskon_kode = $kode;
-                    $m_dbd->jenis_menu_id_beli = $v_dbd['jenis_menu_id_beli'];
-                    $m_dbd->menu_kode_beli = $v_dbd['menu_kode_beli'];
-                    $m_dbd->jumlah_beli = $v_dbd['jumlah_beli'];
-                    $m_dbd->jenis_menu_id_dapat = $v_dbd['jenis_menu_id_dapat'];
-                    $m_dbd->menu_kode_dapat = $v_dbd['menu_kode_dapat'];
-                    $m_dbd->jumlah_dapat = $v_dbd['jumlah_dapat'];
-                    $m_dbd->diskon_dapat = $v_dbd['diskon_dapat'];
-                    $m_dbd->diskon_jenis_dapat = $v_dbd['diskon_jenis_dapat'];
-                    $m_dbd->save();
+                if ( isset($params['diskon_beli_dapat']) && !empty($params['diskon_beli_dapat']) ) {
+                    foreach ($params['diskon_beli_dapat'] as $k_dbd => $v_dbd) {
+                        $m_dbd = new \Model\Storage\DiskonBeliDapat_model();
+                        $m_dbd->diskon_kode = $kode;
+                        $m_dbd->jenis_menu_id_beli = $v_dbd['jenis_menu_id_beli'];
+                        $m_dbd->menu_kode_beli = $v_dbd['menu_kode_beli'];
+                        $m_dbd->jumlah_beli = $v_dbd['jumlah_beli'];
+                        $m_dbd->jenis_menu_id_dapat = $v_dbd['jenis_menu_id_dapat'];
+                        $m_dbd->menu_kode_dapat = $v_dbd['menu_kode_dapat'];
+                        $m_dbd->jumlah_dapat = $v_dbd['jumlah_dapat'];
+                        $m_dbd->diskon_dapat = $v_dbd['diskon_dapat'];
+                        $m_dbd->diskon_jenis_dapat = $v_dbd['diskon_jenis_dapat'];
+                        $m_dbd->save();
+                    }
                 }
-            }
 
-            $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $m_diskon, $deskripsi_log );
+                $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                Modules::run( 'base/event/save', $m_diskon, $deskripsi_log );
+            }
 
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di simpan.';

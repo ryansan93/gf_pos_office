@@ -26,7 +26,8 @@ var diskon = {
 		if ( $(elm).is(':checked') ) {
 			$(div).find('input[type=text]').removeAttr('disabled');
 			$(div).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
-	            $(this).priceFormat(Config[$(this).data('tipe')]);
+	            // $(this).priceFormat(Config[$(this).data('tipe')]);
+	            priceFormat( $(this).val() );
 	        });
 		} else {
 			$(div).find('input[type=text]').val( 0 );
@@ -46,6 +47,7 @@ var diskon = {
 		var jenis_menu = $(div).find('select.jenis_menu').select2('val');
 		var text_jenis_menu = $(div).find('select.jenis_menu option:selected').text();
 		var menu = $(div).find('select.menu').select2('val');
+		var kode_branch = $(div).find('select.menu option:selected').attr('data-branch');
 		var text_menu = $(div).find('select.menu option:selected').text();
 		var diskon = numeral.unformat($(div).find('input.diskon').val());
 		var diskon_jenis = $(div).find('select.diskon_jenis').val();
@@ -55,15 +57,15 @@ var diskon = {
 
 		var tr = '<tr class="data">'
 			tr += '<td class="jenis_menu" data-val="'+jenis_menu+'" style="padding: 3px;">'+text_jenis_menu+'</td>';
-			tr += '<td class="menu" data-val="'+menu+'" style="padding: 3px;">'+text_menu+'</td>';
+			tr += '<td class="menu" data-val="'+menu+'" data-branch="'+kode_branch+'" style="padding: 3px;">'+text_menu+'</td>';
 			tr += '<td class="diskon text-right" data-val="'+diskon+'" data-jenis="'+diskon_jenis+'" style="padding: 3px;">'+text_diskon+'</td>';
 			tr += '<td style="padding: 3px;"><button type="button" class="col-xs-12 btn btn-default" onclick="diskon.removeRowTable(this)"><i class="fa fa-trash"></i></button></td>';
 		tr += '</tr>'
 
 		$(div).find('tbody').append( tr );
 
-		$(div).find('.jenis_menu').val('all').trigger('change');
-		$(div).find('.menu').val('all').trigger('change');
+		$(div).find('select.jenis_menu').val('all').trigger('change');
+		$(div).find('select.menu').val('all').trigger('change');
 		$(div).find('.diskon').val('');
 		$(div).find('.diskon_jenis').val('persen');
 	}, // end - addDaftarJenisMenu
@@ -110,38 +112,45 @@ var diskon = {
 
 		$(div_tipe_diskon).find('tbody').append( tr );
 
-		$(div_daftar_beli).find('.jenis_menu').val('all').trigger('change');
-		$(div_daftar_beli).find('.menu').val('all').trigger('change');
+		$(div_daftar_beli).find('select.jenis_menu').val('all').trigger('change');
+		$(div_daftar_beli).find('select.menu').val('all').trigger('change');
 		$(div_daftar_beli).find('.jumlah').val('');
 
-		$(div_daftar_dapat).find('.jenis_menu').val('all').trigger('change');
-		$(div_daftar_dapat).find('.menu').val('all').trigger('change');
+		$(div_daftar_dapat).find('select.jenis_menu').val('all').trigger('change');
+		$(div_daftar_dapat).find('select.menu').val('all').trigger('change');
 		$(div_daftar_dapat).find('.jumlah').val('');
 		$(div_daftar_dapat).find('.diskon').val('');
 		$(div_daftar_dapat).find('.diskon_jenis').val('persen');
 	}, // end - addDaftarBeliDapat
 
 	filterMenu: function () {
-		var branch = $('.branch').select2('val');
+		var _branch = $('.branch').select2('val');
 
-		$.map( $('div.contain_tipe_diskon'), function (div) {
+		if ( _branch.length > 0 ) {
+			$('.menu option').attr('disabled', 'disabled');
 
-			if ( $(div).find('select.jenis_menu').length > 0 ) {
-				var jenis_menu = $(div).find('select.jenis_menu').select2('val');
+			for (var i = 0; i < _branch.length; i++) {
+				var branch = _branch[i];
 
-				$(div).find('.menu option').removeAttr('disabled');
+				$.map( $('div.contain_tipe_diskon'), function (div) {
+					if ( $(div).find('select.jenis_menu').length > 0 ) {
+						var jenis_menu = $(div).find('select.jenis_menu').select2('val');
 
-				if ( !empty(branch) && !empty(jenis_menu) ) {
-					if ( jenis_menu == 'all' ) {
-						$(div).find('.menu option:not([data-branch="'+branch+'"])').attr('disabled', 'disabled');
-					} else {
-						$(div).find('.menu option:not([data-jm="'+jenis_menu+'"][data-branch="'+branch+'"])').attr('disabled', 'disabled');
+						if ( !empty(branch) && !empty(jenis_menu) ) {
+							if ( jenis_menu == 'all' ) {
+								$(div).find('select.menu option[data-branch="'+branch+'"]').removeAttr('disabled');
+							} else {
+								$(div).find('select.menu option[data-branch="'+branch+'"][data-jm="'+jenis_menu+'"]').removeAttr('disabled');
+							}
+							$(div).find('select.menu option[value="all"]').removeAttr('disabled');
+							$(div).find('select.menu').select2();
+						}
 					}
-					$(div).find('.menu option[value="all"]').removeAttr('disabled');
-					$(div).find('.menu').select2();
-				}
+				});
 			}
-		});
+		} else {
+			$(div).find('select.menu option').attr('disabled', 'disabled');
+		}
 	}, // end - filterMenu
 
 	modalAddForm: function () {
@@ -160,7 +169,8 @@ var diskon = {
                 $(this).find('.modal-dialog').css({'width': '90%', 'max-width': '100%'});
 
                 $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
-					$(this).priceFormat(Config[$(this).data('tipe')]);
+					// $(this).priceFormat(Config[$(this).data('tipe')]);
+					priceFormat( $(this) );
 				});
 
                 var today = moment(new Date()).format('YYYY-MM-DD');
@@ -204,16 +214,16 @@ var diskon = {
 	        		}
 		        });
 
-		        $('.jenis_kartu').select2();
-		        $('.branch').select2();
-		        $('.branch').on('select2:select', function (e) {
+		        $('.modal').find('select.jenis_kartu').select2();
+		        $('.modal').find('select.branch').select2();
+		        $('.modal').find('select.branch').on('select2:select', function (e) {
 		        	diskon.filterMenu();
 				});
-		        $('.jenis_menu').select2();
-		        $('.jenis_menu').on('select2:select', function (e) {
+		        $('.modal').find('select.jenis_menu').select2();
+		        $('.modal').find('select.jenis_menu').on('select2:select', function (e) {
 		        	diskon.filterMenu();
 				});
-		        $('.menu').select2();
+		        $('.modal').find('select.menu').select2();
 
 		        $(this).removeAttr('tabindex');
             });
@@ -239,7 +249,8 @@ var diskon = {
                 $(this).find('.modal-dialog').css({'width': '90%', 'max-width': '100%'});
 
                 $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
-					$(this).priceFormat(Config[$(this).data('tipe')]);
+					// $(this).priceFormat(Config[$(this).data('tipe')]);
+					priceFormat( $(this) );
 				});
 
 				$("#StartDate").datetimepicker({
@@ -357,6 +368,7 @@ var diskon = {
 				var diskon_menu = $.map( $('div#tipe_diskon2').find('tbody tr.data'), function (tr) {
 					var _data = {
 						'jenis_menu_id': $(tr).find('td.jenis_menu').attr('data-val'),
+						'branch_kode': $(tr).find('td.menu').attr('data-branch'),
 						'menu_kode': $(tr).find('td.menu').attr('data-val'),
 						'diskon': $(tr).find('td.diskon').attr('data-val'),
 						'diskon_jenis': $(tr).find('td.diskon').attr('data-jenis')
@@ -404,8 +416,6 @@ var diskon = {
 							'diskon_menu': diskon_menu,
 							'diskon_beli_dapat': diskon_beli_dapat
 						};
-
-						console.lo
 
 				        $.ajax({
 				            url: 'parameter/Diskon/save',

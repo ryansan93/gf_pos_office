@@ -9,7 +9,7 @@
 				<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
 					<div class="col-xs-12"><label class="control-label">Branch</label></div>
 					<div class="col-xs-12">
-						<select class="form-control branch" data-required="1">
+						<select class="form-control branch" multiple="multiple" data-required="1">
 							<option value="">Pilih Branch</option>
 							<?php foreach ($branch as $k_branch => $v_branch): ?>
 								<option value="<?php echo $v_branch['kode_branch']; ?>"><?php echo strtoupper($v_branch['nama']); ?></option>

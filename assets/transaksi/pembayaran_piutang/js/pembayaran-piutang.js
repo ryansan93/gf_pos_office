@@ -35,7 +35,8 @@ var pp = {
         }
 
         $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
-            $(this).priceFormat(Config[$(this).data('tipe')]);
+            // $(this).priceFormat(Config[$(this).data('tipe')]);
+            priceFormat( $(this).val() );
         });
 
         $('.check_all').change(function() {

@@ -32,7 +32,8 @@ var App = {
 
     formatNumber: function() {
         $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal],[data-tipe=decimal3],[data-tipe=decimal4]').each(function() {
-            $(this).priceFormat(Config[$(this).data('tipe')]);
+            // $(this).priceFormat(Config[$(this).data('tipe')]);
+            priceFormat( $(this).val() );
         });
     },
 
