@@ -12,7 +12,7 @@
 							<label class="control-label">Kode</label>
 						</td>
 						<td class="col-sm-10">
-							<input type="text" class="col-sm-3 form-control kode uppercase" placeholder="Kode" data-required="1" maxlength="5">
+							<input type="text" class="col-sm-3 form-control kode uppercase" placeholder="Kode (MAX:10)" data-required="1" maxlength="10">
 						</td>
 					</tr>
 					<tr>

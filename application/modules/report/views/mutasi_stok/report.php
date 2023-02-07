@@ -10,8 +10,8 @@
 					<th class="text-center col-lg-1">Nama Brg</th>
 					<th class="text-center col-lg-1">Tanggal</th>
 					<th class="text-center col-lg-2">Transaksi</th>
-					<th class="text-center col-lg-1">Jenis</th>
-					<th class="text-center col-lg-1" style="width: 5%;">Qty</th>
+					<th class="text-center col-lg-1" style="width: 5%;">Debit</th>
+					<th class="text-center col-lg-1" style="width: 5%;">Kredit</th>
 					<th class="text-center col-lg-1">Satuan</th>
 					<th class="text-center col-lg-1">Hrg (Rp.)</th>
 					<th class="text-center col-lg-1">Sub Total (Rp.)</th>

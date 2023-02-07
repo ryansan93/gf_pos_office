@@ -12,7 +12,7 @@
 							<label class="control-label">Kode</label>
 						</td>
 						<td class="col-sm-10">
-							<input type="text" class="col-sm-3 form-control kode uppercase" placeholder="Kode" data-required="1" value="<?php echo $data['kode']; ?>" maxlength="5" readonly>
+							<input type="text" class="col-sm-3 form-control kode uppercase" placeholder="Kode (MAX:10)" data-required="1" value="<?php echo $data['kode']; ?>" maxlength="10" readonly>
 						</td>
 					</tr>
 					<tr>

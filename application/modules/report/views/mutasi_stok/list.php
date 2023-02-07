@@ -35,8 +35,8 @@
 								<?php $idx_tgl++; ?>
 							<?php endif ?>
 							<td><?php echo $v_masuk['kode']; ?></td>
-							<td>Masuk</td>
 							<td class="text-right"><?php echo angkaDecimal($v_masuk['masuk']); ?></td>
+							<td class="text-right"><?php echo angkaDecimal(0); ?></td>
 							<td class="text-center"><?php echo $v_item['satuan']; ?></td>
 							<td class="text-right"><?php echo angkaDecimal($v_masuk['harga']); ?></td>
 							<td class="text-right"><?php echo angkaDecimal($v_masuk['nilai']); ?></td>
@@ -59,7 +59,7 @@
 								<?php $idx_tgl++; ?>
 							<?php endif ?>
 							<td><?php echo $v_keluar['kode']; ?></td>
-							<td>Keluar</td>
+							<td class="text-right"><?php echo angkaDecimal(0); ?></td>
 							<td class="text-right"><?php echo angkaDecimal($v_keluar['keluar']); ?></td>
 							<td class="text-center"><?php echo $v_item['satuan']; ?></td>
 							<td class="text-right"><?php echo angkaDecimal($v_keluar['harga']); ?></td>
