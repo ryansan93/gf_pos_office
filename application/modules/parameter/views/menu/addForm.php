@@ -78,6 +78,35 @@
 					<input type="checkbox" class="service_charge col-xs-1 cursor-p" style="height: 20px; margin: 0px; width: 3%;">
 				</div>
 			</div>
+			<div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
+			<div class="col-xs-12 no-padding">
+				<small>
+					<table class="table table-bordered tbl_jenis_pesanan" style="margin-bottom: 0px;">
+						<thead>
+							<tr>
+								<th class="col-xs-8">Jenis Pesanan</th>
+								<th class="col-xs-4">Harga (Rp.)</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php if ( !empty($jenis_pesanan) ): ?>
+								<?php foreach ($jenis_pesanan as $key => $val): ?>
+									<tr class="data">
+										<td class="kode" data-val="<?php echo $val['kode']; ?>"><?php echo strtoupper($val['nama']); ?></td>
+										<td>
+											<input type="text" class="form-control text-right harga" data-required="1" data-tipe="decimal" placeholder="Harga" maxlength="14">
+										</td>
+									</tr>
+								<?php endforeach ?>
+							<?php else: ?>
+								<tr>
+									<td colspan="2">Data jenis pesanan tidak ditemukan.</td>
+								</tr>
+							<?php endif ?>
+						</tbody>
+					</table>
+				</small>
+			</div>
 		</div>
 		<div class="col-xs-12 no-padding">
 			<hr style="margin-top: 10px; margin-bottom: 10px;">

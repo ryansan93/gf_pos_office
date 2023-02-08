@@ -17,7 +17,7 @@ var menu = {
 
                 $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
 					// $(this).priceFormat(Config[$(this).data('tipe')]);
-					priceFormat( $(this).val() );
+					priceFormat( $(this) );
 				});
 
 		        $(this).find('textarea').addClass('uppercase');
@@ -49,7 +49,7 @@ var menu = {
 
                 $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
 					// $(this).priceFormat(Config[$(this).data('tipe')]);
-					priceFormat( $(this).val() );
+					priceFormat( $(this) );
 				});
 
 				$(this).find('textarea').addClass('uppercase');
@@ -95,6 +95,15 @@ var menu = {
 			if ( $(div).find('input.service_charge').is(':checked') ) {
 				service_charge = 1;
 			}
+			
+			var list_jenis_pesanan = $.map( $(div).find('.tbl_jenis_pesanan tbody tr.data'), function (tr) {
+				var _data = {
+					'jenis_pesanan': $(tr).find('td.kode').attr('data-val'),
+					'harga': numeral.unformat( $(tr).find('input').val() )
+				};
+
+				return _data;
+			});
 
 			bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
 				if ( result ) {
@@ -106,7 +115,8 @@ var menu = {
 						'branch': branch,
 						'additional': additional,
 						'ppn': ppn,
-						'service_charge': service_charge
+						'service_charge': service_charge,
+						'list_jenis_pesanan': list_jenis_pesanan
 					};
 
 			        $.ajax({
@@ -168,6 +178,15 @@ var menu = {
 				service_charge = 1;
 			}
 
+			var list_jenis_pesanan = $.map( $(div).find('.tbl_jenis_pesanan tbody tr.data'), function (tr) {
+				var _data = {
+					'jenis_pesanan': $(tr).find('td.kode').attr('data-val'),
+					'harga': numeral.unformat( $(tr).find('input').val() )
+				};
+
+				return _data;
+			});
+
 			bootbox.confirm('Apakah anda yakin ingin meng-ubah data ?', function(result) {
 				if ( result ) {
 					var data = {
@@ -178,7 +197,8 @@ var menu = {
 						'kategori': kategori,
 						'additional': additional,
 						'ppn': ppn,
-						'service_charge': service_charge
+						'service_charge': service_charge,
+						'list_jenis_pesanan': list_jenis_pesanan
 					};
 
 			        $.ajax({

@@ -22,7 +22,7 @@ var jk = {
 
                 $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
 					// $(this).priceFormat(Config[$(this).data('tipe')]);
-					priceFormat( $(this).val() );
+					priceFormat( $(this) );
 				});
 
 		        $(this).find('.nama').val(nama);
@@ -51,7 +51,7 @@ var jk = {
 
                 $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
 					// $(this).priceFormat(Config[$(this).data('tipe')]);
-					priceFormat( $(this).val() );
+					priceFormat( $(this) );
 				});
 
 		  //       $(this).find('.nama').val(nama);

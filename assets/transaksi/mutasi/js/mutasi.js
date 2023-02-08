@@ -36,7 +36,7 @@ var mutasi = {
 
         $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
             // $(this).priceFormat(Config[$(this).data('tipe')]);
-            priceFormat( $(this).val() );
+            priceFormat( $(this) );
         });
 
         $('select.asal').select2();
@@ -120,7 +120,7 @@ var mutasi = {
 
         $(tr_clone).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
             // $(this).priceFormat(Config[$(this).data('tipe')]);
-            priceFormat( $(this).val() );
+            priceFormat( $(this) );
         });
 
         $(tbody).append( $(tr_clone) );

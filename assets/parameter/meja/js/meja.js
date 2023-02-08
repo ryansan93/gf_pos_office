@@ -12,7 +12,7 @@ var meja = {
 
         $(tr_clone).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
             // $(this).priceFormat(Config[$(this).data('tipe')]);
-            priceFormat( $(this).val() );
+            priceFormat( $(this) );
         });
 
         $(tbody).append( $(tr_clone) );
@@ -42,7 +42,7 @@ var meja = {
 
                 $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
 					// $(this).priceFormat(Config[$(this).data('tipe')]);
-					priceFormat( $(this).val() );
+					priceFormat( $(this) );
 				});
 
 				$(this).find('.branch').select2({placeholder: 'Pilih Branch'});

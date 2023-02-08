@@ -33,7 +33,7 @@ var terima = {
 
         $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
             // $(this).priceFormat(Config[$(this).data('tipe')]);
-            priceFormat( $(this).val() );
+            priceFormat( $(this) );
         });
 
         $('.gudang').select2();
@@ -77,7 +77,7 @@ var terima = {
 
         $(tr_clone).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
             // $(this).priceFormat(Config[$(this).data('tipe')]);
-            priceFormat( $(this).val() );
+            priceFormat( $(this) );
         });
 
         $(tbody).append( $(tr_clone) );

@@ -23,7 +23,7 @@ var mbr = {
 
                 $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal]').each(function(){
                     // $(this).priceFormat(Config[$(this).data('tipe')]);
-                    priceFormat( $(this).val() );
+                    priceFormat( $(this) );
                 });
 
                 $(this).find('.member_group').select2();
@@ -54,7 +54,7 @@ var mbr = {
 
                 $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal]').each(function(){
                     // $(this).priceFormat(Config[$(this).data('tipe')]);
-                    priceFormat( $(this).val() );
+                    priceFormat( $(this) );
                 });
 
                 $(this).find('.member_group').select2();

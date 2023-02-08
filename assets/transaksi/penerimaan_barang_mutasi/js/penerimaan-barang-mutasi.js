@@ -42,7 +42,7 @@ var pbm = {
 
         $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
             // $(this).priceFormat(Config[$(this).data('tipe')]);
-            priceFormat( $(this).val() );
+            priceFormat( $(this) );
         });
     }, // end - setting_up
 

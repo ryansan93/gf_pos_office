@@ -62,6 +62,57 @@ class Menu extends Public_Controller {
         return $data;
     }
 
+    public function getJenisPesanan( $kode = null )
+    {
+        $data = null;
+
+        if ( empty($kode) ) {
+            $m_jp = new \Model\Storage\JenisPesanan_model();
+            $d_jp = $m_jp->orderBy('nama', 'asc')->get();
+
+            if ( $d_jp->count() > 0 ) {
+                $data = $d_jp->toArray();
+            }
+        } else {
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select
+                    hm.harga,
+                    hm.jenis_pesanan_kode as kode,
+                    jp.nama 
+                from harga_menu hm
+                right join
+                    (
+                        select
+                            max(id) as id,
+                            menu_kode,
+                            jenis_pesanan_kode 
+                        from harga_menu
+                        group by
+                            menu_kode,
+                            jenis_pesanan_kode 
+                    ) hm1
+                    on
+                        hm.id = hm1.id
+                right join
+                    jenis_pesanan jp 
+                    on
+                        hm.jenis_pesanan_kode = jp.kode 
+                where
+                    hm.menu_kode = '".$kode."'
+                order by
+                    jp.nama asc
+            ";
+            $d_hm = $m_conf->hydrateRaw( $sql );
+
+            if ( $d_hm->count() > 0 ) {
+                $data = $d_hm->toArray();
+            } 
+        }
+
+        return $data;
+    }
+
     public function modalAddForm()
     {
         $m_km = new \Model\Storage\KategoriMenu_model();
@@ -83,6 +134,7 @@ class Menu extends Public_Controller {
         $content['kategori'] = $kategori;
         $content['jenis'] = $jenis;
         $content['branch'] = $this->getBranch();
+        $content['jenis_pesanan'] = $this->getJenisPesanan();
 
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
 
@@ -96,6 +148,7 @@ class Menu extends Public_Controller {
         try {
             foreach ($params['branch'] as $k_branch => $v_branch) {
                 $m_menu = new \Model\Storage\Menu_model();
+                $now = $m_menu->getDate();
 
                 $kode = $m_menu->getNextId();
 
@@ -113,6 +166,18 @@ class Menu extends Public_Controller {
 
                 $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
                 Modules::run( 'base/event/save', $m_menu, $deskripsi_log );
+
+                foreach ($params['list_jenis_pesanan'] as $key => $value) {
+                    $m_hm = new \Model\Storage\HargaMenu_model();
+                    $m_hm->jenis_pesanan_kode = $value['jenis_pesanan'];
+                    $m_hm->menu_kode = $kode;
+                    $m_hm->harga = $value['harga'];
+                    $m_hm->tgl_mulai = $now['tanggal'];
+                    $m_hm->save();
+
+                    $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                    Modules::run( 'base/event/save', $m_hm, $deskripsi_log );
+                }
             }
 
             $this->result['status'] = 1;
@@ -151,6 +216,7 @@ class Menu extends Public_Controller {
         $content['jenis'] = $jenis;
         $content['branch'] = $this->getBranch();
         $content['data'] = $d_menu;
+        $content['jenis_pesanan'] = $this->getJenisPesanan( $kode );
 
         $html = $this->load->view($this->pathView . 'editForm', $content, TRUE);
 
@@ -163,6 +229,8 @@ class Menu extends Public_Controller {
 
         try {
             $m_menu = new \Model\Storage\Menu_model();
+            $now = $m_menu->getDate();
+
             $m_menu->where('kode_menu', $params['kode'])->update(
                 array(
                     'nama' => $params['nama'],
@@ -180,6 +248,18 @@ class Menu extends Public_Controller {
 
             $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
             Modules::run( 'base/event/save', $d_menu, $deskripsi_log );
+
+            foreach ($params['list_jenis_pesanan'] as $key => $value) {
+                $m_hm = new \Model\Storage\HargaMenu_model();
+                $m_hm->jenis_pesanan_kode = $value['jenis_pesanan'];
+                $m_hm->menu_kode = $params['kode'];
+                $m_hm->harga = $value['harga'];
+                $m_hm->tgl_mulai = $now['tanggal'];
+                $m_hm->save();
+
+                $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                Modules::run( 'base/event/save', $m_hm, $deskripsi_log );
+            }
 
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di edit.';

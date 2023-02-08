@@ -21,7 +21,7 @@ var km = {
 
                 $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
 					// $(this).priceFormat(Config[$(this).data('tipe')]);
-					priceFormat( $(this).val() );
+					priceFormat( $(this) );
 				});
 
 		        $(this).find('.nama').val(nama);
@@ -61,7 +61,7 @@ var km = {
 
                 $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
 					// $(this).priceFormat(Config[$(this).data('tipe')]);
-					priceFormat( $(this).val() );
+					priceFormat( $(this) );
 				});
 
 		  		$('.user').select2().on('select2:select', function (e) {
