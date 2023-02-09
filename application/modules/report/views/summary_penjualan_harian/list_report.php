@@ -10,6 +10,8 @@
 		$tot8 = 0;
 		$tot9 = 0;
 		$tot10 = 0;
+		$tot11 = 0;
+		$tot12 = 0;
 	?>
 	<?php foreach ($data as $k_data => $v_data): ?>
 		<tr>
@@ -25,6 +27,8 @@
 			<td class="text-right"><?php echo isset($v_data['kategori_pembayaran'][1]) ? angkaRibuan($v_data['kategori_pembayaran'][1]) : 0; ?></td>
 			<td class="text-right"><?php echo isset($v_data['kategori_pembayaran'][2]) ? angkaRibuan($v_data['kategori_pembayaran'][2]) : 0; ?></td>
 			<td class="text-right"><?php echo isset($v_data['kategori_pembayaran'][3]) ? angkaRibuan($v_data['kategori_pembayaran'][3]) : 0; ?></td>
+			<td class="text-right"><?php echo isset($v_data['diskon_requirement']['OC']) ? angkaRibuan($v_data['diskon_requirement']['OC']) : 0; ?></td>
+			<td class="text-right"><?php echo isset($v_data['diskon_requirement']['ENTERTAIN']) ? angkaRibuan($v_data['diskon_requirement']['ENTERTAIN']) : 0; ?></td>
 		</tr>
 		<?php
 			$tot1 += isset($v_data['kategori_menu'][1]) ? ($v_data['kategori_menu'][1]) : 0;
@@ -37,6 +41,8 @@
 			$tot8 += isset($v_data['kategori_pembayaran'][1]) ? ($v_data['kategori_pembayaran'][1]) : 0;
 			$tot9 += isset($v_data['kategori_pembayaran'][2]) ? ($v_data['kategori_pembayaran'][2]) : 0;
 			$tot10 += isset($v_data['kategori_pembayaran'][3]) ? ($v_data['kategori_pembayaran'][3]) : 0;
+			$tot11 += isset($v_data['diskon_requirement']['OC']) ? ($v_data['diskon_requirement']['OC']) : 0;
+			$tot12 += isset($v_data['diskon_requirement']['ENTERTAIN']) ? ($v_data['diskon_requirement']['ENTERTAIN']) : 0;
 		?>
 	<?php endforeach ?>
 	<tr>
@@ -51,9 +57,11 @@
 		<td class="text-right"><b><?php echo angkaRibuan($tot8); ?></b></td>
 		<td class="text-right"><b><?php echo angkaRibuan($tot9); ?></b></td>
 		<td class="text-right"><b><?php echo angkaRibuan($tot10); ?></b></td>
+		<td class="text-right"><b><?php echo angkaRibuan($tot11); ?></b></td>
+		<td class="text-right"><b><?php echo angkaRibuan($tot12); ?></b></td>
 	</tr>
 <?php else: ?>
 	<tr>
-		<td colspan="12">Data tidak ditemukan.</td>
+		<td colspan="14">Data tidak ditemukan.</td>
 	</tr>
 <?php endif ?>

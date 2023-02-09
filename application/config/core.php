@@ -67,3 +67,10 @@ $config['diskon_tipe'] = array(
 	2 => 'Kategori / Produk Tertentu',
 	// 3 => 'Beli dan Dapatkan'
 );
+
+/*DISKON KEBUTUHAN*/
+$config['diskon_requirement'] = array(
+	'GENERAL' => 'UMUM',
+	'OC' => 'OC',
+	'ENTERTAIN' => 'ENTERTAIN'
+);

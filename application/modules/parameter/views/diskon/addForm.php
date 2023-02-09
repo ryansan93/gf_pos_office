@@ -39,6 +39,16 @@
 						</select>
 					</div>
 				</div>
+				<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
+					<div class="col-xs-12"><label class="control-label">Jenis Diskon</label></div>
+					<div class="col-xs-12">
+						<select class="form-control requirement_diskon" data-required="1">
+							<?php foreach ($requirement_diskon as $k_rd => $v_rd): ?>
+								<option value="<?php echo $k_rd; ?>"><?php echo $v_rd; ?></option>
+							<?php endforeach ?>
+						</select>
+					</div>
+				</div>
 				<div class="col-xs-12"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 				<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
 					<div class="col-xs-1">

@@ -230,6 +230,84 @@ var diskon = {
         },'html');
 	}, // end - modalAddForm
 
+	modalViewForm: function (elm) {
+		$('.modal').modal('hide');
+
+        $.get('parameter/diskon/modalViewForm',{
+        	'params': $(elm).attr('data-kode')
+        },function(data){
+            var _options = {
+                className : 'large',
+                message : data,
+                addClass : 'form',
+                onEscape: true,
+            };
+            bootbox.dialog(_options).bind('shown.bs.modal', function(){
+                $(this).find('.modal-header').css({'padding-top': '0px'});
+                $(this).find('.modal-dialog').css({'width': '90%', 'max-width': '100%'});
+
+                $(this).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
+					// $(this).priceFormat(Config[$(this).data('tipe')]);
+					priceFormat( $(this) );
+				});
+
+                var today = moment(new Date()).format('YYYY-MM-DD');
+				$("#StartDate").datetimepicker({
+		            locale: 'id',
+		            format: 'DD MMM Y',
+		            minDate: moment(new Date((today+' 00:00:00')))
+		        });
+		        $("#EndDate").datetimepicker({
+		            locale: 'id',
+		            format: 'DD MMM Y',
+		            minDate: moment(new Date((today+' 23:59:59')))
+		        });
+		        $("#StartDate").on("dp.change", function (e) {
+	        		var minDate = dateSQL($("#StartDate").data("DateTimePicker").date())+' 00:00:00';
+	            	$("#EndDate").data("DateTimePicker").minDate(moment(new Date(minDate)));
+		        });
+		        $("#EndDate").on("dp.change", function (e) {
+	        		var maxDate = dateSQL($("#EndDate").data("DateTimePicker").date())+' 23:59:59';
+	        		if ( maxDate >= (today+' 00:00:00') ) {
+	            		$("#StartDate").data("DateTimePicker").maxDate(moment(new Date(maxDate)));
+	        		}
+		        });
+
+		        $("#StartTime").datetimepicker({
+		            locale: 'id',
+		            format: 'LT'
+		        });
+		        $("#EndTime").datetimepicker({
+		            locale: 'id',
+		            format: 'LT'
+		        });
+		        $("#StartTime").on("dp.change", function (e) {
+	        		var minDate = dateTimeSQL($("#StartTime").data("DateTimePicker").date());
+	            	$("#EndTime").data("DateTimePicker").minDate(moment(new Date(minDate)));
+		        });
+		        $("#EndTime").on("dp.change", function (e) {
+	        		var maxDate = dateTimeSQL($("#EndTime").data("DateTimePicker").date());
+	        		if ( maxDate >= (today+' 00:00:00') ) {
+	            		$("#StartTime").data("DateTimePicker").maxDate(moment(new Date(maxDate)));
+	        		}
+		        });
+
+		        $('.modal').find('select.jenis_kartu').select2();
+		        $('.modal').find('select.branch').select2();
+		        $('.modal').find('select.branch').on('select2:select', function (e) {
+		        	diskon.filterMenu();
+				});
+		        $('.modal').find('select.jenis_menu').select2();
+		        $('.modal').find('select.jenis_menu').on('select2:select', function (e) {
+		        	diskon.filterMenu();
+				});
+		        $('.modal').find('select.menu').select2();
+
+		        $(this).removeAttr('tabindex');
+            });
+        },'html');
+	}, // end - modalViewForm
+
 	modalEditForm: function (elm) {
 		var tr = $(elm).closest('tr');
 
@@ -342,6 +420,7 @@ var diskon = {
 				var nama = $(div).find('.nama').val().toUpperCase();
 				var deskripsi = $(div).find('.deskripsi').val().toUpperCase();
 				var tipe_diskon = $(div).find('select.tipe_diskon').val();
+				var requirement_diskon = $(div).find('select.requirement_diskon').val();
 				var non_member = _non_member;
 				var member = _member;
 				var min_beli = numeral.unformat($(div).find('.min_beli').val());
@@ -399,6 +478,7 @@ var diskon = {
 							'nama': nama,
 							'deskripsi': deskripsi,
 							'tipe_diskon': tipe_diskon,
+							'requirement_diskon': requirement_diskon,
 							'non_member': non_member,
 							'member': member,
 							'min_beli': min_beli,

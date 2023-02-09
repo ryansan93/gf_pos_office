@@ -62,6 +62,49 @@ var sh = {
 	        });
 		}
 	}, // end - getLists
+
+	exportPdf: function(elm) {
+		var err = 0
+
+		$.map( $('[data-required=1]'), function(ipt) {
+			if ( empty($(ipt).val()) ) {
+				$(ipt).parent().addClass('has-error');
+				err++;
+			} else {
+				$(ipt).parent().removeClass('has-error');
+			}
+		});
+
+		if ( err > 0 ) {
+			bootbox.alert('Harap lengkapi data terlebih dahulu.');
+		} else {
+			var params = {
+				'branch': $('.branch').val(),
+				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
+				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
+			};
+
+			$.ajax({
+	            url: 'report/SummaryPenjualanHarian/excryptParamsExportPdf',
+	            data: {
+	                'params': params
+	            },
+	            type: 'POST',
+	            dataType: 'JSON',
+	            beforeSend: function() { showLoading(); },
+	            success: function(data) {
+	                hideLoading();
+	                if ( data.status == 1 ) {
+	                	console.log( data.content.data );
+
+	                	window.open('report/SummaryPenjualanHarian/exportPdf/'+data.content.data, 'blank');
+	                } else {
+	                    bootbox.alert(data.message);
+	                }
+	            }
+	        });
+		}
+	}, // end - exportPdf
 };
 
 sh.start_up();

@@ -313,6 +313,92 @@ class SummaryPenjualanHarian extends Public_Controller {
             select 
                 jl.kode_faktur,
                 jl.tgl_trans,
+                dsk.diskon_requirement,
+                sum(bd.nilai) as nilai
+            from (
+                    select * from (
+                        select 
+                            j.kode_faktur as kode_faktur,
+                            j.tgl_trans
+                        from jual j 
+                        where 
+                            j.tgl_trans between '".$start_date."' and '".$end_date."' and
+                            j.branch = '".$branch."' and
+                            j.mstatus = 1
+                        group by
+                            j.kode_faktur,
+                            j.tgl_trans
+                        UNION ALL
+                        select 
+                            jg.faktur_kode_gabungan as kode_faktur ,
+                            j.tgl_trans
+                        from jual_gabungan jg
+                        right join
+                            (
+                                select 
+                                    j.kode_faktur as kode_faktur,
+                                    j.tgl_trans
+                                from jual j 
+                                where 
+                                    j.tgl_trans between '".$start_date."' and '".$end_date."' and
+                                    j.branch = '".$branch."' and
+                                    j.mstatus = 1
+                                group by
+                                    j.kode_faktur,
+                                    j.tgl_trans
+                            ) j
+                            on
+                                j.kode_faktur = jg.faktur_kode
+                        group by
+                            jg.faktur_kode_gabungan,
+                            j.tgl_trans
+                    ) jl1
+                    where
+                        jl1.kode_faktur is not null
+                ) jl
+            right join
+                (select * from bayar where mstatus = 1) byr
+                on
+                    jl.kode_faktur = byr.faktur_kode
+            right join
+                bayar_diskon bd
+                on
+                    byr.id = bd.id_header
+            right join
+                diskon dsk
+                on
+                    bd.diskon_kode = dsk.kode
+            where
+                jl.kode_faktur is not null
+            group by
+                jl.kode_faktur,
+                jl.tgl_trans,
+                dsk.diskon_requirement
+        ";
+
+        $d_jual_by_diskon_requirement = $m_jual->hydrateRaw( $sql );
+        if ( $d_jual_by_diskon_requirement->count() > 0 ) {
+            $d_jual_by_diskon_requirement = $d_jual_by_diskon_requirement->toArray();
+
+            foreach ($d_jual_by_diskon_requirement as $key => $value) {
+                $key = str_replace('-', '', substr($value['tgl_trans'], 0, 10)).' | '.$value['kode_faktur'];
+
+                if ( isset($data[ $key ]['diskon_requirement']) ) {
+                    $data[ $key ]['diskon_requirement'][ $value['diskon_requirement'] ] += $value['nilai'];
+                } else {
+                    if ( !isset($data[ $key ]) ) {
+                        $data[ $key ]['date'] = $value['tgl_trans'];
+                        $data[ $key ]['kode_faktur'] = $value['kode_faktur'];
+                    }
+                    $data[ $key ]['diskon_requirement'][ $value['diskon_requirement'] ] = $value['nilai'];
+                }
+            }
+        }
+
+        $sql = "
+            select 
+                jl.kode_faktur,
+                jl.tgl_trans,
                 kjk.id,
                 sum(bd.nominal) as nilai
             from (
@@ -588,5 +674,46 @@ class SummaryPenjualanHarian extends Public_Controller {
         }
 
         return $data;
+    }
+
+    public function excryptParamsExportPdf()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $paramsEncrypt = exEncrypt( json_encode($params) );
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('data' => $paramsEncrypt);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function exportPdf($_params)
+    {
+        $this->load->library('PDFGenerator');
+
+        $_data_params = json_decode( exDecrypt( $_params ), true );
+
+        $params = array(
+            'start_date' => $_data_params['start_date'],
+            'end_date' => $_data_params['end_date'],
+            'branch' => $_data_params['branch']
+        );
+
+        $data = $this->mappingDataReport( $params );
+
+        $content['branch'] = $_data_params['branch'];
+        $content['start_date'] = $_data_params['start_date'];
+        $content['end_date'] = $_data_params['end_date'];
+        $content['data'] = $data;
+        $html = $this->load->view('report/summary_penjualan_harian/export_pdf', $content, true);
+
+        // cetak_r( $html );
+
+        $this->pdfgenerator->generate($html, "SUMMARY PENJUALAN HARIAN", 'a4', 'landscape');
     }
 }

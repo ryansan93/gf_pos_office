@@ -56,6 +56,13 @@ class Diskon extends Public_Controller {
         return $data;
     }
 
+    public function getRequirementDiskon()
+    {
+        $data = $this->config->item('diskon_requirement');
+
+        return $data;
+    }
+
     public function getJenisMenu()
     {
         $m_jenis = new \Model\Storage\JenisMenu_model();
@@ -133,10 +140,148 @@ class Diskon extends Public_Controller {
     {
         $content['branch'] = $this->getBranch();
         $content['tipe_diskon'] = $this->getTipeDiskon();
+        $content['requirement_diskon'] = $this->getRequirementDiskon();
         $content['jenis_kartu'] = $this->getJenisKartu();
         $content['jenis_menu'] = $this->getJenisMenu();
         $content['menu'] = $this->getMenu();
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
+
+        echo $html;
+    }
+
+    public function modalViewForm()
+    {
+        $kode = $this->input->get('params');
+
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select
+                brc.nama as nama_branch,
+                d.nama as nama_diskon,
+                d.deskripsi,
+                d.diskon_tipe as tipe_diskon,
+                d.diskon_requirement as jenis_diskon,
+                d.member,
+                d.non_member,
+                d.status_ppn,
+                d.status_service_charge,
+                d.ppn,
+                d.service_charge,
+                d.start_date as tgl_mulai,
+                d.end_date as tgl_berakhir,
+                d.start_time as jam_mulai,
+                d.end_time as jam_berakhir,
+                d.diskon,
+                d.diskon_jenis,
+                d.min_beli
+            from diskon d
+            right join
+                branch brc
+                on
+                    d.branch_kode = brc.kode_branch
+            where
+                d.kode = '".$kode."'
+        ";
+        $d_diskon = $m_conf->hydrateRaw( $sql );
+
+        $data = null;
+        if ( $d_diskon->count() > 0 ) {
+            $d_diskon = $d_diskon->toArray();
+
+            foreach ($d_diskon as $k => $val) {
+                $data = array(
+                    'nama_branch' => $val['nama_branch'],
+                    'nama_diskon' => $val['nama_diskon'],
+                    'deskripsi' => $val['deskripsi'],
+                    'tipe_diskon' => $val['tipe_diskon'],
+                    'nama_tipe_diskon' => $this->getTipeDiskon()[ $val['tipe_diskon'] ],
+                    'jenis_diskon' => $val['jenis_diskon'],
+                    'nama_jenis_diskon' => !empty($val['jenis_diskon']) ? $this->getRequirementDiskon()[ $val['jenis_diskon'] ] : '-',
+                    'member' => $val['member'],
+                    'non_member' => $val['non_member'],
+                    'status_ppn' => $val['status_ppn'],
+                    'status_service_charge' => $val['status_service_charge'],
+                    'ppn' => $val['ppn'],
+                    'service_charge' => $val['service_charge'],
+                    'tgl_mulai' => $val['tgl_mulai'],
+                    'tgl_berakhir' => $val['tgl_berakhir'],
+                    'jam_mulai' => $val['jam_mulai'],
+                    'jam_berakhir' => $val['jam_berakhir'],
+                    'jenis_kartu' => null,
+                    'detail' => null
+                );
+
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select
+                        djk.*,
+                        jk.nama as nama_kartu
+                    from diskon_jenis_kartu djk
+                    right join
+                        jenis_kartu jk
+                        on
+                            djk.jenis_kartu_kode = jk.kode_jenis_kartu
+                    where
+                        djk.diskon_kode = '".$kode."'
+                ";
+                $d_djk = $m_conf->hydrateRaw( $sql );
+                if ( $d_djk->count() ) {
+                    $data['jenis_kartu'] = $d_djk->toArray();
+                }
+
+                $detail = null;
+                if ( $val['tipe_diskon'] == 1 ) {
+                    $detail = array(
+                        'diskon' => $val['diskon'],
+                        'jenis' => $val['diskon_jenis'],
+                        'min_beli' => $val['min_beli']
+                    );
+                }
+
+                if ( $val['tipe_diskon'] == 2 ) {
+                    $m_conf = new \Model\Storage\Conf();
+                    $sql = "
+                        select
+                            dm.*,
+                            CASE
+                                WHEN dm.jenis_menu_id = 'all' then
+                                    'ALL'
+                                WHEN dm.jenis_menu_id <> 'all' then
+                                    jm.nama
+                            END as nama_jenis_menu,
+                            CASE
+                                WHEN dm.menu_kode = 'all' then
+                                    'ALL'
+                                WHEN dm.menu_kode <> 'all' then
+                                    m.nama
+                            END as nama_menu
+                        from diskon_menu dm
+                        left join
+                            jenis_menu jm
+                            on
+                                dm.jenis_menu_id = cast(jm.id as varchar(5))
+                        left join
+                            menu m
+                            on
+                                dm.menu_kode = m.kode_menu
+                        where
+                            dm.diskon_kode = '".$kode."'
+                    ";
+                    $d_dbd = $m_conf->hydrateRaw( $sql );
+                    if ( $d_dbd->count() ) {
+                        $detail = $d_dbd->toArray();
+                    }
+                }
+
+                if ( $val['tipe_diskon'] == 3 ) {
+                }
+
+                $data['detail'] = $detail;
+            }
+        }
+
+        $content['data'] = $data;
+        $html = $this->load->view($this->pathView . 'viewForm', $content, TRUE);
 
         echo $html;
     }
@@ -156,6 +301,7 @@ class Diskon extends Public_Controller {
                 $m_diskon->nama = $params['nama'];
                 $m_diskon->deskripsi = $params['deskripsi'];
                 $m_diskon->diskon_tipe = $params['tipe_diskon'];
+                $m_diskon->diskon_requirement = $params['requirement_diskon'];
                 $m_diskon->member = $params['member'];
                 $m_diskon->non_member = $params['non_member'];
                 $m_diskon->ppn = $params['ppn'];
@@ -181,7 +327,7 @@ class Diskon extends Public_Controller {
 
                 if ( isset($params['diskon_menu']) && !empty($params['diskon_menu']) ) {
                     foreach ($params['diskon_menu'] as $k_dm => $v_dm) {
-                        if ( $v_dm['branch_kode'] == $v_branch ) {
+                        // if ( $v_dm['branch_kode'] == $v_branch ) {
                             $m_dm = new \Model\Storage\DiskonMenu_model();
                             $m_dm->diskon_kode = $kode;
                             $m_dm->jenis_menu_id = $v_dm['jenis_menu_id'];
@@ -189,7 +335,7 @@ class Diskon extends Public_Controller {
                             $m_dm->diskon = $v_dm['diskon'];
                             $m_dm->diskon_jenis = $v_dm['diskon_jenis'];
                             $m_dm->save();
-                        }
+                        // }
                     }
                 }
 

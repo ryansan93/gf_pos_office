@@ -30,7 +30,7 @@
 				<tbody class="list">
 					<?php if ( !empty($data) ): ?>
 						<?php foreach ($data as $k_data => $v_data): ?>
-							<tr class="head" data-kode="<?php echo $v_data['kode']; ?>">
+							<tr class="head cursor-p" data-kode="<?php echo $v_data['kode']; ?>" onclick="diskon.modalViewForm(this)">
 								<td><?php echo $v_data['branch']['nama']; ?></td>
 								<td><?php echo $v_data['nama']; ?></td>
 								<td><?php echo $v_data['deskripsi']; ?></td>
