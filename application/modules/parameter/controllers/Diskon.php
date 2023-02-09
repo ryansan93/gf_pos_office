@@ -356,7 +356,7 @@ class Diskon extends Public_Controller {
                 }
 
                 $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
-                Modules::run( 'base/event/save', $m_diskon, $deskripsi_log );
+                Modules::run( 'base/event/save', $m_diskon, $deskripsi_log, $kode );
             }
 
             $this->result['status'] = 1;
