@@ -67,6 +67,7 @@ class JenisKartu extends Public_Controller {
             $m_jk->kode_jenis_kartu = $kode;
             $m_jk->nama = $params['nama'];
             $m_jk->status = $params['status'];
+            $m_jk->cl = $params['cl'];
             $m_jk->save();
 
             $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
@@ -104,7 +105,8 @@ class JenisKartu extends Public_Controller {
             $m_jk->where('kode_jenis_kartu', $params['kode'])->update(
                 array(
                     'nama' => $params['nama'],
-                    'status' => $params['status']
+                    'status' => $params['status'],
+                    'cl' => $params['cl']
                 )
             );
 

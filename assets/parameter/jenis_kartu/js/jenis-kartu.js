@@ -81,11 +81,17 @@ var jk = {
 			nama = $(div).find('.nama').val().toUpperCase();
 			status = $(div).find('.status').val().toUpperCase();
 
+			var cl = 0;
+			if ( $(div).find('.cl').is(':checked') ) {
+				cl = 1;
+			}
+
 			bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
 				if ( result ) {
 					var data = {
 						'nama': nama,
-						'status': status
+						'status': status,
+						'cl': cl
 					};
 
 			        $.ajax({
@@ -138,12 +144,18 @@ var jk = {
 			nama = $(div).find('.nama').val().toUpperCase();
 			status = $(div).find('.status').val().toUpperCase();
 
+			var cl = 0;
+			if ( $(div).find('.cl').is(':checked') ) {
+				cl = 1;
+			}
+
 			bootbox.confirm('Apakah anda yakin ingin meng-ubah data ?', function(result) {
 				if ( result ) {
 					var data = {
 						'kode': kode,
 						'nama': nama,
-						'status': status
+						'status': status,
+						'cl': cl
 					};
 
 			        $.ajax({

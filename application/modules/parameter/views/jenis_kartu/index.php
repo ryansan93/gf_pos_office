@@ -20,6 +20,7 @@
 					<tr>
 						<th class="col-sm-2 text-center">Kode</th>
 						<th class="col-sm-4 text-center">Nama</th>
+						<th class="col-sm-1 text-center">CL</th>
 						<th class="col-sm-1 text-center">Status</th>
 						<th class="col-sm-1 text-center">Action</th>
 					</tr>
@@ -30,7 +31,20 @@
 							<tr class="head" data-kode="<?php echo $v_data['kode_jenis_kartu']; ?>">
 								<td><?php echo $v_data['kode_jenis_kartu']; ?></td>
 								<td><?php echo $v_data['nama']; ?></td>
-								<td class="text-center"><?php echo ($v_data['status'] == 1) ? 'Aktif' : 'Non Aktif'; ?></td>
+								<td class="text-center">
+									<label class="control-label">
+										<?php if ( $v_data['cl'] == 1 ): ?>
+											<i class="fa fa-check"></i>
+										<?php else: ?>
+											<i class="fa fa-minus"></i>
+										<?php endif ?>
+									</label>
+								</td>
+								<td class="text-center" style="color: <?php echo ($v_data['status'] == 1) ? '#000000' : 'RED'; ?>">
+									<label class="control-label">
+										<?php echo ($v_data['status'] == 1) ? 'AKTIF' : 'NON AKTIF'; ?>
+									</label>
+								</td>
 								<td>
 									<div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
 										<?php if ( $akses['a_edit'] == 1 ) { ?>

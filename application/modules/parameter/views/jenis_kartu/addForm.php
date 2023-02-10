@@ -27,6 +27,14 @@
 							</select>
 						</td>
 					</tr>
+					<tr>
+						<td class="col-sm-2">
+							<label class="control-label">CL</label>
+						</td>
+						<td class="col-sm-10">
+							<input type="checkbox" class="cl form-check-input cursor-p" style="height: 20px; margin: 0px;">
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>

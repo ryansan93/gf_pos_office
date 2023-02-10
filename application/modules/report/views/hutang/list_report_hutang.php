@@ -9,7 +9,7 @@
 			<td><?php echo $v_data['member']; ?></td>
 			<td class="text-right"><?php echo angkaRibuan($v_data['hutang']); ?></td>
 			<td class="text-right"><?php echo angkaRibuan($v_data['bayar']); ?></td>
-			<td><?php echo $v_data['remark']; ?></td>
+			<td><?php echo !empty($v_data['remark']) ? $v_data['remark'] : '-'; ?></td>
 		</tr>
 		<?php 
 			$total_hutang += $v_data['hutang']; 

@@ -54,16 +54,134 @@ class Hutang extends Public_Controller {
 
         $m_jual = new \Model\Storage\Jual_model();
         $sql = "
-            select j.*, p.tgl_pesan from jual j
+            select
+                data.*,
+                sum(b.diskon) as total_diskon
+            from
+            (
+                select 
+                    jual.kode_faktur_utama as kode_faktur,
+                    sum(ji.total) as grand_total,
+                    j.tgl_trans as tgl_pesan
+                from jual_item ji
+                right join
+                    (
+                        select 
+                            jl1.*
+                        from 
+                            (
+                                select 
+                                    jual.*,
+                                    p.kode_pesanan as pesanan_kode
+                                from 
+                                    (
+                                        select 
+                                            j.kode_faktur as kode_faktur,
+                                            j.kode_faktur as kode_faktur_utama
+                                        from jual j 
+                                        where 
+                                            j.tgl_trans between '".$start_date."' and '".$end_date."' and
+                                            j.mstatus = 1
+                                        group by
+                                            j.kode_faktur
+                                        UNION ALL
+                                        select 
+                                            jg.faktur_kode_gabungan as kode_faktur,
+                                            jg.faktur_kode as kode_faktur_utama
+                                        from jual_gabungan jg
+                                        right join
+                                            (
+                                                select 
+                                                    j.kode_faktur as kode_faktur,
+                                                    j.tgl_trans
+                                                from jual j 
+                                                where 
+                                                    j.tgl_trans between '".$start_date."' and '".$end_date."' and
+                                                    j.mstatus = 1
+                                                group by
+                                                    j.kode_faktur,
+                                                    j.tgl_trans
+                                            ) j
+                                            on
+                                                j.kode_faktur = jg.faktur_kode
+                                        where
+                                            jg.faktur_kode_gabungan is not null
+                                        group by
+                                            jg.faktur_kode_gabungan,
+                                            jg.faktur_kode
+                                    ) jual
+                                right join
+                                    jual jl
+                                    on
+                                        jual.kode_faktur = jl.kode_faktur 
+                                right join  
+                                    pesanan p
+                                    on
+                                        p.kode_pesanan = jl.pesanan_kode 
+                                where
+                                    jual.kode_faktur is not null
+                                group by
+                                    jual.kode_faktur,
+                                    jual.kode_faktur_utama,
+                                    p.kode_pesanan
+                            ) jl1
+                        right join
+                            jual j
+                            on
+                                j.kode_faktur = jl1.kode_faktur
+                        right join
+                            pesanan p
+                            on
+                                j.pesanan_kode = p.kode_pesanan
+                        where
+                            jl1.kode_faktur is not null
+                    ) jual
+                    on
+                        jual.kode_faktur = ji.faktur_kode
+                right join
+                    pesanan p
+                    on
+                        jual.pesanan_kode = p.kode_pesanan
+                right join
+                    jual j
+                    on
+                        jual.kode_faktur_utama = j.kode_faktur
+                where
+                    jual.kode_faktur is not null and
+                    j.lunas = 0
+                group by 
+                    jual.kode_faktur_utama,
+                    j.lunas,
+                    j.tgl_trans
+            ) data
             right join
-                pesanan p
+                jual jl
                 on
-                    j.pesanan_kode = p.kode_pesanan
+                    data.kode_faktur = jl.kode_faktur
+            right join
+                (
+                    select * from bayar where mstatus = 1
+                ) b
+                on
+                    data.kode_faktur = b.faktur_kode
             where
-                j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                (j.hutang = 1 or j.lunas = 0) and
-                j.mstatus = 1
+                data.kode_faktur is not null
+            group by
+                data.kode_faktur,
+                data.grand_total,
+                data.tgl_pesan
         ";
+        // $sql = "
+        //     select j.*, p.tgl_pesan from jual j
+        //     right join
+        //         pesanan p
+        //         on
+        //             j.pesanan_kode = p.kode_pesanan
+        //     where
+        //         j.tgl_trans between '".$start_date."' and '".$end_date."' and
+        //         (j.hutang = 1 or j.lunas = 0) and
+        //         j.mstatus = 1
+        // ";
 
         $d_jual_hutang = $m_jual->hydrateRaw( $sql );
 
@@ -71,49 +189,66 @@ class Hutang extends Public_Controller {
             $d_jual_hutang = $d_jual_hutang->toArray();
 
             foreach ($d_jual_hutang as $key => $value) {
-                $sql = "select sum(bayar) as total_bayar from bayar_hutang bh 
-                    left join
-                        bayar b 
-                        on
-                            bh.id_header = b.id
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select * from jual j
                     where
-                        b.mstatus = 1 and
-                        bh.faktur_kode = '".$value['kode_faktur']."'
+                        j.kode_faktur = '".$value['kode_faktur']."' and
+                        j.mstatus = 1
                 ";
+                $d_conf = $m_conf->hydrateRaw( $sql );
+                $d_jual = null;
+                if ( $d_conf->count() > 0 ) {
+                    $d_jual = $d_conf->toArray();
 
-                $m_bayar_hutang = new \Model\Storage\BayarHutang_model();
-                $d_bayar_hutang = $m_bayar_hutang->hydrateRaw($sql);
+                    $m_conf = new \Model\Storage\Conf();
+                    $sql = "select sum(bayar) as total_bayar from bayar_hutang bh 
+                        left join
+                            bayar b 
+                            on
+                                bh.id_header = b.id
+                        where
+                            b.mstatus = 1 and
+                            bh.faktur_kode = '".$value['kode_faktur']."'
+                    ";
+                    $d_bayar_hutang = $m_conf->hydrateRaw($sql);
 
-                $total_bayar = 0;
-                if ( $d_bayar_hutang->count() > 0 ) {
-                    $total_bayar = $d_bayar_hutang->toArray()[0]['total_bayar'];
-                }
-
-                $tgl = !empty($value['tgl_pesan']) ? $value['tgl_pesan'] : $value['tgl_trans'];
-
-                $key = str_replace('-', '', $tgl).' | '.$value['kode_faktur'].' | '.$value['member'];
-
-                $member_group = null;
-
-                if ( !empty($value['kode_member']) ) {
-                    $m_member = new \Model\Storage\Member_model();
-                    $d_member = $m_member->where('kode_member', $value['kode_member'])->with(['member_group'])->first()->toArray();
-
-                    if ( !empty($d_member['member_group']) ) {
-                        $member_group = $d_member['member_group']['nama'];
+                    $total_bayar = 0;
+                    $total_diskon = $value['total_diskon'];
+                    if ( $d_bayar_hutang->count() > 0 ) {
+                        $total_bayar = $d_bayar_hutang->toArray()[0]['total_bayar'];
                     }
+
+                    $tgl = !empty($value['tgl_pesan']) ? $value['tgl_pesan'] : $value['tgl_trans'];
+
+                    $key = str_replace('-', '', $tgl).' | '.$value['kode_faktur'].' | '.$d_jual[0]['member'];
+
+                    $member_group = null;
+
+                    if ( !empty($d_jual[0]['kode_member']) ) {
+                        $m_member = new \Model\Storage\Member_model();
+                        $d_member = $m_member->where('kode_member', $d_jual[0]['kode_member'])->with(['member_group'])->first();
+
+                        if ( $d_member ) {
+                            $d_member = $d_member->toArray();
+                            if ( !empty($d_member['member_group']) ) {
+                                $member_group = $d_member['member_group']['nama'];
+                            }
+                        }
+                    }
+
+                    $data[ $key ] = array(
+                        'member_group' => $member_group,
+                        'member' => !empty($d_jual) ? $d_jual[0]['member'] : null,
+                        'nama_kasir' => !empty($d_jual) ? $d_jual[0]['nama_kasir'] : null,
+                        'tgl_pesan' => $tgl,
+                        'faktur_kode' => $value['kode_faktur'],
+                        'hutang' => $value['grand_total']-$total_diskon,
+                        'bayar' => $total_bayar,
+                        'remark' => !empty($d_jual) ? $d_jual[0]['remark'] : null
+                    );
                 }
 
-                $data[ $key ] = array(
-                    'member_group' => $member_group,
-                    'member' => $value['member'],
-                    'nama_kasir' => $value['nama_kasir'],
-                    'tgl_pesan' => $tgl,
-                    'faktur_kode' => $value['kode_faktur'],
-                    'hutang' => $value['grand_total'],
-                    'bayar' => $total_bayar,
-                    'remark' => $value['remark']
-                );
             }
 
             ksort($data);
