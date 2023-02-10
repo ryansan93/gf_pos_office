@@ -496,7 +496,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             select 
                 jl.kode_faktur,
                 jl.tgl_trans,
-                (sum(ji.total) + sum(ji.ppn) + sum(ji.service_charge)) as total
+                sum(ji.total) as total
             from jual_item ji
             right join
                 menu m
