@@ -271,4 +271,41 @@ class Hutang extends Public_Controller {
 
         echo $html;
     }
+
+    public function excryptParamsExportExcel()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $paramsEncrypt = exEncrypt( json_encode($params) );
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('data' => $paramsEncrypt);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function exportExcel($_params)
+    {
+        $_data_params = json_decode( exDecrypt( $_params ), true );
+
+        $start_date = $_data_params['start_date'];
+        $end_date = $_data_params['end_date'];
+
+        $data = $this->getDataHutang( $start_date, $end_date );
+
+        $content['data'] = $data;
+        $content['start_date'] = $start_date;
+        $content['end_date'] = $end_date;
+        $res_view_html = $this->load->view('report/hutang/export_excel', $content, true);
+
+        $filename = 'export-hutang-pelanggan-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
+
+        header("Content-type: application/xls");
+        header("Content-Disposition: attachment; filename=".$filename."");
+        echo $res_view_html;
+    }
 }

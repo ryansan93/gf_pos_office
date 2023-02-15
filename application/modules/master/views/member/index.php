@@ -2,7 +2,15 @@
 	<div class="col-lg-12 detailed">
 		<?php if ( $akses['a_submit'] == 1 ) { ?>
 			<div class="col-lg-12 no-padding">
-				<button id="btn-add" type="button" data-href="action" class="col-lg-12 btn btn-primary cursor-p pull-right" title="ADD" onclick="mbr.addForm(this)"> 
+				<button type="button" data-href="action" class="col-lg-12 btn btn-default cursor-p pull-right" onclick="mbr.importForm(this)"> 
+					<i class="fa fa-upload" aria-hidden="true"></i> Import
+				</button>
+			</div>
+			<div class="col-lg-12 no-padding">
+				<hr style="margin-top: 10px; margin-bottom: 10px;">
+			</div>
+			<div class="col-lg-12 no-padding">
+				<button type="button" data-href="action" class="col-lg-12 btn btn-primary cursor-p pull-right" title="ADD" onclick="mbr.addForm(this)"> 
 					<i class="fa fa-plus" aria-hidden="true"></i> ADD
 				</button>
 			</div>

@@ -712,8 +712,6 @@ class SummaryPenjualanHarian extends Public_Controller {
         $content['data'] = $data;
         $html = $this->load->view('report/summary_penjualan_harian/export_pdf', $content, true);
 
-        // cetak_r( $html );
-
         $this->pdfgenerator->generate($html, "SUMMARY PENJUALAN HARIAN", 'a4', 'landscape');
     }
 }

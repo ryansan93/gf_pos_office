@@ -18,12 +18,13 @@
 			<table class="table table-bordered table-hover tbl_item" id="dataTable" width="100%" cellspacing="0">
 				<thead>
 					<tr>
+						<th class="col-xs-1 text-center">Kode Program</th>
 						<th class="col-xs-1 text-center">Kode</th>
 						<th class="col-xs-2 text-center">Nama</th>
 						<th class="col-xs-1 text-center">Brand</th>
 						<th class="col-xs-1 text-center">Satuan</th>
 						<th class="col-xs-1 text-center">Group</th>
-						<th class="col-xs-4 text-center">Keterangan</th>
+						<th class="col-xs-3 text-center">Keterangan</th>
 						<th class="col-xs-2 text-center">Action</th>
 					</tr>
 				</thead>
@@ -32,6 +33,7 @@
 						<?php foreach ($data as $k_data => $v_data): ?>
 							<tr class="search head" data-kode="<?php echo $v_data['kode']; ?>">
 								<td><?php echo $v_data['kode']; ?></td>
+								<td><?php echo $v_data['kode_text']; ?></td>
 								<td><?php echo $v_data['nama']; ?></td>
 								<td><?php echo $v_data['brand']; ?></td>
 								<td>

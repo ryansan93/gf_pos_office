@@ -1,4 +1,4 @@
-<div class="col-xs-12 no-padding">
+<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
 	<div class="col-md-12 search left-inner-addon no-padding" style="margin-bottom: 10px;">
 		<i class="fa fa-search"></i><input class="form-control" type="search" data-table="tbl_report_hutang" placeholder="Search" onkeyup="filter_all(this)">
 	</div>
@@ -23,4 +23,7 @@
 			</tbody>
 		</table>
 	</small>
+</div>
+<div class="col-xs-12 no-padding">
+	<button type="button" class="btn btn-default pull-right" onclick="hutang.exportExcel()"><label class="control-lable" style="margin-bottom: 0px;"><i class="fa fa-file-excel-o"></i> Export Excel</label></button>
 </div>

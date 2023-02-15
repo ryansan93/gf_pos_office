@@ -95,8 +95,6 @@ var sh = {
 	            success: function(data) {
 	                hideLoading();
 	                if ( data.status == 1 ) {
-	                	console.log( data.content.data );
-
 	                	window.open('report/SummaryPenjualanHarian/exportPdf/'+data.content.data, 'blank');
 	                } else {
 	                    bootbox.alert(data.message);

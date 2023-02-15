@@ -58,6 +58,46 @@ var hutang = {
 	        });
 		}
 	}, // end - getLists
+
+	exportExcel: function(elm) {
+		var err = 0
+
+		$.map( $('[data-required=1]'), function(ipt) {
+			if ( empty($(ipt).val()) ) {
+				$(ipt).parent().addClass('has-error');
+				err++;
+			} else {
+				$(ipt).parent().removeClass('has-error');
+			}
+		});
+
+		if ( err > 0 ) {
+			bootbox.alert('Harap lengkapi data terlebih dahulu.');
+		} else {
+			var params = {
+				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
+				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
+			};
+
+			$.ajax({
+	            url: 'report/Hutang/excryptParamsExportExcel',
+	            data: {
+	                'params': params
+	            },
+	            type: 'POST',
+	            dataType: 'JSON',
+	            beforeSend: function() { showLoading(); },
+	            success: function(data) {
+	                hideLoading();
+	                if ( data.status == 1 ) {
+	                	window.open('report/Hutang/exportExcel/'+data.content.data, 'blank');
+	                } else {
+	                    bootbox.alert(data.message);
+	                }
+	            }
+	        });
+		}
+	}, // end - exportExcel
 };
 
 hutang.startUp();
