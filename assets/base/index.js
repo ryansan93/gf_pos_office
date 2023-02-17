@@ -87,11 +87,14 @@ $(function(){
           useCurrent: false //Important! See issue #1075
       });
       $("[name=startDate]").on("dp.change", function (e) {
-          $("[name=endDate]").data("DateTimePicker").minDate(e.date);
+          var minDate = dateSQL($("[name=startDate]").data("DateTimePicker").date())+' 00:00:00';
+          $("[name=endDate]").data("DateTimePicker").minDate(moment(new Date(minDate)));
+          // $("[name=endDate]").data("DateTimePicker").minDate(e.date);
           // $("[name=endDate]").data("DateTimePicker").date(e.date);
       });
       $("[name=endDate]").on("dp.change", function (e) {
-          $('[name=startDate]').data("DateTimePicker").maxDate(e.date);
+          var maxDate = dateSQL($("[name=endDate]").data("DateTimePicker").date())+' 23:59:59';
+          $('[name=startDate]').data("DateTimePicker").maxDate(moment(new Date(maxDate)));
       });
   });
 

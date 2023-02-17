@@ -12,14 +12,14 @@ var hutang = {
             locale: 'id',
             format: 'DD MMM Y'
         });
-        $("#StartDate").on("dp.change", function (e) {
-    		var minDate = dateSQL($("#StartDate").data("DateTimePicker").date())+' 00:00:00';
-        	$("#EndDate").data("DateTimePicker").minDate(moment(new Date(minDate)));
-        });
-        $("#EndDate").on("dp.change", function (e) {
-    		var maxDate = dateSQL($("#EndDate").data("DateTimePicker").date())+' 23:59:59';
-        	$("#StartDate").data("DateTimePicker").maxDate(moment(new Date(maxDate)));
-        });
+      //   $("#StartDate").on("dp.change", function (e) {
+    		// var minDate = dateSQL($("#StartDate").data("DateTimePicker").date())+' 00:00:00';
+      //   	$("#EndDate").data("DateTimePicker").minDate(moment(new Date(minDate)));
+      //   });
+      //   $("#EndDate").on("dp.change", function (e) {
+    		// var maxDate = dateSQL($("#EndDate").data("DateTimePicker").date())+' 23:59:59';
+      //   	$("#StartDate").data("DateTimePicker").maxDate(moment(new Date(maxDate)));
+      //   });
 	}, // end - settingUp
 
 	getLists: function(elm) {
