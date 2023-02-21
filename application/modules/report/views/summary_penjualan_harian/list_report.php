@@ -14,7 +14,13 @@
 		$tot12 = 0;
 	?>
 	<?php foreach ($data as $k_data => $v_data): ?>
-		<tr>
+		<?php
+			$bg_color = 'transparent';
+			if ( $v_data['status_gabungan'] == 1 ) {
+				$bg_color = '#ffb3b3';
+			}
+		?>
+		<tr class="cursor-p" style="background-color: <?php echo $bg_color; ?>;">
 			<td><?php echo isset($v_data['date']) ? tglIndonesia($v_data['date'], '-', ' ') : '-'; ?></td>
 			<td><?php echo isset($v_data['kode_faktur']) ? $v_data['kode_faktur'] : '-'; ?></td>
 			<td class="text-right"><?php echo isset($v_data['kategori_menu'][1]) ? angkaRibuan($v_data['kategori_menu'][1]) : 0; ?></td>

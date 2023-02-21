@@ -188,9 +188,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                 on
                     jl.kode_faktur_utama = byr.faktur_kode
             where
-                jl.kode_faktur_utama is not null and
-                m.ppn = 1 and
-                m.service_charge = 1
+                jl.kode_faktur_utama is not null
             group by
                 jl.kode_faktur,
                 jl.kode_faktur_utama,
@@ -206,7 +204,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             $d_jual_by_kategori_menu = $d_jual_by_kategori_menu->toArray();
 
             foreach ($d_jual_by_kategori_menu as $key => $value) {
-                $key = str_replace('-', '', substr($value['tgl_trans'], 0, 10)).' | '.$value['kode_faktur'];
+                $key = $value['kode_faktur'];
 
                 if ( isset($data[ $key ]['kategori_menu']) ) {
                     $data[ $key ]['kategori_menu'][1] += ($value['id'] == 1) ? $value['total'] : 0;
@@ -305,7 +303,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             $d_jual_by_diskon = $d_jual_by_diskon->toArray();
 
             foreach ($d_jual_by_diskon as $key => $value) {
-                $key = str_replace('-', '', substr($value['tgl_trans'], 0, 10)).' | '.$value['kode_faktur'];
+                $key = $value['kode_faktur'];
 
                 if ( isset($data[ $key ]['diskon']) ) {
                     $data[ $key ]['diskon'][1] += ($value['diskon_tipe'] == 1) ? $value['nilai'] : 0;
@@ -402,7 +400,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             $d_jual_by_diskon_requirement = $d_jual_by_diskon_requirement->toArray();
 
             foreach ($d_jual_by_diskon_requirement as $key => $value) {
-                $key = str_replace('-', '', substr($value['tgl_trans'], 0, 10)).' | '.$value['kode_faktur'];
+                $key = $value['kode_faktur'];
 
                 if ( isset($data[ $key ]['diskon_requirement']) ) {
                     $data[ $key ]['diskon_requirement'][ $value['diskon_requirement'] ] += $value['nilai'];
@@ -495,7 +493,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             $d_jual_by_kategori_pembayaran = $d_jual_by_kategori_pembayaran->toArray();
 
             foreach ($d_jual_by_kategori_pembayaran as $key => $value) {
-                $key = str_replace('-', '', substr($value['tgl_trans'], 0, 10)).' | '.$value['kode_faktur'];
+                $key = $value['kode_faktur'];
 
                 if ( isset($data[ $key ]['kategori_pembayaran']) ) {
                     $data[ $key ]['kategori_pembayaran'][1] += ($value['id'] == 1) ? $value['nilai'] : 0;
@@ -597,7 +595,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             $d_jual_by_other_income = $d_jual_by_other_income->toArray();
 
             foreach ($d_jual_by_other_income as $key => $value) {
-                $key = str_replace('-', '', substr($value['tgl_trans'], 0, 10)).' | '.$value['kode_faktur'];
+                $key = $value['kode_faktur'];
 
                 if ( isset($data[ $key ]) ) {
                     $data[ $key ]['other_income'] = $value['total'];
@@ -617,10 +615,11 @@ class SummaryPenjualanHarian extends Public_Controller {
                 jl.tgl_trans,
                 case
                     when jp.exclude = 1 then
-                        (sum(ji.total) + sum(ji.ppn) + sum(ji.service_charge))
+                        ((sum(ji.total) + sum(ji.ppn) + sum(ji.service_charge))) - byr.diskon
                     when jp.include = 1 then
-                        sum(ji.total)
-                end as total
+                        sum(ji.total) - byr.diskon
+                end as total,
+                max(jl.status_gabungan) as status_gabungan
             from jual_item ji
             right join
                 jenis_pesanan jp
@@ -636,7 +635,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                         select 
                             j.kode_faktur as kode_faktur,
                             j.kode_faktur as kode_faktur_utama,
-                            j.tgl_trans
+                            j.tgl_trans,
+                            0 as status_gabungan
                         from jual j 
                         where 
                             j.tgl_trans between '".$start_date."' and '".$end_date."' and
@@ -651,7 +651,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                         select 
                             jg.faktur_kode_gabungan as kode_faktur,
                             jg.faktur_kode as kode_faktur_utama,
-                            j.tgl_trans
+                            j.tgl_trans,
+                            1 as status_gabungan
                         from jual_gabungan jg
                         right join
                             (
@@ -689,7 +690,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                 jl.kode_faktur_utama,
                 jl.tgl_trans,
                 jp.exclude,
-                jp.include
+                jp.include,
+                byr.diskon
         ";
 
         $d_jual_by_faktur = $m_jual->hydrateRaw( $sql );
@@ -697,7 +699,9 @@ class SummaryPenjualanHarian extends Public_Controller {
             $d_jual_by_faktur = $d_jual_by_faktur->toArray();
 
             foreach ($d_jual_by_faktur as $key => $value) {
-                $key = str_replace('-', '', substr($value['tgl_trans'], 0, 10)).' | '.$value['kode_faktur'];
+                $key = $value['kode_faktur'];
+
+                $data[ $key ]['status_gabungan'] = $value['status_gabungan'];
 
                 if ( isset($data[ $key ]) ) {
                     $data[ $key ]['total'] = $value['total'];
@@ -710,6 +714,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                 }
             }
         }
+
+        ksort($data);
 
         return $data;
     }
