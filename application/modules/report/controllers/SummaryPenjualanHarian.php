@@ -228,7 +228,8 @@ class SummaryPenjualanHarian extends Public_Controller {
 
         $sql = "
             select 
-                jl.kode_faktur,
+                jl.kode_faktur as kode_faktur_asli,
+                jl.kode_faktur_utama as kode_faktur,
                 jl.tgl_trans,
                 dsk.diskon_tipe,
                 sum(bd.nilai) as nilai
@@ -236,6 +237,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     select * from (
                         select 
                             j.kode_faktur as kode_faktur,
+                            j.kode_faktur as kode_faktur_utama,
                             j.tgl_trans
                         from jual j 
                         where 
@@ -249,7 +251,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                         UNION ALL
 
                         select 
-                            jg.faktur_kode_gabungan as kode_faktur ,
+                            jg.faktur_kode_gabungan as kode_faktur,
+                            jg.faktur_kode as kode_faktur_utama,
                             j.tgl_trans
                         from jual_gabungan jg
                         right join
@@ -270,6 +273,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                                 j.kode_faktur = jg.faktur_kode
                         group by
                             jg.faktur_kode_gabungan,
+                            jg.faktur_kode,
                             j.tgl_trans
                     ) jl1
                     where
@@ -278,7 +282,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             right join
                 (select * from bayar where mstatus = 1) byr
                 on
-                    jl.kode_faktur = byr.faktur_kode
+                    jl.kode_faktur_utama = byr.faktur_kode
             right join
                 bayar_diskon bd
                 on
@@ -288,9 +292,10 @@ class SummaryPenjualanHarian extends Public_Controller {
                 on
                     bd.diskon_kode = dsk.kode
             where
-                jl.kode_faktur is not null
+                jl.kode_faktur_utama is not null
             group by
                 jl.kode_faktur,
+                jl.kode_faktur_utama,
                 jl.tgl_trans,
                 dsk.diskon_tipe
         ";
@@ -320,7 +325,8 @@ class SummaryPenjualanHarian extends Public_Controller {
 
         $sql = "
             select 
-                jl.kode_faktur,
+                jl.kode_faktur as kode_faktur_asli,
+                jl.kode_faktur_utama as kode_faktur,
                 jl.tgl_trans,
                 dsk.diskon_requirement,
                 sum(bd.nilai) as nilai
@@ -328,6 +334,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     select * from (
                         select 
                             j.kode_faktur as kode_faktur,
+                            j.kode_faktur as kode_faktur_utama,
                             j.tgl_trans
                         from jual j 
                         where 
@@ -341,7 +348,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                         UNION ALL
 
                         select 
-                            jg.faktur_kode_gabungan as kode_faktur ,
+                            jg.faktur_kode_gabungan as kode_faktur,
+                            jg.faktur_kode as kode_faktur_utama,
                             j.tgl_trans
                         from jual_gabungan jg
                         right join
@@ -362,6 +370,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                                 j.kode_faktur = jg.faktur_kode
                         group by
                             jg.faktur_kode_gabungan,
+                            jg.faktur_kode,
                             j.tgl_trans
                     ) jl1
                     where
@@ -370,7 +379,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             right join
                 (select * from bayar where mstatus = 1) byr
                 on
-                    jl.kode_faktur = byr.faktur_kode
+                    jl.kode_faktur_utama = byr.faktur_kode
             right join
                 bayar_diskon bd
                 on
@@ -380,9 +389,10 @@ class SummaryPenjualanHarian extends Public_Controller {
                 on
                     bd.diskon_kode = dsk.kode
             where
-                jl.kode_faktur is not null
+                jl.kode_faktur_utama is not null
             group by
                 jl.kode_faktur,
+                jl.kode_faktur_utama,
                 jl.tgl_trans,
                 dsk.diskon_requirement
         ";
@@ -408,7 +418,7 @@ class SummaryPenjualanHarian extends Public_Controller {
 
         $sql = "
             select 
-                jl.kode_faktur,
+                jl.kode_faktur as kode_faktur,
                 jl.tgl_trans,
                 kjk.id,
                 sum(bd.nominal) as nilai
@@ -429,7 +439,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                         UNION ALL
 
                         select 
-                            jg.faktur_kode_gabungan as kode_faktur ,
+                            jg.faktur_kode_gabungan as kode_faktur,
                             j.tgl_trans
                         from jual_gabungan jg
                         right join
@@ -502,12 +512,16 @@ class SummaryPenjualanHarian extends Public_Controller {
                         '3' => ($value['id'] == 3) ? $value['nilai'] : 0
                     );
                 }
+
+                // cetak_r( $key );
+                // cetak_r( $data[ $key ]['kategori_pembayaran'] );
             }
         }
 
         $sql = "
             select 
-                jl.kode_faktur,
+                jl.kode_faktur as kode_faktur_asli,
+                jl.kode_faktur_utama as kode_faktur,
                 jl.tgl_trans,
                 sum(ji.total) as total
             from jual_item ji
@@ -520,6 +534,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     select * from (
                         select 
                             j.kode_faktur as kode_faktur,
+                            j.kode_faktur as kode_faktur_utama,
                             j.tgl_trans
                         from jual j 
                         where 
@@ -533,7 +548,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                         UNION ALL
 
                         select 
-                            jg.faktur_kode_gabungan as kode_faktur ,
+                            jg.faktur_kode_gabungan as kode_faktur,
+                            jg.faktur_kode as kode_faktur_utama,
                             j.tgl_trans
                         from jual_gabungan jg
                         right join
@@ -554,6 +570,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                                 j.kode_faktur = jg.faktur_kode
                         group by
                             jg.faktur_kode_gabungan,
+                            jg.faktur_kode,
                             j.tgl_trans
                     ) jl1
                     where
@@ -564,13 +581,14 @@ class SummaryPenjualanHarian extends Public_Controller {
             right join
                 (select * from bayar where mstatus = 1) byr
                 on
-                    jl.kode_faktur = byr.faktur_kode
+                    jl.kode_faktur_utama = byr.faktur_kode
             where
                 jl.kode_faktur is not null and
                 m.ppn = 0 and
                 m.service_charge = 0
             group by
                 jl.kode_faktur,
+                jl.kode_faktur_utama,
                 jl.tgl_trans
         ";
 
@@ -595,7 +613,7 @@ class SummaryPenjualanHarian extends Public_Controller {
 
         $sql = "
             select 
-                jl.kode_faktur,
+                jl.kode_faktur_utama as kode_faktur,
                 jl.tgl_trans,
                 case
                     when jp.exclude = 1 then
@@ -617,6 +635,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     select * from (
                         select 
                             j.kode_faktur as kode_faktur,
+                            j.kode_faktur as kode_faktur_utama,
                             j.tgl_trans
                         from jual j 
                         where 
@@ -630,7 +649,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                         UNION ALL
 
                         select 
-                            jg.faktur_kode_gabungan as kode_faktur ,
+                            jg.faktur_kode_gabungan as kode_faktur,
+                            jg.faktur_kode as kode_faktur_utama,
                             j.tgl_trans
                         from jual_gabungan jg
                         right join
@@ -651,21 +671,22 @@ class SummaryPenjualanHarian extends Public_Controller {
                                 j.kode_faktur = jg.faktur_kode
                         group by
                             jg.faktur_kode_gabungan,
+                            jg.faktur_kode,
                             j.tgl_trans
                     ) jl1
                     where
-                        jl1.kode_faktur is not null
+                        jl1.kode_faktur_utama is not null
                 ) jl
                 on
                     jl.kode_faktur = ji.faktur_kode 
             right join
                 (select * from bayar where mstatus = 1) byr
                 on
-                    jl.kode_faktur = byr.faktur_kode
+                    jl.kode_faktur_utama = byr.faktur_kode
             where
                 jl.kode_faktur is not null
             group by
-                jl.kode_faktur,
+                jl.kode_faktur_utama,
                 jl.tgl_trans,
                 jp.exclude,
                 jp.include
