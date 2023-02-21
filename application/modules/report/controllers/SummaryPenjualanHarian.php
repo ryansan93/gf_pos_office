@@ -110,7 +110,8 @@ class SummaryPenjualanHarian extends Public_Controller {
         $m_jual = new \Model\Storage\Jual_model();
         $sql = "
             select 
-                jl.kode_faktur,
+                jl.kode_faktur as kode_faktur_asli,
+                jl.kode_faktur_utama as kode_faktur,
                 jl.tgl_trans,
                 km.id,
                 km.nama,
@@ -138,6 +139,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     select * from (
                         select 
                             j.kode_faktur as kode_faktur,
+                            j.kode_faktur as kode_faktur_utama,
                             j.tgl_trans
                         from jual j 
                         where 
@@ -147,9 +149,12 @@ class SummaryPenjualanHarian extends Public_Controller {
                         group by
                             j.kode_faktur,
                             j.tgl_trans
+
                         UNION ALL
+
                         select 
-                            jg.faktur_kode_gabungan as kode_faktur ,
+                            jg.faktur_kode_gabungan as kode_faktur,
+                            jg.faktur_kode as kode_faktur_utama,
                             j.tgl_trans
                         from jual_gabungan jg
                         right join
@@ -170,6 +175,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                                 j.kode_faktur = jg.faktur_kode
                         group by
                             jg.faktur_kode_gabungan,
+                            jg.faktur_kode,
                             j.tgl_trans
                     ) jl1
                     where
@@ -180,13 +186,14 @@ class SummaryPenjualanHarian extends Public_Controller {
             right join
                 (select * from bayar where mstatus = 1) byr
                 on
-                    jl.kode_faktur = byr.faktur_kode
+                    jl.kode_faktur_utama = byr.faktur_kode
             where
-                jl.kode_faktur is not null and
+                jl.kode_faktur_utama is not null and
                 m.ppn = 1 and
                 m.service_charge = 1
             group by
                 jl.kode_faktur,
+                jl.kode_faktur_utama,
                 jl.tgl_trans,
                 jp.exclude,
                 jp.include,
@@ -238,7 +245,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                         group by
                             j.kode_faktur,
                             j.tgl_trans
+
                         UNION ALL
+
                         select 
                             jg.faktur_kode_gabungan as kode_faktur ,
                             j.tgl_trans
@@ -328,7 +337,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                         group by
                             j.kode_faktur,
                             j.tgl_trans
+
                         UNION ALL
+
                         select 
                             jg.faktur_kode_gabungan as kode_faktur ,
                             j.tgl_trans
@@ -414,7 +425,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                         group by
                             j.kode_faktur,
                             j.tgl_trans
+
                         UNION ALL
+
                         select 
                             jg.faktur_kode_gabungan as kode_faktur ,
                             j.tgl_trans
@@ -516,7 +529,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                         group by
                             j.kode_faktur,
                             j.tgl_trans
+
                         UNION ALL
+
                         select 
                             jg.faktur_kode_gabungan as kode_faktur ,
                             j.tgl_trans
@@ -611,7 +626,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                         group by
                             j.kode_faktur,
                             j.tgl_trans
+
                         UNION ALL
+
                         select 
                             jg.faktur_kode_gabungan as kode_faktur ,
                             j.tgl_trans
