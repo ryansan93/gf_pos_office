@@ -8,17 +8,20 @@
 				<tr>
 					<th class="col-xs-1">Tgl Faktur</th>
 					<th class="col-xs-1">Kasir</th>
-					<th class="col-xs-2">Kode Faktur</th>
-					<th class="col-xs-2">Group Member</th>
-					<th class="col-xs-2">Member</th>
+					<th class="col-xs-1">Kode Faktur</th>
+					<th class="col-xs-1">Group Member</th>
+					<th class="col-xs-1">Member</th>
 					<th class="col-xs-1">Hutang</th>
-					<th class="col-xs-1">Bayar</th>
+					<th class="col-xs-1">Total Bayar</th>
 					<th class="col-xs-2">Remark</th>
+					<th class="col-xs-1">Jenis Bayar</th>
+					<th class="col-xs-1">Tanggal Bayar</th>
+					<th class="col-xs-1">Bayar</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="8">Data tidak ditemukan.</td>
+					<td colspan="11">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>

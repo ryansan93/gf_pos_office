@@ -202,21 +202,37 @@ class Hutang extends Public_Controller {
                     $d_jual = $d_conf->toArray();
 
                     $m_conf = new \Model\Storage\Conf();
-                    $sql = "select sum(bayar) as total_bayar from bayar_hutang bh 
-                        left join
+                    $sql = "
+                        select 
+                            b.tgl_trans as tgl_bayar,
+                            bd.* 
+                        from bayar_hutang bh
+                        right join
                             bayar b 
                             on
                                 bh.id_header = b.id
+                        right join
+                            bayar_det bd 
+                            on
+                                bd.id_header = b.id
                         where
                             b.mstatus = 1 and
                             bh.faktur_kode = '".$value['kode_faktur']."'
                     ";
                     $d_bayar_hutang = $m_conf->hydrateRaw($sql);
 
+                    $jenis_bayar = null;
+
                     $total_bayar = 0;
                     $total_diskon = $value['total_diskon'];
                     if ( $d_bayar_hutang->count() > 0 ) {
-                        $total_bayar = $d_bayar_hutang->toArray()[0]['total_bayar'];
+                        $d_bayar_hutang = $d_bayar_hutang->toArray();
+
+                        foreach ($d_bayar_hutang as $k_bh => $v_bh) {
+                            $total_bayar += $v_bh['nominal'];
+
+                            $jenis_bayar[] = $v_bh;
+                        }
                     }
 
                     $tgl = !empty($value['tgl_pesan']) ? $value['tgl_pesan'] : $value['tgl_trans'];
@@ -245,7 +261,8 @@ class Hutang extends Public_Controller {
                         'faktur_kode' => $value['kode_faktur'],
                         'hutang' => $value['grand_total']-$total_diskon,
                         'bayar' => $total_bayar,
-                        'remark' => !empty($d_jual) ? $d_jual[0]['remark'] : null
+                        'remark' => !empty($d_jual) ? $d_jual[0]['remark'] : null,
+                        'jenis_bayar' => $jenis_bayar
                     );
                 }
 

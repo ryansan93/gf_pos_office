@@ -13,6 +13,9 @@ var sh = {
             locale: 'id',
             format: 'DD MMM Y'
         });
+
+        $('.branch').select2();
+        $('.kasir').select2();
       //   $("#StartDate").on("dp.change", function (e) {
     		// var minDate = dateSQL($("#StartDate").data("DateTimePicker").date())+' 00:00:00';
       //   	$("#EndDate").data("DateTimePicker").minDate(moment(new Date(minDate).setHours(0,0,0,0)));
@@ -39,7 +42,8 @@ var sh = {
 			bootbox.alert('Harap lengkapi data terlebih dahulu.');
 		} else {
 			var params = {
-				'branch': $('.branch').val(),
+				'branch': $('.branch').select2('val'),
+				'kasir': $('.kasir').select2('val'),
 				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
 				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
 			};
@@ -56,6 +60,7 @@ var sh = {
 	                hideLoading();
 	                if ( data.status == 1 ) {
 	                	$('table.tbl_report tbody').html( data.content.list_report );
+	                	$('table.tbl_report_oc_compliment tbody').html( data.content.list_report_oc_compliment );
 	                } else {
 	                    bootbox.alert(data.message);
 	                }
@@ -80,7 +85,8 @@ var sh = {
 			bootbox.alert('Harap lengkapi data terlebih dahulu.');
 		} else {
 			var params = {
-				'branch': $('.branch').val(),
+				'branch': $('.branch').select2('val'),
+				'kasir': $('.kasir').select2('val'),
 				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
 				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
 			};

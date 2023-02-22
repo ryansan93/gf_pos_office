@@ -10,7 +10,21 @@
 						<select class="form-control branch" data-required="1">
 							<option value="">-- Pilih Branch --</option>
 							<?php foreach ($branch as $k_db => $v_db): ?>
-								<option data-tokens="<?php echo $v_db['nama']; ?>" value="<?php echo $v_db['kode_branch']; ?>"><?php echo strtoupper($v_db['kode_branch'].' | '.$v_db['nama']); ?></option>
+								<option value="<?php echo $v_db['kode_branch']; ?>"><?php echo strtoupper($v_db['kode_branch'].' | '.$v_db['nama']); ?></option>
+							<?php endforeach ?>
+						</select>
+					</div>
+				</div>
+
+				<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+					<div class="col-xs-12 no-padding">
+						<label class="control-label">Kasir</label>
+					</div>
+					<div class="col-xs-12 no-padding">
+						<select class="form-control kasir" data-required="1">
+							<option value="all">ALL</option>
+							<?php foreach ($kasir as $k_kasir => $v_kasir): ?>
+								<option value="<?php echo $v_kasir['id_user']; ?>"><?php echo strtoupper($v_kasir['nama_user']); ?></option>
 							<?php endforeach ?>
 						</select>
 					</div>
