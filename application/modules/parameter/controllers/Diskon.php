@@ -274,6 +274,61 @@ class Diskon extends Public_Controller {
                 }
 
                 if ( $val['tipe_diskon'] == 3 ) {
+                    $m_conf = new \Model\Storage\Conf();
+                    $sql = "
+                        select
+                            CASE
+                                WHEN dbd.jenis_menu_id_beli = 'all' then
+                                    'ALL'
+                                WHEN dbd.jenis_menu_id_beli <> 'all' then
+                                    jm_beli.nama
+                            END as nama_jenis_menu_beli,
+                            CASE
+                                WHEN dbd.menu_kode_beli = 'all' then
+                                    'ALL'
+                                WHEN dbd.menu_kode_beli <> 'all' then
+                                    m_beli.nama
+                            END as nama_menu_beli,
+                            dbd.jumlah_beli,
+                            CASE
+                                WHEN dbd.jenis_menu_id_dapat = 'all' then
+                                    'ALL'
+                                WHEN dbd.jenis_menu_id_dapat <> 'all' then
+                                    jm_dapat.nama
+                            END as nama_jenis_menu_dapat,
+                            CASE
+                                WHEN dbd.menu_kode_dapat = 'all' then
+                                    'ALL'
+                                WHEN dbd.menu_kode_dapat <> 'all' then
+                                    m_dapat.nama
+                            END as nama_menu_dapat,
+                            dbd.jumlah_dapat,
+                            dbd.diskon_dapat,
+                            dbd.diskon_jenis_dapat
+                        from diskon_beli_dapat dbd
+                        left join
+                            jenis_menu jm_beli
+                            on
+                                dbd.jenis_menu_id_beli = cast(jm_beli.id as varchar(5))
+                        left join
+                            jenis_menu jm_dapat
+                            on
+                                dbd.jenis_menu_id_dapat = cast(jm_dapat.id as varchar(5))
+                        left join
+                            menu m_beli
+                            on
+                                dbd.menu_kode_beli = m_beli.kode_menu
+                        left join
+                            menu m_dapat
+                            on
+                                dbd.menu_kode_dapat = m_dapat.kode_menu
+                        where
+                            dbd.diskon_kode = '".$kode."'
+                    ";
+                    $d_dbd = $m_conf->hydrateRaw( $sql );
+                    if ( $d_dbd->count() ) {
+                        $detail = $d_dbd->toArray();
+                    }
                 }
 
                 $data['detail'] = $detail;
@@ -332,6 +387,7 @@ class Diskon extends Public_Controller {
                             $m_dm->diskon_kode = $kode;
                             $m_dm->jenis_menu_id = $v_dm['jenis_menu_id'];
                             $m_dm->menu_kode = $v_dm['menu_kode'];
+                            $m_dm->jml_min = $v_dm['jml_min'];
                             $m_dm->diskon = $v_dm['diskon'];
                             $m_dm->diskon_jenis = $v_dm['diskon_jenis'];
                             $m_dm->save();

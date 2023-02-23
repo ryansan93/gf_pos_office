@@ -177,14 +177,16 @@
 													<tr>
 														<th class="col-xs-3" style="padding: 3px;">Jenis</th>
 														<th class="col-xs-4" style="padding: 3px;">Produk</th>
+														<th class="col-xs-2" style="padding: 3px;">Jml Min</th>
 														<th class="col-xs-3" style="padding: 3px;">Diskon</th>
 													</tr>
 												</thead>
 												<tbody>
 													<?php foreach ($data['detail'] as $k_det => $v_det): ?>
 														<tr>
-															<td><?php echo $v_det['nama_jenis_menu']; ?></td>
+															<td><?php echo strtoupper($v_det['nama_jenis_menu']); ?></td>
 															<td><?php echo $v_det['nama_menu']; ?></td>
+															<td class="text-right"><?php echo angkaRibuan($v_det['jml_min']); ?></td>
 															<td class="text-right"><?php echo ($v_det['diskon_jenis'] == 'persen') ? angkaDecimal($v_det['diskon']).' %' : 'Rp. '.angkaDecimal($v_det['diskon']); ?></td>
 														</tr>
 													<?php endforeach ?>
@@ -197,7 +199,7 @@
 						</div>
 					</div>
 				</div>
-				<!-- <div class="col-xs-12 no-padding tipe_diskon <?php echo $hide_tipe_diskon3; ?>" id="tipe_diskon3">
+				<div class="col-xs-12 no-padding tipe_diskon <?php echo $hide_tipe_diskon3; ?>" id="tipe_diskon3">
 					<div class="col-xs-12 no-padding">
 						<div class="col-xs-12"><label class="control-label" style="margin-bottom: 0px;"><?php echo $data['nama_tipe_diskon']; ?></label></div>
 					</div>
@@ -207,88 +209,7 @@
 							<div class="col-xs-12 no-padding" style="border: 1px solid #dedede; border-radius: 5px;">
 								<div class="col-xs-12 no-padding contain_tipe_diskon daftar_beli">
 									<div class="col-xs-12 no-padding" style="padding-bottom: 10px; height: 50px;">
-										<div class="col-xs-12" style="background-color: #c3bdff; height: 100%; display: flex; justify-content: center; align-items: center;"><label class="control-label" style="margin-bottom: 0px;">Beli</label></div>
-									</div>
-									<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
-										<div class="col-xs-12"><label class="control-label">Jenis</label></div>
-										<div class="col-xs-12">
-											<select class="form-control jenis_menu">
-												<option value="all">-- All --</option>
-												<?php foreach ($jenis_menu as $k_jm => $v_jm): ?>
-													<option value="<?php echo $v_jm['id']; ?>"><?php echo $v_jm['nama']; ?></option>
-												<?php endforeach ?>
-											</select>
-										</div>
-									</div>
-									<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
-										<div class="col-xs-12"><label class="control-label">Menu</label></div>
-										<div class="col-xs-12">
-											<select class="form-control menu">
-												<option value="all">-- All --</option>
-												<?php foreach ($menu as $k_menu => $v_menu): ?>
-													<option value="<?php echo $v_menu['kode_menu']; ?>" data-jm="<?php echo $v_menu['jenis_menu_id']; ?>" data-branch="<?php echo $v_menu['branch']['kode_branch']; ?>"><?php echo $v_menu['branch']['kode_branch'].' | '.$v_menu['nama']; ?></option>
-												<?php endforeach ?>
-											</select>
-										</div>
-									</div>
-									<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
-										<div class="col-xs-12"><label class="control-label">Jumlah</label></div>
-										<div class="col-xs-12">
-											<input type="text" class="col-xs-12 form-control text-right jumlah" placeholder="Jumlah" maxlength="10" data-tipe="integer">
-										</div>
-									</div>
-								</div>
-								<div class="col-xs-12 no-padding contain_tipe_diskon daftar_dapat">
-									<div class="col-xs-12 no-padding" style="padding-bottom: 10px; height: 50px;">
-										<div class="col-xs-12" style="background-color: #c3bdff; height: 100%; display: flex; justify-content: center; align-items: center;"><label class="control-label" style="margin-bottom: 0px;">Dapat</label></div>
-									</div>
-									<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
-										<div class="col-xs-12"><label class="control-label">Jenis</label></div>
-										<div class="col-xs-12">
-											<select class="form-control jenis_menu">
-												<option value="all">-- All --</option>
-												<?php foreach ($jenis_menu as $k_jm => $v_jm): ?>
-													<option value="<?php echo $v_jm['id']; ?>"><?php echo $v_jm['nama']; ?></option>
-												<?php endforeach ?>
-											</select>
-										</div>
-									</div>
-									<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
-										<div class="col-xs-12"><label class="control-label">Menu</label></div>
-										<div class="col-xs-12">
-											<select class="form-control menu">
-												<option value="all">-- All --</option>
-												<?php foreach ($menu as $k_menu => $v_menu): ?>
-													<option value="<?php echo $v_menu['kode_menu']; ?>" data-jm="<?php echo $v_menu['jenis_menu_id']; ?>" data-branch="<?php echo $v_menu['branch']['kode_branch']; ?>"><?php echo $v_menu['branch']['kode_branch'].' | '.$v_menu['nama']; ?></option>
-												<?php endforeach ?>
-											</select>
-										</div>
-									</div>
-									<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
-										<div class="col-xs-12"><label class="control-label">Jumlah</label></div>
-										<div class="col-xs-12">
-											<input type="text" class="col-xs-12 form-control text-right jumlah" placeholder="Jumlah" maxlength="10" data-tipe="integer">
-										</div>
-									</div>
-									<div class="col-xs-10 no-padding" style="padding-bottom: 10px;">
-										<div class="col-xs-12"><label class="control-label">Diskon</label></div>
-										<div class="col-xs-12">
-											<input type="text" class="col-xs-12 form-control text-right diskon" placeholder="Diskon" maxlength="11" data-tipe="decimal">
-										</div>
-									</div>
-									<div class="col-xs-2 no-padding" style="padding-bottom: 10px;">
-										<div class="col-xs-12"><label class="control-label">&nbsp;</label></div>
-										<div class="col-xs-12" style="padding-left: 0px;">
-											<select class="form-control diskon_jenis" style="padding-left: 3px;">
-												<option value="persen">%</option>
-												<option value="nilai">Rp.</option>
-											</select>
-										</div>
-									</div>
-									<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
-										<div class="col-xs-12">
-											<button type="button" class="col-xs-12 btn btn-primary" onclick="diskon.addDaftarBeliDapat(this)"><i class="fa fa-plus"></i></button>
-										</div>
+										<div class="col-xs-12" style="background-color: #c3bdff; height: 100%; display: flex; justify-content: center; align-items: center;"><label class="control-label" style="margin-bottom: 0px;">Detail</label></div>
 									</div>
 
 									<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
@@ -303,11 +224,29 @@
 															<th class="col-xs-1" style="padding: 3px;">#</th>
 															<th class="col-xs-1" style="padding: 3px;">Jml</th>
 															<th class="col-xs-3" style="padding: 3px;">Produk</th>
-															<th class="col-xs-1" style="padding: 3px;">Diskon</th>
-															<th class="col-xs-1" style="padding: 3px;"></th>
+															<th class="col-xs-2" style="padding: 3px;">Diskon</th>
 														</tr>
 													</thead>
-													<tbody></tbody>
+													<tbody>
+														<?php foreach ($data['detail'] as $k_det => $v_det): ?>
+															<tr>
+																<td><b>BUY</b></td>
+																<td class="text-right"><?php echo angkaRibuan($v_det['jumlah_beli']); ?></td>
+																<td>
+																	<div class="col-xs-12 no-padding">> <?php echo strtoupper($v_det['nama_jenis_menu_beli']); ?></div>
+																	<div class="col-xs-12 no-padding">> <?php echo $v_det['nama_menu_beli'] ?></div>
+																</td>
+																<td><b>GET</b></td>
+																<td class="text-right"><?php echo angkaRibuan($v_det['jumlah_dapat']); ?></td>
+																<td>
+																	<div class="col-xs-12 no-padding">> <?php echo strtoupper($v_det['nama_jenis_menu_dapat']); ?></div>
+																	<div class="col-xs-12 no-padding">> <?php echo $v_det['nama_menu_dapat'] ?></div>
+																</td>
+																<td class="text-right"><?php echo ($v_det['diskon_jenis_dapat'] == 'persen') ? angkaDecimal($v_det['diskon_dapat']).' %' : 'Rp. '.angkaDecimal($v_det['diskon_dapat']); ?></td>
+															</tr>
+														<?php endforeach ?>
+														</tbody>
+													</tbody>
 												</table>
 											</small>
 										</div>
@@ -316,7 +255,7 @@
 							</div>
 						</div>
 					</div>
-				</div> -->
+				</div>
 			</div>
 		</div>
 	</div>

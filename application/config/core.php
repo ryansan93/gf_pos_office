@@ -65,7 +65,7 @@ $config['tgl_stok_opname'] = '2022-10-13';
 $config['diskon_tipe'] = array(
 	1 => 'Semua Produk (Diskon Nota)',
 	2 => 'Kategori / Produk Tertentu',
-	// 3 => 'Beli dan Dapatkan'
+	3 => 'Beli dan Dapatkan'
 );
 
 /*DISKON KEBUTUHAN*/

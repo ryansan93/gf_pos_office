@@ -188,7 +188,7 @@
 										<select class="form-control jenis_menu">
 											<option value="all">-- All --</option>
 											<?php foreach ($jenis_menu as $k_jm => $v_jm): ?>
-												<option value="<?php echo $v_jm['id']; ?>"><?php echo $v_jm['nama']; ?></option>
+												<option value="<?php echo $v_jm['id']; ?>"><?php echo strtoupper($v_jm['nama']); ?></option>
 											<?php endforeach ?>
 										</select>
 									</div>
@@ -202,6 +202,12 @@
 												<option value="<?php echo $v_menu['kode_menu']; ?>" data-jm="<?php echo $v_menu['jenis_menu_id']; ?>" data-branch="<?php echo $v_menu['branch']['kode_branch']; ?>"><?php echo $v_menu['branch']['kode_branch'].' | '.$v_menu['nama']; ?></option>
 											<?php endforeach ?>
 										</select>
+									</div>
+								</div>
+								<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
+									<div class="col-xs-12"><label class="control-label">Jml Min</label></div>
+									<div class="col-xs-12">
+										<input type="text" class="col-xs-12 form-control text-right jml_min" placeholder="Jumlah Min" maxlength="3" data-tipe="integer">
 									</div>
 								</div>
 								<div class="col-xs-10 no-padding" style="padding-bottom: 10px;">
@@ -233,8 +239,9 @@
 													<tr>
 														<th class="col-xs-3" style="padding: 3px;">Jenis</th>
 														<th class="col-xs-4" style="padding: 3px;">Produk</th>
-														<th class="col-xs-3" style="padding: 3px;">Diskon</th>
-														<th class="col-xs-2" style="padding: 3px;"></th>
+														<th class="col-xs-2" style="padding: 3px;">Jml Min</th>
+														<th class="col-xs-2" style="padding: 3px;">Diskon</th>
+														<th class="col-xs-1" style="padding: 3px;"></th>
 													</tr>
 												</thead>
 												<tbody></tbody>

@@ -380,7 +380,7 @@ class SummaryPenjualanHarian extends Public_Controller {
 
                 if ( isset($data[ $key ]['diskon']) ) {
                     $data[ $key ]['diskon'][1] += ($value['diskon_tipe'] == 1) ? $value['nilai'] : 0;
-                    $data[ $key ]['diskon'][2] += ($value['diskon_tipe'] == 2) ? $value['nilai'] : 0;
+                    $data[ $key ]['diskon'][2] += ($value['diskon_tipe'] == 2 || $value['diskon_tipe'] == 3) ? $value['nilai'] : 0;
                 } else {
                     if ( !isset($data[ $key ]) ) {
                         $data[ $key ]['date'] = $value['tgl_trans'];
@@ -388,7 +388,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     }
                     $data[ $key ]['diskon'] = array(
                         '1' => ($value['diskon_tipe'] == 1) ? $value['nilai'] : 0,
-                        '2' => ($value['diskon_tipe'] == 2) ? $value['nilai'] : 0
+                        '2' => ($value['diskon_tipe'] == 2 || $value['diskon_tipe'] == 3) ? $value['nilai'] : 0
                     );
                 }
             }
@@ -404,7 +404,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     when sum(bd.nilai) > byr.total then
                         byr.total
                     when sum(bd.nilai) < byr.total then
-                        sum(bd.nilai)
+                        sum(bd.nilai) + byr.total
                 end as nilai
             from (
                     select * from (
