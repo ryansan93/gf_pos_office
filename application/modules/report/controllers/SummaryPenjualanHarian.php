@@ -400,12 +400,13 @@ class SummaryPenjualanHarian extends Public_Controller {
                 jl.kode_faktur_utama as kode_faktur,
                 jl.tgl_trans,
                 dsk.diskon_requirement,
-                case
-                    when sum(bd.nilai) > byr.total then
-                        byr.total
-                    when sum(bd.nilai) < byr.total then
-                        sum(bd.nilai) + byr.total
-                end as nilai
+                byr.total as nilai
+                -- case
+                --     when sum(bd.nilai) > byr.total then
+                --         byr.total
+                --     when sum(bd.nilai) < byr.total then
+                --         sum(bd.nilai)
+                -- end as nilai
             from (
                     select * from (
                         select 

@@ -345,13 +345,13 @@ class Member extends Public_Controller {
 
                                         if ( stristr($_column_val, 'tgl_expired') !== false ) {
                                             if ( $val != '-' && !empty($val) ) {
-                                                $split = explode('/', $val);
-                                                $year = $split[2]; 
-                                                $month = (strlen($split[0]) < 2) ? '0'.$split[0] : $split[0];
-                                                $day = (strlen($split[1]) < 2) ? '0'.$split[1] : $split[1];
-                                                $tgl = $year.'-'.$month.'-'.$day;
+                                                // $split = explode('-', $val);
+                                                // $year = $split[2]; 
+                                                // $month = (strlen($split[0]) < 2) ? '0'.$split[0] : $split[0];
+                                                // $day = (strlen($split[1]) < 2) ? '0'.$split[1] : $split[1];
+                                                // $tgl = $year.'-'.$month.'-'.$day;
 
-                                                $_data['value'][$row][$_column_val] = $tgl;
+                                                $_data['value'][$row][$_column_val] = $val;
                                             }
                                         } else {
                                             $_data['value'][$row][$_column_val] = $val;
