@@ -95,7 +95,6 @@
 							$tot1 += isset($v_data['kategori_menu'][1]) ? ($v_data['kategori_menu'][1]) : 0;
 							$tot2 += isset($v_data['kategori_menu'][2]) ? ($v_data['kategori_menu'][2]) : 0;
 							$tot3 += isset($v_data['kategori_menu'][3]) ? ($v_data['kategori_menu'][3]) : 0;
-							$tot14 += isset($v_data['kategori_menu'][4]) ? ($v_data['kategori_menu'][4]) : 0;
 							$tot5 += isset($v_data['other_income']) ? ($v_data['other_income']) : 0;
 							$tot4 += isset($v_data['diskon'][1]) ? ($v_data['diskon'][1]) : 0;
 							$tot6 += isset($v_data['diskon'][2]) ? ($v_data['diskon'][2]) : 0;
