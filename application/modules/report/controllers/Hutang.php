@@ -148,7 +148,7 @@ class Hutang extends Public_Controller {
                         jual.kode_faktur_utama = j.kode_faktur
                 where
                     jual.kode_faktur is not null and
-                    j.lunas = 0
+                    j.hutang = 1
                 group by 
                     jual.kode_faktur_utama,
                     j.lunas,
