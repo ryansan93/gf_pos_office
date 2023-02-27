@@ -173,6 +173,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                 case
                     when m.ppn = 1 and m.service_charge = 0 then
                         4
+                    when m.ppn = 0 and m.service_charge = 0 then
+                        5
                     else
                         km.id
                 end as id,
@@ -251,7 +253,14 @@ class SummaryPenjualanHarian extends Public_Controller {
                 on
                     jl.kode_faktur = ji.faktur_kode 
             right join
-                (select * from bayar where mstatus = 1) byr
+                (
+                    select byr1.* from bayar byr1
+                    right join
+                        ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
+                        on
+                            byr1.id = byr2.id
+                    where byr1.mstatus = 1
+                ) byr
                 on
                     jl.kode_faktur_utama = byr.faktur_kode
             where
@@ -281,6 +290,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     $data[ $key ]['kategori_menu'][2] += ($value['id'] == 2) ? $value['total'] : 0;
                     $data[ $key ]['kategori_menu'][3] += ($value['id'] == 3) ? $value['total'] : 0;
                     $data[ $key ]['kategori_menu'][4] += ($value['id'] == 4) ? $value['total'] : 0;
+                    $data[ $key ]['kategori_menu'][5] += ($value['id'] == 5) ? $value['total'] : 0;
                 } else {
                     if ( !isset($data[ $key ]) ) {
                         $data[ $key ]['date'] = $value['tgl_trans'];
@@ -291,6 +301,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                         '2' => ($value['id'] == 2) ? $value['total'] : 0,
                         '3' => ($value['id'] == 3) ? $value['total'] : 0,
                         '4' => ($value['id'] == 4) ? $value['total'] : 0,
+                        '5' => ($value['id'] == 5) ? $value['total'] : 0,
                     );
                 }
             }
@@ -350,7 +361,14 @@ class SummaryPenjualanHarian extends Public_Controller {
                         jl1.kode_faktur is not null
                 ) jl
             right join
-                (select * from bayar where mstatus = 1) byr
+                (
+                    select byr1.* from bayar byr1
+                    right join
+                        ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
+                        on
+                            byr1.id = byr2.id
+                    where byr1.mstatus = 1
+                ) byr
                 on
                     jl.kode_faktur_utama = byr.faktur_kode
             right join
@@ -454,7 +472,14 @@ class SummaryPenjualanHarian extends Public_Controller {
                         jl1.kode_faktur is not null
                 ) jl
             right join
-                (select * from bayar where mstatus = 1) byr
+                (
+                    select byr1.* from bayar byr1
+                    right join
+                        ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
+                        on
+                            byr1.id = byr2.id
+                    where byr1.mstatus = 1
+                ) byr
                 on
                     jl.kode_faktur_utama = byr.faktur_kode
             right join
@@ -550,7 +575,14 @@ class SummaryPenjualanHarian extends Public_Controller {
                         jl1.kode_faktur is not null
                 ) jl
             right join
-                (select * from bayar where mstatus = 1) byr
+                (
+                    select byr1.* from bayar byr1
+                    right join
+                        ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
+                        on
+                            byr1.id = byr2.id
+                    where byr1.mstatus = 1
+                ) byr
                 on
                     jl.kode_faktur = byr.faktur_kode
             right join
@@ -603,99 +635,99 @@ class SummaryPenjualanHarian extends Public_Controller {
             }
         }
 
-        $sql = "
-            select 
-                jl.kode_faktur as kode_faktur_asli,
-                jl.kode_faktur_utama as kode_faktur,
-                jl.tgl_trans,
-                sum(ji.total) as total
-            from jual_item ji
-            right join
-                menu m
-                on
-                    ji.menu_kode = m.kode_menu
-            right join
-                (
-                    select * from (
-                        select 
-                            j.kode_faktur as kode_faktur,
-                            j.kode_faktur as kode_faktur_utama,
-                            j.tgl_trans
-                        from jual j 
-                        where 
-                            j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                            j.branch = '".$branch."' and
-                            j.mstatus = 1
-                        group by
-                            j.kode_faktur,
-                            j.tgl_trans
+        // $sql = "
+        //     select 
+        //         jl.kode_faktur as kode_faktur_asli,
+        //         jl.kode_faktur_utama as kode_faktur,
+        //         jl.tgl_trans,
+        //         sum(ji.total) as total
+        //     from jual_item ji
+        //     right join
+        //         menu m
+        //         on
+        //             ji.menu_kode = m.kode_menu
+        //     right join
+        //         (
+        //             select * from (
+        //                 select 
+        //                     j.kode_faktur as kode_faktur,
+        //                     j.kode_faktur as kode_faktur_utama,
+        //                     j.tgl_trans
+        //                 from jual j 
+        //                 where 
+        //                     j.tgl_trans between '".$start_date."' and '".$end_date."' and
+        //                     j.branch = '".$branch."' and
+        //                     j.mstatus = 1
+        //                 group by
+        //                     j.kode_faktur,
+        //                     j.tgl_trans
 
-                        UNION ALL
+        //                 UNION ALL
 
-                        select 
-                            jg.faktur_kode_gabungan as kode_faktur,
-                            jg.faktur_kode as kode_faktur_utama,
-                            j.tgl_trans
-                        from jual_gabungan jg
-                        right join
-                            (
-                                select 
-                                    j.kode_faktur as kode_faktur,
-                                    j.tgl_trans
-                                from jual j 
-                                where 
-                                    j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                                    j.branch = '".$branch."' and
-                                    j.mstatus = 1
-                                group by
-                                    j.kode_faktur,
-                                    j.tgl_trans
-                            ) j
-                            on
-                                j.kode_faktur = jg.faktur_kode
-                        group by
-                            jg.faktur_kode_gabungan,
-                            jg.faktur_kode,
-                            j.tgl_trans
-                    ) jl1
-                    where
-                        jl1.kode_faktur is not null
-                ) jl
-                on
-                    jl.kode_faktur = ji.faktur_kode 
-            right join
-                (select * from bayar where mstatus = 1) byr
-                on
-                    jl.kode_faktur_utama = byr.faktur_kode
-            where
-                jl.kode_faktur is not null and
-                m.ppn = 0 and
-                m.service_charge = 0
-                ".$sql_kasir."
-            group by
-                jl.kode_faktur,
-                jl.kode_faktur_utama,
-                jl.tgl_trans
-        ";
+        //                 select 
+        //                     jg.faktur_kode_gabungan as kode_faktur,
+        //                     jg.faktur_kode as kode_faktur_utama,
+        //                     j.tgl_trans
+        //                 from jual_gabungan jg
+        //                 right join
+        //                     (
+        //                         select 
+        //                             j.kode_faktur as kode_faktur,
+        //                             j.tgl_trans
+        //                         from jual j 
+        //                         where 
+        //                             j.tgl_trans between '".$start_date."' and '".$end_date."' and
+        //                             j.branch = '".$branch."' and
+        //                             j.mstatus = 1
+        //                         group by
+        //                             j.kode_faktur,
+        //                             j.tgl_trans
+        //                     ) j
+        //                     on
+        //                         j.kode_faktur = jg.faktur_kode
+        //                 group by
+        //                     jg.faktur_kode_gabungan,
+        //                     jg.faktur_kode,
+        //                     j.tgl_trans
+        //             ) jl1
+        //             where
+        //                 jl1.kode_faktur is not null
+        //         ) jl
+        //         on
+        //             jl.kode_faktur = ji.faktur_kode 
+        //     right join
+        //         (select * from bayar where mstatus = 1) byr
+        //         on
+        //             jl.kode_faktur_utama = byr.faktur_kode
+        //     where
+        //         jl.kode_faktur is not null and
+        //         m.ppn = 0 and
+        //         m.service_charge = 0
+        //         ".$sql_kasir."
+        //     group by
+        //         jl.kode_faktur,
+        //         jl.kode_faktur_utama,
+        //         jl.tgl_trans
+        // ";
 
-        $d_jual_by_other_income = $m_jual->hydrateRaw( $sql );
-        if ( $d_jual_by_other_income->count() > 0 ) {
-            $d_jual_by_other_income = $d_jual_by_other_income->toArray();
+        // $d_jual_by_other_income = $m_jual->hydrateRaw( $sql );
+        // if ( $d_jual_by_other_income->count() > 0 ) {
+        //     $d_jual_by_other_income = $d_jual_by_other_income->toArray();
 
-            foreach ($d_jual_by_other_income as $key => $value) {
-                $key = $value['kode_faktur'];
+        //     foreach ($d_jual_by_other_income as $key => $value) {
+        //         $key = $value['kode_faktur'];
 
-                if ( isset($data[ $key ]) ) {
-                    $data[ $key ]['other_income'] = $value['total'];
-                } else {
-                    if ( !isset($data[ $key ]) ) {
-                        $data[ $key ]['date'] = $value['tgl_trans'];
-                        $data[ $key ]['kode_faktur'] = $value['kode_faktur'];
-                    }
-                    $data[ $key ]['other_income'] = $value['total'];
-                }
-            }
-        }
+        //         if ( isset($data[ $key ]) ) {
+        //             $data[ $key ]['other_income'] = $value['total'];
+        //         } else {
+        //             if ( !isset($data[ $key ]) ) {
+        //                 $data[ $key ]['date'] = $value['tgl_trans'];
+        //                 $data[ $key ]['kode_faktur'] = $value['kode_faktur'];
+        //             }
+        //             $data[ $key ]['other_income'] = $value['total'];
+        //         }
+        //     }
+        // }
 
         $sql = "
             select 
@@ -769,7 +801,14 @@ class SummaryPenjualanHarian extends Public_Controller {
                 on
                     jl.kode_faktur = ji.faktur_kode 
             right join
-                (select * from bayar where mstatus = 1) byr
+                (
+                    select byr1.* from bayar byr1
+                    right join
+                        ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
+                        on
+                            byr1.id = byr2.id
+                    where byr1.mstatus = 1
+                ) byr
                 on
                     jl.kode_faktur_utama = byr.faktur_kode
             where
