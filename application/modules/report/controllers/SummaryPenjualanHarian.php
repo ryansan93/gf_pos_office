@@ -508,7 +508,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             foreach ($d_jual_by_diskon_requirement as $key => $value) {
                 $key = $value['kode_faktur'];
 
-                if ( isset($data[ $key ]['diskon_requirement']) ) {
+                if ( isset($data[ $key ]['diskon_requirement'][ $value['diskon_requirement'] ]) ) {
                     $data[ $key ]['diskon_requirement'][ $value['diskon_requirement'] ] += $value['nilai'];
                 } else {
                     if ( !isset($data[ $key ]) ) {
@@ -731,95 +731,110 @@ class SummaryPenjualanHarian extends Public_Controller {
 
         $sql = "
             select 
-                jl.kode_faktur_utama as kode_faktur,
-                jl.tgl_trans,
-                case
-                    when jp.exclude = 1 then
-                        ((sum(ji.total) + sum(ji.ppn) + sum(ji.service_charge))) - byr.diskon
-                    when jp.include = 1 then
-                        sum(ji.total) - byr.diskon
-                end as total,
-                max(jl.status_gabungan) as status_gabungan
-            from jual_item ji
-            right join
-                jenis_pesanan jp
-                on
-                    jp.kode = ji.kode_jenis_pesanan
-            right join
-                menu m
-                on
-                    ji.menu_kode = m.kode_menu
-            right join
-                (
-                    select * from (
-                        select 
-                            j.kode_faktur as kode_faktur,
-                            j.kode_faktur as kode_faktur_utama,
-                            j.tgl_trans,
-                            0 as status_gabungan
-                        from jual j 
-                        where 
-                            j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                            j.branch = '".$branch."' and
-                            j.mstatus = 1
-                        group by
-                            j.kode_faktur,
-                            j.tgl_trans
+                kode_faktur,
+                tgl_trans,
+                diskon,
+                sum(total) - diskon as total,
+                status_gabungan
+            from
+            (
+                select 
+                    jl.kode_faktur_utama as kode_faktur,
+                    jl.tgl_trans,
+                    byr.diskon,
+                    case
+                        when jp.exclude = 1 then
+                            ((sum(ji.total) + sum(ji.ppn) + sum(ji.service_charge)))
+                        when jp.include = 1 then
+                            sum(ji.total)
+                    end as total,
+                    max(jl.status_gabungan) as status_gabungan
+                from jual_item ji
+                right join
+                    jenis_pesanan jp
+                    on
+                        jp.kode = ji.kode_jenis_pesanan
+                right join
+                    menu m
+                    on
+                        ji.menu_kode = m.kode_menu
+                right join
+                    (
+                        select * from (
+                            select 
+                                j.kode_faktur as kode_faktur,
+                                j.kode_faktur as kode_faktur_utama,
+                                j.tgl_trans,
+                                0 as status_gabungan
+                            from jual j 
+                            where 
+                                j.tgl_trans between '".$start_date."' and '".$end_date."' and
+                                j.branch = '".$branch."' and
+                                j.mstatus = 1
+                            group by
+                                j.kode_faktur,
+                                j.tgl_trans
 
-                        UNION ALL
+                            UNION ALL
 
-                        select 
-                            jg.faktur_kode_gabungan as kode_faktur,
-                            jg.faktur_kode as kode_faktur_utama,
-                            j.tgl_trans,
-                            1 as status_gabungan
-                        from jual_gabungan jg
+                            select 
+                                jg.faktur_kode_gabungan as kode_faktur,
+                                jg.faktur_kode as kode_faktur_utama,
+                                j.tgl_trans,
+                                1 as status_gabungan
+                            from jual_gabungan jg
+                            right join
+                                (
+                                    select 
+                                        j.kode_faktur as kode_faktur,
+                                        j.tgl_trans
+                                    from jual j 
+                                    where 
+                                        j.tgl_trans between '".$start_date."' and '".$end_date."' and
+                                        j.branch = '".$branch."' and
+                                        j.mstatus = 1
+                                    group by
+                                        j.kode_faktur,
+                                        j.tgl_trans
+                                ) j
+                                on
+                                    j.kode_faktur = jg.faktur_kode
+                            group by
+                                jg.faktur_kode_gabungan,
+                                jg.faktur_kode,
+                                j.tgl_trans
+                        ) jl1
+                        where
+                            jl1.kode_faktur_utama is not null
+                    ) jl
+                    on
+                        jl.kode_faktur = ji.faktur_kode 
+                right join
+                    (
+                        select byr1.* from bayar byr1
                         right join
-                            (
-                                select 
-                                    j.kode_faktur as kode_faktur,
-                                    j.tgl_trans
-                                from jual j 
-                                where 
-                                    j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                                    j.branch = '".$branch."' and
-                                    j.mstatus = 1
-                                group by
-                                    j.kode_faktur,
-                                    j.tgl_trans
-                            ) j
+                            ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
                             on
-                                j.kode_faktur = jg.faktur_kode
-                        group by
-                            jg.faktur_kode_gabungan,
-                            jg.faktur_kode,
-                            j.tgl_trans
-                    ) jl1
-                    where
-                        jl1.kode_faktur_utama is not null
-                ) jl
-                on
-                    jl.kode_faktur = ji.faktur_kode 
-            right join
-                (
-                    select byr1.* from bayar byr1
-                    right join
-                        ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
-                        on
-                            byr1.id = byr2.id
-                    where byr1.mstatus = 1
-                ) byr
-                on
-                    jl.kode_faktur_utama = byr.faktur_kode
-            where
-                jl.kode_faktur is not null
-                ".$sql_kasir."
+                                byr1.id = byr2.id
+                        where byr1.mstatus = 1
+                    ) byr
+                    on
+                        jl.kode_faktur_utama = byr.faktur_kode
+                where
+                    jl.kode_faktur is not null
+                    ".$sql_kasir."
+                group by
+                    jl.kode_faktur_utama,
+                    jl.tgl_trans,
+                    jp.exclude,
+                    jp.include,
+                    byr.diskon
+            ) _data
             group by
-                jl.kode_faktur_utama,
-                jl.tgl_trans,
-                jp.exclude,
-                jp.include,
-                byr.diskon
+                kode_faktur,
+                tgl_trans,
+                diskon,
+                status_gabungan
         ";
 
         $d_jual_by_faktur = $m_jual->hydrateRaw( $sql );

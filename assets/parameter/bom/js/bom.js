@@ -351,22 +351,64 @@ var bom = {
         } else {
             bootbox.confirm('Apakah anda yakin ingin meng-ubah data BOM ?', function (result) {
                 if ( result ) {
+                    // var list_item = $.map( $(div).find('tr.data'), function (tr) {
+                    //     var _list_item = {
+                    //         'item_kode': $(tr).find('select.item').val(),
+                    //         'satuan': $(tr).find('select.satuan').val(),
+                    //         'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
+                    //         'jumlah': numeral.unformat( $(tr).find('input.jumlah').val() )
+                    //     };
+
+                    //     return _list_item;
+                    // });
+
+                    // var params = {
+                    //     'id': $(elm).attr('data-id'),
+                    //     'menu_kode': $('.menu').attr('data-kode'),
+                    //     'tanggal': dateSQL( $('#TglBerlaku').data('DateTimePicker').date() ),
+                    //     'list_item': list_item
+                    // };
+
+                    var bom_satuan = $.map( $(div).find('.additional_form:not(.hide) tbody tr'), function (tr) {
+                        var _bom_satuan = {
+                            'satuan': $(tr).find('input.satuan').val().toUpperCase(),
+                            'pengali': numeral.unformat($(tr).find('input.pengali').val())
+                        };
+
+                        return _bom_satuan;
+                    });
+
                     var list_item = $.map( $(div).find('tr.data'), function (tr) {
                         var _list_item = {
                             'item_kode': $(tr).find('select.item').val(),
                             'satuan': $(tr).find('select.satuan').val(),
                             'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
+                            'jenis': $(tr).find('select.item option:selected').attr('data-jenis'),
                             'jumlah': numeral.unformat( $(tr).find('input.jumlah').val() )
                         };
 
                         return _list_item;
                     });
 
+                    var additional = 0;
+                    var nama = null;
+                    var menu_kode = null;
+                    if ( $(div).find('.additional').is(':checked') ) {
+                        additional = 1;
+                        nama = $(div).find('.nama').val();
+                    } else {
+                        menu_kode = $(div).find('select.menu').select2('val');
+                    }
+
                     var params = {
                         'id': $(elm).attr('data-id'),
-                        'menu_kode': $('.menu').attr('data-kode'),
-                        'tanggal': dateSQL( $('#TglBerlaku').data('DateTimePicker').date() ),
-                        'list_item': list_item
+                        'menu_kode': menu_kode,
+                        'tanggal': dateSQL( $(div).find('#TglBerlaku').data('DateTimePicker').date() ),
+                        'additional': additional,
+                        'nama': nama,
+                        'jml_porsi': numeral.unformat( $(div).find('.jml_porsi').val() ),
+                        'list_item': list_item,
+                        'bom_satuan': bom_satuan
                     };
 
                     $.ajax({

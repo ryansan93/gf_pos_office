@@ -1,0 +1,9 @@
+table.tbl_list_data tbody tr:hover td {
+	background-color: #ededed;
+}
+
+.modal div.list_barang, .modal div.jenis_bayar{
+	-ms-overflow-style: none; /* for Internet Explorer, Edge */
+    scrollbar-width: none; /* for Firefox */
+    overflow-y: scroll;
+}

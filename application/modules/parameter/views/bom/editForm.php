@@ -14,7 +14,17 @@
 		<label class="control-label">Menu</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<input type="text" class="form-control menu" data-required="<?php echo ($additional_form == 0) ? 1 : 0; ?>" disabled data-kode="<?php echo $data['menu_kode']; ?>" value="<?php echo $data['nama_menu']; ?>">
+		<select class="form-control menu" data-required="<?php echo ($additional_form == 0) ? 1 : 0; ?>">
+			<?php foreach ($menu as $k_menu => $v_menu): ?>
+				<?php
+					$selected = null;
+					if ( !empty($data['menu_kode']) && $data['menu_kode'] == $v_menu['kode_menu'] ) {
+						$selected = 'selected';
+					}
+				?>
+				<option value="<?php echo $v_menu['kode_menu']; ?>" <?php echo $selected; ?> ><?php echo strtoupper($v_menu['branch_kode'].' | '.$v_menu['nama']); ?></option>
+			<?php endforeach ?>
+		</select>
 	</div>
 </div>
 <div class="col-xs-6 no-padding additional_form <?php echo $hide_additional_form; ?>" style="margin-bottom: 5px; padding-right:5px;">
@@ -22,7 +32,7 @@
 		<label class="control-label">Nama BOM</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<input type="text" class="form-control text-center nama" placeholder="Nama" maxlength="50" data-required="<?php echo ($additional_form == 1) ? 1 : 0; ?>" value="<?php echo $data['nama_bom']; ?>" />
+		<input type="text" class="form-control text-center nama" placeholder="Nama" maxlength="50" data-required="<?php echo ($additional_form == 1) ? 1 : 0; ?>" value="<?php echo ($additional_form == 1) ? $data['nama_bom'] : ''; ?>" />
 	</div>
 </div>
 
@@ -45,7 +55,7 @@
 		<label class="control-label">Jumlah Porsi</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<input type="text" class="form-control text-right jml_porsi" placeholder="Jumlah" data-tipe="integer" data-required="1" <?php echo $data['jml_porsi']; ?> />
+		<input type="text" class="form-control text-right jml_porsi" placeholder="Jumlah" data-tipe="integer" data-required="1" value="<?php echo $data['jml_porsi']; ?>" />
 	</div>
 </div>
 

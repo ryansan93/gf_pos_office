@@ -380,8 +380,6 @@ class BillOfMaterial extends Public_Controller {
     {
         $params = $this->input->post('params');
 
-        // cetak_r( $params, 1 );
-
         try {
             if ( isset($params['menu_kode']) && !empty($params['menu_kode']) ) {
                 foreach ($params['menu_kode'] as $k_menu => $v_menu) {
@@ -468,7 +466,11 @@ class BillOfMaterial extends Public_Controller {
             $m_bom = new \Model\Storage\Bom_model();
             $m_bom->where('id', $params['id'])->update(
                 array(
-                    'tgl_berlaku' => $params['tanggal']
+                    'tgl_berlaku' => $params['tanggal'],
+                    'menu_kode' => $params['menu_kode'],
+                    'additional' => $params['additional'],
+                    'nama' => $params['nama'],
+                    'jml_porsi' => $params['jml_porsi']
                 )
             );
 
@@ -483,6 +485,19 @@ class BillOfMaterial extends Public_Controller {
                 $m_bd->pengali = $v_lm['pengali'];
                 $m_bd->jumlah = $v_lm['jumlah'];
                 $m_bd->save();
+            }
+
+            $m_bs = new \Model\Storage\BomSatuan_model();
+            $m_bs->where('id_header', $params['id'])->delete();
+
+            if ( isset($params['bom_satuan']) && !empty($params['bom_satuan']) ) {
+                foreach ($params['bom_satuan'] as $k_bs => $v_bs) {
+                    $m_bs = new \Model\Storage\BomSatuan_model();
+                    $m_bs->id_header = $m_bom->id;
+                    $m_bs->satuan = $v_bs['satuan'];
+                    $m_bs->pengali = $v_bs['pengali'];
+                    $m_bs->save();
+                }
             }
 
             $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
