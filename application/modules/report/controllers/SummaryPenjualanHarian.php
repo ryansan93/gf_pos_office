@@ -360,7 +360,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     where
                         jl1.kode_faktur is not null
                 ) jl
-            right join
+            left join
                 (
                     select byr1.* from bayar byr1
                     right join
@@ -370,12 +370,12 @@ class SummaryPenjualanHarian extends Public_Controller {
                     where byr1.mstatus = 1
                 ) byr
                 on
-                    jl.kode_faktur_utama = byr.faktur_kode
-            right join
+                    jl.kode_faktur = byr.faktur_kode
+            left join
                 bayar_diskon bd
                 on
                     byr.id = bd.id_header
-            right join
+            left join
                 diskon dsk
                 on
                     bd.diskon_kode = dsk.kode
