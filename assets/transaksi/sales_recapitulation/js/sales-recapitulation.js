@@ -114,6 +114,39 @@ var sr = {
             });
         },'html');
     }, // end - viewForm
+
+    deletePesanan: function (elm) {
+        var kode_faktur_item = $(elm).attr('kode-faktur');
+
+        bootbox.confirm('Apakah anda yakin ingin menghapus data pesanan ?', function (result) {
+            if ( result ) {
+                var params = {
+                    'kode_faktur_item': kode_faktur_item
+                };
+
+                $.ajax({
+                    url: 'transaksi/SalesRecapitulation/deletePesanan',
+                    data: {
+                        'params': params
+                    },
+                    type: 'POST',
+                    dataType: 'JSON',
+                    beforeSend: function() { showLoading(); },
+                    success: function(data) {
+                        hideLoading();
+
+                        if ( data.status == 1 ) {
+                            bootbox.alert( data.message, function () {
+                                sr.getLists();
+                            });
+                        } else {
+                            bootbox.alert( data.message );
+                        }
+                    }
+                });
+            }
+        });
+    }, // end - deletePesanan
 };
 
 sr.startUp();

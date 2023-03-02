@@ -52,8 +52,8 @@
                                     <b><span><?php echo $v_jp['nama_jenis_pesanan']; ?></span></b>
                                 </div>
                                 <?php foreach ($v_jp['item'] as $k_det => $v_det): ?>
-                                    <div class="col-xs-12 no-padding">
-                                        <div class="col-xs-8 no-padding" style="padding-right: 5px;">
+                                    <div class="col-xs-12 no-padding" style="padding-top: 3px; display: table-cell; vertical-align: middle;">
+                                        <div class="col-xs-7 no-padding" style="padding-right: 5px;">
                                             <span><?php echo $v_det['menu_nama'].' @ '.angkaDecimal($v_det['harga']); ?></span>
                                             <?php if ( !empty($v_det['request']) ): ?>
                                                 <br>
@@ -65,6 +65,9 @@
                                         </div>
                                         <div class="col-xs-3 no-padding text-right">
                                             <?php echo angkaRibuan($v_det['total']); ?>
+                                        </div>
+                                        <div class="col-xs-1 no-padding" style="padding-left: 5px;">
+                                            <button type="button" class="col-xs-12 btn btn-danger" style="padding: 1px;" onclick="sr.deletePesanan(this)" data-kode="<?php echo $v_det['kode_faktur_item']; ?>"><i class="fa fa-trash"></i></button>
                                         </div>
                                     </div>
                                 <?php endforeach ?>
@@ -79,12 +82,15 @@
                         <div class="col-xs-12 jenis_bayar" style="padding-left: 10px; padding-right: 10px; border: 1px solid #dedede; height: 80%; overflow-y: auto;">
                             <?php if ( !empty($data['jenis_bayar']) ): ?>
                                 <?php foreach ($data['jenis_bayar'] as $k_det => $v_det): ?>
-                                    <div class="col-xs-12 no-padding">
-                                        <div class="col-xs-8 no-padding" style="padding-right: 5px;">
+                                    <div class="col-xs-12 no-padding" style="padding-top: 3px;">
+                                        <div class="col-xs-7 no-padding" style="padding-right: 5px;">
                                             <?php echo $v_det['jenis_bayar']; ?>
                                         </div>
                                         <div class="col-xs-4 no-padding text-right">
                                             <?php echo angkaDecimal($v_det['nominal']); ?>
+                                        </div>
+                                        <div class="col-xs-1 no-padding" style="padding-left: 5px;">
+                                            <button type="button" class="col-xs-12 btn btn-danger" style="padding: 1px;"><i class="fa fa-trash"></i></button>
                                         </div>
                                     </div>
                                 <?php endforeach ?>
@@ -141,7 +147,7 @@
                     <div class="col-xs-2 no-padding"></div>
                     <div class="col-xs-2 no-padding"></div>
                     <div class="col-xs-2 no-padding">
-                        <button type="button" class="col-xs-12 btn btn-primary" onclick="bayar.rePrintNota(this)" data-faktur="<?php echo $data['kode_faktur']; ?>" data-id="<?php echo $data['bayar_id']; ?>"><i class="fa fa-print"></i> Re-Print Bill</button>
+                        <!-- <button type="button" class="col-xs-12 btn btn-primary" onclick="bayar.rePrintNota(this)" data-faktur="<?php echo $data['kode_faktur']; ?>" data-id="<?php echo $data['bayar_id']; ?>"><i class="fa fa-print"></i> Re-Print Bill</button> -->
                     </div>
                 </div>
             <?php endif ?>
