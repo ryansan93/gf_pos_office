@@ -16,7 +16,7 @@
 		$tot14 = 0;
 	?>
 	<?php foreach ($data as $k_data => $v_data): ?>
-		<?php if ( (!isset($v_data['diskon_requirement']['OC']) || $v_data['diskon_requirement']['OC'] == 0) && (!isset($v_data['diskon_requirement']['ENTERTAIN']) || $v_data['diskon_requirement']['ENTERTAIN'] == 0) ) : ?>
+		<?php if ( (!isset($v_data['diskon_requirement']['OC']) || $v_data['diskon_requirement']['OC'] == 0) && (!isset($v_data['diskon_requirement']['ENTERTAIN']) || $v_data['diskon_requirement']['ENTERTAIN'] == 0) && isset($v_data['status_gabungan']) ) : ?>
 			<?php
 				$bg_color = 'transparent';
 				if ( isset($v_data['status_gabungan']) && $v_data['status_gabungan'] == 1 ) {
