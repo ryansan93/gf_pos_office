@@ -221,6 +221,7 @@ class SalesRecapitulation extends Public_Controller
                 p.nama_user as waitress,
                 ji.kode_faktur_item,
                 ji.kode_jenis_pesanan,
+                jp.nama as nama_jenis_pesanan,
                 ji.menu_nama,
                 ji.menu_kode,
                 ji.jumlah,
@@ -319,9 +320,12 @@ class SalesRecapitulation extends Public_Controller
                 $total_sc += $v_jual['service_charge'];
                 $total_ppn += $v_jual['ppn'];
 
-                $detail[ $v_jual['kode_faktur_item'] ] = array(
+                $key_jp = $v_jual['nama_jenis_pesanan'].'|'.$v_jual['kode_jenis_pesanan'];
+
+                $detail[ $key_jp ]['kode_jenis_pesanan'] = $v_jual['kode_jenis_pesanan'];
+                $detail[ $key_jp ]['nama_jenis_pesanan'] = $v_jual['nama_jenis_pesanan'];
+                $detail[ $key_jp ]['item'][ $v_jual['kode_faktur_item'] ] = array(
                     'kode_faktur_item' => $v_jual['kode_faktur_item'],
-                    'kode_jenis_pesanan' => $v_jual['kode_jenis_pesanan'],
                     'menu_nama' => $v_jual['menu_nama'],
                     'menu_kode' => $v_jual['menu_kode'],
                     'jumlah' => $v_jual['jumlah'],
@@ -332,6 +336,21 @@ class SalesRecapitulation extends Public_Controller
                     'service_charge' => $v_jual['service_charge'],
                     'ppn' => $v_jual['ppn']
                 );
+
+                // $detail[ $v_jual['kode_faktur_item'] ] = array(
+                //     'kode_faktur_item' => $v_jual['kode_faktur_item'],
+                //     'kode_jenis_pesanan' => $v_jual['kode_jenis_pesanan'],
+                //     'nama_jenis_pesanan' => $v_jual['nama_jenis_pesanan'],
+                //     'menu_nama' => $v_jual['menu_nama'],
+                //     'menu_kode' => $v_jual['menu_kode'],
+                //     'jumlah' => $v_jual['jumlah'],
+                //     'harga' => $v_jual['harga'],
+                //     'total' => $v_jual['total'],
+                //     'request' => $v_jual['request'],
+                //     'pesanan_item_kode' => $v_jual['pesanan_item_kode'],
+                //     'service_charge' => $v_jual['service_charge'],
+                //     'ppn' => $v_jual['ppn']
+                // );
 
                 if ( isset($v_jual['kode_jenis_kartu']) && !empty($v_jual['kode_jenis_kartu']) ) {
                     $jenis_bayar[ $v_jual['kode_jenis_kartu'] ] = array(
@@ -360,6 +379,8 @@ class SalesRecapitulation extends Public_Controller
                 'jenis_bayar' => $jenis_bayar
             );
         }
+
+        // cetak_r( $data );
 
         $content['data'] = $data;
         $html = $this->load->view($this->pathView . 'viewForm', $content, TRUE);

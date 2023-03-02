@@ -43,22 +43,32 @@
                             <label class="label-control" style="margin-bottom: 0px;">LIST BARANG</label>
                         </div>
                         <div class="col-xs-12 list_barang" style="padding-left: 10px; padding-right: 10px; border: 1px solid #dedede; height: 88%; overflow-y: auto;">
-                            <?php foreach ($data['detail'] as $k_det => $v_det): ?>
+                            <?php $idx_jp = 0; ?>
+                            <?php foreach ($data['detail'] as $k_jp => $v_jp): ?>
+                                <?php if ( $idx_jp > 0 ): ?>
+                                    <br>
+                                <?php endif ?>
                                 <div class="col-xs-12 no-padding">
-                                    <div class="col-xs-8 no-padding" style="padding-right: 5px;">
-                                        <span><?php echo $v_det['menu_nama'].' @ '.angkaDecimal($v_det['harga']); ?></span>
-                                        <?php if ( !empty($v_det['request']) ): ?>
-                                            <br>
-                                            <span style="padding-left: 15px;"><?php echo '* '.$v_det['request']; ?></span>
-                                        <?php endif ?>
-                                    </div>
-                                    <div class="col-xs-1 no-padding">
-                                        <?php echo $v_det['jumlah']; ?>
-                                    </div>
-                                    <div class="col-xs-3 no-padding text-right">
-                                        <?php echo angkaRibuan($v_det['total']); ?>
-                                    </div>
+                                    <b><span><?php echo $v_jp['nama_jenis_pesanan']; ?></span></b>
                                 </div>
+                                <?php foreach ($v_jp['item'] as $k_det => $v_det): ?>
+                                    <div class="col-xs-12 no-padding">
+                                        <div class="col-xs-8 no-padding" style="padding-right: 5px;">
+                                            <span><?php echo $v_det['menu_nama'].' @ '.angkaDecimal($v_det['harga']); ?></span>
+                                            <?php if ( !empty($v_det['request']) ): ?>
+                                                <br>
+                                                <span style="padding-left: 15px;"><?php echo '* '.$v_det['request']; ?></span>
+                                            <?php endif ?>
+                                        </div>
+                                        <div class="col-xs-1 no-padding">
+                                            <?php echo $v_det['jumlah']; ?>
+                                        </div>
+                                        <div class="col-xs-3 no-padding text-right">
+                                            <?php echo angkaRibuan($v_det['total']); ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach ?>
+                                <?php $idx_jp++; ?>
                             <?php endforeach ?>
                         </div>
                     </div>
