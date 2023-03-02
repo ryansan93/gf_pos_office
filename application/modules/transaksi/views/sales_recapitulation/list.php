@@ -2,7 +2,7 @@
 	<?php foreach ($data as $key => $value): ?>
 		<?php
 			$bg_color = 'transparent';
-			if ( $value['status_gabungan'] == 1 ) {
+			if ( isset($value['status_gabungan']) && $value['status_gabungan'] == 1 ) {
 				$bg_color = '#ffb3b3';
 			}
 		?>
