@@ -13,12 +13,15 @@ class PDFGenerator
         $dompdf->load_html($html);
         $dompdf->set_paper($kertas, $type);
         $dompdf->render();
-        if ($stream) {
-            // $dompdf->stream($filename.'.pdf',array("Attachment"=>0));
-            $dompdf->stream($filename.".pdf", array("Attachment" => 0));
-        } else {
-            return $dompdf->output();
-        }
+
+        ob_end_clean();
+        $dompdf->stream($filename.'.pdf',array("Attachment"=>0));
+
+        // if ($stream) {
+        //     $dompdf->stream($filename.".pdf", array("Attachment" => 0));
+        // } else {
+        //     $dompdf->output();
+        // }
     }
 
     public function upload($html, $filename, $kertas = 'a4', $type = 'portrait')
