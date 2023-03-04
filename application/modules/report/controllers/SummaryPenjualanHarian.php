@@ -929,6 +929,6 @@ class SummaryPenjualanHarian extends Public_Controller {
 
         // echo $html;
 
-        $this->pdfgenerator->generate($html, "SUMMARY PENJUALAN HARIAN", 'a4', 'landscape');
+        $this->pdfgenerator->generate($html, "SUMMARY_PENJUALAN_HARIAN_".date('Y-m-d'), 'a4', 'landscape');
     }
 }
