@@ -82,8 +82,8 @@
 								<td align="right"><?php echo isset($v_data['kategori_menu'][3]) ? angkaRibuan($v_data['kategori_menu'][3]) : 0; ?></td>
 								<td align="right"><?php echo isset($v_data['kategori_menu'][4]) ? angkaRibuan($v_data['kategori_menu'][4]) : 0; ?></td>
 								<td align="right"><?php echo isset($v_data['kategori_menu'][5]) ? angkaRibuan($v_data['kategori_menu'][5]) : 0; ?></td>
-								<td align="right"><?php echo isset($v_data['diskon'][1]) ? angkaRibuan($v_data['diskon'][1]) : 0; ?></td>
 								<td align="right"><?php echo isset($v_data['diskon'][2]) ? angkaRibuan($v_data['diskon'][2]) : 0; ?></td>
+								<td align="right"><?php echo isset($v_data['diskon'][1]) ? angkaRibuan($v_data['diskon'][1]) : 0; ?></td>
 								<td align="right"><?php echo isset($v_data['total']) ? angkaRibuan($v_data['total']) : 0; ?></td>
 								<td align="right"><?php echo isset($v_data['kategori_pembayaran'][1]) ? angkaRibuan($v_data['kategori_pembayaran'][1]) : 0; ?></td>
 								<td align="right"><?php echo isset($v_data['kategori_pembayaran'][2]) ? angkaRibuan($v_data['kategori_pembayaran'][2]) : 0; ?></td>
@@ -117,8 +117,8 @@
 						<td align="right"><b><?php echo angkaRibuan($tot3); ?></b></td>
 						<td align="right"><b><?php echo angkaRibuan($tot14); ?></b></td>
 						<td align="right"><b><?php echo angkaRibuan($tot5); ?></b></td>
-						<td align="right"><b><?php echo angkaRibuan($tot4); ?></b></td>
 						<td align="right"><b><?php echo angkaRibuan($tot6); ?></b></td>
+						<td align="right"><b><?php echo angkaRibuan($tot4); ?></b></td>
 						<td align="right"><b><?php echo angkaRibuan($tot7); ?></b></td>
 						<td align="right"><b><?php echo angkaRibuan($tot8); ?></b></td>
 						<td align="right"><b><?php echo angkaRibuan($tot9); ?></b></td>

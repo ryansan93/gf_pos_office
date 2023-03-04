@@ -484,7 +484,7 @@ class SalesRecapitulation extends Public_Controller
                     if ( $d_bayar->count() > 0 ) {
                         $d_bayar = $d_bayar->toArray()[0];
 
-                        $data_diskon = $this->hitDiskon($d_ji_new['kode_faktur']);
+                        $data_diskon = $this->hitDiskon($d_ji_new['kode_faktur'], $d_bayar['id']);
 
                         // $jml_tagihan = $d_ji_new['grand_total']-$d_bayar['diskon'];
 
@@ -527,12 +527,25 @@ class SalesRecapitulation extends Public_Controller
         display_json( $this->result );
     }
 
-    public function hitDiskon($_kode_faktur, $_data_metode_bayar, $_data_diskon)
+    public function hitDiskon($_kode_faktur, $_id_bayar)
     {
         $m_bayar = new \Model\Storage\Bayar_model();
         $d_bayar = $m_bayar;
 
-        $data_diskon = null;
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select bd.diskon_kode from bayar_diskon bd
+            where
+                bd.id_header = '".$_id_bayar."'
+        ";
+        $d_bd = $m_conf->hydrateRaw( $sql );
+
+        $_data_diskon = null;
+        if ( $d_bd->count() > 0 ) {
+            foreach ($d_bd as $k_bd => $v_bd) {
+                $data_diskon[] = $v_bd['diskon_kode'];
+            }
+        }
 
         $data_metode_bayar = (isset($_data_metode_bayar) && !empty($_data_metode_bayar) && ( !empty($_data_metode_bayar[0]) || !empty($_data_metode_bayar[count($_data_metode_bayar) - 1]) )) ? $_data_metode_bayar : null;
 
