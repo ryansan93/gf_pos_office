@@ -227,6 +227,10 @@ class SummaryPenjualanHarian extends Public_Controller {
                             j.tgl_trans
                         from jual_gabungan jg
                         right join
+                            jual j1
+                            on
+                                j1.kode_faktur = jg.faktur_kode_gabungan
+                        right join
                             (
                                 select 
                                     j.kode_faktur as kode_faktur,
@@ -241,7 +245,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                                     j.tgl_trans
                             ) j
                             on
-                                j.kode_faktur = jg.faktur_kode_gabungan
+                                j.kode_faktur = jg.faktur_kode
+                        where
+                            j1.mstatus = 1
                         group by
                             jg.faktur_kode_gabungan,
                             jg.faktur_kode,
@@ -337,6 +343,10 @@ class SummaryPenjualanHarian extends Public_Controller {
                             j.tgl_trans
                         from jual_gabungan jg
                         right join
+                            jual j1
+                            on
+                                j1.kode_faktur = jg.faktur_kode_gabungan
+                        right join
                             (
                                 select 
                                     j.kode_faktur as kode_faktur,
@@ -351,7 +361,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                                     j.tgl_trans
                             ) j
                             on
-                                j.kode_faktur = jg.faktur_kode_gabungan
+                                j.kode_faktur = jg.faktur_kode
+                        where
+                            j1.mstatus = 1
                         group by
                             jg.faktur_kode_gabungan,
                             jg.faktur_kode,
@@ -448,6 +460,10 @@ class SummaryPenjualanHarian extends Public_Controller {
                             j.tgl_trans
                         from jual_gabungan jg
                         right join
+                            jual j1
+                            on
+                                j1.kode_faktur = jg.faktur_kode_gabungan
+                        right join
                             (
                                 select 
                                     j.kode_faktur as kode_faktur,
@@ -462,7 +478,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                                     j.tgl_trans
                             ) j
                             on
-                                j.kode_faktur = jg.faktur_kode_gabungan
+                                j.kode_faktur = jg.faktur_kode
+                        where
+                            j1.mstatus = 1
                         group by
                             jg.faktur_kode_gabungan,
                             jg.faktur_kode,
@@ -552,6 +570,10 @@ class SummaryPenjualanHarian extends Public_Controller {
                             j.tgl_trans
                         from jual_gabungan jg
                         right join
+                            jual j1
+                            on
+                                j1.kode_faktur = jg.faktur_kode_gabungan
+                        right join
                             (
                                 select 
                                     j.kode_faktur as kode_faktur,
@@ -566,7 +588,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                                     j.tgl_trans
                             ) j
                             on
-                                j.kode_faktur = jg.faktur_kode_gabungan
+                                j.kode_faktur = jg.faktur_kode
+                        where
+                            j1.mstatus = 1
                         group by
                             jg.faktur_kode_gabungan,
                             j.tgl_trans
@@ -784,6 +808,10 @@ class SummaryPenjualanHarian extends Public_Controller {
                                 1 as status_gabungan
                             from jual_gabungan jg
                             right join
+                                jual j1
+                                on
+                                    j1.kode_faktur = jg.faktur_kode_gabungan
+                            right join
                                 (
                                     select 
                                         j.kode_faktur as kode_faktur,
@@ -798,7 +826,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                                         j.tgl_trans
                                 ) j
                                 on
-                                    j.kode_faktur = jg.faktur_kode_gabungan
+                                    j.kode_faktur = jg.faktur_kode
+                            where
+                                j1.mstatus = 1
                             group by
                                 jg.faktur_kode_gabungan,
                                 jg.faktur_kode,
