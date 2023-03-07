@@ -241,7 +241,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                                     j.tgl_trans
                             ) j
                             on
-                                j.kode_faktur = jg.faktur_kode
+                                j.kode_faktur = jg.faktur_kode_gabungan
                         group by
                             jg.faktur_kode_gabungan,
                             jg.faktur_kode,
@@ -351,7 +351,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                                     j.tgl_trans
                             ) j
                             on
-                                j.kode_faktur = jg.faktur_kode
+                                j.kode_faktur = jg.faktur_kode_gabungan
                         group by
                             jg.faktur_kode_gabungan,
                             jg.faktur_kode,
@@ -462,7 +462,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                                     j.tgl_trans
                             ) j
                             on
-                                j.kode_faktur = jg.faktur_kode
+                                j.kode_faktur = jg.faktur_kode_gabungan
                         group by
                             jg.faktur_kode_gabungan,
                             jg.faktur_kode,
@@ -566,7 +566,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                                     j.tgl_trans
                             ) j
                             on
-                                j.kode_faktur = jg.faktur_kode
+                                j.kode_faktur = jg.faktur_kode_gabungan
                         group by
                             jg.faktur_kode_gabungan,
                             j.tgl_trans
@@ -798,7 +798,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                                         j.tgl_trans
                                 ) j
                                 on
-                                    j.kode_faktur = jg.faktur_kode
+                                    j.kode_faktur = jg.faktur_kode_gabungan
                             group by
                                 jg.faktur_kode_gabungan,
                                 jg.faktur_kode,
