@@ -4,10 +4,10 @@
 </div>
 <div class="modal-body body no-padding">
 	<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
-		<div class="col-xs-12 no-padding"><label class="label-control">Jenis Kartu</label></div>
+		<div class="col-xs-12 no-padding"><label class="label-control">Jenis Pembayaran</label></div>
 		<div class="col-xs-12 no-padding">
 			<select class="col-xs-12 form-control jenis_kartu" data-required="1">
-				<option value="">-- Pilih Jenis Kartu --</option>
+				<option value="">-- Pilih Jenis Pembayaran --</option>
 				<?php foreach ($jenis_kartu as $k_jk => $v_jk): ?>
 					<option value="<?php echo $v_jk['kode_jenis_kartu'] ?>" data-cl="<?php echo $v_jk['cl']; ?>"><?php echo $v_jk['nama']; ?></option>
 				<?php endforeach ?>
