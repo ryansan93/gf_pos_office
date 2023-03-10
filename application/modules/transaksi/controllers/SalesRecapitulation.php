@@ -251,6 +251,7 @@ class SalesRecapitulation extends Public_Controller
                 b.jml_bayar as total_bayar,
                 b.diskon as total_diskon,
                 b.jenis_bayar,
+                b.id_bayar_det,
                 b.kode_jenis_kartu,
                 b.nominal
             from 
@@ -282,6 +283,7 @@ class SalesRecapitulation extends Public_Controller
                         b.member,
                         b.kasir,
                         b.nama_kasir,
+                        bd.id as id_bayar_det, 
                         bd.jenis_bayar, 
                         bd.kode_jenis_kartu, 
                         bd.nominal, 
@@ -315,6 +317,7 @@ class SalesRecapitulation extends Public_Controller
 
             $detail = null;
             $jenis_bayar = null;
+            $jenis_diskon = null;
             foreach ($d_jual as $k_jual => $v_jual) {
                 $total_belanja += $v_jual['total'];
                 $total_sc += $v_jual['service_charge'];
@@ -337,27 +340,37 @@ class SalesRecapitulation extends Public_Controller
                     'ppn' => $v_jual['ppn']
                 );
 
-                // $detail[ $v_jual['kode_faktur_item'] ] = array(
-                //     'kode_faktur_item' => $v_jual['kode_faktur_item'],
-                //     'kode_jenis_pesanan' => $v_jual['kode_jenis_pesanan'],
-                //     'nama_jenis_pesanan' => $v_jual['nama_jenis_pesanan'],
-                //     'menu_nama' => $v_jual['menu_nama'],
-                //     'menu_kode' => $v_jual['menu_kode'],
-                //     'jumlah' => $v_jual['jumlah'],
-                //     'harga' => $v_jual['harga'],
-                //     'total' => $v_jual['total'],
-                //     'request' => $v_jual['request'],
-                //     'pesanan_item_kode' => $v_jual['pesanan_item_kode'],
-                //     'service_charge' => $v_jual['service_charge'],
-                //     'ppn' => $v_jual['ppn']
-                // );
-
-                if ( isset($v_jual['kode_jenis_kartu']) && !empty($v_jual['kode_jenis_kartu']) ) {
-                    $jenis_bayar[ $v_jual['kode_jenis_kartu'] ] = array(
+                if ( isset($v_jual['id_bayar_det']) && !empty($v_jual['id_bayar_det']) ) {
+                    $jenis_bayar[ $v_jual['id_bayar_det'] ] = array(
+                        'id' => $v_jual['id_bayar_det'],
                         'kode_jenis_kartu' => $v_jual['kode_jenis_kartu'],
                         'jenis_bayar' => $v_jual['jenis_bayar'],
                         'nominal' => $v_jual['nominal']
                     );
+                }
+
+                if ( isset($v_jual['bayar_id']) && !empty( $v_jual['bayar_id'] ) ) {
+                    $bayar_id = (int) $v_jual['bayar_id'];
+
+                    $m_conf = new \Model\Storage\Conf();
+                    $sql = "
+                        select bd.*, d.nama from bayar_diskon bd
+                        right join
+                            diskon d
+                            on
+                                bd.diskon_kode = d.kode
+                        where
+                            bd.id_header = ".$bayar_id."
+                    ";
+                    $d_bd = $m_conf->hydrateRaw( $sql );
+                    if ( $d_bd->count() > 0 ) {
+                        $d_bd = $d_bd->toArray();
+
+                        foreach ($d_bd as $k_bd => $v_bd) {
+                            $key = $v_bd['id'];
+                            $jenis_diskon[ $key ] = $v_bd;
+                        }
+                    }
                 }
             }
 
@@ -373,14 +386,13 @@ class SalesRecapitulation extends Public_Controller
                 'grand_total' => ($d_jual[0]['grand_total'] > 0) ? $d_jual[0]['grand_total'] : $total_belanja + $total_sc + $total_ppn,
                 'total_bayar' => $d_jual[0]['total_bayar'],
                 'total_diskon' => $d_jual[0]['total_diskon'],
-                'kembalian' => $d_jual[0]['grand_total'] - $d_jual[0]['total_bayar'],
+                'kembalian' => ($d_jual[0]['total_bayar'] > 0 && ($d_jual[0]['total_bayar']-$d_jual[0]['grand_total']) > 0) ? $d_jual[0]['total_bayar'] - $d_jual[0]['grand_total'] : 0,
                 'bayar_id' => $d_jual[0]['bayar_id'],
                 'detail' => $detail,
-                'jenis_bayar' => $jenis_bayar
+                'jenis_bayar' => $jenis_bayar,
+                'jenis_diskon' => $jenis_diskon
             );
         }
-
-        // cetak_r( $data );
 
         $content['data'] = $data;
         $html = $this->load->view($this->pathView . 'viewForm', $content, TRUE);
@@ -395,64 +407,200 @@ class SalesRecapitulation extends Public_Controller
         try {
             $kode_faktur_item = $params['kode_faktur_item'];
 
+            $m_ji = new \Model\Storage\JualItem_model();
+            $d_ji = $m_ji->where('kode_faktur_item', $kode_faktur_item)->first();
+
+            $m_jual = new \Model\Storage\Jual_model();
+            $d_jual = $m_jual->where('kode_faktur', $d_ji->faktur_kode)->first();
+
+            $m_ji->where('kode_faktur_item', $kode_faktur_item)->delete();
+
+            $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/save', $d_jual, $deskripsi_log);
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('kode_faktur' => $d_ji->faktur_kode);
+            $this->result['message'] = 'Data berhasil di hapus.';
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function deletePembayaran()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $id_bayar_det = $params['id'];
+
+            $m_bd = new \Model\Storage\BayarDet_model();
+            $d_bd = $m_bd->where('id', $id_bayar_det)->first();
+
+            $m_bayar = new \Model\Storage\Bayar_model();
+            $d_bayar = $m_bayar->where('id', $d_bd->id_header)->first();
+
+            $m_bd->where('id', $id_bayar_det)->delete();
+
+            $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log);
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
+            $this->result['message'] = 'Data berhasil di hapus.';
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function deleteDiskon()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $id_bayar_diskon = $params['id'];
+
+            $m_bd = new \Model\Storage\BayarDiskon_model();
+            $d_bd = $m_bd->where('id', $id_bayar_diskon)->first();
+
+            $m_bayar = new \Model\Storage\Bayar_model();
+            $d_bayar = $m_bayar->where('id', $d_bd->id_header)->first();
+
+            $m_bd->where('id', $id_bayar_diskon)->delete();
+
+            $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log);
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
+            $this->result['message'] = 'Data berhasil di hapus.';
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function hitungUlang()
+    {
+        $kode_faktur = $this->input->post('params');
+
+        try {
             $m_conf = new \Model\Storage\Conf();
             $sql = "
-                select ji.*, j.pesanan_kode from jual_item ji
-                right join
-                    jual j
-                    on
-                        ji.faktur_kode = j.kode_faktur
-                where
-                    ji.kode_faktur_item = '".$kode_faktur_item."'
+                select
+                    _data.kode_faktur,
+                    sum(_data.grand_total) as grand_total,
+                    sum(_data.total) as total,
+                    sum(_data.service_charge) as service_charge_real,
+                    sum(_data.ppn) as ppn_real,
+                    sum(_data.service_charge) as service_charge,
+                    sum(_data.ppn) as ppn
+                from
+                (
+                    select 
+                        j.kode_faktur, 
+                        case
+                            when jp.exclude = 1 then
+                                ji.total + ji.service_charge + ji.ppn
+                            when jp.include = 1 then
+                                ji.total
+                        end as grand_total,
+                        case
+                            when jp.exclude = 1 then
+                                ji.service_charge
+                            when jp.include = 1 then
+                                0
+                        end as service_charge_real,
+                        case
+                            when jp.exclude = 1 then
+                                ji.ppn
+                            when jp.include = 1 then
+                                0
+                        end as ppn_real,
+                        ji.total, 
+                        ji.service_charge, 
+                        ji.ppn
+                    from jual_item ji
+                    right join
+                        jenis_pesanan jp
+                        on
+                            jp.kode = ji.kode_jenis_pesanan
+                    right join
+                        jual j
+                        on
+                            ji.faktur_kode = j.kode_faktur
+                    where
+                        ji.faktur_kode = '".$kode_faktur."'
+                ) _data
+                group by
+                    _data.kode_faktur
             ";
-            $d_ji = $m_conf->hydrateRaw( $sql );
+            $d_ji_new = $m_conf->hydrateRaw( $sql );
 
-            if ( $d_ji->count() > 0 ) {
-                $d_ji = $d_ji->toArray()[0];
-
-                $m_ji = new \Model\Storage\JualItem_model();
-                $m_ji->where('kode_faktur_item', $d_ji['kode_faktur_item'])->delete();
+            if ( $d_ji_new->count() > 0 ) {
+                $d_ji_new = $d_ji_new->toArray()[0];
 
                 $m_conf = new \Model\Storage\Conf();
                 $sql = "
-                    select
-                        _data.kode_faktur,
-                        sum(_data.grand_total) as grand_total,
-                        sum(_data.total) as total,
-                        sum(_data.service_charge) as service_charge,
-                        sum(_data.ppn) as ppn
+                    select 
+                        b.*
                     from
-                    (
-                        select 
-                            j.kode_faktur, 
-                            case
-                                when jp.exclude = 1 then
-                                    ji.total + ji.service_charge + ji.ppn
-                                when jp.include = 1 then
-                                    ji.total
-                            end as grand_total,
-                            ji.total, 
-                            ji.service_charge, 
-                            sum.ppn
-                        from jual_item ji
-                        right join
-                            jenis_pesanan jp
-                            on
-                                jp.kode = ji.kode_jenis_pesanan
-                        right join
-                            jual j
-                            on
-                                ji.faktur_kode = j.kode_faktur
-                        where
-                            ji.faktur_kode = '".$d_ji['kode_faktur']."'
-                    ) _data
-                    group by
-                        _data.kode_faktur
+                        bayar b
+                    right join
+                        (
+                            select max(id) as id, faktur_kode from bayar group by faktur_kode
+                        ) byr
+                        on
+                            b.id = byr.id
+                    where
+                        b.faktur_kode = '".$kode_faktur."'
                 ";
-                $d_ji_new = $m_conf->hydrateRaw( $sql );
+                $d_bayar = $m_conf->hydrateRaw( $sql );
 
-                if ( $d_ji_new->count() > 0 ) {
-                    $d_ji_new = $d_ji_new->toArray()[0];
+                if ( $d_bayar->count() > 0 ) {
+                    $d_bayar = $d_bayar->toArray()[0];
+
+                    $m_conf = new \Model\Storage\Conf();
+                    $sql = "
+                        select bd.id_header, sum(bd.nominal) as total_bayar from bayar_det bd
+                        where
+                            bd.id_header = ".$d_bayar['id']."
+                        group by
+                            bd.id_header
+                    ";
+                    $d_tb = $m_conf->hydrateRaw( $sql );
+
+                    $jml_bayar = 0;
+                    if ( $d_tb->count() > 0 ) {
+                        $d_tb = $d_tb->toArray()[0];
+
+                        $jml_bayar = $d_tb['total_bayar'];
+                    }
+
+                    $data_diskon = $this->hitDiskon($d_ji_new['kode_faktur'], $d_bayar['id']);
+
+                    $jml_tagihan = $d_ji_new['grand_total'] - $data_diskon['total_diskon'];
+
+                    $m_bayar = new \Model\Storage\Bayar_model();
+                    $m_bayar->where('id', $d_bayar['id'])->update(
+                        array(
+                            'jml_tagihan' => $jml_tagihan,
+                            'jml_bayar' => $jml_bayar,
+                            'diskon' => $data_diskon['total_diskon'],
+                            'total' => $d_ji_new['grand_total'],
+                            'ppn' => $d_ji_new['ppn_real'],
+                            'service_charge' => $d_ji_new['service_charge_real']
+                        )
+                    );
+
+                    $lunas = 1;
+                    if ( $jml_tagihan > $jml_bayar ) {
+                        $lunas = 0;
+                    }
 
                     $m_jual = new \Model\Storage\Jual_model();
                     $m_jual->where('kode_faktur', $d_ji_new['kode_faktur'])->update(
@@ -460,66 +608,22 @@ class SalesRecapitulation extends Public_Controller
                             'total' => $d_ji_new['total'],
                             'service_charge' => $d_ji_new['service_charge'],
                             'ppn' => $d_ji_new['ppn'],
-                            'grand_total' => $d_ji_new['grand_total']
+                            'grand_total' => $d_ji_new['grand_total'],
+                            'lunas' => $lunas
                         )
                     );
-
-                    $m_conf = new \Model\Storage\Conf();
-                    $sql = "
-                        select 
-                            b.*
-                        from
-                            bayar b
-                        right join
-                            (
-                                select max(id) as id, faktur_kode from bayar group by faktur_kode
-                            ) byr
-                            on
-                                b.id = byr.id
-                        where
-                            b.faktur_kode = '".$d_ji_new['kode_faktur']."'
-                    ";
-                    $d_bayar = $m_conf->hydrateRaw( $sql );
-
-                    if ( $d_bayar->count() > 0 ) {
-                        $d_bayar = $d_bayar->toArray()[0];
-
-                        $data_diskon = $this->hitDiskon($d_ji_new['kode_faktur'], $d_bayar['id']);
-
-                        // $jml_tagihan = $d_ji_new['grand_total']-$d_bayar['diskon'];
-
-                        // $m_bayar = new \Model\Storage\Bayar_model();
-                        // $m_bayar->where('id', $d_bayar['id'])->update(
-                        //     array(
-                        //         'jml_tagihan' => $jml_tagihan,
-                        //         'total' => $d_ji_new['grand_total']
-                        //     )
-                        // );
-                    }
-
-                    // $m_bayar = new \Model\Storage\Bayar_model();
-                    // $d_bayar = $m_bayar->where('faktur_kode', $d_ji_new['kode_faktur'])->where('mstatus', 1)
-                    // $now = $m_bayar->getDate();
-
-                    // $m_bayar->tgl_trans = $now['waktu'];
-                    // $m_bayar->faktur_kode = (isset($params['faktur_kode']) && !empty($params['faktur_kode'])) ? $params['faktur_kode'] : null;
-                    // $m_bayar->jml_tagihan = $params['jml_tagihan'];
-                    // $m_bayar->jml_bayar = $params['jml_bayar'];
-                    // $m_bayar->ppn = $params['ppn'];
-                    // $m_bayar->service_charge = $params['service_charge'];
-                    // $m_bayar->diskon = $params['diskon'];
-                    // $m_bayar->total = $params['tot_belanja'];
-                    // $m_bayar->member_kode = $params['member_kode'];
-                    // $m_bayar->member = $params['member'];
-                    // $m_bayar->kasir = $this->userid;
-                    // $m_bayar->nama_kasir = $this->userdata['detail_user']['nama_detuser'];
-                    // $m_bayar->mstatus = 1;
-                    // $m_bayar->save();
                 }
             }
 
+            $m_jual = new \Model\Storage\Jual_model();
+            $d_jual = $m_jual->where('kode_faktur', $kode_faktur)->first();
+
+            $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/save', $d_jual, $deskripsi_log);
+
             $this->result['status'] = 1;
-            $this->result['message'] = 'Data berhasil di hapus.';
+            $this->result['content'] = array('kode_faktur' => $kode_faktur);
+            $this->result['message'] = 'Data berhasil di proses.';
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
         }
@@ -543,7 +647,7 @@ class SalesRecapitulation extends Public_Controller
         $_data_diskon = null;
         if ( $d_bd->count() > 0 ) {
             foreach ($d_bd as $k_bd => $v_bd) {
-                $data_diskon[] = $v_bd['diskon_kode'];
+                $_data_diskon[] = $v_bd['diskon_kode'];
             }
         }
 
@@ -556,6 +660,7 @@ class SalesRecapitulation extends Public_Controller
 
         $kode_faktur = $_kode_faktur;
 
+        $data_diskon = null;
         $tot_belanja = 0;
         $tot_diskon = 0;
         $tot_ppn = 0;
@@ -1105,5 +1210,12 @@ class SalesRecapitulation extends Public_Controller
         );
 
         return $_data_diskon;
+    }
+
+    public function tes()
+    {
+        $data_diskon = $this->hitDiskon('FAK-2302250316', 400822);
+
+        cetak_r( $data_diskon );
     }
 }

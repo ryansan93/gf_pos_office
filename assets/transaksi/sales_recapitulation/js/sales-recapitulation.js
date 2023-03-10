@@ -64,8 +64,16 @@ var sr = {
     viewForm: function(elm) {
         $('.modal').modal('hide');
 
+        var kode_faktur = $(elm).data('kode');
+
+        sr.modalViewForm( kode_faktur );
+    }, // end - viewForm
+
+    modalViewForm: function (kode_faktur) {
+        $('.modal').modal('hide');
+
         var data = {
-            'kode_faktur': $(elm).data('kode'),
+            'kode_faktur': kode_faktur,
         };
 
         $.get('transaksi/SalesRecapitulation/viewForm',{
@@ -113,10 +121,10 @@ var sr = {
                 // });
             });
         },'html');
-    }, // end - viewForm
+    }, // end - modalViewForm
 
     deletePesanan: function (elm) {
-        var kode_faktur_item = $(elm).attr('kode-faktur');
+        var kode_faktur_item = $(elm).attr('data-kode');
 
         bootbox.confirm('Apakah anda yakin ingin menghapus data pesanan ?', function (result) {
             if ( result ) {
@@ -131,14 +139,11 @@ var sr = {
                     },
                     type: 'POST',
                     dataType: 'JSON',
-                    beforeSend: function() { showLoading(); },
+                    beforeSend: function() { showLoading('Delete Pesanan . . .'); },
                     success: function(data) {
                         hideLoading();
-
                         if ( data.status == 1 ) {
-                            bootbox.alert( data.message, function () {
-                                sr.getLists();
-                            });
+                            sr.hitungUlang( data.content.kode_faktur, data.message );
                         } else {
                             bootbox.alert( data.message );
                         }
@@ -147,6 +152,93 @@ var sr = {
             }
         });
     }, // end - deletePesanan
+
+    deletePembayaran: function (elm) {
+        var id = $(elm).attr('data-id');
+
+        bootbox.confirm('Apakah anda yakin ingin menghapus data pembayaran ?', function (result) {
+            if ( result ) {
+                var params = {
+                    'id': id
+                };
+
+                $.ajax({
+                    url: 'transaksi/SalesRecapitulation/deletePembayaran',
+                    data: {
+                        'params': params
+                    },
+                    type: 'POST',
+                    dataType: 'JSON',
+                    beforeSend: function() { showLoading('Delete Pembayaran . . .'); },
+                    success: function(data) {
+                        hideLoading();
+                        if ( data.status == 1 ) {
+                            sr.hitungUlang( data.content.kode_faktur, data.message );
+                        } else {
+                            bootbox.alert( data.message );
+                        }
+                    }
+                });
+            }
+        });
+    }, // end - deletePembayaran
+
+    deleteDiskon: function (elm) {
+        var id = $(elm).attr('data-id');
+
+        bootbox.confirm('Apakah anda yakin ingin menghapus data diskon ?', function (result) {
+            if ( result ) {
+                var params = {
+                    'id': id
+                };
+
+                $.ajax({
+                    url: 'transaksi/SalesRecapitulation/deleteDiskon',
+                    data: {
+                        'params': params
+                    },
+                    type: 'POST',
+                    dataType: 'JSON',
+                    beforeSend: function() { showLoading('Delete Diskon . . .'); },
+                    success: function(data) {
+                        hideLoading();
+                        if ( data.status == 1 ) {
+                            sr.hitungUlang( data.content.kode_faktur, data.message );
+                        } else {
+                            bootbox.alert( data.message );
+                        }
+                    }
+                });
+            }
+        });
+    }, // end - deleteDiskon
+
+    hitungUlang: function ( kode_faktur, message ) {
+        // var params = {
+        //     'kode_faktur': kode_faktur
+        // };
+
+        $.ajax({
+            url: 'transaksi/SalesRecapitulation/hitungUlang',
+            data: {
+                'params': kode_faktur
+            },
+            type: 'POST',
+            dataType: 'JSON',
+            beforeSend: function() { showLoading('Hitung Ulang Data . . .'); },
+            success: function(data) {
+                hideLoading();
+
+                if ( data.status == 1 ) {
+                    bootbox.alert( message, function () {
+                        sr.modalViewForm( kode_faktur );
+                    });
+                } else {
+                    bootbox.alert( data.message );
+                }
+            }
+        });
+    }, // end - hitungUlang
 };
 
 sr.startUp();

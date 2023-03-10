@@ -208,14 +208,7 @@ class Hutang extends Public_Controller {
                             bd.* 
                         from bayar_hutang bh
                         right join
-                            (
-                                select byr1.* from bayar byr1
-                                right join
-                                    ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
-                                    on
-                                        byr1.id = byr2.id
-                                where byr1.mstatus = 1
-                            ) b 
+                            bayar b 
                             on
                                 bh.id_header = b.id
                         right join

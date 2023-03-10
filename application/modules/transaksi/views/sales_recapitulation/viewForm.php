@@ -77,23 +77,39 @@
                     </div>
                     <div class="col-xs-12 no-padding" style="height: 40%; margin-bottom: 5px;">
                         <div class="col-xs-12" style="padding-left: 10px; padding-right: 10px; background-color: #afabff; border-top-left-radius: 5px; border-top-right-radius: 5px;">
-                            <label class="label-control" style="margin-bottom: 0px;">JENIS BAYAR</label>
+                            <label class="label-control" style="margin-bottom: 0px;">JENIS BAYAR & DISKON</label>
                         </div>
                         <div class="col-xs-12 jenis_bayar" style="padding-left: 10px; padding-right: 10px; border: 1px solid #dedede; height: 80%; overflow-y: auto;">
                             <?php if ( !empty($data['jenis_bayar']) ): ?>
-                                <?php foreach ($data['jenis_bayar'] as $k_det => $v_det): ?>
+                                <?php foreach ($data['jenis_bayar'] as $k_jb => $v_jb): ?>
                                     <div class="col-xs-12 no-padding" style="padding-top: 3px;">
                                         <div class="col-xs-7 no-padding" style="padding-right: 5px;">
-                                            <?php echo $v_det['jenis_bayar']; ?>
+                                            <?php echo $v_jb['jenis_bayar']; ?>
                                         </div>
                                         <div class="col-xs-4 no-padding text-right">
-                                            <?php echo angkaDecimal($v_det['nominal']); ?>
+                                            <?php echo angkaDecimal($v_jb['nominal']); ?>
                                         </div>
                                         <div class="col-xs-1 no-padding" style="padding-left: 5px;">
-                                            <button type="button" class="col-xs-12 btn btn-danger" style="padding: 1px;"><i class="fa fa-trash"></i></button>
+                                            <button type="button" class="col-xs-12 btn btn-danger" style="padding: 1px;" data-id="<?php echo $v_jb['id']; ?>" onclick="sr.deletePembayaran(this)"><i class="fa fa-trash"></i></button>
                                         </div>
                                     </div>
                                 <?php endforeach ?>
+                                <?php if ( $data['jenis_diskon'] ): ?>
+                                    <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
+                                    <?php foreach ($data['jenis_diskon'] as $k_jd => $v_jd): ?>
+                                        <div class="col-xs-12 no-padding" style="padding-top: 3px;">
+                                            <div class="col-xs-7 no-padding" style="padding-right: 5px;">
+                                                <?php echo $v_jd['nama']; ?>
+                                            </div>
+                                            <div class="col-xs-4 no-padding text-right">
+                                                <?php echo angkaDecimal($v_jd['nilai']); ?>
+                                            </div>
+                                            <div class="col-xs-1 no-padding" style="padding-left: 5px;">
+                                                <button type="button" class="col-xs-12 btn btn-danger" style="padding: 1px;" data-id="<?php echo $v_jd['id']; ?>" onclick="sr.deleteDiskon(this)"><i class="fa fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    <?php endforeach ?>
+                                <?php endif ?>
                             <?php else: ?>
                                 <div class="col-xs-12 no-padding">Belum ada pembayaran.</div>
                             <?php endif ?>
@@ -141,12 +157,17 @@
             <div class="col-xs-12 no-padding"><hr style="margin-top: 5px; margin-bottom: 5px;"></div>
             <?php if ( isset($data['bayar_id']) && !empty($data['bayar_id']) ): ?>
                 <div class="col-xs-12 no-padding">
-                    <div class="col-xs-2 no-padding"></div>
-                    <div class="col-xs-2 no-padding"></div>
+                    <div class="col-xs-2 no-padding" style="padding-right: 5px;">
+                        <button type="button" class="col-xs-12 btn btn-primary" onclick="bayar.rePrintNota(this)" data-faktur="<?php echo $data['kode_faktur']; ?>"><i class="fa fa-plus"></i> Bayar</button>
+                    </div>
+                    <div class="col-xs-2 no-padding" style="padding-right: 5px;">
+                        <button type="button" class="col-xs-12 btn btn-primary" onclick="bayar.rePrintNota(this)" data-faktur="<?php echo $data['kode_faktur']; ?>"><i class="fa fa-plus"></i> Diskon</button>
+                    </div>
                     <div class="col-xs-2 no-padding"></div>
                     <div class="col-xs-2 no-padding"></div>
                     <div class="col-xs-2 no-padding"></div>
                     <div class="col-xs-2 no-padding">
+                        <button type="button" class="col-xs-12 btn btn-danger" onclick="bayar.rePrintNota(this)" data-faktur="<?php echo $data['kode_faktur']; ?>" data-id="<?php echo $data['bayar_id']; ?>">Void Transaksi</button>
                         <!-- <button type="button" class="col-xs-12 btn btn-primary" onclick="bayar.rePrintNota(this)" data-faktur="<?php echo $data['kode_faktur']; ?>" data-id="<?php echo $data['bayar_id']; ?>"><i class="fa fa-print"></i> Re-Print Bill</button> -->
                     </div>
                 </div>
