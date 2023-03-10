@@ -25,6 +25,8 @@ var sr = {
 	}, // end - settingUp
 
 	getLists: function() {
+        $('.modal').modal('hide');
+
 		var err = 0;
 		$.map( $('[data-required=1]'), function(ipt) {
 			if ( empty( $(ipt).val() ) ) {
@@ -123,6 +125,206 @@ var sr = {
         },'html');
     }, // end - modalViewForm
 
+    modalAddPembayaran: function (elm) {
+        var id_bayar = $(elm).attr('data-id');
+
+        $.get('transaksi/SalesRecapitulation/modalAddPembayaran',{
+            'params': id_bayar
+        },function(data){
+            var _options = {
+                className : 'large',
+                message : data,
+                addClass : 'form',
+                onEscape: true,
+            };
+            bootbox.dialog(_options).bind('shown.bs.modal', function(){
+                // $(this).find('.modal-header').css({'padding-top': '0px'});
+                // $(this).find('.modal-dialog').css({'width': '70%', 'max-width': '100%'});
+                // $(this).find('.modal-content').css({'width': '100%', 'max-width': '100%'});
+                var modal_body = $(this).find('.modal-body');
+
+                $(this).find('select.jenis_kartu').select2().on('select2:select', function(e) {
+                    var val = e.params.data.text.toLowerCase();
+                    var cl = e.params.data.element.dataset.cl;
+
+                    if ( val.includes('tunai') || (!empty(cl) && cl == 1) ) {
+                        $(modal_body).find('div.non_tunai').addClass('hide');
+                    } else {
+                        $(modal_body).find('div.non_tunai').removeClass('hide');
+                    }
+                });
+
+                $(this).find('.modal-dialog').css({'width': '60%', 'max-width': '100%'});
+                $(this).find('.modal-content').css({'width': '100%', 'max-width': '100%'});
+
+                $('input').keyup(function(){
+                    $(this).val($(this).val().toUpperCase());
+                });
+
+                $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal]').each(function(){
+                    $(this).priceFormat(Config[$(this).data('tipe')]);
+                });
+
+
+                $(this).removeAttr('tabindex');
+            });
+        },'html');
+    }, // end - modalAddPembayaran
+
+    modalAddDiskon: function (elm) {
+        var id_bayar = $(elm).attr('data-id');
+
+        $.get('transaksi/SalesRecapitulation/modalAddDiskon',{
+            'params': id_bayar
+        },function(data){
+            var _options = {
+                className : 'large',
+                message : data,
+                addClass : 'form',
+                onEscape: true,
+            };
+            bootbox.dialog(_options).bind('shown.bs.modal', function(){
+                $(this).css({'height': '100%'});
+                $(this).find('.modal-header').css({'padding-top': '0px'});
+                $(this).find('.modal-dialog').css({'width': '70%', 'max-width': '100%'});
+                $(this).find('.modal-dialog').css({'height': '100%'});
+                $(this).find('.modal-content').css({'width': '100%', 'max-width': '100%'});
+                $(this).find('.modal-content').css({'height': '90%'});
+                $(this).find('.modal-body').css({'height': '100%'});
+                $(this).find('.bootbox-body').css({'height': '100%'});
+                $(this).find('.bootbox-body .modal-body').css({'height': '100%'});
+                $(this).find('.bootbox-body .modal-body .row').css({'height': '100%'});
+
+                $('input').keyup(function(){
+                    $(this).val($(this).val().toUpperCase());
+                });
+
+                $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal]').each(function(){
+                    $(this).priceFormat(Config[$(this).data('tipe')]);
+                });
+
+                $(this).removeAttr('tabindex');
+            });
+        },'html');
+    }, // end - modalAddDiskon
+
+    pilihDiskon: function (elm) {
+        var aktif = $(elm).attr('data-aktif');
+
+        if ( aktif == 1 ) {
+            $(elm).attr('data-aktif', 0);
+        } else {
+            $(elm).attr('data-aktif', 1);
+        }
+    }, // end - pilihDiskon
+
+    savePembayaran: function (elm) {
+        var modal = $(elm).closest('.modal');
+
+        var err = 0;
+        $.map( $(modal).find('[data-required=1]'), function(ipt) {
+            if ( empty( $(ipt).val() ) ) {
+                $(ipt).parent().addClass('has-error');
+                err++;
+            } else {
+                $(ipt).parent().removeClass('has-error');
+            }
+        });
+
+        if ( err > 0 ) {
+            bootbox.alert('Harap lengkapi data terlebih dahulu.');
+        } else {
+            var sisa_tagihan = numeral.unformat($(modal).find('.sisa_tagihan').val());
+            var jml_bayar = numeral.unformat($(modal).find('.jml_bayar').val());
+
+            if ( jml_bayar > sisa_tagihan ) {
+                bootbox.alert('Jumlah bayar yang anda input melebihi sisa tagihan.', function() {
+                    $(modal).find('.jml_bayar').val( numeral.formatDec(sisa_tagihan) );
+                });
+            } else {
+                $(elm).attr('disabled', 'disabled');
+
+                var data = {
+                    'id_bayar': $(elm).attr('data-id'),
+                    'jenis_bayar': $(modal).find('select.jenis_kartu option:selected').text(),
+                    'kode_jenis_kartu': $(modal).find('select.jenis_kartu').select2('val'),
+                    'jml_bayar': jml_bayar,
+                    'no_kartu': $(modal).find('input.no_kartu').val(),
+                    'nama_kartu': $(modal).find('input.nama_kartu').val()
+                };
+
+                if ( sisa_tagihan > jml_bayar ) {
+                    bootbox.confirm('Pembayaran kurang dari sisa tagihan apakah anda tetap ingin menyimpan pembayaran ?', function(result) {
+                        if ( result ) {                            
+                            sr.execSavePembayaran(data); 
+                        }
+                    });
+                } else {
+                    sr.execSavePembayaran(data);
+                }
+            }
+        }
+    }, // end - savePembayaran
+
+    execSavePembayaran: function (data) {
+        $.ajax({
+            url: 'transaksi/SalesRecapitulation/savePembayaran',
+            data: {
+                'params': data
+            },
+            type: 'POST',
+            dataType: 'JSON',
+            beforeSend: function() { showLoading('Simpan Pembayaran . . .'); },
+            success: function(data) {
+                hideLoading();
+                if ( data.status == 1 ) {
+                    sr.hitungUlang( data.content.kode_faktur, data.message );
+                } else {
+                    bootbox.alert( data.message );
+                }
+            }
+        });
+    }, // end - execSavePembayaran
+
+    saveDiskon: function (elm) {
+        var modal = $(elm).closest('.modal');
+
+        var jml_data = $(modal).find('tr.data[data-aktif=1]').length;
+
+        if ( jml_data == 0 ) {
+            bootbox.alert('Tidak ada diskon yang anda pilih.');
+        } else {
+            $(elm).attr('disabled', 'disabled');
+
+            var params = $.map( $(modal).find('tr.data[data-aktif=1]'), function (tr) {
+                var _data = {
+                    'id_bayar': $(elm).attr('data-id'),
+                    'kode_diskon': $(tr).find('td.kode').text()
+                };
+
+                return _data;
+            });
+
+            $.ajax({
+                url: 'transaksi/SalesRecapitulation/saveDiskon',
+                data: {
+                    'params': params
+                },
+                type: 'POST',
+                dataType: 'JSON',
+                beforeSend: function() { showLoading('Delete Pesanan . . .'); },
+                success: function(data) {
+                    hideLoading();
+                    if ( data.status == 1 ) {
+                        sr.hitungUlang( data.content.kode_faktur, data.message );
+                    } else {
+                        bootbox.alert( data.message );
+                    }
+                }
+            });
+        }
+    }, // end - saveDiskon
+
     deletePesanan: function (elm) {
         var kode_faktur_item = $(elm).attr('data-kode');
 
@@ -212,6 +414,31 @@ var sr = {
             }
         });
     }, // end - deleteDiskon
+
+    deleteTransaksi: function (elm) {
+        var kode_faktur = $(elm).attr('data-faktur');
+
+        $.ajax({
+            url: 'transaksi/SalesRecapitulation/deleteTransaksi',
+            data: {
+                'params': kode_faktur
+            },
+            type: 'POST',
+            dataType: 'JSON',
+            beforeSend: function() { showLoading('Hapus Transaksi . . .'); },
+            success: function(data) {
+                hideLoading();
+
+                if ( data.status == 1 ) {
+                    bootbox.alert( data.message, function () {
+                        sr.getLists();
+                    });
+                } else {
+                    bootbox.alert( data.message );
+                }
+            }
+        });
+    }, // end - deleteTransaksi
 
     hitungUlang: function ( kode_faktur, message ) {
         // var params = {

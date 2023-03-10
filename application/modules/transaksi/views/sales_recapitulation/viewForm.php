@@ -158,16 +158,16 @@
             <?php if ( isset($data['bayar_id']) && !empty($data['bayar_id']) ): ?>
                 <div class="col-xs-12 no-padding">
                     <div class="col-xs-2 no-padding" style="padding-right: 5px;">
-                        <button type="button" class="col-xs-12 btn btn-primary" onclick="bayar.rePrintNota(this)" data-faktur="<?php echo $data['kode_faktur']; ?>"><i class="fa fa-plus"></i> Bayar</button>
+                        <button type="button" class="col-xs-12 btn btn-primary" onclick="sr.modalAddPembayaran(this)" data-id="<?php echo $data['bayar_id']; ?>"><i class="fa fa-plus"></i> Bayar</button>
                     </div>
                     <div class="col-xs-2 no-padding" style="padding-right: 5px;">
-                        <button type="button" class="col-xs-12 btn btn-primary" onclick="bayar.rePrintNota(this)" data-faktur="<?php echo $data['kode_faktur']; ?>"><i class="fa fa-plus"></i> Diskon</button>
+                        <button type="button" class="col-xs-12 btn btn-primary" onclick="sr.modalAddDiskon(this)" data-id="<?php echo $data['bayar_id']; ?>"><i class="fa fa-plus"></i> Diskon</button>
                     </div>
                     <div class="col-xs-2 no-padding"></div>
                     <div class="col-xs-2 no-padding"></div>
                     <div class="col-xs-2 no-padding"></div>
                     <div class="col-xs-2 no-padding">
-                        <button type="button" class="col-xs-12 btn btn-danger" onclick="bayar.rePrintNota(this)" data-faktur="<?php echo $data['kode_faktur']; ?>" data-id="<?php echo $data['bayar_id']; ?>">Void Transaksi</button>
+                        <button type="button" class="col-xs-12 btn btn-danger" onclick="sr.deleteTransaksi(this)" data-faktur="<?php echo $data['kode_faktur']; ?>"><i class="fa fa-trash"></i> Void Transaksi</button>
                         <!-- <button type="button" class="col-xs-12 btn btn-primary" onclick="bayar.rePrintNota(this)" data-faktur="<?php echo $data['kode_faktur']; ?>" data-id="<?php echo $data['bayar_id']; ?>"><i class="fa fa-print"></i> Re-Print Bill</button> -->
                     </div>
                 </div>
