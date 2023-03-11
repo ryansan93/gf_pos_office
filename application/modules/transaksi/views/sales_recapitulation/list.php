@@ -15,10 +15,12 @@
 			<td><?php echo $value['nama_waitress']; ?></td>
 			<td><?php echo $value['nama_kasir']; ?></td>
 			<td class="text-right"><?php echo angkaDecimal($value['grand_total']); ?></td>
+			<td class="text-right"><?php echo angkaDecimal($value['grand_total_gabungan']); ?></td>
+			<td class="text-right"><?php echo angkaDecimal($value['grand_total']+$value['grand_total_gabungan']); ?></td>
 		</tr>
 	<?php endforeach ?>
 <?php else: ?>
 	<tr>
-		<td colspan="8">Data tidak ditemukan.</td>
+		<td colspan="10">Data tidak ditemukan.</td>
 	</tr>
 <?php endif ?>

@@ -90,6 +90,7 @@ class SalesRecapitulation extends Public_Controller
                 _data.nama_waitress,
                 _data.nama_kasir,
                 _data.grand_total,
+                jg.grand_total_gabungan,
                 max(_data.status_gabungan) as status_gabungan
             from (
                 select 
@@ -172,7 +173,13 @@ class SalesRecapitulation extends Public_Controller
                     pesanan p
                     on
                         j.pesanan_kode = p.kode_pesanan
-            ) _data            
+            ) _data
+            left join
+                (
+                    select faktur_kode, sum(jml_tagihan) as grand_total_gabungan from jual_gabungan group by faktur_kode
+                ) jg
+                on
+                    jg.faktur_kode = _data.kode_faktur
             where 
                 _data.tgl_trans between '".$start_date."' and '".$end_date."' and
                 _data.nama_kasir is not null and
@@ -186,7 +193,8 @@ class SalesRecapitulation extends Public_Controller
                 _data.kode_faktur_utama,
                 _data.nama_waitress,
                 _data.nama_kasir,
-                _data.grand_total
+                _data.grand_total,
+                jg.grand_total_gabungan
             order by
                 _data.tgl_trans desc,
                 _data.kode_pesanan desc,
@@ -213,97 +221,140 @@ class SalesRecapitulation extends Public_Controller
 
         $m_conf = new \Model\Storage\Conf();
         $sql = "
-            select 
-                j.kode_faktur, 
-                j.tgl_trans, 
-                j.member as member, 
-                j.nama_kasir as kasir, 
-                p.nama_user as waitress,
-                ji.kode_faktur_item,
-                ji.kode_jenis_pesanan,
-                jp.nama as nama_jenis_pesanan,
-                ji.menu_nama,
-                ji.menu_kode,
-                ji.jumlah,
-                ji.harga,
-                ji.request,
-                ji.pesanan_item_kode,
-                case
-                    when jp.exclude = 1 then
-                        ji.service_charge
-                    when jp.include = 1 then
-                        0
-                end as service_charge,
-                case
-                    when jp.exclude = 1 then
-                        ji.ppn
-                    when jp.include = 1 then
-                        0
-                end as ppn,
-                case
-                    when jp.exclude = 1 then
-                        ji.total
-                    when jp.include = 1 then
-                        ji.total
-                end as total,
-                b.id as bayar_id,
-                b.jml_tagihan as grand_total,
-                b.jml_bayar as total_bayar,
-                b.diskon as total_diskon,
-                b.jenis_bayar,
-                b.id_bayar_det,
-                b.kode_jenis_kartu,
-                b.nominal
-            from 
-                jual_item ji
-            right join
-                jenis_pesanan jp
-                on
-                    jp.kode = ji.kode_jenis_pesanan
-            right join
-                jual j
-                on
-                    ji.faktur_kode = j.kode_faktur
-            right join
-                pesanan p
-                on
-                    j.pesanan_kode = p.kode_pesanan
+            select
+                _data.*,
+                jg.total as total_gabungan,
+                jg.service_charge as sc_gabungan,
+                jg.ppn as sc_gabungan,
+                (jg.total + jg.service_charge + jg.ppn) as grand_total_gabungan
+            from
+            (
+                select 
+                    j.kode_faktur, 
+                    j.tgl_trans, 
+                    j.member as member, 
+                    j.nama_kasir as kasir, 
+                    p.nama_user as waitress,
+                    ji.kode_faktur_item,
+                    ji.kode_jenis_pesanan,
+                    jp.nama as nama_jenis_pesanan,
+                    ji.menu_nama,
+                    ji.menu_kode,
+                    ji.jumlah,
+                    ji.harga,
+                    ji.request,
+                    ji.pesanan_item_kode,
+                    case
+                        when jp.exclude = 1 then
+                            ji.service_charge
+                        when jp.include = 1 then
+                            0
+                    end as service_charge,
+                    case
+                        when jp.exclude = 1 then
+                            ji.ppn
+                        when jp.include = 1 then
+                            0
+                    end as ppn,
+                    case
+                        when jp.exclude = 1 then
+                            ji.total
+                        when jp.include = 1 then
+                            ji.total
+                    end as total,
+                    b.id as bayar_id,
+                    b.jml_tagihan as grand_total,
+                    b.jml_bayar as total_bayar,
+                    b.diskon as total_diskon,
+                    b.jenis_bayar,
+                    b.id_bayar_det,
+                    b.kode_jenis_kartu,
+                    b.nominal
+                from 
+                    jual_item ji
+                right join
+                    jenis_pesanan jp
+                    on
+                        jp.kode = ji.kode_jenis_pesanan
+                right join
+                    jual j
+                    on
+                        ji.faktur_kode = j.kode_faktur
+                right join
+                    pesanan p
+                    on
+                        j.pesanan_kode = p.kode_pesanan
+                left join
+                    (
+                        select 
+                            b.id, 
+                            b.tgl_trans,
+                            b.faktur_kode,
+                            b.jml_tagihan,
+                            b.jml_bayar,
+                            b.mstatus,
+                            b.diskon,
+                            b.total,
+                            b.member_kode,
+                            b.member,
+                            b.kasir,
+                            b.nama_kasir,
+                            bd.id as id_bayar_det, 
+                            bd.jenis_bayar, 
+                            bd.kode_jenis_kartu, 
+                            bd.nominal, 
+                            jk.nama as nama_jenis_kartu 
+                        from bayar_det bd
+                        right join
+                            jenis_kartu jk
+                            on
+                                bd.kode_jenis_kartu = jk.kode_jenis_kartu
+                        right join
+                            bayar b
+                            on
+                                bd.id_header = b.id
+                        where
+                            b.mstatus = 1
+                    ) b
+                    on
+                        b.faktur_kode = j.kode_faktur
+            ) _data
             left join
                 (
                     select 
-                        b.id, 
-                        b.tgl_trans,
-                        b.faktur_kode,
-                        b.jml_tagihan,
-                        b.jml_bayar,
-                        b.mstatus,
-                        b.diskon,
-                        b.total,
-                        b.member_kode,
-                        b.member,
-                        b.kasir,
-                        b.nama_kasir,
-                        bd.id as id_bayar_det, 
-                        bd.jenis_bayar, 
-                        bd.kode_jenis_kartu, 
-                        bd.nominal, 
-                        jk.nama as nama_jenis_kartu 
-                    from bayar_det bd
+                        jg.faktur_kode,
+                        case
+                            when jp.exclude = 1 then
+                                ji.service_charge
+                            when jp.include = 1 then
+                                0
+                        end as service_charge,
+                        case
+                            when jp.exclude = 1 then
+                                ji.ppn
+                            when jp.include = 1 then
+                                0
+                        end as ppn,
+                        case
+                            when jp.exclude = 1 then
+                                ji.total
+                            when jp.include = 1 then
+                                ji.total
+                        end as total
+                    from jual_item ji
                     right join
-                        jenis_kartu jk
+                        jenis_pesanan jp
                         on
-                            bd.kode_jenis_kartu = jk.kode_jenis_kartu
+                            jp.kode = ji.kode_jenis_pesanan
                     right join
-                        bayar b
+                        jual_gabungan jg
                         on
-                            bd.id_header = b.id
-                    where
-                        b.mstatus = 1
-                ) b
+                            jg.faktur_kode_gabungan = ji.faktur_kode
+                ) jg
                 on
-                    b.faktur_kode = j.kode_faktur
+                    jg.faktur_kode = _data.kode_faktur
             where
-                j.kode_faktur = '".$kode_faktur."'
+                _data.kode_faktur = '".$kode_faktur."'
         ";
         $d_jual = $m_conf->hydrateRaw( $sql );        
 
@@ -383,10 +434,11 @@ class SalesRecapitulation extends Public_Controller
                 'total_belanja' => $total_belanja,
                 'total_sc' => $total_sc,
                 'total_ppn' => $total_ppn,
-                'grand_total' => ($d_jual[0]['grand_total'] > 0) ? $d_jual[0]['grand_total'] : $total_belanja + $total_sc + $total_ppn,
+                'grand_total_gabungan' => ($d_jual[0]['grand_total_gabungan'] > 0) ? $d_jual[0]['grand_total_gabungan'] : 0,
+                'grand_total' => ($d_jual[0]['grand_total'] > 0) ? $d_jual[0]['grand_total'] + $d_jual[0]['grand_total_gabungan'] : $total_belanja + $total_sc + $total_ppn + $d_jual[0]['grand_total_gabungan'],
                 'total_bayar' => $d_jual[0]['total_bayar'],
                 'total_diskon' => $d_jual[0]['total_diskon'],
-                'kembalian' => ($d_jual[0]['total_bayar'] > 0 && ($d_jual[0]['total_bayar']-$d_jual[0]['grand_total']) > 0) ? $d_jual[0]['total_bayar'] - $d_jual[0]['grand_total'] : 0,
+                'kembalian' => ($d_jual[0]['total_bayar'] > 0 && ($d_jual[0]['total_bayar']-($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan'])) > 0) ? $d_jual[0]['total_bayar'] - ($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan']) : 0,
                 'bayar_id' => $d_jual[0]['bayar_id'],
                 'detail' => $detail,
                 'jenis_bayar' => $jenis_bayar,
@@ -432,7 +484,16 @@ class SalesRecapitulation extends Public_Controller
         $m_conf = new \Model\Storage\Conf();
         $sql = "
             select 
-                b.*
+                b.id,
+                b.jml_bayar,
+                j.total as total,
+                j.service_charge as service_charge,
+                j.ppn as ppn,
+                (j.total + j.service_charge + j.ppn) as grand_total,
+                jg.total as total_gabungan,
+                jg.service_charge as sc_gabungan,
+                jg.ppn as ppn_gabungan,
+                (jg.total + jg.service_charge + jg.ppn) as grand_total_gabungan
             from
                 bayar b
             right join
@@ -441,6 +502,94 @@ class SalesRecapitulation extends Public_Controller
                 ) byr
                 on
                     b.id = byr.id
+            right join
+                (
+                    select
+                        _data.kode_faktur,
+                        sum(_data.service_charge) as service_charge,
+                        sum(_data.ppn) as ppn,
+                        sum(_data.total) as total
+                    from
+                    (
+                        select 
+                            j.kode_faktur,
+                            case
+                                when jp.exclude = 1 then
+                                    ji.service_charge
+                                when jp.include = 1 then
+                                    0
+                            end as service_charge,
+                            case
+                                when jp.exclude = 1 then
+                                    ji.ppn
+                                when jp.include = 1 then
+                                    0
+                            end as ppn,
+                            case
+                                when jp.exclude = 1 then
+                                    ji.total
+                                when jp.include = 1 then
+                                    ji.total
+                            end as total
+                        from jual_item ji
+                        right join
+                            jenis_pesanan jp
+                            on
+                                jp.kode = ji.kode_jenis_pesanan
+                        right join
+                            jual j
+                            on
+                                j.kode_faktur = ji.faktur_kode
+                    ) _data
+                    group by
+                        _data.kode_faktur
+                ) j
+                on
+                    j.kode_faktur = b.faktur_kode
+            left join
+                (
+                    select
+                        _data.faktur_kode,
+                        sum(_data.service_charge) as service_charge,
+                        sum(_data.ppn) as ppn,
+                        sum(_data.total) as total
+                    from
+                    (
+                        select 
+                            jg.faktur_kode,
+                            case
+                                when jp.exclude = 1 then
+                                    ji.service_charge
+                                when jp.include = 1 then
+                                    0
+                            end as service_charge,
+                            case
+                                when jp.exclude = 1 then
+                                    ji.ppn
+                                when jp.include = 1 then
+                                    0
+                            end as ppn,
+                            case
+                                when jp.exclude = 1 then
+                                    ji.total
+                                when jp.include = 1 then
+                                    ji.total
+                            end as total
+                        from jual_item ji
+                        right join
+                            jenis_pesanan jp
+                            on
+                                jp.kode = ji.kode_jenis_pesanan
+                        right join
+                            jual_gabungan jg
+                            on
+                                jg.faktur_kode_gabungan = ji.faktur_kode
+                    ) _data
+                    group by
+                        _data.faktur_kode
+                ) jg
+                on
+                    jg.faktur_kode = b.faktur_kode
             where
                 b.id = '".$id_bayar."'
         ";
@@ -450,8 +599,10 @@ class SalesRecapitulation extends Public_Controller
         if ( $d_bayar->count() > 0 ) {
             $d_bayar = $d_bayar->toArray()[0];
 
-            if ( $d_bayar['jml_tagihan'] > $d_bayar['jml_bayar'] ) {
-                $sisa_tagihan = $d_bayar['jml_tagihan'] - $d_bayar['jml_bayar'];
+            $jml_tagihan = $d_bayar['grand_total'] + $d_bayar['grand_total_gabungan'];
+
+            if ( $jml_tagihan > $d_bayar['jml_bayar'] ) {
+                $sisa_tagihan = $jml_tagihan - $d_bayar['jml_bayar'];
             }
         }
 
@@ -493,13 +644,13 @@ class SalesRecapitulation extends Public_Controller
         ";
         $d_bayar = $m_conf->hydrateRaw( $sql );
 
-        $sisa_tagihan = 0;
+        // $sisa_tagihan = 0;
         if ( $d_bayar->count() > 0 ) {
             $d_bayar = $d_bayar->toArray()[0];
 
-            if ( $d_bayar['jml_tagihan'] > $d_bayar['jml_bayar'] ) {
-                $sisa_tagihan = $d_bayar['jml_tagihan'] - $d_bayar['jml_bayar'];
-            }
+            // if ( $d_bayar['jml_tagihan'] > $d_bayar['jml_bayar'] ) {
+            //     $sisa_tagihan = $d_bayar['jml_tagihan'] - $d_bayar['jml_bayar'];
+            // }
 
             $m_jual = new \Model\Storage\Jual_model();
             $d_jual = $m_jual->where('kode_faktur', $d_bayar['faktur_kode'])->first();

@@ -51,12 +51,14 @@
 									<th class="col-xs-1">Kode Faktur Utama</th>
 									<th class="col-xs-1">Waitress</th>
 									<th class="col-xs-1">Kasir</th>
+									<th class="col-xs-1">Total Nota</th>
+									<th class="col-xs-1">Total Nota Gabungan</th>
 									<th class="col-xs-1">Grand Total</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr>
-									<td colspan="8">Data tidak ditemukan.</td>
+									<td colspan="10">Data tidak ditemukan.</td>
 								</tr>
 							</tbody>
 						</table>

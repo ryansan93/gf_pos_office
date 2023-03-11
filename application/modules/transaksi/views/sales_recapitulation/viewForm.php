@@ -138,6 +138,11 @@
                         <div class="col-xs-7 no-padding text-right"><label class="label-control" style="padding-top: 0px;"><?php echo angkaDecimal($data['total_ppn']) ?></label></div>
                     </div>
                     <div class="col-xs-12 no-padding">
+                        <div class="col-xs-4 no-padding"><label class="label-control" style="padding-top: 0px;">Total Nota Gabungan</label></div>
+                        <div class="col-xs-1 no-padding"><label class="label-control" style="padding-top: 0px;">:</label></div>
+                        <div class="col-xs-7 no-padding text-right"><label class="label-control" style="padding-top: 0px;"><?php echo angkaDecimal($data['grand_total_gabungan']); ?></label></div>
+                    </div>
+                    <div class="col-xs-12 no-padding">
                         <div class="col-xs-4 no-padding"><label class="label-control" style="padding-top: 0px;">Total Bayar</label></div>
                         <div class="col-xs-1 no-padding"><label class="label-control" style="padding-top: 0px;">:</label></div>
                         <div class="col-xs-7 no-padding text-right"><label class="label-control" style="padding-top: 0px;"><?php echo angkaDecimal($data['grand_total']); ?></label></div>
