@@ -223,10 +223,7 @@ class SalesRecapitulation extends Public_Controller
         $sql = "
             select
                 _data.*,
-                jg.total as total_gabungan,
-                jg.service_charge as sc_gabungan,
-                jg.ppn as sc_gabungan,
-                (jg.total + jg.service_charge + jg.ppn) as grand_total_gabungan
+                jg.grand_total_gabungan as grand_total_gabungan
             from
             (
                 select 
@@ -321,35 +318,7 @@ class SalesRecapitulation extends Public_Controller
             ) _data
             left join
                 (
-                    select 
-                        jg.faktur_kode,
-                        case
-                            when jp.exclude = 1 then
-                                ji.service_charge
-                            when jp.include = 1 then
-                                0
-                        end as service_charge,
-                        case
-                            when jp.exclude = 1 then
-                                ji.ppn
-                            when jp.include = 1 then
-                                0
-                        end as ppn,
-                        case
-                            when jp.exclude = 1 then
-                                ji.total
-                            when jp.include = 1 then
-                                ji.total
-                        end as total
-                    from jual_item ji
-                    right join
-                        jenis_pesanan jp
-                        on
-                            jp.kode = ji.kode_jenis_pesanan
-                    right join
-                        jual_gabungan jg
-                        on
-                            jg.faktur_kode_gabungan = ji.faktur_kode
+                    select faktur_kode, sum(jml_tagihan) as grand_total_gabungan from jual_gabungan group by faktur_kode
                 ) jg
                 on
                     jg.faktur_kode = _data.kode_faktur
