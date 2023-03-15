@@ -85,7 +85,7 @@
 								<td align="right"><?php echo isset($v_data['kategori_menu'][5]) ? angkaRibuan($v_data['kategori_menu'][5]) : 0; ?></td>
 								<td align="right"><?php echo isset($v_data['diskon_requirement']['FOOD_PROMO']) ? angkaRibuan($v_data['diskon_requirement']['FOOD_PROMO']) : 0; ?></td>
 								<!-- <td align="right"><?php echo isset($v_data['diskon'][2]) ? angkaRibuan($v_data['diskon'][2]) : 0; ?></td> -->
-								<td align="right"><?php echo ((!isset($v_data['diskon_requirement']['FOOD_PROMO']) || (isset($v_data['diskon_requirement']['FOOD_PROMO']) && $v_data['diskon_requirement']['FOOD_PROMO'] == 0)) && isset($v_data['diskon'][1])) ? ($v_data['diskon'][1]) : 0; ?></td>
+								<td align="right"><?php echo ((!isset($v_data['diskon_requirement']['FOOD_PROMO']) || (isset($v_data['diskon_requirement']['FOOD_PROMO']) && $v_data['diskon_requirement']['FOOD_PROMO'] == 0)) && isset($v_data['diskon'][1])) ? angkaRibuan($v_data['diskon'][1]) : 0; ?></td>
 								<td align="right"><?php echo isset($v_data['total']) ? angkaRibuan($v_data['total']) : 0; ?></td>
 								<td align="right"><?php echo isset($v_data['kategori_pembayaran'][1]) ? angkaRibuan($v_data['kategori_pembayaran'][1]) : 0; ?></td>
 								<td align="right"><?php echo isset($v_data['kategori_pembayaran'][2]) ? angkaRibuan($v_data['kategori_pembayaran'][2]) : 0; ?></td>
