@@ -409,16 +409,18 @@ class SummaryPenjualanHarian extends Public_Controller {
                 $key = $value['kode_faktur'];
 
                 if ( isset($data[ $key ]['diskon']) ) {
-                    $data[ $key ]['diskon'][1] += ($value['diskon_tipe'] == 1) ? $value['nilai'] : 0;
-                    $data[ $key ]['diskon'][2] += ($value['diskon_tipe'] == 2 || $value['diskon_tipe'] == 3) ? $value['nilai'] : 0;
+                    $data[ $key ]['diskon'][1] += $value['nilai'];
+                    // $data[ $key ]['diskon'][1] += ($value['diskon_tipe'] == 1) ? $value['nilai'] : 0;
+                    // $data[ $key ]['diskon'][2] += ($value['diskon_tipe'] == 2 || $value['diskon_tipe'] == 3) ? $value['nilai'] : 0;
                 } else {
                     if ( !isset($data[ $key ]) ) {
                         $data[ $key ]['date'] = $value['tgl_trans'];
                         $data[ $key ]['kode_faktur'] = $value['kode_faktur'];
                     }
                     $data[ $key ]['diskon'] = array(
-                        '1' => ($value['diskon_tipe'] == 1) ? $value['nilai'] : 0,
-                        '2' => ($value['diskon_tipe'] == 2 || $value['diskon_tipe'] == 3) ? $value['nilai'] : 0
+                        '1' => $value['nilai'],
+                        // '1' => ($value['diskon_tipe'] == 1) ? $value['nilai'] : 0,
+                        // '2' => ($value['diskon_tipe'] == 2 || $value['diskon_tipe'] == 3) ? $value['nilai'] : 0
                     );
                 }
             }
@@ -430,13 +432,13 @@ class SummaryPenjualanHarian extends Public_Controller {
                 jl.kode_faktur_utama as kode_faktur,
                 jl.tgl_trans,
                 dsk.diskon_requirement,
-                byr.total as nilai
-                -- case
-                --     when sum(bd.nilai) > byr.total then
-                --         byr.total
-                --     when sum(bd.nilai) < byr.total then
-                --         sum(bd.nilai)
-                -- end as nilai
+                -- byr.total as nilai
+                case
+                    when dsk.diskon_requirement = 'OC' or dsk.diskon_requirement = 'ENTERTAIN' then
+                        byr.total
+                    else
+                        sum(bd.nilai)
+                end as nilai
             from (
                     select * from (
                         select 

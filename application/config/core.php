@@ -72,5 +72,6 @@ $config['diskon_tipe'] = array(
 $config['diskon_requirement'] = array(
 	'GENERAL' => 'UMUM',
 	'OC' => 'OC',
-	'ENTERTAIN' => 'ENTERTAIN'
+	'ENTERTAIN' => 'ENTERTAIN',
+	'FOOD_PROMO' => 'FOOD PROMO',
 );
