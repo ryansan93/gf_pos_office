@@ -903,7 +903,7 @@ class SalesRecapitulation extends Public_Controller
             $m_conf = new \Model\Storage\Conf();
             $sql = "
                 select
-                    _data.kode_faktur,
+                    _data.kode_faktur_utama as kode_faktur,
                     sum(_data.grand_total) as grand_total,
                     sum(_data.total) as total,
                     sum(_data.service_charge) as service_charge_real,
@@ -913,7 +913,7 @@ class SalesRecapitulation extends Public_Controller
                 from
                 (
                     select 
-                        j.kode_faktur, 
+                        j.kode_faktur_utama, 
                         case
                             when jp.exclude = 1 then
                                 ji.total + ji.service_charge + ji.ppn
@@ -941,14 +941,61 @@ class SalesRecapitulation extends Public_Controller
                         on
                             jp.kode = ji.kode_jenis_pesanan
                     right join
-                        jual j
+                        (
+                            select * from (
+                                select 
+                                    j.kode_faktur as kode_faktur,
+                                    j.kode_faktur as kode_faktur_utama,
+                                    j.tgl_trans
+                                from jual j 
+                                where 
+                                    j.kode_faktur = '".$kode_faktur."' and
+                                    j.mstatus = 1
+                                group by
+                                    j.kode_faktur,
+                                    j.tgl_trans
+
+                                UNION ALL
+
+                                select 
+                                    jg.faktur_kode_gabungan as kode_faktur,
+                                    jg.faktur_kode as kode_faktur_utama,
+                                    j.tgl_trans
+                                from jual_gabungan jg
+                                right join
+                                    jual j1
+                                    on
+                                        j1.kode_faktur = jg.faktur_kode_gabungan
+                                right join
+                                    (
+                                        select 
+                                            j.kode_faktur as kode_faktur,
+                                            j.tgl_trans
+                                        from jual j 
+                                        where 
+                                            j.kode_faktur = '".$kode_faktur."' and
+                                            j.mstatus = 1
+                                        group by
+                                            j.kode_faktur,
+                                            j.tgl_trans
+                                    ) j
+                                    on
+                                        j.kode_faktur = jg.faktur_kode
+                                where
+                                    j1.mstatus = 1
+                                group by
+                                    jg.faktur_kode_gabungan,
+                                    jg.faktur_kode,
+                                    j.tgl_trans
+                            ) jl1
+                            where
+                                jl1.kode_faktur is not null
+                        ) j
                         on
                             ji.faktur_kode = j.kode_faktur
-                    where
-                        ji.faktur_kode = '".$kode_faktur."'
                 ) _data
                 group by
-                    _data.kode_faktur
+                    _data.kode_faktur_utama
             ";
             $d_ji_new = $m_conf->hydrateRaw( $sql );
 
