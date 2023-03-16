@@ -284,34 +284,68 @@ class SalesRecapitulation extends Public_Controller
                 left join
                     (
                         select 
-                            b.id, 
-                            b.tgl_trans,
-                            b.faktur_kode,
-                            b.jml_tagihan,
-                            b.jml_bayar,
-                            b.mstatus,
-                            b.diskon,
-                            b.total,
-                            b.member_kode,
-                            b.member,
-                            b.kasir,
-                            b.nama_kasir,
-                            bd.id as id_bayar_det, 
-                            bd.jenis_bayar, 
-                            bd.kode_jenis_kartu, 
-                            bd.nominal, 
-                            jk.nama as nama_jenis_kartu 
-                        from bayar_det bd
+                            _data.*,
+                            jk.nama as nama_jenis_kartu
+                        from (
+                            select
+                                b.id, 
+                                b.tgl_trans,
+                                b.faktur_kode,
+                                b.jml_tagihan,
+                                b.jml_bayar,
+                                b.mstatus,
+                                b.diskon,
+                                b.total,
+                                b.member_kode,
+                                b.member,
+                                b.kasir,
+                                b.nama_kasir,
+                                bd.id as id_bayar_det, 
+                                bd.jenis_bayar, 
+                                bd.kode_jenis_kartu, 
+                                bd.nominal
+                            from bayar_det bd 
+                            right join
+                                bayar b 
+                                on
+                                    bd.id_header = b.id
+                            
+                            union all
+                            
+                            select
+                                b.id, 
+                                b.tgl_trans,
+                                bh.faktur_kode,
+                                b.jml_tagihan,
+                                b.jml_bayar,
+                                b.mstatus,
+                                b.diskon,
+                                b.total,
+                                b.member_kode,
+                                b.member,
+                                b.kasir,
+                                b.nama_kasir,
+                                bd.id as id_bayar_det, 
+                                bd.jenis_bayar, 
+                                bd.kode_jenis_kartu, 
+                                bd.nominal
+                            from bayar_det bd 
+                            right join
+                                bayar b 
+                                on
+                                    bd.id_header = b.id
+                            right join
+                                bayar_hutang bh 
+                                on
+                                    bh.id_header = b.id
+                        ) _data
                         right join
                             jenis_kartu jk
                             on
-                                bd.kode_jenis_kartu = jk.kode_jenis_kartu
-                        right join
-                            bayar b
-                            on
-                                bd.id_header = b.id
+                                _data.kode_jenis_kartu = jk.kode_jenis_kartu
                         where
-                            b.mstatus = 1
+                            _data.faktur_kode is not null and
+                            _data.mstatus = 1
                     ) b
                     on
                         b.faktur_kode = j.kode_faktur
