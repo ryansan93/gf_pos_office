@@ -438,7 +438,7 @@ class SalesRecapitulation extends Public_Controller
                 'total_sc' => $total_sc,
                 'total_ppn' => $total_ppn,
                 'grand_total_gabungan' => ($d_jual[0]['grand_total_gabungan'] > 0) ? $d_jual[0]['grand_total_gabungan'] : 0,
-                'grand_total' => ($d_jual[0]['grand_total'] > 0) ? $d_jual[0]['grand_total'] + $d_jual[0]['grand_total_gabungan'] : $total_belanja + $total_sc + $total_ppn + $d_jual[0]['grand_total_gabungan'],
+                'grand_total' => ($d_jual[0]['grand_total'] > 0) ? $d_jual[0]['grand_total'] : $total_belanja + $total_sc + $total_ppn + $d_jual[0]['grand_total_gabungan'],
                 'total_bayar' => $d_jual[0]['total_bayar'],
                 'total_diskon' => $d_jual[0]['total_diskon'],
                 'kembalian' => ($d_jual[0]['total_bayar'] > 0 && ($d_jual[0]['total_bayar']-($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan'])) > 0) ? $d_jual[0]['total_bayar'] - ($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan']) : 0,
@@ -1056,9 +1056,9 @@ class SalesRecapitulation extends Public_Controller
                         );
                     }
 
-                    $lunas = 1;
-                    if ( $jml_tagihan_total > $jml_bayar_total ) {
-                        $lunas = 0;
+                    $lunas = 0;
+                    if ( $jml_bayar_total >= $jml_tagihan_total ) {
+                        $lunas = 1;
                     }
 
                     $m_jual = new \Model\Storage\Jual_model();
