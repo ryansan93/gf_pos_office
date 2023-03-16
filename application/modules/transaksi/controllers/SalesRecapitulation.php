@@ -223,7 +223,8 @@ class SalesRecapitulation extends Public_Controller
         $sql = "
             select
                 _data.*,
-                jg.grand_total_gabungan as grand_total_gabungan
+                jg.grand_total_gabungan as grand_total_gabungan,
+                (_data.total + _data.ppn + _data.service_charge + jg.grand_total_gabungan) as grand_total
             from
             (
                 select 
@@ -260,7 +261,7 @@ class SalesRecapitulation extends Public_Controller
                             ji.total
                     end as total,
                     b.id as bayar_id,
-                    b.jml_tagihan as grand_total,
+                    b.jml_tagihan,
                     b.jml_bayar as total_bayar,
                     b.diskon as total_diskon,
                     b.jenis_bayar,
