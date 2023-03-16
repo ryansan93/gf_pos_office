@@ -952,69 +952,112 @@ class SalesRecapitulation extends Public_Controller
                 $m_conf = new \Model\Storage\Conf();
                 $sql = "
                     select 
-                        b.*
-                    from
-                        bayar b
+                        b.id,
+                        b.tgl_trans,
+                        byr.faktur_kode,
+                        b.jml_tagihan,
+                        b.jml_bayar,
+                        b.jenis_bayar,
+                        b.jenis_kartu_kode,
+                        b.no_bukti,
+                        b.kode_bayar_non_kasir,
+                        b.mstatus,
+                        b.ppn,
+                        b.service_charge,
+                        b.diskon,
+                        b.total,
+                        b.member_kode,
+                        b.member,
+                        b.kasir,
+                        b.nama_kasir
+                    from bayar b
                     right join
                         (
-                            select max(id) as id, faktur_kode from bayar group by faktur_kode
+                            select * from
+                            (
+                                select max(id) as id, faktur_kode from bayar where faktur_kode is not null group by faktur_kode
+                                
+                                union all
+                                
+                                select
+                                    b.id,
+                                    bh.faktur_kode 
+                                from bayar_hutang bh 
+                                right join
+                                    bayar b
+                                    on
+                                        bh.id_header = b.id
+                            ) _data
+                            where
+                                _data.faktur_kode is not null
                         ) byr
                         on
                             b.id = byr.id
                     where
+                        b.mstatus = 1
+                    order by
+                        faktur_kode asc
                         b.faktur_kode = '".$kode_faktur."'
                 ";
                 $d_bayar = $m_conf->hydrateRaw( $sql );
 
                 if ( $d_bayar->count() > 0 ) {
-                    $d_bayar = $d_bayar->toArray()[0];
+                    $d_bayar = $d_bayar->toArray();
 
-                    $m_conf = new \Model\Storage\Conf();
-                    $sql = "
-                        select bd.id_header, sum(bd.nominal) as total_bayar from bayar_det bd
-                        where
-                            bd.id_header = ".$d_bayar['id']."
-                        group by
-                            bd.id_header
-                    ";
-                    $d_tb = $m_conf->hydrateRaw( $sql );
+                    $jml_tagihan_total = $d_ji_new['grand_total'];
+                    $jml_bayar_total = 0;
 
-                    $jml_bayar = 0;
-                    if ( $d_tb->count() > 0 ) {
-                        $d_tb = $d_tb->toArray()[0];
+                    $jml_tagihan = $d_ji_new['grand_total'];
+                    foreach ($d_bayar as $k_bayar => $v_bayar) {
+                        $jml_bayar = 0;
 
-                        $jml_bayar = $d_tb['total_bayar'];
-                    }
+                        $m_conf = new \Model\Storage\Conf();
+                        $sql = "
+                            select bd.id_header, sum(bd.nominal) as total_bayar from bayar_det bd
+                            where
+                                bd.id_header = ".$v_bayar['id']."
+                            group by
+                                bd.id_header
+                        ";
+                        $d_tb = $m_conf->hydrateRaw( $sql );
 
-                    $data_diskon = $this->hitDiskon($d_ji_new['kode_faktur'], $d_bayar['id']);
+                        if ( $d_tb->count() > 0 ) {
+                            $d_tb = $d_tb->toArray()[0];
 
-                    if ( isset($data_diskon['data_diskon']) && !empty($data_diskon['data_diskon']) ) {
-                        foreach ($data_diskon['data_diskon'] as $k_dd => $v_dd) {
-                            $m_bd = new \Model\Storage\BayarDiskon_model();
-                            $m_bd->where('id', $v_dd['id'])->update(
-                                array(
-                                    'nilai' => $v_dd['nominal']
-                                )
-                            );
+                            $jml_bayar = $d_tb['total_bayar'];
+                            $jml_bayar_total += $jml_bayar;
                         }
+
+                        $data_diskon = $this->hitDiskon($d_ji_new['kode_faktur'], $v_bayar['id']);
+
+                        if ( isset($data_diskon['data_diskon']) && !empty($data_diskon['data_diskon']) ) {
+                            foreach ($data_diskon['data_diskon'] as $k_dd => $v_dd) {
+                                $m_bd = new \Model\Storage\BayarDiskon_model();
+                                $m_bd->where('id', $v_dd['id'])->update(
+                                    array(
+                                        'nilai' => $v_dd['nominal']
+                                    )
+                                );
+                            }
+                        }
+
+                        $jml_tagihan = $jml_tagihan - $data_diskon['total_diskon'];
+
+                        $m_bayar = new \Model\Storage\Bayar_model();
+                        $m_bayar->where('id', $d_bayar['id'])->update(
+                            array(
+                                'jml_tagihan' => $jml_tagihan,
+                                'jml_bayar' => $jml_bayar,
+                                'diskon' => $data_diskon['total_diskon'],
+                                'total' => $d_ji_new['grand_total'],
+                                'ppn' => $d_ji_new['ppn_real'],
+                                'service_charge' => $d_ji_new['service_charge_real']
+                            )
+                        );
                     }
-
-                    $jml_tagihan = $d_ji_new['grand_total'] - $data_diskon['total_diskon'];
-
-                    $m_bayar = new \Model\Storage\Bayar_model();
-                    $m_bayar->where('id', $d_bayar['id'])->update(
-                        array(
-                            'jml_tagihan' => $jml_tagihan,
-                            'jml_bayar' => $jml_bayar,
-                            'diskon' => $data_diskon['total_diskon'],
-                            'total' => $d_ji_new['grand_total'],
-                            'ppn' => $d_ji_new['ppn_real'],
-                            'service_charge' => $d_ji_new['service_charge_real']
-                        )
-                    );
 
                     $lunas = 1;
-                    if ( $jml_tagihan > $jml_bayar ) {
+                    if ( $jml_tagihan_total > $jml_bayar_total ) {
                         $lunas = 0;
                     }
 
