@@ -61,7 +61,7 @@ class Hutang extends Public_Controller {
             (
                 select 
                     jual.kode_faktur_utama as kode_faktur,
-                    sum(ji.grand_total) as grand_total,
+                    sum(ji.total) as grand_total,
                     j.tgl_trans as tgl_pesan
                 from jual_item ji
                 right join
