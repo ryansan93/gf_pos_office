@@ -208,18 +208,29 @@ class Hutang extends Public_Controller {
                         select 
                             b.tgl_trans as tgl_bayar,
                             bd.* 
-                        from bayar_hutang bh
+                        from 
+                        (
+                            select b.id, b.faktur_kode from bayar b
+
+                            union all
+
+                            select b.id, bh.faktur_kode from bayar_hutang bh
+                            right join
+                                bayar b
+                                on
+                                    bh.id_header = b.id
+                        ) byr
                         right join
                             bayar b 
                             on
-                                bh.id_header = b.id
+                                byr.id = b.id
                         right join
                             bayar_det bd 
                             on
                                 bd.id_header = b.id
                         where
                             b.mstatus = 1 and
-                            bh.faktur_kode = '".$value['kode_faktur']."'
+                            byr.faktur_kode = '".$value['kode_faktur']."'
                     ";
                     $d_bayar_hutang = $m_conf->hydrateRaw($sql);
 
