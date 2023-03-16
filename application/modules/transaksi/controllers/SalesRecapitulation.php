@@ -1048,7 +1048,7 @@ class SalesRecapitulation extends Public_Controller
                         $jml_tagihan = $jml_tagihan - $data_diskon['total_diskon'];
 
                         $m_bayar = new \Model\Storage\Bayar_model();
-                        $m_bayar->where('id', $d_bayar['id'])->update(
+                        $m_bayar->where('id', $v_bayar['id'])->update(
                             array(
                                 'jml_tagihan' => $jml_tagihan,
                                 'jml_bayar' => $jml_bayar,
