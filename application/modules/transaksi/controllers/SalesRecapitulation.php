@@ -223,8 +223,7 @@ class SalesRecapitulation extends Public_Controller
         $sql = "
             select
                 _data.*,
-                jg.grand_total_gabungan as grand_total_gabungan,
-                (_data.total + _data.ppn + _data.service_charge + jg.grand_total_gabungan) as grand_total
+                jg.grand_total_gabungan as grand_total_gabungan
             from
             (
                 select 
@@ -261,7 +260,7 @@ class SalesRecapitulation extends Public_Controller
                             ji.total
                     end as total,
                     b.id as bayar_id,
-                    b.jml_tagihan,
+                    b.jml_tagihan as grand_total,
                     b.jml_bayar as total_bayar,
                     b.diskon as total_diskon,
                     b.jenis_bayar,
@@ -366,6 +365,8 @@ class SalesRecapitulation extends Public_Controller
         if ( $d_jual->count() > 0 ) {
             $d_jual = $d_jual->toArray();
 
+            $grand_total = 0;
+
             $total_belanja = 0;
             $total_sc = 0;
             $total_ppn = 0;
@@ -429,6 +430,8 @@ class SalesRecapitulation extends Public_Controller
                 }
             }
 
+            $grand_total = $total_belanja + $total_sc + $total_ppn + $d_jual[0]['grand_total_gabungan'];
+
             $data = array(
                 'kode_faktur' => $d_jual[0]['kode_faktur'],
                 'tgl_trans' => $d_jual[0]['tgl_trans'],
@@ -439,7 +442,7 @@ class SalesRecapitulation extends Public_Controller
                 'total_sc' => $total_sc,
                 'total_ppn' => $total_ppn,
                 'grand_total_gabungan' => ($d_jual[0]['grand_total_gabungan'] > 0) ? $d_jual[0]['grand_total_gabungan'] : 0,
-                'grand_total' => ($d_jual[0]['grand_total'] > 0) ? $d_jual[0]['grand_total'] : $total_belanja + $total_sc + $total_ppn + $d_jual[0]['grand_total_gabungan'],
+                'grand_total' => $grand_total,
                 'total_bayar' => $d_jual[0]['total_bayar'],
                 'total_diskon' => $d_jual[0]['total_diskon'],
                 'kembalian' => ($d_jual[0]['total_bayar'] > 0 && ($d_jual[0]['total_bayar']-($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan'])) > 0) ? $d_jual[0]['total_bayar'] - ($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan']) : 0,
