@@ -88,8 +88,8 @@ class Hutang extends Public_Controller {
                                         UNION ALL
 
                                         select 
-                                            jg.faktur_kode_gabungan as kode_faktur,
-                                            jg.faktur_kode as kode_faktur_utama
+                                            jg.faktur_kode_gabungan as kode_faktur_utama,
+                                            jg.faktur_kode as kode_faktur
                                         from jual_gabungan jg
                                         right join
                                             (
