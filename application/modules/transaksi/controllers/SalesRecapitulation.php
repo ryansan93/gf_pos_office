@@ -366,6 +366,7 @@ class SalesRecapitulation extends Public_Controller
             $d_jual = $d_jual->toArray();
 
             $grand_total = 0;
+            $total_bayar = 0;
 
             $total_belanja = 0;
             $total_sc = 0;
@@ -381,6 +382,10 @@ class SalesRecapitulation extends Public_Controller
                     $total_belanja += $v_jual['total'];
                     $total_sc += $v_jual['service_charge'];
                     $total_ppn += $v_jual['ppn'];
+                }
+
+                if ( $v_jual['total_bayar'] > 0 ) {
+                    $total_bayar += $v_jual['total_bayar'];
                 }
 
                 $detail[ $key_jp ]['kode_jenis_pesanan'] = $v_jual['kode_jenis_pesanan'];
@@ -447,7 +452,7 @@ class SalesRecapitulation extends Public_Controller
                 'grand_total' => $grand_total,
                 'total_bayar' => $d_jual[0]['total_bayar'],
                 'total_diskon' => $d_jual[0]['total_diskon'],
-                'kembalian' => ($d_jual[0]['total_bayar'] > 0 && ($d_jual[0]['total_bayar']-($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan'])) > 0) ? $d_jual[0]['total_bayar'] - ($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan']) : 0,
+                'kembalian' => ($total_bayar > 0 && ($total_bayar-($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan'])) > 0) ? $total_bayar - ($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan']) : 0,
                 'bayar_id' => $d_jual[0]['bayar_id'],
                 'detail' => $detail,
                 'jenis_bayar' => $jenis_bayar,

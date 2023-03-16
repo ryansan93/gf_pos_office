@@ -658,6 +658,12 @@ class SummaryPenjualanHarian extends Public_Controller {
                         '4' => ($value['id'] == 4) ? $value['nilai'] : 0
                     );
                 }
+
+                if ( isset($data[ $key ]['kategori_pembayaran'][4]) && $data[ $key ]['kategori_pembayaran'][4] > 0 ) {
+                    $data[ $key ]['kategori_pembayaran'][1] = 0;
+                    $data[ $key ]['kategori_pembayaran'][2] = 0;
+                    $data[ $key ]['kategori_pembayaran'][3] = 0;
+                }
             }
         }
 
