@@ -994,10 +994,10 @@ class SalesRecapitulation extends Public_Controller
                         on
                             b.id = byr.id
                     where
-                        b.mstatus = 1
+                        b.mstatus = 1 and
+                        byr.faktur_kode = '".$kode_faktur."'
                     order by
-                        faktur_kode asc
-                        b.faktur_kode = '".$kode_faktur."'
+                        b.id asc
                 ";
                 $d_bayar = $m_conf->hydrateRaw( $sql );
 
