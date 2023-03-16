@@ -375,11 +375,13 @@ class SalesRecapitulation extends Public_Controller
             $jenis_bayar = null;
             $jenis_diskon = null;
             foreach ($d_jual as $k_jual => $v_jual) {
-                $total_belanja += $v_jual['total'];
-                $total_sc += $v_jual['service_charge'];
-                $total_ppn += $v_jual['ppn'];
-
                 $key_jp = $v_jual['nama_jenis_pesanan'].'|'.$v_jual['kode_jenis_pesanan'];
+
+                if ( !isset($detail[ $key_jp ]) ) {
+                    $total_belanja += $v_jual['total'];
+                    $total_sc += $v_jual['service_charge'];
+                    $total_ppn += $v_jual['ppn'];
+                }
 
                 $detail[ $key_jp ]['kode_jenis_pesanan'] = $v_jual['kode_jenis_pesanan'];
                 $detail[ $key_jp ]['nama_jenis_pesanan'] = $v_jual['nama_jenis_pesanan'];
