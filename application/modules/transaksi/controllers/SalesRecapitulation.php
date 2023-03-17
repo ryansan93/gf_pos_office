@@ -304,14 +304,14 @@ class SalesRecapitulation extends Public_Controller
                                 bd.jenis_bayar, 
                                 bd.kode_jenis_kartu, 
                                 bd.nominal
-                            from bayar_det bd 
-                            right join
-                                bayar b 
+                            from bayar b
+                            left join
+                                bayar_det bd
                                 on
                                     bd.id_header = b.id
-                            
+                                                    
                             union all
-                            
+                                                    
                             select
                                 b.id, 
                                 b.tgl_trans,
@@ -329,17 +329,17 @@ class SalesRecapitulation extends Public_Controller
                                 bd.jenis_bayar, 
                                 bd.kode_jenis_kartu, 
                                 bd.nominal
-                            from bayar_det bd 
-                            right join
-                                bayar b 
+                            from bayar b
+                            left join
+                                bayar_det bd 
                                 on
                                     bd.id_header = b.id
-                            right join
+                            left join
                                 bayar_hutang bh 
                                 on
                                     bh.id_header = b.id
                         ) _data
-                        right join
+                        left join
                             jenis_kartu jk
                             on
                                 _data.kode_jenis_kartu = jk.kode_jenis_kartu
