@@ -74,7 +74,7 @@ class Penjualan extends Public_Controller {
             $branch = $params['branch'];
 
             $m_jual = new \Model\Storage\Jual_model();
-            $d_jual = $m_jual->whereBetween('tgl_trans', [$start_date, $end_date])->where('branch', $branch)->where('mstatus', 1)->with(['detail', 'bayar'])->orderBy('tgl_trans', 'asc')->get();
+            $d_jual = $m_jual->whereBetween('tgl_trans', [$start_date, $end_date])->where('branch', $branch)->with(['detail', 'bayar'])->orderBy('tgl_trans', 'asc')->get();
 
             $data = null;
             if ( $d_jual->count() > 0 ) {
