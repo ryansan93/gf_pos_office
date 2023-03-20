@@ -123,9 +123,9 @@ class Penjualan extends Public_Controller {
                         where
                             jg.faktur_kode_gabungan = '".$v_data['kode_faktur']."'
                     ";
-                    $d_cek_faktur = $m_conf->hydrateRaw( $sql )->count(); else {
-                        $d_cek_faktur = 1;
-                    }
+                    $d_cek_faktur = $m_conf->hydrateRaw( $sql )->count(); 
+                } else {
+                    $d_cek_faktur = 1;
                 }
 
                 if ( $d_cek_faktur > 0 ) {
