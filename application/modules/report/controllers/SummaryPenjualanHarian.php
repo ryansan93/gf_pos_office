@@ -547,7 +547,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                 kjk.id,
                 case
                     when kjk.id = 4 then
-                        byr.jml_tagihan
+                        byr.jml_tagihan - byr.jml_bayar
                     when kjk.id != 4 then
                         sum(bd.nominal)
                 end as nilai
@@ -631,6 +631,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                 jl.tgl_trans,
                 kjk.id,
                 byr.jml_tagihan,
+                byr.jml_bayar,
                 bd.nominal
         ";
 
@@ -659,11 +660,11 @@ class SummaryPenjualanHarian extends Public_Controller {
                     );
                 }
 
-                if ( isset($data[ $key ]['kategori_pembayaran'][4]) && $data[ $key ]['kategori_pembayaran'][4] > 0 ) {
-                    $data[ $key ]['kategori_pembayaran'][1] = 0;
-                    $data[ $key ]['kategori_pembayaran'][2] = 0;
-                    $data[ $key ]['kategori_pembayaran'][3] = 0;
-                }
+                // if ( isset($data[ $key ]['kategori_pembayaran'][4]) && $data[ $key ]['kategori_pembayaran'][4] > 0 ) {
+                //     $data[ $key ]['kategori_pembayaran'][1] = 0;
+                //     $data[ $key ]['kategori_pembayaran'][2] = 0;
+                //     $data[ $key ]['kategori_pembayaran'][3] = 0;
+                // }
             }
         }
 

@@ -1104,7 +1104,7 @@ class SalesRecapitulation extends Public_Controller
                         $m_bayar = new \Model\Storage\Bayar_model();
                         $m_bayar->where('id', $v_bayar['id'])->update(
                             array(
-                                'jml_tagihan' => $jml_tagihan_total,
+                                'jml_tagihan' => $d_ji_new['grand_total']-$data_diskon['total_diskon'],
                                 'jml_bayar' => $jml_bayar,
                                 'diskon' => $data_diskon['total_diskon'],
                                 'total' => $d_ji_new['grand_total'],
@@ -1114,21 +1114,64 @@ class SalesRecapitulation extends Public_Controller
                         );
                     }
 
+                    $hutang = 1;
                     $lunas = 0;
                     if ( $jml_bayar_total >= $jml_tagihan_total ) {
                         $lunas = 1;
+                        $hutang = 0;
                     }
 
-                    $m_jual = new \Model\Storage\Jual_model();
-                    $m_jual->where('kode_faktur', $d_ji_new['kode_faktur'])->update(
-                        array(
-                            'total' => $d_ji_new['total'],
-                            'service_charge' => $d_ji_new['service_charge'],
-                            'ppn' => $d_ji_new['ppn'],
-                            'grand_total' => $d_ji_new['grand_total'],
-                            'lunas' => $lunas
-                        )
-                    );
+                    $m_conf = new \Model\Storage\Conf();
+                    $sql = "
+                        select 
+                            j.kode_faktur,
+                            case
+                                when jp.include = 1 then
+                                    sum(ji.total) - sum(ji.service_charge) - sum(ji.ppn)
+                                when jp.exclude = 1 then
+                                    sum(ji.total)
+                            end as total,
+                            sum(ji.service_charge) as service_charge,
+                            sum(ji.ppn) as ppn,
+                            case
+                                when jp.include = 1 then
+                                    sum(ji.total)
+                                when jp.exclude = 1 then
+                                    sum(ji.total) + sum(ji.service_charge) + sum(ji.ppn)
+                            end as grand_total
+                        from jual_item ji
+                        right join
+                            jenis_pesanan jp
+                            on
+                                ji.kode_jenis_pesanan = jp.kode
+                        right join
+                            jual j
+                            on
+                                ji.faktur_kode = j.kode_faktur
+                        where
+                            j.kode_faktur = '".$kode_faktur."'
+                        group by
+                            j.kode_faktur,
+                            jp.include,
+                            jp.exclude
+                    ";
+                    $d_nota = $m_conf->hydrateRaw( $sql );
+
+                    if ( $d_nota->count() > 0 ) {
+                        $d_nota = $d_nota->toArray()[0];
+
+                        $m_jual = new \Model\Storage\Jual_model();
+                        $m_jual->where('kode_faktur', $d_ji_new['kode_faktur'])->update(
+                            array(
+                                'total' => $d_nota['total'],
+                                'service_charge' => $d_nota['service_charge'],
+                                'ppn' => $d_nota['ppn'],
+                                'grand_total' => $d_nota['grand_total'],
+                                'lunas' => $lunas,
+                                'hutang' => $hutang
+                            )
+                        );
+                    }
                 }
             }
 
