@@ -602,12 +602,24 @@ class SummaryPenjualanHarian extends Public_Controller {
                 ) jl
             right join
                 (
-                    select byr1.* from bayar byr1
+                    select byr1.id, byr1.faktur_kode, byr1.jml_tagihan, byr1.jml_bayar from bayar byr1
                     right join
                         ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
                         on
                             byr1.id = byr2.id
-                    where byr1.mstatus = 1
+                    where 
+                        byr1.mstatus = 1 and
+                        byr1.faktur_kode is not null
+                    
+                    union all
+                    
+                    select b.id, bh.faktur_kode, bh.hutang as jml_tagihan, bh.bayar as jml_bayar from bayar_hutang bh 
+                    right join
+                        bayar b
+                        on
+                            bh.id_header = b.id
+                    where
+                        b.mstatus = 1
                 ) byr
                 on
                     jl.kode_faktur = byr.faktur_kode
