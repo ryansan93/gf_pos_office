@@ -449,7 +449,7 @@ class SalesRecapitulation extends Public_Controller
                 'total_sc' => $total_sc,
                 'total_ppn' => $total_ppn,
                 'grand_total_gabungan' => ($d_jual[0]['grand_total_gabungan'] > 0) ? $d_jual[0]['grand_total_gabungan'] : 0,
-                'grand_total' => $grand_total,
+                'grand_total' => $grand_total - $d_jual[0]['total_diskon'],
                 'total_bayar' => $total_bayar,
                 'total_diskon' => $d_jual[0]['total_diskon'],
                 'kembalian' => ($total_bayar > 0 && ($total_bayar-($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan'])) > 0) ? $total_bayar - ($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan']) : 0,
