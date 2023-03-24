@@ -592,7 +592,7 @@ class Penjualan extends Public_Controller {
                     if ( $d_pending->count() > 0 ) {
                         $d_pending = $d_pending->toArray()[0];
 
-                        cetak_r( $d_pending );
+                        // cetak_r( $d_pending );
 
                         $key_jb = 'pending';
                         $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['nama'] = 'PENDING';
