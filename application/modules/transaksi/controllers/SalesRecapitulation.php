@@ -1114,11 +1114,9 @@ class SalesRecapitulation extends Public_Controller
                         );
                     }
 
-                    $hutang = 1;
                     $lunas = 0;
                     if ( $jml_bayar_total >= $jml_tagihan_total ) {
                         $lunas = 1;
-                        $hutang = 0;
                     }
 
                     $m_conf = new \Model\Storage\Conf();
@@ -1167,8 +1165,7 @@ class SalesRecapitulation extends Public_Controller
                                 'service_charge' => $d_nota['service_charge'],
                                 'ppn' => $d_nota['ppn'],
                                 'grand_total' => $d_nota['grand_total'],
-                                'lunas' => $lunas,
-                                'hutang' => $hutang
+                                'lunas' => $lunas
                             )
                         );
                     }
