@@ -30,13 +30,13 @@
 				<tbody class="list">
 					<?php if ( !empty($data) ): ?>
 						<?php foreach ($data as $k_data => $v_data): ?>
-							<tr class="head cursor-p" data-kode="<?php echo $v_data['kode']; ?>" onclick="diskon.modalViewForm(this)">
-								<td><?php echo $v_data['branch']['nama']; ?></td>
-								<td><?php echo $v_data['nama']; ?></td>
-								<td><?php echo $v_data['deskripsi']; ?></td>
-								<td class="text-center"><?php echo tglIndonesia($v_data['start_date'], '-', ' '); ?></td>
-								<td class="text-center"><?php echo tglIndonesia($v_data['end_date'], '-', ' '); ?></td>
-								<td class="text-center" style="color: <?php echo ($v_data['mstatus'] == 1) ? '#000000' : 'RED'; ?>"><b><?php echo ($v_data['mstatus'] == 1) ? 'SUBMITTED' : 'REMOVED'; ?></b></td>
+							<tr class="head cursor-p" data-kode="<?php echo $v_data['kode']; ?>">
+								<td onclick="diskon.modalViewForm(this)"><?php echo $v_data['branch']['nama']; ?></td>
+								<td onclick="diskon.modalViewForm(this)"><?php echo $v_data['nama']; ?></td>
+								<td onclick="diskon.modalViewForm(this)"><?php echo $v_data['deskripsi']; ?></td>
+								<td onclick="diskon.modalViewForm(this)" class="text-center"><?php echo tglIndonesia($v_data['start_date'], '-', ' '); ?></td>
+								<td onclick="diskon.modalViewForm(this)" class="text-center"><?php echo tglIndonesia($v_data['end_date'], '-', ' '); ?></td>
+								<td onclick="diskon.modalViewForm(this)" class="text-center" style="color: <?php echo ($v_data['mstatus'] == 1) ? '#000000' : 'RED'; ?>"><b><?php echo ($v_data['mstatus'] == 1) ? 'SUBMITTED' : 'REMOVED'; ?></b></td>
 								<td>
 									<!-- <div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
 										<?php if ( $akses['a_edit'] == 1 ) { ?>

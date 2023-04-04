@@ -71,7 +71,7 @@
 						<input type="text" class="form-control text-right ppn" placeholder="PB1" style="height: 20px;" value="0" data-tipe="decimal" maxlength="6" disabled>
 					</div>
 				</div>
-				<div class="col-xs-12 no-padding contain">
+				<div class="col-xs-12 no-padding contain" style="padding-bottom: 30px;">
 					<div class="col-xs-1">
 						<input type="checkbox" class="status_service_charge form-check-input cursor-p" style="height: 20px; margin: 0px;" onchange="diskon.cekCheckbox(this)">
 					</div>
@@ -79,6 +79,12 @@
 					<div class="col-xs-3">
 						<input type="text" class="form-control text-right service_charge" placeholder="Service Charge" style="height: 20px;" value="0" data-tipe="decimal" maxlength="6" disabled>
 					</div>
+				</div>
+				<div class="col-xs-12 no-padding contain">
+					<div class="col-xs-1">
+						<input type="checkbox" class="harga_hpp form-check-input cursor-p" style="height: 20px; margin: 0px;">
+					</div>
+					<div class="col-xs-5"><label class="control-label">Tampil Harga HPP</label></div>
 				</div>
 				<div class="col-xs-12"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 				<div class="col-xs-6 no-padding" style="padding-right: 5px; padding-bottom: 10px;">

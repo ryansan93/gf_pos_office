@@ -905,282 +905,316 @@ class SalesRecapitulation extends Public_Controller
         $kode_faktur = $this->input->post('params');
 
         try {
+            $harga_hpp = 0;
             $m_conf = new \Model\Storage\Conf();
             $sql = "
-                select
-                    _data.kode_faktur_utama as kode_faktur,
-                    sum(_data.grand_total) as grand_total,
-                    sum(_data.total) as total,
-                    sum(_data.service_charge) as service_charge_real,
-                    sum(_data.ppn) as ppn_real,
-                    sum(_data.service_charge) as service_charge,
-                    sum(_data.ppn) as ppn
-                from
-                (
-                    select 
-                        j.kode_faktur_utama, 
-                        case
-                            when jp.exclude = 1 then
-                                ji.total + ji.service_charge + ji.ppn
-                            when jp.include = 1 then
-                                ji.total
-                        end as grand_total,
-                        case
-                            when jp.exclude = 1 then
-                                ji.service_charge
-                            when jp.include = 1 then
-                                0
-                        end as service_charge_real,
-                        case
-                            when jp.exclude = 1 then
-                                ji.ppn
-                            when jp.include = 1 then
-                                0
-                        end as ppn_real,
-                        ji.total, 
-                        ji.service_charge, 
-                        ji.ppn
-                    from jual_item ji
-                    right join
-                        jenis_pesanan jp
-                        on
-                            jp.kode = ji.kode_jenis_pesanan
-                    right join
-                        (
-                            select * from (
-                                select 
-                                    j.kode_faktur as kode_faktur,
-                                    j.kode_faktur as kode_faktur_utama,
-                                    j.tgl_trans
-                                from jual j 
-                                where 
-                                    j.kode_faktur = '".$kode_faktur."' and
-                                    j.mstatus = 1
-                                group by
-                                    j.kode_faktur,
-                                    j.tgl_trans
-
-                                UNION ALL
-
-                                select 
-                                    jg.faktur_kode_gabungan as kode_faktur,
-                                    jg.faktur_kode as kode_faktur_utama,
-                                    j.tgl_trans
-                                from jual_gabungan jg
-                                right join
-                                    jual j1
-                                    on
-                                        j1.kode_faktur = jg.faktur_kode_gabungan
-                                right join
-                                    (
-                                        select 
-                                            j.kode_faktur as kode_faktur,
-                                            j.tgl_trans
-                                        from jual j 
-                                        where 
-                                            j.kode_faktur = '".$kode_faktur."' and
-                                            j.mstatus = 1
-                                        group by
-                                            j.kode_faktur,
-                                            j.tgl_trans
-                                    ) j
-                                    on
-                                        j.kode_faktur = jg.faktur_kode
-                                where
-                                    j1.mstatus = 1
-                                group by
-                                    jg.faktur_kode_gabungan,
-                                    jg.faktur_kode,
-                                    j.tgl_trans
-                            ) jl1
-                            where
-                                jl1.kode_faktur is not null
-                        ) j
-                        on
-                            ji.faktur_kode = j.kode_faktur
-                ) _data
+                select b.id, max(d.harga_hpp) as harga_hpp from bayar_diskon bd
+                right join
+                    diskon d
+                    on
+                        bd.diskon_kode = d.kode
+                right join
+                    bayar b
+                    on
+                        bd.id_header = b.id
+                where
+                    b.faktur_kode = '".$kode_faktur."' and
+                    b.mstatus = 1
                 group by
-                    _data.kode_faktur_utama
+                    b.id
             ";
-            $d_ji_new = $m_conf->hydrateRaw( $sql );
+            $d_conf = $m_conf->hydrateRaw( $sql );
 
-            if ( $d_ji_new->count() > 0 ) {
-                $d_ji_new = $d_ji_new->toArray()[0];
+            if ( $d_conf->count() > 0 ) {
+                $d_conf = $d_conf->toArray()[0];
 
+                $harga_hpp = $d_conf['harga_hpp'];
+            }
+
+            $result = $this->prosesUpdatePenjualan($kode_faktur, $harga_hpp);
+
+            if ( isset($result['status']) && $result['status'] == 1 ) {
                 $m_conf = new \Model\Storage\Conf();
                 $sql = "
-                    select 
-                        b.id,
-                        b.tgl_trans,
-                        byr.faktur_kode,
-                        b.jml_tagihan,
-                        b.jml_bayar,
-                        b.jenis_bayar,
-                        b.jenis_kartu_kode,
-                        b.no_bukti,
-                        b.kode_bayar_non_kasir,
-                        b.mstatus,
-                        b.ppn,
-                        b.service_charge,
-                        b.diskon,
-                        b.total,
-                        b.member_kode,
-                        b.member,
-                        b.kasir,
-                        b.nama_kasir
-                    from bayar b
-                    right join
-                        (
-                            select * from
-                            (
-                                select max(id) as id, faktur_kode from bayar where faktur_kode is not null group by faktur_kode
-                                
-                                union all
-                                
-                                select
-                                    b.id,
-                                    bh.faktur_kode 
-                                from bayar_hutang bh 
-                                right join
-                                    bayar b
-                                    on
-                                        bh.id_header = b.id
-                            ) _data
-                            where
-                                _data.faktur_kode is not null
-                        ) byr
-                        on
-                            b.id = byr.id
-                    where
-                        b.mstatus = 1 and
-                        byr.faktur_kode = '".$kode_faktur."'
-                    order by
-                        b.id asc
-                ";
-                $d_bayar = $m_conf->hydrateRaw( $sql );
-
-                if ( $d_bayar->count() > 0 ) {
-                    $d_bayar = $d_bayar->toArray();
-
-                    $jml_tagihan_total = $d_ji_new['grand_total'];
-                    $jml_bayar_total = 0;
-
-                    $jml_tagihan = $d_ji_new['grand_total'];
-                    foreach ($d_bayar as $k_bayar => $v_bayar) {
-                        $jml_bayar = 0;
-
-                        $m_conf = new \Model\Storage\Conf();
-                        $sql = "
-                            select bd.id_header, sum(bd.nominal) as total_bayar from bayar_det bd
-                            where
-                                bd.id_header = ".$v_bayar['id']."
-                            group by
-                                bd.id_header
-                        ";
-                        $d_tb = $m_conf->hydrateRaw( $sql );
-
-                        if ( $d_tb->count() > 0 ) {
-                            $d_tb = $d_tb->toArray()[0];
-
-                            $jml_bayar = $d_tb['total_bayar'];
-                            $jml_bayar_total += $jml_bayar;
-                        }
-
-                        $data_diskon = $this->hitDiskon($d_ji_new['kode_faktur'], $v_bayar['id']);
-
-                        if ( isset($data_diskon['data_diskon']) && !empty($data_diskon['data_diskon']) ) {
-                            foreach ($data_diskon['data_diskon'] as $k_dd => $v_dd) {
-                                $m_bd = new \Model\Storage\BayarDiskon_model();
-                                $m_bd->where('id', $v_dd['id'])->update(
-                                    array(
-                                        'nilai' => $v_dd['nominal']
-                                    )
-                                );
-                            }
-                        }
-
-                        $jml_tagihan = $jml_tagihan - $data_diskon['total_diskon'];
-
-                        $m_bayar = new \Model\Storage\Bayar_model();
-                        $m_bayar->where('id', $v_bayar['id'])->update(
-                            array(
-                                'jml_tagihan' => $d_ji_new['grand_total']-$data_diskon['total_diskon'],
-                                'jml_bayar' => $jml_bayar,
-                                'diskon' => $data_diskon['total_diskon'],
-                                'total' => $d_ji_new['grand_total'],
-                                'ppn' => $d_ji_new['ppn_real'],
-                                'service_charge' => $d_ji_new['service_charge_real']
-                            )
-                        );
-                    }
-
-                    $lunas = 0;
-                    if ( $jml_bayar_total >= $jml_tagihan_total ) {
-                        $lunas = 1;
-                    }
-
-                    $m_conf = new \Model\Storage\Conf();
-                    $sql = "
+                    select
+                        _data.kode_faktur_utama as kode_faktur,
+                        sum(_data.grand_total) as grand_total,
+                        sum(_data.total) as total,
+                        sum(_data.service_charge) as service_charge_real,
+                        sum(_data.ppn) as ppn_real,
+                        sum(_data.service_charge) as service_charge,
+                        sum(_data.ppn) as ppn
+                    from
+                    (
                         select 
-                            j.kode_faktur,
+                            j.kode_faktur_utama, 
                             case
-                                when jp.include = 1 then
-                                    sum(ji.total) - sum(ji.service_charge) - sum(ji.ppn)
                                 when jp.exclude = 1 then
-                                    sum(ji.total)
-                            end as total,
-                            sum(ji.service_charge) as service_charge,
-                            sum(ji.ppn) as ppn,
+                                    ji.total + ji.service_charge + ji.ppn
+                                when jp.include = 1 then
+                                    ji.total
+                            end as grand_total,
                             case
-                                when jp.include = 1 then
-                                    sum(ji.total)
                                 when jp.exclude = 1 then
-                                    sum(ji.total) + sum(ji.service_charge) + sum(ji.ppn)
-                            end as grand_total
+                                    ji.service_charge
+                                when jp.include = 1 then
+                                    0
+                            end as service_charge_real,
+                            case
+                                when jp.exclude = 1 then
+                                    ji.ppn
+                                when jp.include = 1 then
+                                    0
+                            end as ppn_real,
+                            ji.total, 
+                            ji.service_charge, 
+                            ji.ppn
                         from jual_item ji
                         right join
                             jenis_pesanan jp
                             on
-                                ji.kode_jenis_pesanan = jp.kode
+                                jp.kode = ji.kode_jenis_pesanan
                         right join
-                            jual j
+                            (
+                                select * from (
+                                    select 
+                                        j.kode_faktur as kode_faktur,
+                                        j.kode_faktur as kode_faktur_utama,
+                                        j.tgl_trans
+                                    from jual j 
+                                    where 
+                                        j.kode_faktur = '".$kode_faktur."' and
+                                        j.mstatus = 1
+                                    group by
+                                        j.kode_faktur,
+                                        j.tgl_trans
+
+                                    UNION ALL
+
+                                    select 
+                                        jg.faktur_kode_gabungan as kode_faktur,
+                                        jg.faktur_kode as kode_faktur_utama,
+                                        j.tgl_trans
+                                    from jual_gabungan jg
+                                    right join
+                                        jual j1
+                                        on
+                                            j1.kode_faktur = jg.faktur_kode_gabungan
+                                    right join
+                                        (
+                                            select 
+                                                j.kode_faktur as kode_faktur,
+                                                j.tgl_trans
+                                            from jual j 
+                                            where 
+                                                j.kode_faktur = '".$kode_faktur."' and
+                                                j.mstatus = 1
+                                            group by
+                                                j.kode_faktur,
+                                                j.tgl_trans
+                                        ) j
+                                        on
+                                            j.kode_faktur = jg.faktur_kode
+                                    where
+                                        j1.mstatus = 1
+                                    group by
+                                        jg.faktur_kode_gabungan,
+                                        jg.faktur_kode,
+                                        j.tgl_trans
+                                ) jl1
+                                where
+                                    jl1.kode_faktur is not null
+                            ) j
                             on
                                 ji.faktur_kode = j.kode_faktur
+                    ) _data
+                    group by
+                        _data.kode_faktur_utama
+                ";
+                $d_ji_new = $m_conf->hydrateRaw( $sql );
+
+                if ( $d_ji_new->count() > 0 ) {
+                    $d_ji_new = $d_ji_new->toArray()[0];
+
+                    $m_conf = new \Model\Storage\Conf();
+                    $sql = "
+                        select 
+                            b.id,
+                            b.tgl_trans,
+                            byr.faktur_kode,
+                            b.jml_tagihan,
+                            b.jml_bayar,
+                            b.jenis_bayar,
+                            b.jenis_kartu_kode,
+                            b.no_bukti,
+                            b.kode_bayar_non_kasir,
+                            b.mstatus,
+                            b.ppn,
+                            b.service_charge,
+                            b.diskon,
+                            b.total,
+                            b.member_kode,
+                            b.member,
+                            b.kasir,
+                            b.nama_kasir
+                        from bayar b
+                        right join
+                            (
+                                select * from
+                                (
+                                    select max(id) as id, faktur_kode from bayar where faktur_kode is not null group by faktur_kode
+                                    
+                                    union all
+                                    
+                                    select
+                                        b.id,
+                                        bh.faktur_kode 
+                                    from bayar_hutang bh 
+                                    right join
+                                        bayar b
+                                        on
+                                            bh.id_header = b.id
+                                ) _data
+                                where
+                                    _data.faktur_kode is not null
+                            ) byr
+                            on
+                                b.id = byr.id
                         where
-                            j.kode_faktur = '".$kode_faktur."'
-                        group by
-                            j.kode_faktur,
-                            jp.include,
-                            jp.exclude
+                            b.mstatus = 1 and
+                            byr.faktur_kode = '".$kode_faktur."'
+                        order by
+                            b.id asc
                     ";
-                    $d_nota = $m_conf->hydrateRaw( $sql );
+                    $d_bayar = $m_conf->hydrateRaw( $sql );
 
-                    if ( $d_nota->count() > 0 ) {
-                        $d_nota = $d_nota->toArray()[0];
+                    if ( $d_bayar->count() > 0 ) {
+                        $d_bayar = $d_bayar->toArray();
 
-                        $m_jual = new \Model\Storage\Jual_model();
-                        $m_jual->where('kode_faktur', $d_ji_new['kode_faktur'])->update(
-                            array(
-                                'total' => $d_nota['total'],
-                                'service_charge' => $d_nota['service_charge'],
-                                'ppn' => $d_nota['ppn'],
-                                'grand_total' => $d_nota['grand_total'],
-                                'lunas' => $lunas
-                            )
-                        );
+                        $jml_tagihan_total = $d_ji_new['grand_total'];
+                        $jml_bayar_total = 0;
+
+                        $jml_tagihan = $d_ji_new['grand_total'];
+                        foreach ($d_bayar as $k_bayar => $v_bayar) {
+                            $jml_bayar = 0;
+
+                            $m_conf = new \Model\Storage\Conf();
+                            $sql = "
+                                select bd.id_header, sum(bd.nominal) as total_bayar from bayar_det bd
+                                where
+                                    bd.id_header = ".$v_bayar['id']."
+                                group by
+                                    bd.id_header
+                            ";
+                            $d_tb = $m_conf->hydrateRaw( $sql );
+
+                            if ( $d_tb->count() > 0 ) {
+                                $d_tb = $d_tb->toArray()[0];
+
+                                $jml_bayar = $d_tb['total_bayar'];
+                                $jml_bayar_total += $jml_bayar;
+                            }
+
+                            $data_diskon = $this->hitDiskon($d_ji_new['kode_faktur'], $v_bayar['id']);
+
+                            if ( isset($data_diskon['data_diskon']) && !empty($data_diskon['data_diskon']) ) {
+                                foreach ($data_diskon['data_diskon'] as $k_dd => $v_dd) {
+                                    $m_bd = new \Model\Storage\BayarDiskon_model();
+                                    $m_bd->where('id', $v_dd['id'])->update(
+                                        array(
+                                            'nilai' => $v_dd['nominal']
+                                        )
+                                    );
+                                }
+                            }
+
+                            $jml_tagihan = $jml_tagihan - $data_diskon['total_diskon'];
+
+                            $jml_tagihan_total -= $data_diskon['total_diskon'];
+
+                            $m_bayar = new \Model\Storage\Bayar_model();
+                            $m_bayar->where('id', $v_bayar['id'])->update(
+                                array(
+                                    'jml_tagihan' => $d_ji_new['grand_total']-$data_diskon['total_diskon'],
+                                    'jml_bayar' => $jml_bayar,
+                                    'diskon' => $data_diskon['total_diskon'],
+                                    'total' => $d_ji_new['grand_total'],
+                                    'ppn' => $d_ji_new['ppn_real'],
+                                    'service_charge' => $d_ji_new['service_charge_real']
+                                )
+                            );
+                        }
+
+                        $lunas = 0;
+                        if ( $jml_bayar_total >= $jml_tagihan_total ) {
+                            $lunas = 1;
+                        }
+
+                        $m_conf = new \Model\Storage\Conf();
+                        $sql = "
+                            select 
+                                j.kode_faktur,
+                                case
+                                    when jp.include = 1 then
+                                        sum(ji.total) - sum(ji.service_charge) - sum(ji.ppn)
+                                    when jp.exclude = 1 then
+                                        sum(ji.total)
+                                end as total,
+                                sum(ji.service_charge) as service_charge,
+                                sum(ji.ppn) as ppn,
+                                case
+                                    when jp.include = 1 then
+                                        sum(ji.total)
+                                    when jp.exclude = 1 then
+                                        sum(ji.total) + sum(ji.service_charge) + sum(ji.ppn)
+                                end as grand_total
+                            from jual_item ji
+                            right join
+                                jenis_pesanan jp
+                                on
+                                    ji.kode_jenis_pesanan = jp.kode
+                            right join
+                                jual j
+                                on
+                                    ji.faktur_kode = j.kode_faktur
+                            where
+                                j.kode_faktur = '".$kode_faktur."'
+                            group by
+                                j.kode_faktur,
+                                jp.include,
+                                jp.exclude
+                        ";
+                        $d_nota = $m_conf->hydrateRaw( $sql );
+
+                        if ( $d_nota->count() > 0 ) {
+                            $d_nota = $d_nota->toArray()[0];
+
+                            $m_jual = new \Model\Storage\Jual_model();
+                            $m_jual->where('kode_faktur', $d_ji_new['kode_faktur'])->update(
+                                array(
+                                    'total' => $d_nota['total'],
+                                    'service_charge' => $d_nota['service_charge'],
+                                    'ppn' => $d_nota['ppn'],
+                                    'grand_total' => $d_nota['grand_total'],
+                                    'lunas' => $lunas
+                                )
+                            );
+                        }
                     }
                 }
+
+                $m_jual = new \Model\Storage\Jual_model();
+                $d_jual = $m_jual->where('kode_faktur', $kode_faktur)->first();
+
+                $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                Modules::run( 'base/event/save', $d_jual, $deskripsi_log);
+
+                $this->result['status'] = 1;
+                $this->result['content'] = array('kode_faktur' => $kode_faktur);
+                $this->result['message'] = 'Data berhasil di proses.';
+            } else {
+                $result['message'] = 'Data berhasil di proses.';
             }
-
-            $m_jual = new \Model\Storage\Jual_model();
-            $d_jual = $m_jual->where('kode_faktur', $kode_faktur)->first();
-
-            $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_jual, $deskripsi_log);
-
-            $this->result['status'] = 1;
-            $this->result['content'] = array('kode_faktur' => $kode_faktur);
-            $this->result['message'] = 'Data berhasil di proses.';
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
         }
@@ -1773,6 +1807,237 @@ class SalesRecapitulation extends Public_Controller
         );
 
         return $_data_diskon;
+    }
+
+    public function prosesUpdatePenjualan($kode_faktur, $harga_hpp)
+    {
+        try {
+            $jual = null;
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select 
+                    j.*
+                from jual j 
+                where 
+                    j.kode_faktur = '".$kode_faktur."' and
+                    j.mstatus = 1
+            ";
+            $d_jual = $m_conf->hydrateRaw( $sql );
+
+            if ( $d_jual->count() > 0 ) {
+                $jual = $d_jual->toArray()[0];
+
+                $service_charge = 0;
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select * from service_charge sc
+                    where
+                        sc.mstatus = 1 and
+                        sc.branch_kode = '".$jual['branch']."'
+                ";
+                $d_sc = $m_conf->hydrateRaw( $sql );
+
+                if ( $d_sc->count() > 0 ) {
+                    $d_sc = $d_sc->toArray()[0];
+
+                    $service_charge = $d_sc['nilai'];
+                }
+
+                $ppn = 0;
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select * from ppn p
+                    where
+                        p.mstatus = 1 and
+                        p.branch_kode = '".$jual['branch']."'
+                ";
+                $d_pp = $m_conf->hydrateRaw( $sql );
+
+                if ( $d_pp->count() > 0 ) {
+                    $d_pp = $d_pp->toArray()[0];
+
+                    $ppn = $d_pp['nilai'];
+                }
+
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select 
+                        ji.*,
+                        jp.exclude,
+                        jp.include,
+                        m.service_charge as status_service_charge,
+                        m.ppn as status_ppn,
+                        hm.harga as harga_jual
+                    from jual_item ji
+                    right join
+                        jenis_pesanan jp
+                        on
+                            jp.kode = ji.kode_jenis_pesanan
+                    right join
+                        menu m
+                        on
+                            m.kode_menu = ji.menu_kode
+                    right join
+                        harga_menu hm
+                        on
+                            m.kode_menu = hm.menu_kode and
+                            jp.kode = hm.jenis_pesanan_kode and
+                            hm.tgl_mulai <= GETDATE()
+                    right join
+                        (
+                            select * from (
+                                select 
+                                    j.kode_faktur as kode_faktur,
+                                    j.kode_faktur as kode_faktur_utama,
+                                    j.tgl_trans
+                                from jual j 
+                                where 
+                                    j.kode_faktur = '".$kode_faktur."' and
+                                    j.mstatus = 1
+                                group by
+                                    j.kode_faktur,
+                                    j.tgl_trans
+
+                                UNION ALL
+
+                                select 
+                                    jg.faktur_kode_gabungan as kode_faktur,
+                                    jg.faktur_kode as kode_faktur_utama,
+                                    j.tgl_trans
+                                from jual_gabungan jg
+                                right join
+                                    jual j1
+                                    on
+                                        j1.kode_faktur = jg.faktur_kode_gabungan
+                                right join
+                                    (
+                                        select 
+                                            j.kode_faktur as kode_faktur,
+                                            j.tgl_trans
+                                        from jual j 
+                                        where 
+                                            j.kode_faktur = '".$kode_faktur."' and
+                                            j.mstatus = 1
+                                        group by
+                                            j.kode_faktur,
+                                            j.tgl_trans
+                                    ) j
+                                    on
+                                        j.kode_faktur = jg.faktur_kode
+                                where
+                                    j1.mstatus = 1
+                                group by
+                                    jg.faktur_kode_gabungan,
+                                    jg.faktur_kode,
+                                    j.tgl_trans
+                            ) jl1
+                            where
+                                jl1.kode_faktur is not null
+                        ) j
+                        on
+                            ji.faktur_kode = j.kode_faktur
+                ";
+                $d_ji = $m_conf->hydrateRaw( $sql );
+
+                $data_faktur = null;
+
+                if ( $d_ji->count() > 0 ) {
+                    $d_ji = $d_ji->toArray();
+
+                    foreach ($d_ji as $k_ji => $v_ji) {
+                        $jumlah = $v_ji['jumlah'];
+                        $harga = $v_ji['harga'];
+                        $total = $v_ji['total'];
+                        $total_service_charge = $v_ji['service_charge'];
+                        $total_ppn = $v_ji['ppn'];
+                        $exclude = $v_ji['exclude'];
+                        $include = $v_ji['include'];
+                        $status_service_charge = $v_ji['status_service_charge'];
+                        $status_ppn = $v_ji['status_ppn'];
+                        $harga_jual = $v_ji['harga_jual'];
+                        $grand_total = 0;
+                        if ( $harga_hpp == 1 ) {
+                            $_service_charge = ($total_service_charge > 0) ? $total_service_charge / $jumlah : 0;
+                            $_ppn = ($total_ppn > 0) ? $total_ppn / $jumlah : 0;
+
+                            $total_service_charge = 0;
+                            $total_ppn = 0;
+
+                            $harga = $harga - ($_service_charge + $_ppn);
+                            $total = $harga * $jumlah;
+
+                            $grand_total = $total;
+                        } else {
+                            $harga = $harga_jual;
+                            if ( $include == 1 ) {
+                                $total = $harga * $jumlah;
+
+                                $grand_total = $total;
+
+                                $pembagi = (100 + $service_charge) + ((100 + $service_charge) * ($ppn/100));
+
+                                $_total = $total / ($pembagi / 100);
+
+                                $total_service_charge = $_total * ($service_charge/100);
+                                $total_ppn = ($_total + $total_service_charge) * ($ppn/100);
+                            } else if ( $exclude == 1 ) {
+                                $total = $harga * $jumlah;
+                                $total_service_charge = ($status_service_charge == 1 && $service_charge > 0) ? round($total * ($service_charge / 100), 2) : 0;
+                                $total_ppn = ($status_ppn == 1 && $ppn > 0) ? round(($total + $total_service_charge) * ($ppn / 100), 2) : 0;
+
+                                $grand_total = $total + $total_service_charge + $total_ppn;
+                            }
+                        }
+
+                        $m_ji = new \Model\Storage\JualItem_model();
+                        $m_ji->where('kode_faktur_item', $v_ji['kode_faktur_item'])->update(
+                            array(
+                                'harga' => $harga,
+                                'total' => $grand_total,
+                                'service_charge' => $total_service_charge,
+                                'ppn' => $total_ppn,
+                            )
+                        );
+
+                        if ( !isset($data_faktur[ $v_ji['faktur_kode'] ]) ) {
+                            $data_faktur[ $v_ji['faktur_kode'] ] = array(
+                                'kode_faktur' => $v_ji['faktur_kode'],
+                                'total' => $total,
+                                'service_charge' => $total_service_charge,
+                                'ppn' => $total_ppn,
+                                'grand_total' => $grand_total,
+                            );
+                        } else {
+                            $data_faktur[ $v_ji['faktur_kode'] ]['total'] += $total;
+                            $data_faktur[ $v_ji['faktur_kode'] ]['service_charge'] += $total_service_charge;
+                            $data_faktur[ $v_ji['faktur_kode'] ]['ppn'] += $total_ppn;
+                            $data_faktur[ $v_ji['faktur_kode'] ]['grand_total'] += $grand_total;
+                        }
+                    }
+                }
+
+                if ( !empty($data_faktur) ) {
+                    foreach ($data_faktur as $k_df => $v_df) {
+                        $m_jual = new \Model\Storage\Jual_model();
+                        $m_jual->where('kode_faktur', $v_df['kode_faktur'])->update(
+                            array(
+                                'total' => $v_df['total'],
+                                'service_charge' => $v_df['service_charge'],
+                                'ppn' => $v_df['ppn'],
+                                'grand_total' => $v_df['grand_total'],
+                            )
+                        );
+                    }
+                }
+            }
+
+            $this->result['status'] = 1;
+            $this->result['message'] = 'Data berhasil di update.';
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        return $this->result;
     }
 
     public function tes()

@@ -64,7 +64,7 @@
                                             <?php echo $v_det['jumlah']; ?>
                                         </div>
                                         <div class="col-xs-3 no-padding text-right">
-                                            <?php echo angkaRibuan($v_det['total']); ?>
+                                            <?php echo angkaDecimal($v_det['total']); ?>
                                         </div>
                                         <div class="col-xs-1 no-padding" style="padding-left: 5px;">
                                             <button type="button" class="col-xs-12 btn btn-danger" style="padding: 1px;" onclick="sr.deletePesanan(this)" data-kode="<?php echo $v_det['kode_faktur_item']; ?>"><i class="fa fa-trash"></i></button>

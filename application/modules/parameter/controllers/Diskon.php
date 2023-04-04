@@ -167,6 +167,7 @@ class Diskon extends Public_Controller {
                 d.status_service_charge,
                 d.ppn,
                 d.service_charge,
+                d.harga_hpp,
                 d.start_date as tgl_mulai,
                 d.end_date as tgl_berakhir,
                 d.start_time as jam_mulai,
@@ -203,6 +204,7 @@ class Diskon extends Public_Controller {
                     'status_service_charge' => $val['status_service_charge'],
                     'ppn' => $val['ppn'],
                     'service_charge' => $val['service_charge'],
+                    'harga_hpp' => $val['harga_hpp'],
                     'tgl_mulai' => $val['tgl_mulai'],
                     'tgl_berakhir' => $val['tgl_berakhir'],
                     'jam_mulai' => $val['jam_mulai'],
@@ -369,6 +371,7 @@ class Diskon extends Public_Controller {
                 $m_diskon->diskon_jenis = $params['diskon_jenis'];
                 $m_diskon->min_beli = $params['min_beli'];
                 $m_diskon->mstatus = 1;
+                $m_diskon->harga_hpp = $params['harga_hpp'];
                 $m_diskon->save();
 
                 if ( isset($params['jenis_kartu']) && !empty($params['jenis_kartu']) ) {

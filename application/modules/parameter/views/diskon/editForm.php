@@ -178,13 +178,19 @@
 					<input type="text" class="form-control text-right ppn" placeholder="PB1" style="height: 20px;" value="<?php echo angkaDecimal($data['ppn']) ?>" data-tipe="decimal" maxlength="6" <?php echo ($data['status_ppn'] == 1) ? '' : 'disabled'; ?> >
 				</div>
 			</div>
-			<div class="col-xs-12 no-padding contain">
+			<div class="col-xs-12 no-padding contain" style="padding-bottom: 30px;">
 				<div class="col-xs-2"><label class="control-label">Service Charge (%)</label></div>
 				<div class="col-xs-1">
 					<input type="checkbox" class="status_service_charge col-xs-1 cursor-p" style="height: 20px; margin: 0px; width: 47%;" onchange="diskon.cekCheckbox(this)" <?php echo ($data['status_service_charge'] == 1) ? 'checked' : ''; ?> >
 				</div>
 				<div class="col-xs-1 no-padding">
 					<input type="text" class="form-control text-right service_charge" placeholder="Service Charge" style="height: 20px;" value="<?php echo angkaDecimal($data['service_charge']) ?>" data-tipe="decimal" maxlength="6" <?php echo ($data['status_service_charge'] == 1) ? '' : 'disabled'; ?> >
+				</div>
+			</div>
+			<div class="col-xs-12 no-padding">
+				<div class="col-xs-2"><label class="control-label">Tampil Harga HPP</label></div>
+				<div class="col-xs-10">
+					<input type="checkbox" class="harga_hpp col-xs-1 cursor-p" style="height: 20px; margin: 0px; width: 3%;" <?php echo ($data['detail'][0]['harga_hpp'] == 1) ? 'checked' : ''; ?> >
 				</div>
 			</div>
 			<div class="col-xs-12"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>

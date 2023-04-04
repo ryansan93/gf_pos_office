@@ -236,7 +236,7 @@ var diskon = {
 		$('.modal').modal('hide');
 
         $.get('parameter/diskon/modalViewForm',{
-        	'params': $(elm).attr('data-kode')
+        	'params': $(elm).closest('tr').attr('data-kode')
         },function(data){
             var _options = {
                 className : 'large',
@@ -436,6 +436,10 @@ var diskon = {
 					status_service_charge = 1;
 				}
 				var service_charge = numeral.unformat($(div).find('.service_charge').val());
+				var harga_hpp = 0;
+				if ( $(div).find('.harga_hpp').is(':checked') ) {
+					harga_hpp = 1;
+				}
 				var tgl_mulai = dateSQL($(div).find('#StartDate').data('DateTimePicker').date());
 				var tgl_akhir = dateSQL($(div).find('#EndDate').data('DateTimePicker').date());
 				var jam_mulai = dateTimeSQL($(div).find('#StartTime').data('DateTimePicker').date());
@@ -489,6 +493,7 @@ var diskon = {
 							'ppn': ppn,
 							'status_service_charge': status_service_charge,
 							'service_charge': service_charge,
+							'harga_hpp': harga_hpp,
 							'tgl_mulai': tgl_mulai,
 							'tgl_akhir': tgl_akhir,
 							'jam_mulai': jam_mulai,
@@ -577,6 +582,10 @@ var diskon = {
 					status_service_charge = 1;
 				}
 				var service_charge = numeral.unformat($(div).find('.service_charge').val());
+				var harga_hpp = 0;
+				if ( $(div).find('.harga_hpp').is(':checked') ) {
+					harga_hpp = 1;
+				}
 
 				var jenis_kartu = $(div).find('.jenis_kartu').select2('val');
 
@@ -612,6 +621,7 @@ var diskon = {
 							'ppn': ppn,
 							'status_service_charge': status_service_charge,
 							'service_charge': service_charge,
+							'harga_hpp': harga_hpp,
 							'jenis_kartu': jenis_kartu,
 							'menu': menu
 						};

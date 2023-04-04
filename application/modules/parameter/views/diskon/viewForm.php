@@ -71,13 +71,26 @@
 						</label>
 					</div>
 				</div>
-				<div class="col-xs-12 no-padding contain">
+				<div class="col-xs-12 no-padding contain" style="padding-bottom: 30px;">
 					<div class="col-xs-4"><label class="control-label">Service Charge (%)</label></div>
 					<div class="col-xs-1"><label class="control-label">:</label></div>
 					<div class="col-xs-7">
 						<label class="control-label">
 							<?php if ( $data['status_service_charge'] == 1 ): ?>
 								<i class="fa fa-check"></i> <span>(<?php echo $data['service_charge']; ?>)</span>
+							<?php else: ?>
+								<i class="fa fa-minus"></i>
+							<?php endif ?>
+						</label>
+					</div>
+				</div>
+				<div class="col-xs-12 no-padding">
+					<div class="col-xs-4"><label class="control-label">Tampil Harga HPP</label></div>
+					<div class="col-xs-1"><label class="control-label">:</label></div>
+					<div class="col-xs-7">
+						<label class="control-label">
+							<?php if ( $data['harga_hpp'] == 1 ): ?>
+								<i class="fa fa-check"></i>
 							<?php else: ?>
 								<i class="fa fa-minus"></i>
 							<?php endif ?>
