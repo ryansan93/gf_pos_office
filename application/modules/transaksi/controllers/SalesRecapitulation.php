@@ -507,7 +507,8 @@ class SalesRecapitulation extends Public_Controller
                 jg.total as total_gabungan,
                 jg.service_charge as sc_gabungan,
                 jg.ppn as ppn_gabungan,
-                (jg.total + jg.service_charge + jg.ppn) as grand_total_gabungan
+                (jg.total + jg.service_charge + jg.ppn) as grand_total_gabungan,
+                bd.nilai as diskon
             from
                 bayar b
             right join
@@ -604,6 +605,12 @@ class SalesRecapitulation extends Public_Controller
                 ) jg
                 on
                     jg.faktur_kode = b.faktur_kode
+            left join
+                (
+                    select id_header, sum(nilai) as nilai from bayar_diskon group by id_header
+                ) bd
+                on
+                    bd.id_header = b.id
             where
                 b.id = '".$id_bayar."'
         ";
@@ -617,6 +624,10 @@ class SalesRecapitulation extends Public_Controller
 
             if ( $jml_tagihan > $d_bayar['jml_bayar'] ) {
                 $sisa_tagihan = $jml_tagihan - $d_bayar['jml_bayar'];
+            }
+
+            if ( !empty($d_bayar['diskon']) && $d_bayar['diskon'] > 0 ) {
+                $jml_tagihan -= $d_bayar['diskon'];
             }
         }
 
