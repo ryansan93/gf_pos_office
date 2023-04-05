@@ -439,6 +439,8 @@ class SalesRecapitulation extends Public_Controller
 
             $grand_total = $total_belanja + $total_sc + $total_ppn + $d_jual[0]['grand_total_gabungan'];
 
+            $total_bayar = ($total_bayar > 0) ? $total_bayar : 0;
+
             $data = array(
                 'kode_faktur' => $d_jual[0]['kode_faktur'],
                 'tgl_trans' => $d_jual[0]['tgl_trans'],
