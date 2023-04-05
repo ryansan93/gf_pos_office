@@ -439,7 +439,7 @@ class SalesRecapitulation extends Public_Controller
 
             $grand_total = $total_belanja + $total_sc + $total_ppn + $d_jual[0]['grand_total_gabungan'];
 
-            $total_bayar = ($total_bayar > 0) ? $total_bayar : 0;
+            $grand_total = (($grand_total - $d_jual[0]['total_diskon']) > 0) ? $grand_total - $d_jual[0]['total_diskon'] : 0;
 
             $data = array(
                 'kode_faktur' => $d_jual[0]['kode_faktur'],
@@ -454,7 +454,7 @@ class SalesRecapitulation extends Public_Controller
                 'grand_total' => $grand_total - $d_jual[0]['total_diskon'],
                 'total_bayar' => $total_bayar,
                 'total_diskon' => $d_jual[0]['total_diskon'],
-                'kembalian' => ($total_bayar > 0 && ($total_bayar-($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan'])) > 0) ? $total_bayar - ($d_jual[0]['grand_total']+$d_jual[0]['grand_total_gabungan']) : 0,
+                'kembalian' => ($total_bayar > 0 && ($total_bayar-$grand_total) > 0) ? $total_bayar - $grand_total : 0,
                 'bayar_id' => $d_jual[0]['bayar_id'],
                 'detail' => $detail,
                 'jenis_bayar' => $jenis_bayar,
