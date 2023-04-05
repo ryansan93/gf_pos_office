@@ -517,7 +517,7 @@ class SalesRecapitulation extends Public_Controller
                 ) byr
                 on
                     b.id = byr.id
-            right join
+            left join
                 (
                     select
                         _data.kode_faktur,
@@ -627,7 +627,7 @@ class SalesRecapitulation extends Public_Controller
             }
 
             if ( !empty($d_bayar['diskon']) && $d_bayar['diskon'] > 0 ) {
-                $jml_tagihan -= $d_bayar['diskon'];
+                $sisa_tagihan -= $d_bayar['diskon'];
             }
         }
 
