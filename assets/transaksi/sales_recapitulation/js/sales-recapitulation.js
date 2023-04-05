@@ -108,7 +108,8 @@ var sr = {
                 });
 
                 $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal]').each(function(){
-                    $(this).priceFormat(Config[$(this).data('tipe')]);
+                    // $(this).priceFormat(Config[$(this).data('tipe')]);
+                    priceFormat( $(this) );
                 });
 
                 var modal_body = $(this).find('.modal-body');
@@ -162,7 +163,8 @@ var sr = {
                 });
 
                 $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal]').each(function(){
-                    $(this).priceFormat(Config[$(this).data('tipe')]);
+                    // $(this).priceFormat(Config[$(this).data('tipe')]);
+                    priceFormat( $(this) );
                 });
 
 
@@ -200,7 +202,8 @@ var sr = {
                 });
 
                 $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal]').each(function(){
-                    $(this).priceFormat(Config[$(this).data('tipe')]);
+                    // $(this).priceFormat(Config[$(this).data('tipe')]);
+                    priceFormat( $(this) );
                 });
 
                 $(this).removeAttr('tabindex');
