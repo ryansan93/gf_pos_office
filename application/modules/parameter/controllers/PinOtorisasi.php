@@ -90,8 +90,6 @@ class PinOtorisasi extends Public_Controller {
             $data = $d_conf->toArray();
         }
 
-        cetak_r( $data );
-
         return $data;
     }
 
