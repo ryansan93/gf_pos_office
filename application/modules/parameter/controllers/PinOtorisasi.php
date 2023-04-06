@@ -75,14 +75,13 @@ class PinOtorisasi extends Public_Controller {
     {
         $m_conf = new \Model\Storage\Conf();
         $sql = "
-            select df.* from detail_fitur df
-            right join
+            select df.*, mf.nama_fitur from detail_fitur df
+            left join
                 ms_fitur mf
                 on
                     df.id_fitur = mf.id_fitur
             where
-                mf.status = 1 and
-                df.id_fitur is not null
+            mf.status = 1
         ";
         $d_conf = $m_conf->hydrateRaw( $sql );
 
@@ -90,6 +89,8 @@ class PinOtorisasi extends Public_Controller {
         if ( $d_conf->count() > 0 ) {
             $data = $d_conf->toArray();
         }
+
+        cetak_r( $data );
 
         return $data;
     }

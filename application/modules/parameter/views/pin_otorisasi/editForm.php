@@ -61,7 +61,7 @@
 												$selected = 'selected';
 											}
 										?>
-										<option value="<?php echo $v_fitur['id_detfitur'] ?>" <?php echo $selected; ?> ><?php echo $v_fitur['id_detfitur'].' | '.$v_fitur['nama_detfitur']; ?></option>
+										<option value="<?php echo $v_fitur['id_detfitur'] ?>" <?php echo $selected; ?> ><?php echo $v_fitur['id_detfitur'].' | '.$v_fitur['nama_fitur'].' | '.$v_fitur['nama_detfitur']; ?></option>
 									<?php endforeach ?>
 								<?php endif ?>
 							</select>
