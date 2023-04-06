@@ -2,6 +2,11 @@ var po = {
 	start_up: function () {
 	}, // end - start_up
 
+	settingUp: function () {
+		$('select.user').select2();
+		$('select.fitur').select2();
+	}, // end - settingUp
+
 	setNama: function(elm) {
 		var div = $('.modal');
 
@@ -28,6 +33,10 @@ var po = {
             bootbox.dialog(_options).bind('shown.bs.modal', function(){
                 $(this).find('.modal-header').css({'padding-top': '0px'});
                 $(this).find('.modal-dialog').css({'width': '70%', 'max-width': '100%'});
+
+                po.settingUp();
+
+                $('.modal').removeAttr('tabindex');
             });
         },'html');
 	}, // end - modalAddForm
@@ -49,6 +58,10 @@ var po = {
             bootbox.dialog(_options).bind('shown.bs.modal', function(){
                 $(this).find('.modal-header').css({'padding-top': '0px'});
                 $(this).find('.modal-dialog').css({'width': '70%', 'max-width': '100%'});
+
+                po.settingUp();
+
+                $('.modal').removeAttr('tabindex');
             });
         },'html');
 	}, // end - modalEditForm
@@ -69,14 +82,16 @@ var po = {
 		if ( err > 0 ) {
 			bootbox.alert('Harap lengkapi data terlebih dahulu.');
 		} else {
-			var kode = $(div).find('.user').val();
+			var kode = $(div).find('.user').select2('val');
 			var pin = $(div).find('.pin').val();
+			var id_detfitur = $(div).find('.fitur').select2('val');
 
 			bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
 				if ( result ) {
 					var data = {
 						'kode': kode,
-						'pin': pin
+						'pin': pin,
+						'id_detfitur': id_detfitur
 					};
 
 			        $.ajax({
@@ -119,15 +134,17 @@ var po = {
 		if ( err > 0 ) {
 			bootbox.alert('Harap lengkapi data terlebih dahulu.');
 		} else {
-			var kode = $(div).find('.user').val();
+			var kode = $(div).find('.user').select2('val');
 			var pin = $(div).find('.pin').val();
+			var id_detfitur = $(div).find('.fitur').select2('val');
 
 			bootbox.confirm('Apakah anda yakin ingin meng-ubah data ?', function(result) {
 				if ( result ) {
 					var data = {
 						'id': $(elm).data('id'),
 						'kode': kode,
-						'pin': pin
+						'pin': pin,
+						'id_detfitur': id_detfitur
 					};
 
 			        $.ajax({

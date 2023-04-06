@@ -10,4 +10,9 @@ class PinOtorisasi_model extends Conf {
 	{
 		return $this->hasOne('\Model\Storage\User_model', 'id_user', 'user_id')->with(['detail_user']);
 	}
+
+	public function det_fitur()
+	{
+		return $this->hasOne('\Model\Storage\DetFitur_model', 'id_detfitur', 'id_detfitur');
+	}
 }

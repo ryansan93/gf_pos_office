@@ -24,16 +24,18 @@ class PinOtorisasi extends Public_Controller {
         if ( $this->hakAkses['a_view'] == 1 ) {
             $this->add_external_js(array(
                 "assets/jquery/list.min.js",
+                "assets/select2/js/select2.min.js",
                 "assets/parameter/pin_otorisasi/js/pin-otorisasi.js",
             ));
             $this->add_external_css(array(
+                "assets/select2/css/select2.min.css",
                 "assets/parameter/pin_otorisasi/css/pin-otorisasi.css",
             ));
 
             $data = $this->includes;
 
             $m_po = new \Model\Storage\PinOtorisasi_model();
-            $d_po = $m_po->with(['user'])->get()->toArray();
+            $d_po = $m_po->with(['user', 'det_fitur'])->get()->toArray();
 
             $content['akses'] = $this->hakAkses;
             $content['data'] = $d_po;
@@ -69,9 +71,33 @@ class PinOtorisasi extends Public_Controller {
         return $data;
     }
 
+    public function getFitur()
+    {
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select df.* from detail_fitur df
+            right join
+                ms_fitur mf
+                on
+                    df.id_fitur = mf.id_fitur
+            where
+                mf.status = 1 and
+                df.id_fitur is not null
+        ";
+        $d_conf = $m_conf->hydrateRaw( $sql );
+
+        $data = null;
+        if ( $d_conf->count() > 0 ) {
+            $data = $d_conf->toArray();
+        }
+
+        return $data;
+    }
+
     public function modalAddForm()
     {
         $content['user'] = $this->getUser();
+        $content['fitur'] = $this->getFitur();
 
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
 
@@ -90,6 +116,7 @@ class PinOtorisasi extends Public_Controller {
                 $m_po->user_id = $params['kode'];
                 $m_po->pin = $params['pin'];
                 $m_po->status = 1;
+                $m_po->id_detfitur = $params['id_detfitur'];
                 $m_po->save();
 
                 $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
@@ -116,6 +143,7 @@ class PinOtorisasi extends Public_Controller {
 
         $content['data'] = $d_po;
         $content['user'] = $this->getUser();
+        $content['fitur'] = $this->getFitur();
 
         $html = $this->load->view($this->pathView . 'editForm', $content, TRUE);
 
@@ -134,7 +162,8 @@ class PinOtorisasi extends Public_Controller {
                 array(
                     'user_id' => $params['kode'],
                     'pin' => $params['pin'],
-                    'status' => 1
+                    'status' => 1,
+                    'id_detfitur' => $params['id_detfitur']
                 )
             );
 

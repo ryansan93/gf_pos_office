@@ -258,7 +258,7 @@ var sr = {
 
                 if ( sisa_tagihan > jml_bayar ) {
                     bootbox.confirm('Pembayaran kurang dari sisa tagihan apakah anda tetap ingin menyimpan pembayaran ?', function(result) {
-                        if ( result ) {                            
+                        if ( result ) {
                             sr.execSavePembayaran(data); 
                         }
                     });
@@ -270,21 +270,27 @@ var sr = {
     }, // end - savePembayaran
 
     execSavePembayaran: function (data) {
-        $.ajax({
-            url: 'transaksi/SalesRecapitulation/savePembayaran',
-            data: {
-                'params': data
-            },
-            type: 'POST',
-            dataType: 'JSON',
-            beforeSend: function() { showLoading('Simpan Pembayaran . . .'); },
-            success: function(data) {
-                hideLoading();
-                if ( data.status == 1 ) {
-                    sr.hitungUlang( data.content.kode_faktur, data.message );
-                } else {
-                    bootbox.alert( data.message );
-                }
+        sr.verifikasiPinOtorisasi(function(data_verifikasi) {
+            if ( data_verifikasi.status == 1 ) {
+                $.ajax({
+                    url: 'transaksi/SalesRecapitulation/savePembayaran',
+                    data: {
+                        'params': data,
+                        'keterangan': data_verifikasi.keterangan,
+                        'id_verifikasi': data_verifikasi.id_verifikasi
+                    },
+                    type: 'POST',
+                    dataType: 'JSON',
+                    beforeSend: function() { showLoading('Simpan Pembayaran . . .'); },
+                    success: function(data) {
+                        hideLoading();
+                        if ( data.status == 1 ) {
+                            sr.hitungUlang( data.content.kode_faktur, data.message );
+                        } else {
+                            bootbox.alert( data.message );
+                        }
+                    }
+                });
             }
         });
     }, // end - execSavePembayaran
@@ -297,32 +303,38 @@ var sr = {
         if ( jml_data == 0 ) {
             bootbox.alert('Tidak ada diskon yang anda pilih.');
         } else {
-            $(elm).attr('disabled', 'disabled');
+            sr.verifikasiPinOtorisasi(function(data_verifikasi) {
+                if ( data_verifikasi.status == 1 ) {
+                    $(elm).attr('disabled', 'disabled');
 
-            var params = $.map( $(modal).find('tr.data[data-aktif=1]'), function (tr) {
-                var _data = {
-                    'id_bayar': $(elm).attr('data-id'),
-                    'kode_diskon': $(tr).find('td.kode').text()
-                };
+                    var params = $.map( $(modal).find('tr.data[data-aktif=1]'), function (tr) {
+                        var _data = {
+                            'id_bayar': $(elm).attr('data-id'),
+                            'kode_diskon': $(tr).find('td.kode').text()
+                        };
 
-                return _data;
-            });
+                        return _data;
+                    });
 
-            $.ajax({
-                url: 'transaksi/SalesRecapitulation/saveDiskon',
-                data: {
-                    'params': params
-                },
-                type: 'POST',
-                dataType: 'JSON',
-                beforeSend: function() { showLoading('Delete Pesanan . . .'); },
-                success: function(data) {
-                    hideLoading();
-                    if ( data.status == 1 ) {
-                        sr.hitungUlang( data.content.kode_faktur, data.message );
-                    } else {
-                        bootbox.alert( data.message );
-                    }
+                    $.ajax({
+                        url: 'transaksi/SalesRecapitulation/saveDiskon',
+                        data: {
+                            'params': params,
+                            'keterangan': data_verifikasi.keterangan,
+                            'id_verifikasi': data_verifikasi.id_verifikasi
+                        },
+                        type: 'POST',
+                        dataType: 'JSON',
+                        beforeSend: function() { showLoading('Delete Pesanan . . .'); },
+                        success: function(data) {
+                            hideLoading();
+                            if ( data.status == 1 ) {
+                                sr.hitungUlang( data.content.kode_faktur, data.message );
+                            } else {
+                                bootbox.alert( data.message );
+                            }
+                        }
+                    });
                 }
             });
         }
@@ -333,25 +345,31 @@ var sr = {
 
         bootbox.confirm('Apakah anda yakin ingin menghapus data pesanan ?', function (result) {
             if ( result ) {
-                var params = {
-                    'kode_faktur_item': kode_faktur_item
-                };
+                sr.verifikasiPinOtorisasi(function(data_verifikasi) {
+                    if ( data_verifikasi.status == 1 ) {
+                        var params = {
+                            'kode_faktur_item': kode_faktur_item
+                        };
 
-                $.ajax({
-                    url: 'transaksi/SalesRecapitulation/deletePesanan',
-                    data: {
-                        'params': params
-                    },
-                    type: 'POST',
-                    dataType: 'JSON',
-                    beforeSend: function() { showLoading('Delete Pesanan . . .'); },
-                    success: function(data) {
-                        hideLoading();
-                        if ( data.status == 1 ) {
-                            sr.hitungUlang( data.content.kode_faktur, data.message );
-                        } else {
-                            bootbox.alert( data.message );
-                        }
+                        $.ajax({
+                            url: 'transaksi/SalesRecapitulation/deletePesanan',
+                            data: {
+                                'params': params,
+                                'keterangan': data_verifikasi.keterangan,
+                                'id_verifikasi': data_verifikasi.id_verifikasi
+                            },
+                            type: 'POST',
+                            dataType: 'JSON',
+                            beforeSend: function() { showLoading('Delete Pesanan . . .'); },
+                            success: function(data) {
+                                hideLoading();
+                                if ( data.status == 1 ) {
+                                    sr.hitungUlang( data.content.kode_faktur, data.message );
+                                } else {
+                                    bootbox.alert( data.message );
+                                }
+                            }
+                        });
                     }
                 });
             }
@@ -363,25 +381,31 @@ var sr = {
 
         bootbox.confirm('Apakah anda yakin ingin menghapus data pembayaran ?', function (result) {
             if ( result ) {
-                var params = {
-                    'id': id
-                };
+                sr.verifikasiPinOtorisasi(function(data_verifikasi) {
+                    if ( data_verifikasi.status == 1 ) {
+                        var params = {
+                            'id': id
+                        };
 
-                $.ajax({
-                    url: 'transaksi/SalesRecapitulation/deletePembayaran',
-                    data: {
-                        'params': params
-                    },
-                    type: 'POST',
-                    dataType: 'JSON',
-                    beforeSend: function() { showLoading('Delete Pembayaran . . .'); },
-                    success: function(data) {
-                        hideLoading();
-                        if ( data.status == 1 ) {
-                            sr.hitungUlang( data.content.kode_faktur, data.message );
-                        } else {
-                            bootbox.alert( data.message );
-                        }
+                        $.ajax({
+                            url: 'transaksi/SalesRecapitulation/deletePembayaran',
+                            data: {
+                                'params': params,
+                                'keterangan': data_verifikasi.keterangan,
+                                'id_verifikasi': data_verifikasi.id_verifikasi
+                            },
+                            type: 'POST',
+                            dataType: 'JSON',
+                            beforeSend: function() { showLoading('Delete Pembayaran . . .'); },
+                            success: function(data) {
+                                hideLoading();
+                                if ( data.status == 1 ) {
+                                    sr.hitungUlang( data.content.kode_faktur, data.message );
+                                } else {
+                                    bootbox.alert( data.message );
+                                }
+                            }
+                        });
                     }
                 });
             }
@@ -393,25 +417,31 @@ var sr = {
 
         bootbox.confirm('Apakah anda yakin ingin menghapus data diskon ?', function (result) {
             if ( result ) {
-                var params = {
-                    'id': id
-                };
+                sr.verifikasiPinOtorisasi(function(data_verifikasi) {
+                    if ( data_verifikasi.status == 1 ) {
+                        var params = {
+                            'id': id
+                        };
 
-                $.ajax({
-                    url: 'transaksi/SalesRecapitulation/deleteDiskon',
-                    data: {
-                        'params': params
-                    },
-                    type: 'POST',
-                    dataType: 'JSON',
-                    beforeSend: function() { showLoading('Delete Diskon . . .'); },
-                    success: function(data) {
-                        hideLoading();
-                        if ( data.status == 1 ) {
-                            sr.hitungUlang( data.content.kode_faktur, data.message );
-                        } else {
-                            bootbox.alert( data.message );
-                        }
+                        $.ajax({
+                            url: 'transaksi/SalesRecapitulation/deleteDiskon',
+                            data: {
+                                'params': params,
+                                'keterangan': data_verifikasi.keterangan,
+                                'id_verifikasi': data_verifikasi.id_verifikasi
+                            },
+                            type: 'POST',
+                            dataType: 'JSON',
+                            beforeSend: function() { showLoading('Delete Diskon . . .'); },
+                            success: function(data) {
+                                hideLoading();
+                                if ( data.status == 1 ) {
+                                    sr.hitungUlang( data.content.kode_faktur, data.message );
+                                } else {
+                                    bootbox.alert( data.message );
+                                }
+                            }
+                        });
                     }
                 });
             }
@@ -419,26 +449,32 @@ var sr = {
     }, // end - deleteDiskon
 
     deleteTransaksi: function (elm) {
-        var kode_faktur = $(elm).attr('data-faktur');
+        sr.verifikasiPinOtorisasi(function(data_verifikasi) {
+            if ( data_verifikasi.status == 1 ) {
+                var kode_faktur = $(elm).attr('data-faktur');
 
-        $.ajax({
-            url: 'transaksi/SalesRecapitulation/deleteTransaksi',
-            data: {
-                'params': kode_faktur
-            },
-            type: 'POST',
-            dataType: 'JSON',
-            beforeSend: function() { showLoading('Hapus Transaksi . . .'); },
-            success: function(data) {
-                hideLoading();
+                $.ajax({
+                    url: 'transaksi/SalesRecapitulation/deleteTransaksi',
+                    data: {
+                        'params': kode_faktur,
+                        'keterangan': data_verifikasi.keterangan,
+                        'id_verifikasi': data_verifikasi.id_verifikasi
+                    },
+                    type: 'POST',
+                    dataType: 'JSON',
+                    beforeSend: function() { showLoading('Hapus Transaksi . . .'); },
+                    success: function(data) {
+                        hideLoading();
 
-                if ( data.status == 1 ) {
-                    bootbox.alert( data.message, function () {
-                        sr.getLists();
-                    });
-                } else {
-                    bootbox.alert( data.message );
-                }
+                        if ( data.status == 1 ) {
+                            bootbox.alert( data.message, function () {
+                                sr.getLists();
+                            });
+                        } else {
+                            bootbox.alert( data.message );
+                        }
+                    }
+                });
             }
         });
     }, // end - deleteTransaksi
@@ -469,6 +505,53 @@ var sr = {
             }
         });
     }, // end - hitungUlang
+
+    verifikasiPinOtorisasi: function(action) {
+        bootbox.dialog({
+            message: '<p>Masukkan PIN Otorisasi untuk mengubah data.</p><p><b>Keterangan</b></p><p><textarea class="form-control keterangan"></textarea></p><p><input type="password" class="form-control text-center pin" data-tipe="angka" placeholder="PIN" /></p>',
+            buttons: {
+                cancel: {
+                    label: '<i class="fa fa-times"></i> Batal',
+                    className: 'btn-danger',
+                    callback: function(){}
+                },
+                ok: {
+                    label: '<i class="fa fa-check"></i> Lanjut',
+                    className: 'btn-primary',
+                    callback: function(){
+                        var pin = $('.pin').val();
+                        var keterangan = $('.keterangan').val();
+
+                        $.ajax({
+                            url: 'transaksi/SalesRecapitulation/cekPinOtorisasi',
+                            data: {
+                                'pin': pin
+                            },
+                            type: 'POST',
+                            dataType: 'JSON',
+                            beforeSend: function() { showLoading(); },
+                            success: function(data) {
+                                // hideLoading();
+                                if ( data.status == 1 ) {
+                                    var _data = {
+                                        'status': data.status,
+                                        'keterangan': keterangan,
+                                        'id_verifikasi': data.content.id_verifikasi
+                                    };
+
+                                    action(_data);
+                                } else {
+                                    bootbox.alert(data.message, function() {
+                                        sr.verifikasiPinOtorisasi(action);
+                                    });
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }, // end - verifikasiPinOtorisasi
 };
 
 sr.startUp();

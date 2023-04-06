@@ -46,6 +46,27 @@
 							<input type="text" class="col-sm-4 form-control pin" placeholder="PIN" data-required="1" data-tipe="angka" readonly="" value="<?php echo $data['pin']; ?>">
 						</td>
 					</tr>
+					<tr>
+						<td class="col-sm-2">				
+							<label class="control-label">Fitur</label>
+						</td>
+						<td class="col-sm-10">
+							<select class="col-sm-12 form-control fitur" data-required="1">
+								<option value="">-- Pilih Fitur --</option>
+								<?php if ( !empty($fitur) ): ?>
+									<?php foreach ($fitur as $k_fitur => $v_fitur): ?>
+										<?php
+											$selected = null;
+											if ( $v_fitur['id_detfitur'] == $data['id_detfitur'] ) {
+												$selected = 'selected';
+											}
+										?>
+										<option value="<?php echo $v_fitur['id_detfitur'] ?>" <?php echo $selected; ?> ><?php echo $v_fitur['id_detfitur'].' | '.$v_fitur['nama_detfitur']; ?></option>
+									<?php endforeach ?>
+								<?php endif ?>
+							</select>
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>

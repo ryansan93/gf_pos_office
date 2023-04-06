@@ -30,7 +30,6 @@ class SalesRecapitulation extends Public_Controller
             $this->add_external_js(
                 array(
                     "assets/select2/js/select2.min.js",
-                    "assets/transaksi/pembayaran/js/pembayaran.js",
                     "assets/transaksi/sales_recapitulation/js/sales-recapitulation.js"
                 )
             );
@@ -728,6 +727,8 @@ class SalesRecapitulation extends Public_Controller
     public function savePembayaran()
     {
         $params = $this->input->post('params');
+        $keterangan = $this->input->post('keterangan');
+        $id_verifikasi = $this->input->post('id_verifikasi');
 
         try {
             $m_bd = new \Model\Storage\BayarDet_model();
@@ -742,8 +743,8 @@ class SalesRecapitulation extends Public_Controller
             $m_bayar = new \Model\Storage\Bayar_model();
             $d_bayar = $m_bayar->where('id', $params['id_bayar'])->first();
 
-            $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log);
+            $deskripsi_log = 'Tambah pembayaran oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi);
 
             $this->result['status'] = 1;
             $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
@@ -758,6 +759,8 @@ class SalesRecapitulation extends Public_Controller
     public function saveDiskon()
     {
         $params = $this->input->post('params');
+        $keterangan = $this->input->post('keterangan');
+        $id_verifikasi = $this->input->post('id_verifikasi');
 
         try {
             $id_bayar = null;
@@ -774,8 +777,8 @@ class SalesRecapitulation extends Public_Controller
             $m_bayar = new \Model\Storage\Bayar_model();
             $d_bayar = $m_bayar->where('id', $id_bayar)->first();
 
-            $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log);
+            $deskripsi_log = 'Tambah diskon oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi);
 
             $this->result['status'] = 1;
             $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
@@ -790,6 +793,8 @@ class SalesRecapitulation extends Public_Controller
     public function deletePesanan()
     {
         $params = $this->input->post('params');
+        $keterangan = $this->input->post('keterangan');
+        $id_verifikasi = $this->input->post('id_verifikasi');
 
         try {
             $kode_faktur_item = $params['kode_faktur_item'];
@@ -802,8 +807,8 @@ class SalesRecapitulation extends Public_Controller
 
             $m_ji->where('kode_faktur_item', $kode_faktur_item)->delete();
 
-            $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_jual, $deskripsi_log);
+            $deskripsi_log = 'Void pesanan oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/save', $d_jual, $deskripsi_log, null, $keterangan, $id_verifikasi);
 
             $this->result['status'] = 1;
             $this->result['content'] = array('kode_faktur' => $d_ji->faktur_kode);
@@ -818,6 +823,8 @@ class SalesRecapitulation extends Public_Controller
     public function deletePembayaran()
     {
         $params = $this->input->post('params');
+        $keterangan = $this->input->post('keterangan');
+        $id_verifikasi = $this->input->post('id_verifikasi');
 
         try {
             $id_bayar_det = $params['id'];
@@ -830,8 +837,8 @@ class SalesRecapitulation extends Public_Controller
 
             $m_bd->where('id', $id_bayar_det)->delete();
 
-            $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log);
+            $deskripsi_log = 'Void pembayaran oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi);
 
             $this->result['status'] = 1;
             $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
@@ -846,6 +853,8 @@ class SalesRecapitulation extends Public_Controller
     public function deleteDiskon()
     {
         $params = $this->input->post('params');
+        $keterangan = $this->input->post('keterangan');
+        $id_verifikasi = $this->input->post('id_verifikasi');
 
         try {
             $id_bayar_diskon = $params['id'];
@@ -858,8 +867,8 @@ class SalesRecapitulation extends Public_Controller
 
             $m_bd->where('id', $id_bayar_diskon)->delete();
 
-            $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log);
+            $deskripsi_log = 'Void diskon oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi);
 
             $this->result['status'] = 1;
             $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
@@ -874,6 +883,8 @@ class SalesRecapitulation extends Public_Controller
     public function deleteTransaksi()
     {
         $kode_faktur = $this->input->post('params');
+        $keterangan = $this->input->post('keterangan');
+        $id_verifikasi = $this->input->post('id_verifikasi');
 
         try {
             $m_jual = new \Model\Storage\Jual_model();
@@ -882,8 +893,8 @@ class SalesRecapitulation extends Public_Controller
             $m_pesanan = new \Model\Storage\Pesanan_model();
             $d_pesanan = $m_pesanan->where('kode_pesanan', $d_jual->pesanan_kode)->first();
 
-            $deskripsi_log = 'di-hapus oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_pesanan, $deskripsi_log);
+            $deskripsi_log = 'Void transaksi oleh ' . $this->userdata['detail_user']['nama_detuser'];
+            Modules::run( 'base/event/save', $d_pesanan, $deskripsi_log, null, $keterangan, $id_verifikasi);
 
             $m_bayar = new \Model\Storage\Bayar_model();
             $m_bayar->where('faktur_kode', $kode_faktur)->update(
@@ -1219,8 +1230,8 @@ class SalesRecapitulation extends Public_Controller
                 $m_jual = new \Model\Storage\Jual_model();
                 $d_jual = $m_jual->where('kode_faktur', $kode_faktur)->first();
 
-                $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
-                Modules::run( 'base/event/save', $d_jual, $deskripsi_log);
+                // $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                // Modules::run( 'base/event/save', $d_jual, $deskripsi_log);
 
                 $this->result['status'] = 1;
                 $this->result['content'] = array('kode_faktur' => $kode_faktur);
@@ -2053,10 +2064,40 @@ class SalesRecapitulation extends Public_Controller
         return $this->result;
     }
 
+    public function cekPinOtorisasi()
+    {
+        $pin = $this->input->post('pin');
+
+        try {
+            $idFitur = getIdFitur( $this->current_base_uri );
+
+            $m_po = new \Model\Storage\PinOtorisasi_model();
+            $d_po = $m_po->where('pin', $pin)->where('id_detfitur', $idFitur)->where('status', 1)->first();
+
+            if ( $d_po ) {
+                $this->result['status'] = 1;
+                $this->result['content'] = array(
+                    'id_verifikasi' => $d_po->user_id
+                );
+            } else {
+                $this->result['message'] = "PIN Otorisasi yang anda masukkan tidak di temukan.";
+            }
+        } catch (Exception $e) {
+            $this->result['message'] = "Couldn't print to this printer: " . $e -> getMessage() . "\n";
+        }
+
+        display_json( $this->result );
+    }
+
     public function tes()
     {
-        $data_diskon = $this->hitDiskon('FAK-2302260182', 400867);
+        // $data_diskon = $this->hitDiskon('FAK-2302260182', 400867);
 
-        cetak_r( $data_diskon );
+        // cetak_r( $data_diskon );
+
+        $idFitur = getIdFitur( $this->current_base_uri );
+
+        cetak_r( substr($this->current_base_uri, 1) );
+        cetak_r( $idFitur );
     }
 }

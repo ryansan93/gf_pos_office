@@ -562,6 +562,24 @@ if (! function_exists ( 'hakAkses' )) {
     }
 }
 
+if (! function_exists ( 'getIdFitur' )) {
+    function getIdFitur($url) {
+        $CI = & get_instance();
+        $fitur = $CI->session->userdata('Fitur');
+        $idFitur = null;
+        foreach ($fitur as $v_fitur) {
+            foreach ($v_fitur['detail'] as $v_dfitur) {
+                if( trim($v_dfitur['path_detfitur']) == trim(substr($url, 1)) ){
+                    $idFitur = $v_dfitur['id_detfitur'];
+                    break;
+                }
+            }
+        }
+
+        return $idFitur;
+    }
+}
+
 if (! function_exists ( 'cetak_r' )) {
 	function cetak_r($value, $die = NULL) {
         echo "<pre>";

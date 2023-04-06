@@ -19,8 +19,9 @@
 				<thead>
 					<tr>
 						<th class="col-sm-1 text-center">Kode User</th>
-						<th class="col-sm-5 text-center">Nama User</th>
-						<th class="col-sm-3 text-center">PIN</th>
+						<th class="col-sm-3 text-center">Nama User</th>
+						<th class="col-sm-2 text-center">PIN</th>
+						<th class="col-sm-3 text-center">Fitur</th>
 						<th class="col-sm-1 text-center">Status</th>
 						<th class="col-sm-1 text-center">Action</th>
 					</tr>
@@ -32,6 +33,7 @@
 								<td><?php echo $v_data['user_id']; ?></td>
 								<td><?php echo strtoupper($v_data['user']['detail_user']['nama_detuser']); ?></td>
 								<td class="text-center"><?php echo $v_data['pin']; ?></td>
+								<td class="text-center"><?php echo $v_data['det_fitur']['nama_detfitur']; ?></td>
 								<td class="text-center"><?php echo ($v_data['status'] == 1) ? 'AKIF' : 'NON AKTIF'; ?></td>
 								<td>
 									<div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
