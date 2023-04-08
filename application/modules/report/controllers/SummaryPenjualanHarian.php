@@ -238,16 +238,13 @@ class SummaryPenjualanHarian extends Public_Controller {
                                 from jual j 
                                 where 
                                     j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                                    j.branch = '".$branch."' and
-                                    j.mstatus = 1
+                                    j.branch = '".$branch."'
                                 group by
                                     j.kode_faktur,
                                     j.tgl_trans
                             ) j
                             on
                                 j.kode_faktur = jg.faktur_kode
-                        where
-                            j1.mstatus = 1
                         group by
                             jg.faktur_kode_gabungan,
                             jg.faktur_kode,
@@ -354,16 +351,13 @@ class SummaryPenjualanHarian extends Public_Controller {
                                 from jual j 
                                 where 
                                     j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                                    j.branch = '".$branch."' and
-                                    j.mstatus = 1
+                                    j.branch = '".$branch."'
                                 group by
                                     j.kode_faktur,
                                     j.tgl_trans
                             ) j
                             on
                                 j.kode_faktur = jg.faktur_kode
-                        where
-                            j1.mstatus = 1
                         group by
                             jg.faktur_kode_gabungan,
                             jg.faktur_kode,
@@ -473,16 +467,13 @@ class SummaryPenjualanHarian extends Public_Controller {
                                 from jual j 
                                 where 
                                     j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                                    j.branch = '".$branch."' and
-                                    j.mstatus = 1
+                                    j.branch = '".$branch."'
                                 group by
                                     j.kode_faktur,
                                     j.tgl_trans
                             ) j
                             on
                                 j.kode_faktur = jg.faktur_kode
-                        where
-                            j1.mstatus = 1
                         group by
                             jg.faktur_kode_gabungan,
                             jg.faktur_kode,
@@ -583,16 +574,13 @@ class SummaryPenjualanHarian extends Public_Controller {
                                 from jual j 
                                 where 
                                     j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                                    j.branch = '".$branch."' and
-                                    j.mstatus = 1
+                                    j.branch = '".$branch."'
                                 group by
                                     j.kode_faktur,
                                     j.tgl_trans
                             ) j
                             on
                                 j.kode_faktur = jg.faktur_kode
-                        where
-                            j1.mstatus = 1
                         group by
                             jg.faktur_kode_gabungan,
                             j.tgl_trans
@@ -840,16 +828,13 @@ class SummaryPenjualanHarian extends Public_Controller {
                                     from jual j 
                                     where 
                                         j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                                        j.branch = '".$branch."' and
-                                        j.mstatus = 1
+                                        j.branch = '".$branch."'
                                     group by
                                         j.kode_faktur,
                                         j.tgl_trans
                                 ) j
                                 on
                                     j.kode_faktur = jg.faktur_kode
-                            where
-                                j1.mstatus = 1
                             group by
                                 jg.faktur_kode_gabungan,
                                 jg.faktur_kode,
