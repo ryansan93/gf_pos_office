@@ -80,7 +80,7 @@ class HistoryTransaksi extends Public_Controller {
                     tbl.kode_faktur,
                     j.pesanan_kode
                 from log_tables lt
-                right join
+                left join
                     (
                         select
                             jl1.kode_faktur,
@@ -176,6 +176,9 @@ class HistoryTransaksi extends Public_Controller {
                     jual j
                     on
                         j.kode_faktur = tbl.kode_faktur
+                where
+                    lt.tbl_id is not null and
+                    lt.waktu between '".$start_date."' and '".$end_date."'
                 order by
                     tbl.kode_faktur desc,
                     lt.waktu desc
