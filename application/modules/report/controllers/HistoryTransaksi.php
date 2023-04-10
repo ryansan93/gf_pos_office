@@ -74,113 +74,131 @@ class HistoryTransaksi extends Public_Controller {
             $end_date = $tanggal.' 23:59:59.999';
 
             $m_conf = new \Model\Storage\Conf();
+            // $sql = "
+            //     select
+            //         lt.*,
+            //         tbl.kode_faktur,
+            //         j.pesanan_kode
+            //     from log_tables lt
+            //     left join
+            //         (
+            //             select
+            //                 jl1.kode_faktur,
+            //                 jl1.tbl_id,
+            //                 'jual' as tbl_name
+            //             from (
+            //                 select 
+            //                     j.kode_faktur as tbl_id,
+            //                     j.kode_faktur as kode_faktur,
+            //                     j.kode_faktur as kode_faktur_utama,
+            //                     j.tgl_trans
+            //                 from jual j 
+            //                 where 
+            //                     j.tgl_trans between '".$start_date."' and '".$end_date."' and
+            //                     j.branch = '".$branch."' and
+            //                     j.mstatus = 1
+            //                 group by
+            //                     j.kode_faktur,
+            //                     j.tgl_trans
+
+            //                 UNION ALL
+
+            //                 select 
+            //                     jg.faktur_kode_gabungan as tbl_id,
+            //                     jg.faktur_kode_gabungan as kode_faktur,
+            //                     jg.faktur_kode as kode_faktur_utama,
+            //                     j.tgl_trans
+            //                 from jual_gabungan jg
+            //                 right join
+            //                     jual j1
+            //                     on
+            //                         j1.kode_faktur = jg.faktur_kode_gabungan
+            //                 right join
+            //                     (
+            //                         select 
+            //                             j.kode_faktur as kode_faktur,
+            //                             j.tgl_trans
+            //                         from jual j 
+            //                         where 
+            //                             j.tgl_trans between '".$start_date."' and '".$end_date."' and
+            //                             j.branch = '".$branch."' and
+            //                             j.mstatus = 1
+            //                         group by
+            //                             j.kode_faktur,
+            //                             j.tgl_trans
+            //                     ) j
+            //                     on
+            //                         j.kode_faktur = jg.faktur_kode
+            //                 where
+            //                     j1.mstatus = 1
+            //                 group by
+            //                     jg.faktur_kode_gabungan,
+            //                     jg.faktur_kode,
+            //                     j.tgl_trans
+            //             ) jl1
+            //             where
+            //                 jl1.tbl_id is not null
+
+            //             union all
+
+            //             select
+            //                 b.faktur_kode as kode_faktur,
+            //                 cast(b.id as varchar(15)) as tbl_id,
+            //                 'bayar' as tbl_name
+            //             from bayar b
+            //             right join
+            //                 jual j
+            //                 on
+            //                     b.faktur_kode = j.kode_faktur
+            //             where
+            //                 b.mstatus = 1 and
+            //                 j.tgl_trans between '".$start_date."' and '".$end_date."'
+
+            //             union all
+
+            //             select
+            //                 j.kode_faktur,
+            //                 p.kode_pesanan as tbl_id,
+            //                 'pesanan' as tbl_name
+            //             from pesanan p
+            //             right join
+            //                 jual j
+            //                 on
+            //                     p.kode_pesanan = j.pesanan_kode
+            //             where
+            //                 p.mstatus = 0 and
+            //                 j.tgl_trans between '".$start_date."' and '".$end_date."'
+            //         ) tbl
+            //         on
+            //             tbl.tbl_id = lt.tbl_id and
+            //             tbl.tbl_name = lt.tbl_name
+            //     left join
+            //         jual j
+            //         on
+            //             j.kode_faktur = tbl.kode_faktur
+            //     where
+            //         lt.tbl_id is not null and
+            //         lt.kode_faktur is not null and
+            //         lt.waktu between '".$start_date."' and '".$end_date."'
+            //     order by
+            //         tbl.kode_faktur desc,
+            //         lt.waktu desc
+            // ";
             $sql = "
                 select
                     lt.*,
-                    tbl.kode_faktur,
+                    j.kode_faktur,
                     j.pesanan_kode
                 from log_tables lt
-                left join
-                    (
-                        select
-                            jl1.kode_faktur,
-                            jl1.tbl_id,
-                            'jual' as tbl_name
-                        from (
-                            select 
-                                j.kode_faktur as tbl_id,
-                                j.kode_faktur as kode_faktur,
-                                j.kode_faktur as kode_faktur_utama,
-                                j.tgl_trans
-                            from jual j 
-                            where 
-                                j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                                j.branch = '".$branch."' and
-                                j.mstatus = 1
-                            group by
-                                j.kode_faktur,
-                                j.tgl_trans
-
-                            UNION ALL
-
-                            select 
-                                jg.faktur_kode_gabungan as tbl_id,
-                                jg.faktur_kode_gabungan as kode_faktur,
-                                jg.faktur_kode as kode_faktur_utama,
-                                j.tgl_trans
-                            from jual_gabungan jg
-                            right join
-                                jual j1
-                                on
-                                    j1.kode_faktur = jg.faktur_kode_gabungan
-                            right join
-                                (
-                                    select 
-                                        j.kode_faktur as kode_faktur,
-                                        j.tgl_trans
-                                    from jual j 
-                                    where 
-                                        j.tgl_trans between '".$start_date."' and '".$end_date."' and
-                                        j.branch = '".$branch."' and
-                                        j.mstatus = 1
-                                    group by
-                                        j.kode_faktur,
-                                        j.tgl_trans
-                                ) j
-                                on
-                                    j.kode_faktur = jg.faktur_kode
-                            where
-                                j1.mstatus = 1
-                            group by
-                                jg.faktur_kode_gabungan,
-                                jg.faktur_kode,
-                                j.tgl_trans
-                        ) jl1
-                        where
-                            jl1.tbl_id is not null
-
-                        union all
-
-                        select
-                            b.faktur_kode as kode_faktur,
-                            cast(b.id as varchar(15)) as tbl_id,
-                            'bayar' as tbl_name
-                        from bayar b
-                        right join
-                            jual j
-                            on
-                                b.faktur_kode = j.kode_faktur
-                        where
-                            b.mstatus = 1 and
-                            j.tgl_trans between '".$start_date."' and '".$end_date."'
-
-                        union all
-
-                        select
-                            j.kode_faktur,
-                            p.kode_pesanan as tbl_id,
-                            'pesanan' as tbl_name
-                        from pesanan p
-                        right join
-                            jual j
-                            on
-                                p.kode_pesanan = j.pesanan_kode
-                        where
-                            p.mstatus = 0 and
-                            j.tgl_trans between '".$start_date."' and '".$end_date."'
-                    ) tbl
-                    on
-                        tbl.tbl_id = lt.tbl_id and
-                        tbl.tbl_name = lt.tbl_name
-                left join
+                right join
                     jual j
                     on
-                        j.kode_faktur = tbl.kode_faktur
+                        j.kode_faktur = lt.tbl_id
                 where
-                    lt.tbl_id is not null and
-                    lt.waktu between '".$start_date."' and '".$end_date."'
+                    lt.waktu between '".$start_date."' and '".$end_date."' and
+                    j.branch = '".$branch."'
                 order by
-                    tbl.kode_faktur desc,
+                    lt.tbl_id desc,
                     lt.waktu desc
             ";
             $d_conf = $m_conf->hydrateRaw( $sql );
