@@ -146,6 +146,7 @@ class Penerimaan extends Public_Controller {
             $now = $m_terima->getDate();
 
             $kode_terima = $m_terima->getNextIdRibuan();
+            $no_invoice = $m_terima->getNextNoInvoice();
 
             $conf = new \Model\Storage\Conf();
             $sql = "EXEC sp_hitung_stok_awal @tanggal = '".$params['tgl_terima']."'";
@@ -154,7 +155,7 @@ class Penerimaan extends Public_Controller {
 
             $m_terima->kode_terima = $kode_terima;
             $m_terima->tgl_terima = $params['tgl_terima'];
-            $m_terima->no_faktur = $params['no_faktur'];
+            $m_terima->no_faktur = $no_invoice;
             $m_terima->supplier = $params['supplier'];
             $m_terima->pic = $params['nama_pic'];
             $m_terima->gudang_kode = $params['gudang'];
@@ -202,5 +203,13 @@ class Penerimaan extends Public_Controller {
         }
 
         display_json( $this->result );
+    }
+
+    public function tes()
+    {
+        $m_terima = new \Model\Storage\Terima_model();
+        $no_invoice = $m_terima->getNextNoInvoice();
+
+        cetak_r( $no_invoice );
     }
 }

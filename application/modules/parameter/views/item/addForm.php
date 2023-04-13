@@ -17,10 +17,10 @@
 					<input type="text" class="col-sm-12 form-control nama uppercase" placeholder="Nama (MAX : 50)" data-required="1" maxlength="50">
 				</div>
 			</div>
-			<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
+			<div class="col-xs-12 no-padding hide" style="padding-bottom: 10px;">
 				<div class="col-xs-12 no-padding"><label class="control-label">Brand</label></div>
 				<div class="col-xs-12 no-padding">
-					<input type="text" class="col-sm-12 form-control brand uppercase" placeholder="Brand (MAX : 50)" data-required="1" maxlength="50">
+					<input type="text" class="col-sm-12 form-control brand uppercase" placeholder="Brand (MAX : 50)" maxlength="50">
 				</div>
 			</div>
 			<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
@@ -34,10 +34,10 @@
 					</select>
 				</div>
 			</div>
-			<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
+			<div class="col-xs-12 no-padding hide" style="padding-bottom: 10px;">
 				<div class="col-xs-12 no-padding"><label class="control-label">Spesifikasi</label></div>
 				<div class="col-xs-12 no-padding">
-					<textarea class="form-control keterangan" data-required="1" placeholder="Spesifikasi"></textarea>
+					<textarea class="form-control keterangan" placeholder="Spesifikasi"></textarea>
 				</div>
 			</div>
 			<div class="col-xs-12 no-padding">

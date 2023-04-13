@@ -12,21 +12,21 @@
 	</div>
 </div>
 
-<div class="col-xs-6 no-padding" style="margin-bottom: 5px; padding-right: 5px;">
+<div class="col-xs-6 no-padding hide" style="margin-bottom: 5px; padding-right: 5px;">
 	<div class="col-xs-12 no-padding">
 		<label class="control-label">No. Invoice</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<input type="text" class="col-xs-12 form-control no_faktur uppercase" placeholder="No. Invoice (MAX : 50)" data-required="1" maxlength="50">
+		<input type="text" class="col-xs-12 form-control no_faktur uppercase" placeholder="No. Invoice (MAX : 50)" maxlength="50" readonly>
 	</div>
 </div>
 
-<div class="col-xs-6 no-padding" style="margin-bottom: 5px; padding-left: 5px;">
+<div class="col-xs-6 no-padding hide" style="margin-bottom: 5px; padding-left: 5px;">
 	<div class="col-xs-12 no-padding">
 		<label class="control-label">Nama PiC</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<input type="text" class="col-xs-12 form-control nama_pic uppercase" placeholder="Nama PiC (MAX : 50)" data-required="1" maxlength="50">
+		<input type="text" class="col-xs-12 form-control nama_pic uppercase" placeholder="Nama PiC (MAX : 50)" maxlength="50">
 	</div>
 </div>
 

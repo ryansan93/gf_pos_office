@@ -16,7 +16,7 @@
 	</div>
 </div>
 
-<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+<div class="col-xs-12 no-padding hide" style="margin-bottom: 5px;">
 	<div class="col-xs-3 no-padding">
 		<label class="control-label">Nama PiC</label>
 	</div>

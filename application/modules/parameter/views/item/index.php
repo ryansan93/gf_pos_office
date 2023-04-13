@@ -21,10 +21,10 @@
 						<th class="col-xs-1 text-center">Kode Program</th>
 						<th class="col-xs-1 text-center">Kode</th>
 						<th class="col-xs-2 text-center">Nama</th>
-						<th class="col-xs-1 text-center">Brand</th>
+						<th class="col-xs-1 text-center hide">Brand</th>
 						<th class="col-xs-1 text-center">Satuan</th>
 						<th class="col-xs-1 text-center">Group</th>
-						<th class="col-xs-3 text-center">Keterangan</th>
+						<th class="col-xs-3 text-center hide">Keterangan</th>
 						<th class="col-xs-2 text-center">Action</th>
 					</tr>
 				</thead>
@@ -35,7 +35,7 @@
 								<td><?php echo $v_data['kode']; ?></td>
 								<td><?php echo $v_data['kode_text']; ?></td>
 								<td><?php echo $v_data['nama']; ?></td>
-								<td><?php echo $v_data['brand']; ?></td>
+								<td class="hide"><?php echo $v_data['brand']; ?></td>
 								<td>
 									<?php 
 										$idx = 0;
@@ -52,7 +52,7 @@
 									?>
 								</td>
 								<td><?php echo $v_data['group']['nama']; ?></td>
-								<td><?php echo $v_data['keterangan']; ?></td>
+								<td class="hide"><?php echo $v_data['keterangan']; ?></td>
 								<td>
 									<div class="col-xs-6 no-padding" style="padding-right: 5px;">
 										<?php if ( $akses['a_delete'] == 1 ) { ?>
