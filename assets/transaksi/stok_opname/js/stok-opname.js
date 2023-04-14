@@ -83,6 +83,44 @@ var so = {
         });
     }, // end - loadForm
 
+    getListItem: function () {
+        var div = $('#action');
+
+        var err = 0;
+        $.map( $(div).find('.header [data-required=1]'), function (ipt) {
+            if ( empty( $(ipt).val() ) ) {
+                $(ipt).parent().addClass('has-error');
+                err++;
+            } else {
+                $(ipt).parent().removeClass('has-error');
+            }
+        });
+
+        if ( err > 0 ) {
+            bootbox.alert('Harap lengkapi data terlebih dahulu.');
+        } else {
+            var params = {
+                'tanggal': dateSQL( $(div).find('#TglStokOpname').data('DateTimePicker').date() ),
+                'gudang_kode': $(div).find('.gudang').select2('val')
+            };
+
+            $.ajax({
+                url: 'transaksi/StokOpname/getListItem',
+                data: {
+                    'params': params
+                },
+                type: 'GET',
+                dataType: 'HTML',
+                beforeSend: function() { showLoading(); },
+                success: function(html) {
+                    hideLoading();
+
+                    $(div).find('.tbl_item tbody').html( html );
+                }
+            });
+        }
+    }, // end - getListItem
+
     getLists: function () {
         var div = $('#riwayat');
 
