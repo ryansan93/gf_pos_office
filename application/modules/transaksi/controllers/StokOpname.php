@@ -109,7 +109,7 @@ class StokOpname extends Public_Controller {
                 stok_harga sh
                 on
                     i.kode = sh.item_kode
-            left join
+            right join
                 (
                     select top 1 * from stok_tanggal where gudang_kode = '".$gudang_kode."' and tanggal <= GETDATE() order by tanggal desc
                 ) st
