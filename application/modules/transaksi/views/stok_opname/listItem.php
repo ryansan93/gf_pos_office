@@ -16,7 +16,7 @@
 				<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-tipe="decimal" maxlength="10" disabled>
 			</td>
 			<td>
-				<input type="text" class="form-control text-right harga uppercase" placeholder="Harga" data-tipe="decimal" maxlength="10" disabled value="<?php echo angkaDecimal($v_item['harga']); ?>">
+				<input type="text" class="form-control text-right harga uppercase" placeholder="Harga" data-tipe="decimal" maxlength="10" disabled data-awal="<?php echo angkaDecimal($v_item['harga']); ?>" value="<?php echo angkaDecimal($v_item['harga']); ?>">
 			</td>
 			<td class="text-center">
 				<input type="checkbox" onchange="so.choseItem(this)">

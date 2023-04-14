@@ -290,6 +290,9 @@ var so = {
         } else {
             $(tr).find('input:not([type=checkbox]), select').attr('disabled', 'disabled');
             $(tr).find('input:not([type=checkbox])').val('');
+
+            var data_awal = $(tr).find('input.harga').attr('data-awal');
+            $(tr).find('input.harga').val( data_awal );
         }
     }, // end - choseItem
 };
