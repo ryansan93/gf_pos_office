@@ -103,7 +103,8 @@ class StokOpname extends Public_Controller {
         $sql = "
             select 
                 i.*,
-                sh.harga 
+                sh.harga,
+                s.jumlah
             from item i
             left join
                 (
@@ -115,6 +116,21 @@ class StokOpname extends Public_Controller {
                         on
                             sh.id_header = st.id
                 ) sh
+                on
+                    i.kode = sh.item_kode
+            left join
+                (
+                    select s.gudang_kode, s.item_kode, sum(s.jumlah) as jumlah from stok s
+                    right join
+                        (
+                            select top 1 * from stok_tanggal where gudang_kode = '".$gudang_kode."' and tanggal <= GETDATE() order by tanggal desc
+                        ) st
+                        on
+                            s.id_header = st.id
+                    group by
+                        s.gudang_kode, 
+                        s.item_kode
+                ) s
                 on
                     i.kode = sh.item_kode
             order by

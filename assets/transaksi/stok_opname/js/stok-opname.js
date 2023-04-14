@@ -34,8 +34,9 @@ var so = {
         $('.gudang').select2();
         $('.gudang_riwayat').select2();
 
-        $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
+        $('[data-tipe=integer],[data-tipe=decimal],[data-tipe=decimal3],[data-tipe=decimal4],[data-tipe=number]').each(function(){
             // $(this).priceFormat(Config[$(this).data('tipe')]);
+
             priceFormat( $(this) );
         });
 	}, // end - settingUp
@@ -116,6 +117,8 @@ var so = {
                     hideLoading();
 
                     $(div).find('.tbl_item tbody').html( html );
+
+                    so.settingUp();
                 }
             });
         }
@@ -206,22 +209,22 @@ var so = {
             bootbox.alert('Tidak ada data Item yang anda isi, harap cek kembali inputan anda.');
         } else {
             var list_item = $.map( $(div).find('tr.data'), function (tr) {
-                if ( $(tr).find('input[type=checkbox]:checked') ) {
-                    var jumlah = $(tr).find('input.jumlah').val();
-                    var harga = $(tr).find('input.harga').val();
+                // if ( $(tr).find('input[type=checkbox]:checked') ) {
+                var jumlah = $(tr).find('input.jumlah').val();
+                var harga = $(tr).find('input.harga').val();
 
-                    if ( !empty(jumlah) && !empty(harga) ) {
-                        var _list_item = {
-                            'item_kode': $(tr).find('td.kode').text(),
-                            'satuan': $(tr).find('select.satuan').val(),
-                            'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
-                            'jumlah': numeral.unformat( jumlah ),
-                            'harga': numeral.unformat( harga )
-                        };
+                if ( !empty(jumlah) && !empty(harga) ) {
+                    var _list_item = {
+                        'item_kode': $(tr).find('td.kode').text(),
+                        'satuan': $(tr).find('select.satuan').val(),
+                        'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
+                        'jumlah': numeral.unformat( jumlah ),
+                        'harga': numeral.unformat( harga )
+                    };
 
-                        return _list_item;
-                    }
+                    return _list_item;
                 }
+                // }
             });
 
             if ( list_item.length == 0 ) {
@@ -295,6 +298,17 @@ var so = {
             $(tr).find('input.harga').val( data_awal );
         }
     }, // end - choseItem
+
+    hitTotal: function (elm) {
+        var tr = $(elm).closest('tr');
+
+        var jumlah = numeral.unformat( $(tr).find('input.jumlah').val() );
+        var harga = numeral.unformat( $(tr).find('input.harga').val() );
+
+        var total = parseFloat(jumlah) * parseFloat(harga);
+
+        $(tr).find('td.total').text( numeral.formatDec(total) );
+    }, // end - hitTotal
 };
 
 so.startUp();
