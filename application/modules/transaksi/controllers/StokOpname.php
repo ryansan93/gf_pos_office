@@ -106,15 +106,17 @@ class StokOpname extends Public_Controller {
                 sh.harga 
             from item i
             left join
-                stok_harga sh
+                (
+                    select sh.* from stok_harga sh
+                    right join
+                        (
+                            select top 1 * from stok_tanggal where gudang_kode = '".$gudang_kode."' and tanggal <= GETDATE() order by tanggal desc
+                        ) st
+                        on
+                            sh.id_header = st.id
+                ) sh
                 on
                     i.kode = sh.item_kode
-            right join
-                (
-                    select top 1 * from stok_tanggal where gudang_kode = '".$gudang_kode."' and tanggal <= GETDATE() order by tanggal desc
-                ) st
-                on
-                    st.id = sh.id_header
             order by
                 i.nama asc
         ";
