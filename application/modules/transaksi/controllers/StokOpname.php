@@ -104,8 +104,14 @@ class StokOpname extends Public_Controller {
             select 
                 i.*,
                 sh.harga,
-                s.jumlah
+                s.jumlah,
+                is.satuan,
+                is.pengali
             from item i
+            right join
+                item_satuan is
+                on
+                    is.item_kode = i.kode
             left join
                 (
                     select sh.* from stok_harga sh
@@ -144,17 +150,19 @@ class StokOpname extends Public_Controller {
 
             $idx = 0;
             foreach ($d_item as $k_item => $v_item) {
-                $m_satuan = new \Model\Storage\ItemSatuan_model();
-                $d_satuan = $m_satuan->where('item_kode', $v_item['kode'])->get();
+                // $m_satuan = new \Model\Storage\ItemSatuan_model();
+                // $d_satuan = $m_satuan->where('item_kode', $v_item['kode'])->get();
+                $key = $v_item['kode'];
 
-                $data[ $idx ] = $v_item;
-                $data[ $idx ]['satuan'] = ( $d_satuan->count() > 0 ) ? $d_satuan->toArray() : null;
+                $data[ $key ] = $v_item;
+                $data[ $key ]['satuan'][] = array(
+                    'satuan' => $v_item['satuan'],
+                    'pengali' => $v_item['pengali']
+                );
 
-                $idx++;
+                // $idx++;
             }
         }
-
-        cetak_r( $data, 1 );
 
         $content['data'] = $data;
         $html = $this->load->view($this->pathView . 'listItem', $content, true);
