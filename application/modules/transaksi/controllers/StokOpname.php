@@ -102,25 +102,22 @@ class StokOpname extends Public_Controller {
         $m_conf = new \Model\Storage\Conf();
         $sql = "
             select 
-                i.*,
+                i.kode,
+                i.nama,
                 sh.harga,
-                s.jumlah,
-                _is.satuan,
-                _is.pengali
+                s.jumlah
             from item i
-            right join
-                item_satuan _is
-                on
-                    _is.item_kode = i.kode
             left join
                 (
-                    select sh.* from stok_harga sh
+                    select sh.item_kode, sh.harga from stok_harga sh
                     right join
                         (
                             select top 1 * from stok_tanggal where gudang_kode = '".$gudang_kode."' and tanggal <= GETDATE() order by tanggal desc
                         ) st
                         on
                             sh.id_header = st.id
+                     group by
+                        sh.item_kode, sh.harga
                 ) sh
                 on
                     i.kode = sh.item_kode
@@ -138,7 +135,7 @@ class StokOpname extends Public_Controller {
                         s.item_kode
                 ) s
                 on
-                    i.kode = sh.item_kode
+                    i.kode = s.item_kode
             order by
                 i.nama asc
         ";
@@ -148,19 +145,24 @@ class StokOpname extends Public_Controller {
         if ( $d_item->count() > 0 ) {
             $d_item = $d_item->toArray();
 
+
             $idx = 0;
             foreach ($d_item as $k_item => $v_item) {
-                // $m_satuan = new \Model\Storage\ItemSatuan_model();
-                // $d_satuan = $m_satuan->where('item_kode', $v_item['kode'])->get();
-                $key = $v_item['kode'];
+                $m_satuan = new \Model\Storage\ItemSatuan_model();
+                $d_satuan = $m_satuan->where('item_kode', $v_item['kode'])->get();
 
-                $data[ $key ] = $v_item;
-                $data[ $key ]['satuan'][] = array(
-                    'satuan' => $v_item['satuan'],
-                    'pengali' => $v_item['pengali']
-                );
+                $data[ $idx ] = $v_item;
+                $data[ $idx ]['satuan'] = ($d_satuan->count() > 0) ? $d_satuan->toArray() : null;
 
-                // $idx++;
+                // $key = $v_item['kode'];
+
+                // $data[ $key ] = $v_item;
+                // $data[ $key ]['satuan'][] = array(
+                //     'satuan' => $v_item['satuan'],
+                //     'pengali' => $v_item['pengali']
+                // );
+
+                $idx++;
             }
         }
 
