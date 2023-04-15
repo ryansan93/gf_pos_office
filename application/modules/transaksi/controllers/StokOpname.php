@@ -154,6 +154,8 @@ class StokOpname extends Public_Controller {
             }
         }
 
+        cetak_r( $data, 1 );
+
         $content['data'] = $data;
         $html = $this->load->view($this->pathView . 'listItem', $content, true);
 
