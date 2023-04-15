@@ -105,13 +105,13 @@ class StokOpname extends Public_Controller {
                 i.*,
                 sh.harga,
                 s.jumlah,
-                is.satuan,
-                is.pengali
+                _is.satuan,
+                _is.pengali
             from item i
             right join
-                item_satuan is
+                item_satuan _is
                 on
-                    is.item_kode = i.kode
+                    _is.item_kode = i.kode
             left join
                 (
                     select sh.* from stok_harga sh
