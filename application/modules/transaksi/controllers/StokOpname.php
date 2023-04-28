@@ -117,7 +117,8 @@ class StokOpname extends Public_Controller {
                         on
                             sh.id_header = st.id
                      group by
-                        sh.item_kode, sh.harga
+                        sh.item_kode, 
+                        sh.harga
                 ) sh
                 on
                     i.kode = sh.item_kode
