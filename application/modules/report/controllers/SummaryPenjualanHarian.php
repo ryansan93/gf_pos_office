@@ -548,10 +548,11 @@ class SummaryPenjualanHarian extends Public_Controller {
                         sum(bd.nominal)
                 end as nilai
             from (
-                    select * from (
+                    select jl1.kode_faktur, jl1.tgl_trans, sum(jl1.tagihan) as tagihan from (
                         select 
                             j.kode_faktur as kode_faktur,
                             j.tgl_trans
+                            j.grand_total as tagihan
                         from jual j 
                         where 
                             j.tgl_trans between '".$start_date."' and '".$end_date."' and
@@ -564,8 +565,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                         UNION ALL
 
                         select 
-                            jg.faktur_kode_gabungan as kode_faktur,
-                            j.tgl_trans
+                            jg.faktur_kode as kode_faktur,
+                            j.tgl_trans,
+                            jg.jml_tagihan as tagihan
                         from jual_gabungan jg
                         right join
                             jual j1
@@ -592,6 +594,9 @@ class SummaryPenjualanHarian extends Public_Controller {
                     ) jl1
                     where
                         jl1.kode_faktur is not null
+                    group by
+                        jl1.kode_faktur, 
+                        jl1.tgl_trans
                 ) jl
             right join
                 (
