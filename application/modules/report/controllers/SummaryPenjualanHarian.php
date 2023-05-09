@@ -643,6 +643,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             group by
                 jl.kode_faktur,
                 jl.tgl_trans,
+                jl.tagihan,
                 kjk.id,
                 byr.jml_tagihan,
                 byr.jml_bayar,
