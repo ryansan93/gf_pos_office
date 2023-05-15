@@ -2091,13 +2091,14 @@ class SalesRecapitulation extends Public_Controller
 
     public function tes()
     {
+        $data_diskon = $this->hitDiskon('FAK-2305140064', 423565);
         // $data_diskon = $this->hitDiskon('FAK-2302260182', 400867);
 
-        // cetak_r( $data_diskon );
+        cetak_r( $data_diskon );
 
-        $idFitur = getIdFitur( $this->current_base_uri );
+        // $idFitur = getIdFitur( $this->current_base_uri );
 
-        cetak_r( substr($this->current_base_uri, 1) );
-        cetak_r( $idFitur );
+        // cetak_r( substr($this->current_base_uri, 1) );
+        // cetak_r( $idFitur );
     }
 }
