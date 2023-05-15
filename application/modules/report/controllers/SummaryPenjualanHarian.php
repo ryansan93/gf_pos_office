@@ -539,8 +539,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                 case
                     when kjk.id = 4 then
                         case
-                            when byr.tagihan >= byr.jml_bayar then
-                                byr.tagihan - byr.jml_bayar
+                            when byr.jml_tagihan >= byr.jml_bayar then
+                                byr.jml_tagihan - byr.jml_bayar
                             else
                                 0
                         end
