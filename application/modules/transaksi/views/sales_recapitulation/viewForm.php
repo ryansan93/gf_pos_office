@@ -94,6 +94,10 @@
                                         </div>
                                     </div>
                                 <?php endforeach ?>
+                            <?php else: ?>
+                                <div class="col-xs-12 no-padding">Belum ada pembayaran.</div>
+                            <?php endif ?>
+                            <?php if ( !empty($data['jenis_diskon']) ): ?>
                                 <?php if ( $data['jenis_diskon'] ): ?>
                                     <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
                                     <?php foreach ($data['jenis_diskon'] as $k_jd => $v_jd): ?>
@@ -111,7 +115,7 @@
                                     <?php endforeach ?>
                                 <?php endif ?>
                             <?php else: ?>
-                                <div class="col-xs-12 no-padding">Belum ada pembayaran.</div>
+                                <div class="col-xs-12 no-padding">Tidak diskon yang di apply.</div>
                             <?php endif ?>
                         </div>
                     </div>
