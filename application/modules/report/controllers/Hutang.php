@@ -205,14 +205,14 @@ class Hutang extends Public_Controller {
 
                     $m_conf = new \Model\Storage\Conf();
                     $sql = "
-                        select 
+                        select distinct
                             b.tgl_trans as tgl_bayar,
                             bd.id_header,
                             bd.jenis_bayar,
                             bd.kode_jenis_kartu,
                             bd.nominal,
                             bd.no_kartu,
-                            bd.nama_kartu
+                            cast(bd.nama_kartu as varchar(250)) as nama_kartu
                         from 
                         (
                             select b.id, b.faktur_kode from bayar b
@@ -236,13 +236,6 @@ class Hutang extends Public_Controller {
                         where
                             b.mstatus = 1 and
                             byr.faktur_kode = '".$value['kode_faktur']."'
-                        group by
-                            bd.id_header,
-                            bd.jenis_bayar,
-                            bd.kode_jenis_kartu,
-                            bd.nominal,
-                            isnull(bd.no_kartu, '-'),
-                            isnull(bd.nama_kartu, '-')
                     ";
                     $d_bayar_hutang = $m_conf->hydrateRaw($sql);
 
