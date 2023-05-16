@@ -207,7 +207,12 @@ class Hutang extends Public_Controller {
                     $sql = "
                         select 
                             b.tgl_trans as tgl_bayar,
-                            bd.* 
+                            bd.id_header,
+                            bd.jenis_bayar,
+                            bd.kode_jenis_kartu,
+                            bd.nominal,
+                            bd.no_kartu,
+                            bd.nama_kartu
                         from 
                         (
                             select b.id, b.faktur_kode from bayar b
@@ -231,6 +236,13 @@ class Hutang extends Public_Controller {
                         where
                             b.mstatus = 1 and
                             byr.faktur_kode = '".$value['kode_faktur']."'
+                        group by
+                            bd.id_header,
+                            bd.jenis_bayar,
+                            bd.kode_jenis_kartu,
+                            bd.nominal,
+                            bd.no_kartu,
+                            bd.nama_kartu
                     ";
                     $d_bayar_hutang = $m_conf->hydrateRaw($sql);
 
