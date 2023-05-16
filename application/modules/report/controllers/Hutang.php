@@ -241,8 +241,8 @@ class Hutang extends Public_Controller {
                             bd.jenis_bayar,
                             bd.kode_jenis_kartu,
                             bd.nominal,
-                            isnull(bd.no_kartu, ''),
-                            isnull(bd.nama_kartu, '')
+                            isnull(bd.no_kartu, '-'),
+                            isnull(bd.nama_kartu, '-')
                     ";
                     $d_bayar_hutang = $m_conf->hydrateRaw($sql);
 
