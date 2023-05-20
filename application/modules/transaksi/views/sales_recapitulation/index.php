@@ -37,7 +37,7 @@
 				<div class="col-xs-12 no-padding" style="height: 90%; overflow-y: auto;">
 					<div class="col-xs-12 no-padding">
 						<div class="col-lg-12 search right-inner-addon no-padding">
-							<i class="glyphicon glyphicon-search"></i><input class="form-control" type="search" data-target="tbl_list_data" placeholder="Search" onkeyup="filter_all(this)">
+							<i class="glyphicon glyphicon-search"></i><input class="form-control" type="search" data-table="tbl_list_data" placeholder="Search" onkeyup="filter_all(this)">
 						</div>
 					</div>
 					<small>
