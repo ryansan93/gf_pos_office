@@ -539,8 +539,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                 case
                     when kjk.id = 4 then
                         case
-                            when jl.jml_tagihan >= byr.jml_bayar then
-                                jl.jml_tagihan - byr.jml_bayar
+                            when (sum(jl.jml_tagihan) - sum(byr.diskon)) >= byr.jml_bayar then
+                                (sum(jl.jml_tagihan) - sum(byr.diskon)) - byr.jml_bayar
                             else
                                 0
                         end
@@ -604,7 +604,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                 ) jl
             right join
                 (
-                    select byr1.id, byr1.faktur_kode, byr1.jml_tagihan, byr1.jml_bayar, byr1.kasir from bayar byr1
+                    select byr1.id, byr1.faktur_kode, byr1.jml_tagihan, byr1.jml_bayar, byr1.kasir, byr1.diskon from bayar byr1
                     right join
                         ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
                         on
@@ -615,7 +615,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     
                     union all
                     
-                    select b.id, bh.faktur_kode, bh.hutang as jml_tagihan, bh.bayar as jml_bayar, b.kasir from bayar_hutang bh 
+                    select b.id, bh.faktur_kode, bh.hutang as jml_tagihan, bh.bayar as jml_bayar, b.kasir, 0 as diskon from bayar_hutang bh 
                     right join
                         bayar b
                         on
