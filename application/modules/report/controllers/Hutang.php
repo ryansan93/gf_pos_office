@@ -215,11 +215,11 @@ class Hutang extends Public_Controller {
                             cast(bd.nama_kartu as varchar(250)) as nama_kartu
                         from 
                         (
-                            select b.id, b.faktur_kode from bayar b
+                            select b.id, b.faktur_kode, b.jml_bayar as jml_bayar from bayar b
 
                             union all
 
-                            select b.id, bh.faktur_kode from bayar_hutang bh
+                            select b.id, bh.faktur_kode, bh.bayar as jml_bayar from bayar_hutang bh
                             right join
                                 bayar b
                                 on
@@ -235,7 +235,8 @@ class Hutang extends Public_Controller {
                                 bd.id_header = b.id
                         where
                             b.mstatus = 1 and
-                            byr.faktur_kode = '".$value['kode_faktur']."'
+                            byr.faktur_kode = '".$value['kode_faktur']."' and
+                            byr.jml_bayar > 0
                     ";
                     $d_bayar_hutang = $m_conf->hydrateRaw($sql);
 
