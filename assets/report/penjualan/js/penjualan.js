@@ -4,6 +4,9 @@ var jual = {
 	}, // end - start_up
 
 	setting_up: function() {
+		$('.branch').select2();
+		$('.shift').select2();
+
 		$("#StartDate").datetimepicker({
             locale: 'id',
             format: 'DD MMM Y'
@@ -38,7 +41,8 @@ var jual = {
 			bootbox.alert('Harap lengkapi data terlebih dahulu.');
 		} else {
 			var params = {
-				'branch': $('.branch').val(),
+				'branch': $('select.branch').select2('val'),
+				'shift': $('select.shift').select2('val'),
 				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
 				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
 			};

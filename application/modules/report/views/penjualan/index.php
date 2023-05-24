@@ -2,7 +2,7 @@
 	<div class="col-lg-12 detailed">
 		<form role="form" class="form-horizontal">
 			<div class="col-xs-12 no-padding">
-				<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+				<div class="col-xs-6 no-padding" style="margin-bottom: 5px; padding-right: 5px;">
 					<div class="col-xs-12 no-padding">
 						<label class="control-label">Branch</label>
 					</div>
@@ -11,6 +11,20 @@
 							<option value="">-- Pilih Branch --</option>
 							<?php foreach ($branch as $k_db => $v_db): ?>
 								<option data-tokens="<?php echo $v_db['nama']; ?>" value="<?php echo $v_db['kode_branch']; ?>"><?php echo strtoupper($v_db['kode_branch'].' | '.$v_db['nama']); ?></option>
+							<?php endforeach ?>
+						</select>
+					</div>
+				</div>
+
+				<div class="col-xs-6 no-padding" style="margin-bottom: 5px; padding-left: 5px;">
+					<div class="col-xs-12 no-padding">
+						<label class="control-label">Shift</label>
+					</div>
+					<div class="col-xs-12 no-padding">
+						<select class="form-control shift" multiple="multiple" data-required="1">
+							<option value="">-- Pilih Shift --</option>
+							<?php foreach ($shift as $k_shift => $v_shift): ?>
+								<option data-tokens="<?php echo $v_shift['nama']; ?>" value="<?php echo $v_shift['id']; ?>"><?php echo strtoupper($v_shift['nama']); ?></option>
 							<?php endforeach ?>
 						</select>
 					</div>
