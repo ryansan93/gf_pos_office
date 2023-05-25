@@ -743,8 +743,20 @@ class SalesRecapitulation extends Public_Controller
             $m_bayar = new \Model\Storage\Bayar_model();
             $d_bayar = $m_bayar->where('id', $params['id_bayar'])->first();
 
+            $m_jk = new \Model\Storage\JenisKartu_model();
+            $d_jk = $m_jk->where('kode_jenis_kartu', $params['kode_jenis_kartu'])->first();
+
+            if ( $d_jk->cl == 1 ) {
+                $m_jual = new \Model\Storage\Jual_model();
+                $m_jual->where('kode_faktur', $d_bayar->faktur_kode)->update(
+                    array(
+                        'hutang' => 1
+                    )
+                );
+            }
+
             $deskripsi_log = 'Tambah pembayaran oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi);
+            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi, $m_bd);
 
             $this->result['status'] = 1;
             $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
@@ -764,6 +776,7 @@ class SalesRecapitulation extends Public_Controller
 
         try {
             $id_bayar = null;
+            $id_bayar_diskon = null;
 
             foreach ($params as $key => $value) {
                 $m_bd = new \Model\Storage\BayarDiskon_model();
@@ -771,14 +784,21 @@ class SalesRecapitulation extends Public_Controller
                 $m_bd->diskon_kode = $value['kode_diskon'];
                 $m_bd->save();
 
+                $id_bayar_diskon[] = $m_bd->id;
                 $id_bayar = $value['id_bayar'];
+            }
+
+            $d_bd = null;
+            if ( !empty($id_bayar_diskon) ) {
+                $m_bd = new \Model\Storage\BayarDiskon_model();
+                $d_bd = $m_bd->whereIn('id', $id_bayar_diskon)->get();
             }
 
             $m_bayar = new \Model\Storage\Bayar_model();
             $d_bayar = $m_bayar->where('id', $id_bayar)->first();
 
             $deskripsi_log = 'Tambah diskon oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi);
+            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi, $d_bd);
 
             $this->result['status'] = 1;
             $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
@@ -808,7 +828,7 @@ class SalesRecapitulation extends Public_Controller
             $m_ji->where('kode_faktur_item', $kode_faktur_item)->delete();
 
             $deskripsi_log = 'Void pesanan oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_jual, $deskripsi_log, null, $keterangan, $id_verifikasi);
+            Modules::run( 'base/event/save', $d_jual, $deskripsi_log, null, $keterangan, $id_verifikasi, $d_ji);
 
             $this->result['status'] = 1;
             $this->result['content'] = array('kode_faktur' => $d_ji->faktur_kode);
@@ -835,10 +855,22 @@ class SalesRecapitulation extends Public_Controller
             $m_bayar = new \Model\Storage\Bayar_model();
             $d_bayar = $m_bayar->where('id', $d_bd->id_header)->first();
 
+            $m_jk = new \Model\Storage\JenisKartu_model();
+            $d_jk = $m_jk->where('kode_jenis_kartu', $d_bd->kode_jenis_kartu)->first();
+
+            if ( $d_jk->cl == 1 ) {
+                $m_jual = new \Model\Storage\Jual_model();
+                $m_jual->where('kode_faktur', $d_bayar->faktur_kode)->update(
+                    array(
+                        'hutang' => 0
+                    )
+                );
+            }
+
             $m_bd->where('id', $id_bayar_det)->delete();
 
             $deskripsi_log = 'Void pembayaran oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi);
+            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi, $d_bd);
 
             $this->result['status'] = 1;
             $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
@@ -868,7 +900,7 @@ class SalesRecapitulation extends Public_Controller
             $m_bd->where('id', $id_bayar_diskon)->delete();
 
             $deskripsi_log = 'Void diskon oleh ' . $this->userdata['detail_user']['nama_detuser'];
-            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi);
+            Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi, $d_bd);
 
             $this->result['status'] = 1;
             $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
@@ -2091,14 +2123,21 @@ class SalesRecapitulation extends Public_Controller
 
     public function tes()
     {
-        $data_diskon = $this->hitDiskon('FAK-2305140064', 423565);
+        // $data_diskon = $this->hitDiskon('FAK-2305140064', 423565);
         // $data_diskon = $this->hitDiskon('FAK-2302260182', 400867);
 
-        cetak_r( $data_diskon );
+        // cetak_r( $data_diskon );
 
         // $idFitur = getIdFitur( $this->current_base_uri );
 
         // cetak_r( substr($this->current_base_uri, 1) );
         // cetak_r( $idFitur );
+
+        $id_bayar_diskon = array(1942, 1941);
+
+        $m_bd = new \Model\Storage\BayarDiskon_model();
+        $d_bd = $m_bd->whereIn('id', $id_bayar_diskon)->get();
+
+        cetak_r( $d_bd->toJson() );
     }
 }
