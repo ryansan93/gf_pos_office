@@ -110,6 +110,74 @@ class Penerimaan extends Public_Controller {
         echo $html;
     }
 
+    public function getPo()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $kode_gudang = $params['kode_gudang'];
+
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select 
+                    p.no_po,
+                    SUBSTRING(cast(p.tgl_po as varchar(10)), 9, 2) + '-' + SUBSTRING(cast(p.tgl_po as varchar(10)), 6, 2) + '-' + SUBSTRING(cast(p.tgl_po as varchar(10)), 0, 5) as tgl_po,
+                    p.supplier,
+                    p.gudang_kode,
+                    t.kode_terima 
+                from po p
+                left join
+                    terima t
+                    on
+                        p.no_po = t.po_no
+                where
+                    p.gudang_kode = '".$kode_gudang."' and
+                    t.kode_terima is null
+            ";
+            $d_po = $m_conf->hydrateRaw( $sql );
+
+            $data = array();
+            if ( $d_po->count() > 0 ) {
+                $data = $d_po->toArray();
+            }
+            
+            $this->result['status'] = 1;
+            $this->result['content'] = $data;
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function getPoItem()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $no_po = $params['no_po'];
+
+            $m_pi = new \Model\Storage\PoItem_model();
+            $d_pi = $m_pi->where('po_no', $no_po)->with(['item'])->get();
+
+            $data = array();
+            if ( $d_pi->count() > 0 ) {
+                $data = $d_pi->toArray();
+            }
+
+            $content['item'] = $this->getItem();
+            $content['data'] = $data;
+            $html = $this->load->view($this->pathView . 'listPo', $content, TRUE);
+            
+            $this->result['status'] = 1;
+            $this->result['content'] = array('html' => $html);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
     public function viewForm($kode)
     {
         $m_terima = new \Model\Storage\Terima_model();
@@ -159,6 +227,7 @@ class Penerimaan extends Public_Controller {
             $m_terima->supplier = $params['supplier'];
             $m_terima->pic = $params['nama_pic'];
             $m_terima->gudang_kode = $params['gudang'];
+            $m_terima->po_no = (isset($params['no_po']) && !empty($params['no_po'])) ? $params['no_po'] : null;
             $m_terima->save();
 
             foreach ($params['detail'] as $k_det => $v_det) {

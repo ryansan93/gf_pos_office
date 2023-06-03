@@ -1,6 +1,6 @@
-var terima = {
+var po = {
 	start_up: function () {
-		terima.setting_up();
+		po.setting_up();
 	}, // end - start_up
 
 	setting_up: function() {
@@ -21,14 +21,14 @@ var terima = {
             }
         });
 
-        $("#TglTerima").datetimepicker({
+        $("#TglPo").datetimepicker({
             locale: 'id',
             format: 'DD MMM Y',
-            minDate: moment(new Date((today+' 00:00:00')))
+            // minDate: moment(new Date((today+' 00:00:00')))
         });
-        if ( !empty($("#TglTerima").find('input').data('tgl')) ) {
-            var tgl = $("#TglTerima").find('input').data('tgl');
-            $("#TglTerima").data('DateTimePicker').date( moment(new Date((tgl+' 00:00:00'))) );
+        if ( !empty($("#TglPo").find('input').data('tgl')) ) {
+            var tgl = $("#TglPo").find('input').data('tgl');
+            $("#TglPo").data('DateTimePicker').date( moment(new Date((tgl+' 00:00:00'))) );
         }
 
         $('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
@@ -36,12 +36,7 @@ var terima = {
             priceFormat( $(this) );
         });
 
-        $('.gudang').select2().on('select2:select', function (e) {
-            terima.getPo( $(this) );
-
-            $('input.supplier').removeAttr('disabled');
-        });
-
+        $('.gudang').select2();
         $('.item').select2().on('select2:select', function (e) {
             var _tr = $(this).closest('tr');
             var select_satuan = $(_tr).find('select.satuan');
@@ -59,8 +54,6 @@ var terima = {
             $(_tr).find('.jumlah').removeAttr('disabled');
             $(_tr).find('.harga').removeAttr('disabled');
         });
-
-        $('select.po').select2();
     }, // end - setting_up
 
     addRow: function (elm) {
@@ -138,7 +131,7 @@ var terima = {
         if ( vhref == 'action' ) {
             var v_id = $(elm).attr('data-id');
 
-            terima.loadForm(v_id, edit);
+            po.loadForm(v_id, edit);
         };
     }, // end - changeTabActive
 
@@ -146,7 +139,7 @@ var terima = {
         var dcontent = $('div#action');
 
         $.ajax({
-            url : 'transaksi/Penerimaan/loadForm',
+            url : 'transaksi/PurchaseOrder/loadForm',
             data : {
                 'id' :  v_id,
                 'resubmit' : resubmit
@@ -157,7 +150,7 @@ var terima = {
             success : function(html){
                 hideLoading();
                 $(dcontent).html(html);
-                terima.setting_up();
+                po.setting_up();
             },
         });
     }, // end - loadForm
@@ -186,7 +179,7 @@ var terima = {
             };
 
             $.ajax({
-                url : 'transaksi/Penerimaan/getLists',
+                url : 'transaksi/PurchaseOrder/getLists',
                 data : {
                     'params' : params
                 },
@@ -201,77 +194,16 @@ var terima = {
         }
     }, // end - getLists
 
-    getPo: function(elm) {
-        var val = $(elm).select2('val');
+    hitTotal: function (elm) {
+        var tr = $(elm).closest('tr');
 
-        var opt = '<option value="">Pilih PO</option>';
-        if ( !empty(val) ) {
-            var params = {'kode_gudang': val};
+        var jumlah = numeral.unformat($(tr).find('.jumlah').val());
+        var harga = numeral.unformat($(tr).find('.harga').val());
 
-            $('select.po').removeAttr('disabled');
+        var total = harga * jumlah;
 
-            $.ajax({
-                url : 'transaksi/Penerimaan/getPo',
-                data : {
-                    'params' : params
-                },
-                type : 'POST',
-                dataType : 'JSON',
-                beforeSend : function(){ showLoading('Get PO . . .'); },
-                success : function(data){
-                    hideLoading();
-
-                    if ( data.status == 1 ) {
-                        for (var i = 0; i < data.content.length; i++) {
-                            opt += '<option value="'+data.content[i].no_po+'" data-supplier="'+data.content[i].supplier+'">'+data.content[i].tgl_po+' | '+data.content[i].no_po+' | '+data.content[i].supplier+'</option>';
-                        }
-                    } else {
-                        bootbox.alert( data.message );
-                    }
-                    
-                    $('select.po').html( opt );
-                    $('select.po').select2().on('select2:select', function (e) {
-                        var val = $(this).select2('val');
-
-                        var supplier = e.params.data.element.dataset.supplier;
-
-                        $('input.supplier').val( supplier );
-
-                        terima.getPoItem( val );
-                    });
-                },
-            });
-        } else {
-            $('select.po').attr('disabled', 'disabled');
-            $('select.po').html( opt );
-            $('select.po').select2();
-        }
-    }, // end - getPo
-
-    getPoItem: function(no_po) {
-        var params = {'no_po': no_po};
-
-        $.ajax({
-            url : 'transaksi/Penerimaan/getPoItem',
-            data : {
-                'params' : params
-            },
-            type : 'POST',
-            dataType : 'JSON',
-            beforeSend : function(){ showLoading('Get PO Item . . .'); },
-            success : function(data){
-                hideLoading();
-
-                if ( data.status == 1 ) {
-                    $('table.tbl_detail').find('tbody').html( data.content.html );
-
-                    terima.setting_up();
-                } else {
-                    bootbox.alert( data.message );
-                }
-            },
-        });
-    }, // end - getPoItem
+        $(tr).find('.total').val( numeral.formatDec(total) );
+    }, // end - hitTotal
 
 	save: function() {
 		var dcontent = $('#action');
@@ -295,7 +227,7 @@ var terima = {
                             'item_kode': $(tr).find('.item').select2('val'),
                             'satuan': $(tr).find('.satuan').val(),
 							'pengali': $(tr).find('.satuan option:selected').attr('data-pengali'),
-							'jumlah_terima': numeral.unformat($(tr).find('input.jumlah').val()),
+							'jumlah': numeral.unformat($(tr).find('input.jumlah').val()),
 							'harga': numeral.unformat($(tr).find('input.harga').val())
 						};
 
@@ -303,17 +235,15 @@ var terima = {
 					});
 
 					var data = {
-						'tgl_terima': dateSQL( $(dcontent).find('#TglTerima').data('DateTimePicker').date() ),
-                        'no_faktur': $(dcontent).find('.no_faktur').val(),
-                        'nama_pic': $(dcontent).find('.nama_pic').val(),
+						'tgl_po': dateSQL( $(dcontent).find('#TglPo').data('DateTimePicker').date() ),
+                        'no_po': $(dcontent).find('.no_po').val(),
                         'gudang': $(dcontent).find('.gudang').select2('val'),
-                        'supplier': $(dcontent).find('.supplier').val(),
-						'no_po': $(dcontent).find('.no_po').select2('val'),
+						'supplier': $(dcontent).find('.supplier').val(),
 						'detail': detail
 					};
 
 					$.ajax({
-		                url: 'transaksi/Penerimaan/save',
+		                url: 'transaksi/PurchaseOrder/save',
 		                dataType: 'json',
 		                type: 'post',
 		                data: {
@@ -325,7 +255,9 @@ var terima = {
 		                success: function(data) {
 		                    hideLoading();
 		                    if ( data.status == 1 ) {
-		                    	terima.hitungStok( data.content.id );
+                                bootbox.alert( data.message, function () {
+                                    po.loadForm( data.content.id );
+                                });
 		                    } else {
 		                        bootbox.alert(data.message);
 		                    };
@@ -336,40 +268,111 @@ var terima = {
 		}
 	}, // end - save
 
-    hitungStok: function (kode) {
-        var params = {'kode': kode};
-
-        $.ajax({
-            url: 'transaksi/Penerimaan/hitungStok',
-            data: {
-                'params': params
-            },
-            type: 'POST',
-            dataType: 'JSON',
-            beforeSend: function() { showLoading(); },
-            success: function(data) {
-                hideLoading();
-                if ( data.status == 1 ) {
-                    bootbox.alert( data.message, function () {
-                        location.reload();
-                    });
-                } else {
-                    bootbox.alert( data.message );
-                }
+    edit: function(elm) {
+        var dcontent = $('#action');
+        var err = 0;
+        $.map( $(dcontent).find('[data-required=1]'), function(ipt) {
+            if ( empty($(ipt).val()) ) {
+                $(ipt).parent().addClass('has-error');
+                err++;
+            } else {
+                $(ipt).parent().removeClass('has-error');
             }
         });
-    }, // end - hitungStok
 
-    hitTotal: function (elm) {
-        var tr = $(elm).closest('tr');
+        if ( err > 0 ) {
+            bootbox.alert('Harap lengkapi data terlebih dahulu.');
+        } else {
+            bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
+                if ( result ) {
+                    var detail = $.map( $(dcontent).find('.tbl_detail tbody tr'), function(tr) {
+                        var _detail = {
+                            'item_kode': $(tr).find('.item').select2('val'),
+                            'satuan': $(tr).find('.satuan').val(),
+                            'pengali': $(tr).find('.satuan option:selected').attr('data-pengali'),
+                            'jumlah': numeral.unformat($(tr).find('input.jumlah').val()),
+                            'harga': numeral.unformat($(tr).find('input.harga').val())
+                        };
 
-        var jumlah = numeral.unformat($(tr).find('.jumlah').val());
-        var harga = numeral.unformat($(tr).find('.harga').val());
+                        return _detail;
+                    });
 
-        var total = harga * jumlah;
+                    var data = {
+                        'id': $(elm).attr('data-id'),
+                        'tgl_po': dateSQL( $(dcontent).find('#TglPo').data('DateTimePicker').date() ),
+                        'no_po': $(dcontent).find('.no_po').val(),
+                        'gudang': $(dcontent).find('.gudang').select2('val'),
+                        'supplier': $(dcontent).find('.supplier').val(),
+                        'detail': detail
+                    };
 
-        $(tr).find('.total').val( numeral.formatDec(total) );
-    }, // end - hitTotal
+                    $.ajax({
+                        url: 'transaksi/PurchaseOrder/edit',
+                        dataType: 'json',
+                        type: 'post',
+                        data: {
+                            'params': data
+                        },
+                        beforeSend: function() {
+                            showLoading();
+                        },
+                        success: function(data) {
+                            hideLoading();
+                            if ( data.status == 1 ) {
+                                bootbox.alert( data.message, function () {
+                                    po.getLists();
+                                    po.loadForm( data.content.id );
+                                });
+                            } else {
+                                bootbox.alert(data.message);
+                            };
+                        },
+                    });
+                }
+            });
+        }
+    }, // end - edit
+
+    delete: function(elm) {
+        var dcontent = $('#action');
+
+        bootbox.confirm('Apakah anda yakin ingin menghapus data ?', function(result) {
+            if ( result ) {
+                var data = {
+                    'id': $(elm).attr('data-id')
+                };
+
+                $.ajax({
+                    url: 'transaksi/PurchaseOrder/delete',
+                    dataType: 'json',
+                    type: 'post',
+                    data: {
+                        'params': data
+                    },
+                    beforeSend: function() {
+                        showLoading();
+                    },
+                    success: function(data) {
+                        hideLoading();
+                        if ( data.status == 1 ) {
+                            bootbox.alert( data.message, function () {
+                                po.getLists();
+                                po.loadForm();
+                            });
+                        } else {
+                            bootbox.alert(data.message);
+                        };
+                    },
+                });
+            }
+        });
+    }, // end - delete
+
+    exportPdf : function (elm) {
+        var no_po = $(elm).attr('data-id');
+
+        window.open('transaksi/PurchaseOrder/exportPdf/'+no_po, 'blank');
+    }, // end - exportPdf
 };
 
-terima.start_up();
+po.start_up();

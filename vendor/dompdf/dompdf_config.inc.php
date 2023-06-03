@@ -14,7 +14,7 @@ if ( class_exists( 'DOMPDF' , false ) ) { return; }
 PHP_VERSION >= 5.0 or die("DOMPDF requires PHP 5.0+");
 
 /**
- * The root of your DOMPDF installation
+ * The root of your DOMPDF installation 
  */
 define("DOMPDF_DIR", str_replace(DIRECTORY_SEPARATOR, '/', realpath(dirname(__FILE__))));
 

@@ -1,18 +1,18 @@
 <div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
 	<div class="col-xs-3 no-padding">
-		<label class="control-label">Tanggal Terima</label>
+		<label class="control-label">Tanggal PO</label>
 	</div>
 	<div class="col-xs-9 no-padding">
-		<label class="control-label">: <?php echo strtoupper(tglIndonesia( $data['tgl_terima'], '-', ' ' )); ?></label>
+		<label class="control-label">: <?php echo strtoupper(tglIndonesia( $data['tgl_po'], '-', ' ' )); ?></label>
 	</div>
 </div>
 
 <div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
 	<div class="col-xs-3 no-padding">
-		<label class="control-label">No. Faktur</label>
+		<label class="control-label">No. PO</label>
 	</div>
 	<div class="col-xs-9 no-padding">
-		<label class="control-label">: <?php echo strtoupper($data['no_faktur']); ?></label>
+		<label class="control-label">: <?php echo strtoupper($data['no_po']); ?></label>
 	</div>
 </div>
 
@@ -43,15 +43,6 @@
 	</div>
 </div>
 
-<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
-	<div class="col-xs-3 no-padding">
-		<label class="control-label">No. PO</label>
-	</div>
-	<div class="col-xs-9 no-padding">
-		<label class="control-label">: <?php echo !empty($data['po_no']) ? strtoupper($data['po_no']) : '-'; ?></label>
-	</div>
-</div>
-
 <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 
 <div class="col-xs-12 no-padding">
@@ -77,16 +68,16 @@
 							<?php echo angkaRibuan($v_det['pengali']).' '.strtoupper($v_det['satuan']); ?>
 						</td>
 						<td class="text-right">
-							<?php echo angkaDecimal($v_det['jumlah_terima']); ?>
+							<?php echo angkaDecimal($v_det['jumlah']); ?>
 						</td>
 						<td class="text-right">
 							<?php echo angkaDecimal($v_det['harga']); ?>
 						</td>
 						<td class="text-right">
-							<?php echo angkaDecimal($v_det['jumlah_terima'] * $v_det['harga']); ?>
+							<?php echo angkaDecimal($v_det['jumlah'] * $v_det['harga']); ?>
 						</td>
 					</tr>
-					<?php $grand_total += ($v_det['jumlah_terima'] * $v_det['harga']); ?>
+					<?php $grand_total += ($v_det['jumlah'] * $v_det['harga']); ?>
 				<?php endforeach ?>
 				<tr>
 					<td colspan="4" class="text-right"><b>TOTAL</b></td>
@@ -95,4 +86,16 @@
 			</tbody>
 		</table>
 	</small>
+</div>
+
+<div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
+
+<div class="col-xs-12 no-padding">
+	<div class="col-xs-6 no-padding">
+		<button type="button" class="btn btn-default pull-left" data-id="<?php echo exEncrypt($data['no_po']); ?>" onclick="po.exportPdf(this)"><i class="fa fa-print"></i> Print</button>
+	</div>
+	<div class="col-xs-6 no-padding">
+		<button type="button" class="btn btn-primary pull-right" style="margin-left: 5px;" onclick="po.changeTabActive(this)" data-href="action" data-edit="edit" data-id="<?php echo $data['no_po']; ?>"><i class="fa fa-edit"></i> Edit</button>
+		<button type="button" class="btn btn-danger pull-right" style="margin-right: 5px;" onclick="po.delete(this)" data-id="<?php echo $data['no_po']; ?>"><i class="fa fa-trash"></i> Hapus</button>
+	</div>
 </div>
