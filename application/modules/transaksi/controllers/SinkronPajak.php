@@ -212,8 +212,6 @@ class SinkronPajak extends Public_Controller {
                     jg.grand_total_gabungan,
                     _data.ppn
             ) data
-        where
-            data.ppn > 0
         group by
             data.kode_faktur_utama
         order by
@@ -296,13 +294,13 @@ class SinkronPajak extends Public_Controller {
                     } else {
                         $m_jual = new \Model\Storage\Pajak\JualTr_model();
                     }
-                    if ( $value['ppn'] > 0 ) {
-                        $m_jual->NO_BILL = $value['kode_faktur'];
-                        $m_jual->TGL_TRANSAKSI = $value['tgl_trans'];
-                        $m_jual->TOTAL_TRANSAKSI = $value['grand_total'];
-                        $m_jual->TAX_PAD = $value['ppn'];
-                        $m_jual->save();
-                    }
+                    // if ( $value['ppn'] > 0 ) {
+                    $m_jual->NO_BILL = $value['kode_faktur'];
+                    $m_jual->TGL_TRANSAKSI = $value['tgl_trans'];
+                    $m_jual->TOTAL_TRANSAKSI = $value['grand_total'];
+                    $m_jual->TAX_PAD = $value['ppn'];
+                    $m_jual->save();
+                    // }
                 }
 
                 $this->result['status'] = 1;
