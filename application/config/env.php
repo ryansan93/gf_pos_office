@@ -12,11 +12,10 @@ $config['connection'] = array(
 		'driver'    => 'sqlsrv',
 
 		// NOTE : LIVE DATABASE
-		// 'host'      => '103.137.111.6',
-		// 'port'		=> '14330',
+		// 'host'      => 'localhost',
 		// 'database'  => 'gf_pos',
 		// 'username'  => 'sa',
-		// 'password'  => 'Mgb654321',
+		// 'password'  => 'admin123',
 
 		// NOTE : LOCAL DATABASE
 		'host'      => 'localhost',
@@ -24,11 +23,25 @@ $config['connection'] = array(
 		'username'  => '',
 		'password'  => '',
 
-		// NOTE : TEST DATABASE
-		// 'host'      => '192.168.100.116',
-		// 'database'  => 'ekspedisi_erp',
-		// 'username'  => 'it-mt',
-		// 'password'  => 'musnimda',
+		'charset'   => 'utf8',
+		'collation' => 'utf8_unicode_ci',
+		'prefix'    => '',
+	),
+	
+	'pajak' => array(
+		'driver'    => 'sqlsrv',
+
+		// NOTE : LIVE DATABASE
+		// 'host'      => 'localhost',
+		// 'database'  => 'gf_pos_pajak',
+		// 'username'  => 'sa',
+		// 'password'  => 'admin123',
+
+		// NOTE : LOCAL DATABASE
+		'host'      => 'localhost',
+		'database'  => 'gf_pos_pajak',
+		'username'  => '',
+		'password'  => '',
 
 		'charset'   => 'utf8',
 		'collation' => 'utf8_unicode_ci',

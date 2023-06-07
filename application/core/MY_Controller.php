@@ -27,6 +27,7 @@ class DB_Controller extends MX_Controller{
     });
     */
     $env = $this->config->item('connection');
+
     foreach($env as $nm => $val){
         $this->capsule->addConnection($val,$nm);
     }

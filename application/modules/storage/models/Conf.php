@@ -9,7 +9,8 @@ class Conf extends Eloquent
 	}
 
 	public function getCurrConnection(){
-		return $this->getConnection();
+		// return $this->getConnection();
+		return $this->getConnection('default');
 	}
 
 	public static function factory($nama_class){
