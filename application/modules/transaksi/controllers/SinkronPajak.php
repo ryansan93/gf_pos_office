@@ -243,7 +243,7 @@ class SinkronPajak extends Public_Controller {
             } else {
                 $m_jual = new \Model\Storage\Pajak\JualTr_model();
             }
-            $d_pajak = $m_jual->whereBetween('TGL_TRANSAKSI', [$start_date, $end_date])->where('TAX_PAD', '>', 0)->orderBy('NO_BILL', 'asc')->get();
+            $d_pajak = $m_jual->whereBetween('TGL_TRANSAKSI', [$start_date, $end_date])->orderBy('NO_BILL', 'asc')->get();
 
             $data_pajak = null;
             if ( $d_pajak->count() > 0 ) {
