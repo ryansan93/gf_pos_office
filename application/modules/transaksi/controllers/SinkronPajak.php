@@ -212,6 +212,8 @@ class SinkronPajak extends Public_Controller {
                     jg.grand_total_gabungan,
                     _data.ppn
             ) data
+        where
+            data.ppn > 0
         group by
             data.kode_faktur_utama
         order by
