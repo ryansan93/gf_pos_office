@@ -308,7 +308,7 @@ var terima = {
                         'nama_pic': $(dcontent).find('.nama_pic').val(),
                         'gudang': $(dcontent).find('.gudang').select2('val'),
                         'supplier': $(dcontent).find('.supplier').val(),
-						'no_po': $(dcontent).find('.no_po').select2('val'),
+						'no_po': $(dcontent).find('.po').select2('val'),
 						'detail': detail
 					};
 

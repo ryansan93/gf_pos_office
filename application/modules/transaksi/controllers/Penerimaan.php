@@ -123,16 +123,11 @@ class Penerimaan extends Public_Controller {
                     p.no_po,
                     SUBSTRING(cast(p.tgl_po as varchar(10)), 9, 2) + '-' + SUBSTRING(cast(p.tgl_po as varchar(10)), 6, 2) + '-' + SUBSTRING(cast(p.tgl_po as varchar(10)), 0, 5) as tgl_po,
                     p.supplier,
-                    p.gudang_kode,
-                    t.kode_terima 
+                    p.gudang_kode
                 from po p
-                left join
-                    terima t
-                    on
-                        p.no_po = t.po_no
                 where
                     p.gudang_kode = '".$kode_gudang."' and
-                    t.kode_terima is null
+                    (p.done is null or p.done = 0)
             ";
             $d_po = $m_conf->hydrateRaw( $sql );
 
@@ -209,7 +204,7 @@ class Penerimaan extends Public_Controller {
     {
         $params = $this->input->post('params');
 
-        try {            
+        try {
             $m_terima = new \Model\Storage\Terima_model();
             $now = $m_terima->getDate();
 
@@ -239,6 +234,10 @@ class Penerimaan extends Public_Controller {
                 $m_terimai->satuan = $v_det['satuan'];
                 $m_terimai->pengali = $v_det['pengali'];
                 $m_terimai->save();
+            }
+
+            if ( isset($params['no_po']) && !empty($params['no_po']) ) {
+                $this->updatePo($params['no_po']);
             }
 
             $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
@@ -280,5 +279,54 @@ class Penerimaan extends Public_Controller {
         $no_invoice = $m_terima->getNextNoInvoice();
 
         cetak_r( $no_invoice );
+    }
+
+    public function updatePo($no_po)
+    {
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select 
+                pi.po_no as no_po,
+                pi.item_kode as item_kode,
+                pi.harga as harga,
+                pi.jumlah as jumlah_po,
+                t.jumlah_terima
+            from po_item pi
+            right join
+                po p 
+                on
+                    pi.po_no = p.no_po
+            right join
+                (
+                    select ti.item_kode, ti.harga, sum(ti.jumlah_terima) as jumlah_terima, t.po_no from terima_item ti 
+                    right join
+                        terima t
+                        on
+                            ti.terima_kode = t.kode_terima 
+                    where
+                        t.po_no is not null
+                    group by
+                        ti.item_kode, ti.harga, t.po_no
+                ) t
+                on
+                    t.po_no = p.no_po and
+                    t.item_kode = pi.item_kode
+            where
+                pi.jumlah > t.jumlah_terima and
+                p.no_po = '".$no_po."'
+        ";
+        $d_po = $m_conf->hydrateRaw( $sql );
+
+        if ( $d_po->count() == 0 ) {
+            $m_po = new \Model\Storage\Po_model();
+            $m_po->where('no_po', $no_po)->update(
+                array('done' => 1)
+            );
+        } else {
+            $m_po = new \Model\Storage\Po_model();
+            $m_po->where('no_po', $no_po)->update(
+                array('done' => 0)
+            );
+        }
     }
 }

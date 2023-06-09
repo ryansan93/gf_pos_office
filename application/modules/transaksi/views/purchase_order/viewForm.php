@@ -43,6 +43,17 @@
 	</div>
 </div>
 
+<?php if ( $data['tax'] > 0 ): ?>
+	<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+		<div class="col-xs-3 no-padding">
+			<label class="control-label">Tax</label>
+		</div>
+		<div class="col-xs-9 no-padding">
+			<label class="control-label">: <?php echo (is_numeric( $data['tax'] ) && floor( $data['tax'] ) != $data['tax']) ? angkaDecimal($data['tax']) : angkaRibuan($data['tax']).'%'; ?></label>
+		</div>
+	</div>
+<?php endif ?>
+
 <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 
 <div class="col-xs-12 no-padding">
@@ -95,7 +106,11 @@
 		<button type="button" class="btn btn-default pull-left" data-id="<?php echo exEncrypt($data['no_po']); ?>" onclick="po.exportPdf(this)"><i class="fa fa-print"></i> Print</button>
 	</div>
 	<div class="col-xs-6 no-padding">
-		<button type="button" class="btn btn-primary pull-right" style="margin-left: 5px;" onclick="po.changeTabActive(this)" data-href="action" data-edit="edit" data-id="<?php echo $data['no_po']; ?>"><i class="fa fa-edit"></i> Edit</button>
-		<button type="button" class="btn btn-danger pull-right" style="margin-right: 5px;" onclick="po.delete(this)" data-id="<?php echo $data['no_po']; ?>"><i class="fa fa-trash"></i> Hapus</button>
+		<?php if ( $data['done'] == 0 ): ?>
+			<button type="button" class="btn btn-primary pull-right" style="margin-left: 5px;" onclick="po.changeTabActive(this)" data-href="action" data-edit="edit" data-id="<?php echo $data['no_po']; ?>"><i class="fa fa-edit"></i> Edit</button>
+			<?php if ( $terima == 0 ): ?>
+				<button type="button" class="btn btn-danger pull-right" style="margin-right: 5px;" onclick="po.delete(this)" data-id="<?php echo $data['no_po']; ?>"><i class="fa fa-trash"></i> Hapus</button>
+			<?php endif ?>
+		<?php endif ?>
 	</div>
 </div>

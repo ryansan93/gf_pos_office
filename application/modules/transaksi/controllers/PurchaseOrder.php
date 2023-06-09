@@ -73,6 +73,19 @@ class PurchaseOrder extends Public_Controller {
         return $data;
     }
 
+    public function getTax()
+    {
+        $m_tp = new \Model\Storage\TaxPembelian_model();
+        $d_tp = $m_tp->where('mstatus', 1)->orderBy('id', 'desc')->first();
+
+        $tax = 0;
+        if ( $d_tp ) {
+            $tax = $d_tp->toArray();
+        }
+
+        return $tax;
+    }
+
     public function loadForm()
     {
         $id = $this->input->get('id');
@@ -121,6 +134,15 @@ class PurchaseOrder extends Public_Controller {
             $data = $d_po->toArray();
         }
 
+        $m_terima = new \Model\Storage\Terima_model();
+        $d_terima = $m_terima->where('po_no', $kode)->first();
+
+        $terima = 0;
+        if ( $d_terima ) {
+            $terima = 1;
+        }
+
+        $content['terima'] = $terima;
         $content['data'] = $data;
 
         $html = $this->load->view($this->pathView . 'viewForm', $content, TRUE);
@@ -138,6 +160,7 @@ class PurchaseOrder extends Public_Controller {
             $data = $d_po->toArray();
         }
 
+        $content['tax'] = $this->getTax();
         $content['item'] = $this->getItem();
         $content['gudang'] = $this->getGudang();
         $content['data'] = $data;
@@ -149,6 +172,7 @@ class PurchaseOrder extends Public_Controller {
 
     public function addForm()
     {
+        $content['tax'] = $this->getTax();
         $content['item'] = $this->getItem();
         $content['gudang'] = $this->getGudang();
 
@@ -172,6 +196,9 @@ class PurchaseOrder extends Public_Controller {
             $m_po->supplier = $params['supplier'];
             $m_po->pic = !empty($params['nama_pic']) ? $params['nama_pic'] : null;
             $m_po->gudang_kode = $params['gudang'];
+            $m_po->done = 0;
+            $m_po->tax = (isset($params['tax']) && !empty($params['tax'])) ? $params['tax'] : null;
+            $m_po->tax_pembelian_id = (isset($params['tax_id']) && !empty($params['tax_id'])) ? $params['tax_id'] : null;
             $m_po->save();
 
             foreach ($params['detail'] as $k_det => $v_det) {
@@ -213,7 +240,9 @@ class PurchaseOrder extends Public_Controller {
                     'tgl_po' => $params['tgl_po'],
                     'supplier' => $params['supplier'],
                     'pic' => !empty($params['nama_pic']) ? $params['nama_pic'] : null,
-                    'gudang_kode' => $params['gudang']
+                    'gudang_kode' => $params['gudang'],
+                    'tax' => (isset($params['tax']) && !empty($params['tax'])) ? $params['tax'] : null,
+                    'tax_pembelian_id' => (isset($params['tax_id']) && !empty($params['tax_id'])) ? $params['tax_id'] : null
                 )
             );
 
@@ -232,6 +261,8 @@ class PurchaseOrder extends Public_Controller {
             }
 
             $d_po = $m_po->where('no_po', $no_po)->first();
+
+            $this->updatePo( $no_po );
 
             $deskripsi_log = 'di-update oleh ' . $this->userdata['detail_user']['nama_detuser'];
             Modules::run( 'base/event/update', $d_po, $deskripsi_log, $no_po );
@@ -292,6 +323,55 @@ class PurchaseOrder extends Public_Controller {
 
         $this->load->library('PDFGenerator');
         $this->pdfgenerator->generate($res_view_html, $no_po, "a5", "landscape");
+    }
+
+    public function updatePo($no_po)
+    {
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select 
+                pi.po_no as no_po,
+                pi.item_kode as item_kode,
+                pi.harga as harga,
+                pi.jumlah as jumlah_po,
+                t.jumlah_terima
+            from po_item pi
+            right join
+                po p 
+                on
+                    pi.po_no = p.no_po
+            right join
+                (
+                    select ti.item_kode, ti.harga, sum(ti.jumlah_terima) as jumlah_terima, t.po_no from terima_item ti 
+                    right join
+                        terima t
+                        on
+                            ti.terima_kode = t.kode_terima 
+                    where
+                        t.po_no is not null
+                    group by
+                        ti.item_kode, ti.harga, t.po_no
+                ) t
+                on
+                    t.po_no = p.no_po and
+                    t.item_kode = pi.item_kode
+            where
+                pi.jumlah > t.jumlah_terima and
+                p.no_po = '".$no_po."'
+        ";
+        $d_po = $m_conf->hydrateRaw( $sql );
+
+        if ( $d_po->count() == 0 ) {
+            $m_po = new \Model\Storage\Po_model();
+            $m_po->where('no_po', $no_po)->update(
+                array('done' => 1)
+            );
+        } else {
+            $m_po = new \Model\Storage\Po_model();
+            $m_po->where('no_po', $no_po)->update(
+                array('done' => 0)
+            );
+        }
     }
 
     public function tes()

@@ -55,6 +55,17 @@
 	</div>
 </div>
 
+<?php if ( !empty($tax) ): ?>
+	<div class="col-xs-6 no-padding" style="margin-top: 5px;">
+		<div class="col-xs-12 no-padding">
+			<div class="col-xs-2 no-padding"><label class="control-label">Tax <?php echo (is_numeric( $tax['nilai'] ) && floor( $tax['nilai'] ) != $tax['nilai']) ? angkaDecimal($tax['nilai']) : angkaRibuan($tax['nilai']).'%'; ?></label></div>
+			<div class="col-xs-10 no-padding">
+				<input type="checkbox" class="cursor-p tax" data-id="<?php echo $tax['id']; ?>" data-nilai="<?php echo $tax['nilai']; ?>">
+			</div>
+		</div>
+	</div>
+<?php endif ?>
+
 <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 
 <div class="col-xs-12 no-padding">

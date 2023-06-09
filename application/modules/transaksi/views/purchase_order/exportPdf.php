@@ -129,10 +129,17 @@
 </style>
 
 <?php 
-	$jumlah_page = (isset($data['detail']) && !empty($data['detail'])) ? ceil(count($data['detail']) / 12) : 0; 
+	$print_tax = 1;
+	$jml_baris = count($data['detail']);
+	if ( $data['tax'] > 0 ) {
+		$jml_baris += 1;
+		$print_tax = 0;
+	}
+	$jumlah_page = (isset($data['detail']) && !empty($data['detail'])) ? ceil($jml_baris / 12) : 0; 
+
 	// $jumlah_page = ceil(25 / 12); 
 ?>
-<?php $jumlah_cetak = 1; ?>
+<?php $jumlah_cetak = 1; $grand_total = 0; ?>
 <?php for ($i=0; $i < $jumlah_page; $i++) { ?>
 	<?php
 		$cls_page_break = "page-break";
@@ -171,7 +178,7 @@
 				<table class="border-field" style="width: 100%;">
 					<thead>
 						<tr>
-							<th colspan="2">
+							<th colspan="3">
 								<div class="col-xs-12" style="display: inline-block; text-align: left;">
 									<label class="col-xs-12" style="display: inline-block; margin-bottom: 10px;"><b>DATE REQUIRED</b></label>
 								</div>
@@ -181,9 +188,10 @@
 							</th>
 						</tr>
 						<tr>
-							<th style="width: 15%;">ITEM NO</th>
+							<th style="width: 10%;">ITEM NO</th>
 							<th style="width: 10%;">QTY</th>
-							<th style="width: 40%;">DESCRIPTION</th>
+							<th style="width: 10%;">UNIT</th>
+							<th style="width: 35%;">DESCRIPTION</th>
 							<th style="width: 15%;">UNIT PRICE</th>
 							<th style="width: 20%;">AMOUNT</th>
 						</tr>
@@ -196,24 +204,48 @@
 								<tr>
 									<td align="center"><?php echo $j; ?></td>
 									<td align="right"><?php echo angkaDecimal($data['detail'][ $idx ]['jumlah']); ?></td>
-									<td><?php echo $data['detail'][ $idx ]['item']['nama'].' ('.$data['detail'][ $idx ]['satuan'].')'; ?></td>
+									<td align="center"><?php echo $data['detail'][ $idx ]['satuan']; ?></td>
+									<td><?php echo $data['detail'][ $idx ]['item']['nama']; ?></td>
 									<td align="right"><?php echo angkaDecimal($data['detail'][ $idx ]['harga']); ?></td>
 									<td align="right"><?php echo angkaDecimal($data['detail'][ $idx ]['harga'] * $data['detail'][ $idx ]['jumlah']); ?></td>
 								</tr>
-								<?php $total += $data['detail'][ $idx ]['harga'] * $data['detail'][ $idx ]['jumlah']; ?>
+								<?php 
+									$total += $data['detail'][ $idx ]['harga'] * $data['detail'][ $idx ]['jumlah']; 
+									$grand_total += $data['detail'][ $idx ]['harga'] * $data['detail'][ $idx ]['jumlah'];
+								?>
 							<?php else: ?>
-								<tr>
-									<td>&nbsp;</td>
-									<td>&nbsp;</td>
-									<td>&nbsp;</td>
-									<td>&nbsp;</td>
-									<td>&nbsp;</td>
-								</tr>
+								<?php if ( $print_tax == 0 ): ?>
+									<?php if ( $data['tax'] > 0 ) { ?>
+										<?php
+											$tax_nilai = $grand_total * ($data['tax']/100);
+											$grand_total += $tax_nilai;
+
+											$print_tax = 1;
+										?>
+										<tr>
+											<td>&nbsp;</td>
+											<td>&nbsp;</td>
+											<td>&nbsp;</td>
+											<td>** PURCHASE TAX **</td>
+											<td align="right"><?php echo (is_numeric( $data['tax'] ) && floor( $data['tax'] ) != $data['tax']) ? angkaDecimal($data['tax']) : angkaRibuan($data['tax']).'%'; ?></td>
+											<td align="right"><?php echo angkaDecimal($tax_nilai); ?></td>
+										</tr>
+									<?php } ?>
+								<?php else: ?>
+									<tr>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+										<td>&nbsp;</td>
+									</tr>
+								<?php endif ?>
 							<?php endif ?>
 						<?php } ?>
 						<tr>
-							<td colspan="4" style="text-align: right;"><b>TOTAL</b></td>
-							<td align="right"><?php echo angkaDecimal($total); ?></td>
+							<td colspan="5" style="text-align: right;"><b>TOTAL</b></td>
+							<td align="right"><?php echo angkaDecimal($grand_total); ?></td>
 						</tr>
 					</tbody>
 				</table>

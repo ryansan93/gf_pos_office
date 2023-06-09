@@ -108,7 +108,7 @@ var po = {
         var tr = $(elm).closest('tr');
         var tbody = $(tr).closest('tbody');
 
-        if ( $(tbody).find('tr').length > 0 ) {
+        if ( $(tbody).find('tr').length > 1 ) {
             $(tr).remove();
         }
     }, // end - addRow
@@ -238,7 +238,9 @@ var po = {
 						'tgl_po': dateSQL( $(dcontent).find('#TglPo').data('DateTimePicker').date() ),
                         'no_po': $(dcontent).find('.no_po').val(),
                         'gudang': $(dcontent).find('.gudang').select2('val'),
-						'supplier': $(dcontent).find('.supplier').val(),
+                        'supplier': $(dcontent).find('.supplier').val(),
+                        'tax_id': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-id') : null,
+						'tax': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-nilai') : null,
 						'detail': detail
 					};
 
@@ -303,6 +305,8 @@ var po = {
                         'no_po': $(dcontent).find('.no_po').val(),
                         'gudang': $(dcontent).find('.gudang').select2('val'),
                         'supplier': $(dcontent).find('.supplier').val(),
+                        'tax_id': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-id') : null,
+                        'tax': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-nilai') : null,
                         'detail': detail
                     };
 
