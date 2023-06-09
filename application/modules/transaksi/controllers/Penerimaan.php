@@ -152,8 +152,43 @@ class Penerimaan extends Public_Controller {
         try {
             $no_po = $params['no_po'];
 
-            $m_pi = new \Model\Storage\PoItem_model();
-            $d_pi = $m_pi->where('po_no', $no_po)->with(['item'])->get();
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select 
+                    pi.po_no as no_po,
+                    pi.item_kode as item_kode,
+                    pi.harga as harga,
+                    (pi.jumlah - isnull(t.jumlah_terima, 0)) as jumlah,
+                    pi.satuan,
+                    pi.pengali
+                from po_item pi
+                right join
+                    po p 
+                    on
+                        pi.po_no = p.no_po
+                left join
+                    (
+                        select ti.item_kode, ti.harga, sum(ti.jumlah_terima) as jumlah_terima, t.po_no from terima_item ti 
+                        right join
+                            terima t
+                            on
+                                ti.terima_kode = t.kode_terima 
+                        where
+                            t.po_no is not null
+                        group by
+                            ti.item_kode, ti.harga, t.po_no
+                    ) t
+                    on
+                        t.po_no = p.no_po and
+                        t.item_kode = pi.item_kode
+                where
+                    pi.jumlah > isnull(t.jumlah_terima, 0) and
+                    p.no_po = '".$no_po."'
+            ";
+            $d_pi = $m_conf->hydrateRaw( $sql );
+
+            // $m_pi = new \Model\Storage\PoItem_model();
+            // $d_pi = $m_pi->where('po_no', $no_po)->get();
 
             $data = array();
             if ( $d_pi->count() > 0 ) {
