@@ -66,158 +66,161 @@ class SinkronPajak extends Public_Controller {
     {
         $m_conf = new \Model\Storage\Conf();
         $sql = "
-            select
-                min(data.tgl_trans) as tgl_trans,
-                data.kode_faktur_utama as kode_faktur,
-                sum(data.grand_total) as grand_total,
-                -- sum(data.grand_total_gabungan) as grand_total_gabungan,
-                sum(data.ppn) as ppn
-            from (
+            select * from
+            (
                 select
-                    _data.tgl_trans,
-                    _data.mstatus,
-                    _data.member,
-                    _data.kode_pesanan,
-                    _data.kode_faktur,
-                    _data.kode_faktur_utama,
-                    _data.nama_waitress,
-                    _data.nama_kasir,
-                    _data.grand_total,
-                    jg.grand_total_gabungan,
-                    max(_data.status_gabungan) as status_gabungan,
-                    _data.ppn as ppn
+                    min(data.tgl_trans) as tgl_trans,
+                    data.kode_faktur_utama as kode_faktur,
+                    sum(data.grand_total) as grand_total,
+                    -- sum(data.grand_total_gabungan) as grand_total_gabungan,
+                    sum(data.ppn) as ppn
                 from (
-                    select 
-                        j.tgl_trans,
-                        j.mstatus,
-                        j.member,
-                        p.kode_pesanan as kode_pesanan,
-                        j.kode_faktur as kode_faktur,
-                        j.kode_faktur as kode_faktur_utama,
-                        p.nama_user as nama_waitress,
-                        j.nama_kasir as nama_kasir,
-                        j.grand_total as grand_total,
-                        jg.id as id_gabungan,
-                        0 as status_gabungan,
-                        sum(ji.ppn) as ppn
-                    from jual j
-                    right join
-                        pesanan p
-                        on
-                            j.pesanan_kode = p.kode_pesanan
-                    left outer join
+                    select
+                        _data.tgl_trans,
+                        _data.mstatus,
+                        _data.member,
+                        _data.kode_pesanan,
+                        _data.kode_faktur,
+                        _data.kode_faktur_utama,
+                        _data.nama_waitress,
+                        _data.nama_kasir,
+                        _data.grand_total,
+                        jg.grand_total_gabungan,
+                        max(_data.status_gabungan) as status_gabungan,
+                        _data.ppn as ppn
+                    from (
+                        select 
+                            j.tgl_trans,
+                            j.mstatus,
+                            j.member,
+                            p.kode_pesanan as kode_pesanan,
+                            j.kode_faktur as kode_faktur,
+                            j.kode_faktur as kode_faktur_utama,
+                            p.nama_user as nama_waitress,
+                            j.nama_kasir as nama_kasir,
+                            j.grand_total as grand_total,
+                            jg.id as id_gabungan,
+                            0 as status_gabungan,
+                            sum(ji.ppn) as ppn
+                        from jual j
+                        right join
+                            pesanan p
+                            on
+                                j.pesanan_kode = p.kode_pesanan
+                        left outer join
+                            (
+                                select jg.*, j.member, j.nama_kasir as nama_kasir from jual_gabungan jg
+                                right join
+                                    jual j
+                                    on
+                                        jg.faktur_kode = j.kode_faktur
+                                where
+                                    j.mstatus = 1 and
+                                    jg.id is not null
+                            ) jg
+                            on
+                                jg.faktur_kode_gabungan = j.kode_faktur
+                        left join
+                            jual_item ji
+                            on
+                                ji.faktur_kode = j.kode_faktur
+                        where
+                            j.mstatus = 1 and
+                            jg.id is null
+                        group by
+                            j.tgl_trans,
+                            j.mstatus,
+                            j.member,
+                            p.kode_pesanan,
+                            j.kode_faktur,
+                            j.kode_faktur,
+                            p.nama_user,
+                            j.nama_kasir,
+                            j.grand_total,
+                            jg.id
+
+                        union all
+
+                        select
+                            j.tgl_trans,
+                            j.mstatus,
+                            _jg.member,
+                            p.kode_pesanan as kode_pesanan,
+                            j.kode_faktur as kode_faktur,
+                            _jg.faktur_kode as kode_faktur_utama,
+                            p.nama_user as nama_waitress,
+                            _jg.nama_kasir as nama_kasir,
+                            j.grand_total as grand_total,
+                            jg.id as id_gabungan,
+                            1 as status_gabungan,
+                            sum(ji.ppn) as ppn
+                        from jual_gabungan jg
+                        right join
+                            (
+                                select jg.*, j.member, j.nama_kasir as nama_kasir from jual_gabungan jg
+                                right join
+                                    jual j
+                                    on
+                                        jg.faktur_kode = j.kode_faktur
+                                where
+                                    j.mstatus = 1
+                            ) _jg
+                            on
+                                jg.id = _jg.id
+                        right join
+                            jual j
+                            on
+                                jg.faktur_kode_gabungan = j.kode_faktur
+                        right join
+                            pesanan p
+                            on
+                                j.pesanan_kode = p.kode_pesanan
+                        left join
+                            jual_item ji
+                            on
+                                ji.faktur_kode = j.kode_faktur
+                        group by
+                            j.tgl_trans,
+                            j.mstatus,
+                            _jg.member,
+                            p.kode_pesanan,
+                            j.kode_faktur,
+                            _jg.faktur_kode,
+                            p.nama_user,
+                            _jg.nama_kasir,
+                            j.grand_total,
+                            jg.id
+                    ) _data
+                    left join
                         (
-                            select jg.*, j.member, j.nama_kasir as nama_kasir from jual_gabungan jg
-                            right join
-                                jual j
-                                on
-                                    jg.faktur_kode = j.kode_faktur
-                            where
-                                j.mstatus = 1 and
-                                jg.id is not null
+                            select faktur_kode, sum(jml_tagihan) as grand_total_gabungan from jual_gabungan group by faktur_kode
                         ) jg
                         on
-                            jg.faktur_kode_gabungan = j.kode_faktur
-                    left join
-                        jual_item ji
-                        on
-                            ji.faktur_kode = j.kode_faktur
-                    where
-                        j.mstatus = 1 and
-                        jg.id is null
+                            jg.faktur_kode = _data.kode_faktur
+                    where 
+                        _data.tgl_trans between '".$start_date."' and '".$end_date."' and
+                        _data.nama_kasir is not null and
+                        SUBSTRING(_data.kode_pesanan, 1, 3) = '".$kode_branch."'
                     group by
-                        j.tgl_trans,
-                        j.mstatus,
-                        j.member,
-                        p.kode_pesanan,
-                        j.kode_faktur,
-                        j.kode_faktur,
-                        p.nama_user,
-                        j.nama_kasir,
-                        j.grand_total,
-                        jg.id
-
-                    union all
-
-                    select
-                        j.tgl_trans,
-                        j.mstatus,
-                        _jg.member,
-                        p.kode_pesanan as kode_pesanan,
-                        j.kode_faktur as kode_faktur,
-                        _jg.faktur_kode as kode_faktur_utama,
-                        p.nama_user as nama_waitress,
-                        _jg.nama_kasir as nama_kasir,
-                        j.grand_total as grand_total,
-                        jg.id as id_gabungan,
-                        1 as status_gabungan,
-                        sum(ji.ppn) as ppn
-                    from jual_gabungan jg
-                    right join
-                        (
-                            select jg.*, j.member, j.nama_kasir as nama_kasir from jual_gabungan jg
-                            right join
-                                jual j
-                                on
-                                    jg.faktur_kode = j.kode_faktur
-                            where
-                                j.mstatus = 1
-                        ) _jg
-                        on
-                            jg.id = _jg.id
-                    right join
-                        jual j
-                        on
-                            jg.faktur_kode_gabungan = j.kode_faktur
-                    right join
-                        pesanan p
-                        on
-                            j.pesanan_kode = p.kode_pesanan
-                    left join
-                        jual_item ji
-                        on
-                            ji.faktur_kode = j.kode_faktur
-                    group by
-                        j.tgl_trans,
-                        j.mstatus,
-                        _jg.member,
-                        p.kode_pesanan,
-                        j.kode_faktur,
-                        _jg.faktur_kode,
-                        p.nama_user,
-                        _jg.nama_kasir,
-                        j.grand_total,
-                        jg.id
-                ) _data
-                left join
-                    (
-                        select faktur_kode, sum(jml_tagihan) as grand_total_gabungan from jual_gabungan group by faktur_kode
-                    ) jg
-                    on
-                        jg.faktur_kode = _data.kode_faktur
-                where 
-                    _data.tgl_trans between '".$start_date."' and '".$end_date."' and
-                    _data.nama_kasir is not null and
-                    SUBSTRING(_data.kode_pesanan, 1, 3) = '".$kode_branch."'
-                group by
-                    _data.tgl_trans,
-                    _data.mstatus,
-                    _data.member,
-                    _data.kode_pesanan,
-                    _data.kode_faktur,
-                    _data.kode_faktur_utama,
-                    _data.nama_waitress,
-                    _data.nama_kasir,
-                    _data.grand_total,
-                    jg.grand_total_gabungan,
-                    _data.ppn
+                        _data.tgl_trans,
+                        _data.mstatus,
+                        _data.member,
+                        _data.kode_pesanan,
+                        _data.kode_faktur,
+                        _data.kode_faktur_utama,
+                        _data.nama_waitress,
+                        _data.nama_kasir,
+                        _data.grand_total,
+                        jg.grand_total_gabungan,
+                        _data.ppn
+                ) data
+            group by
+                data.kode_faktur_utama
+            order by
+                data.kode_faktur_utama asc
             ) data
         where
-            sum(data.ppn) > 0
-        group by
-            data.kode_faktur_utama
-        order by
-            data.kode_faktur_utama asc
+            data.ppn > 0
         ";
         $d_real = $m_conf->hydrateRaw( $sql );
 
