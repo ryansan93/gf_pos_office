@@ -216,11 +216,11 @@ class SinkronPajak extends Public_Controller {
                 ) data
             group by
                 data.kode_faktur_utama
-            order by
-                data.kode_faktur_utama asc
             ) data
         where
             data.ppn > 0
+        order by
+            data.kode_faktur_utama asc
         ";
         $d_real = $m_conf->hydrateRaw( $sql );
 
