@@ -161,7 +161,7 @@ class SinkronPajak extends Public_Controller {
                             _jg.faktur_kode as kode_faktur_utama,
                             p.nama_user as nama_waitress,
                             _jg.nama_kasir as nama_kasir,
-                            j.grand_total as grand_total,
+                            sum(ji.total) as grand_total,
                             jg.id as id_gabungan,
                             1 as status_gabungan,
                             sum(ji.ppn) as ppn
