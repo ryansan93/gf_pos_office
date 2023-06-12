@@ -98,7 +98,7 @@ class SinkronPajak extends Public_Controller {
                             j.kode_faktur as kode_faktur_utama,
                             p.nama_user as nama_waitress,
                             j.nama_kasir as nama_kasir,
-                            j.grand_total as grand_total,
+                            sum(ji.total) as grand_total,
                             jg.id as id_gabungan,
                             0 as status_gabungan,
                             sum(ji.ppn) as ppn
@@ -124,9 +124,20 @@ class SinkronPajak extends Public_Controller {
                             jual_item ji
                             on
                                 ji.faktur_kode = j.kode_faktur
+                        left join
+                            (
+                                select m1.* from menu m1
+                                right join
+                                    (select max(id) as id, kode_menu from menu group by kode_menu) m2
+                                    on
+                                        m1.id = m2.id
+                            ) menu
+                            on
+                                ji.menu_kode = menu.kode_menu
                         where
                             j.mstatus = 1 and
-                            jg.id is null
+                            jg.id is null and
+                            menu.ppn > 0
                         group by
                             j.tgl_trans,
                             j.mstatus,
@@ -179,6 +190,18 @@ class SinkronPajak extends Public_Controller {
                             jual_item ji
                             on
                                 ji.faktur_kode = j.kode_faktur
+                        left join
+                            (
+                                select m1.* from menu m1
+                                right join
+                                    (select max(id) as id, kode_menu from menu group by kode_menu) m2
+                                    on
+                                        m1.id = m2.id
+                            ) menu
+                            on
+                                ji.menu_kode = menu.kode_menu
+                        where
+                            menu.ppn > 0
                         group by
                             j.tgl_trans,
                             j.mstatus,
