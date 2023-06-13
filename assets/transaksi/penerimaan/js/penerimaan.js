@@ -24,7 +24,7 @@ var terima = {
         $("#TglTerima").datetimepicker({
             locale: 'id',
             format: 'DD MMM Y',
-            minDate: moment(new Date((today+' 00:00:00')))
+            // minDate: moment(new Date((today+' 00:00:00')))
         });
         if ( !empty($("#TglTerima").find('input').data('tgl')) ) {
             var tgl = $("#TglTerima").find('input').data('tgl');
@@ -266,6 +266,7 @@ var terima = {
                     $('table.tbl_detail').find('tbody').html( data.content.html );
 
                     terima.setting_up();
+                    terima.hitGrandTotal();
                 } else {
                     bootbox.alert( data.message );
                 }
@@ -369,7 +370,20 @@ var terima = {
         var total = harga * jumlah;
 
         $(tr).find('.total').val( numeral.formatDec(total) );
+
+        terima.hitGrandTotal();
     }, // end - hitTotal
+
+    hitGrandTotal: function() {
+        var grand_total = 0;
+        $.map( $('tr.data'), function(tr) {
+            var total = numeral.unformat($(tr).find('input.total').val());
+
+            grand_total += parseFloat( total );
+        });
+
+        $('tfoot td.total').find('b').html( numeral.formatDec(grand_total) );
+    }, // end - hitGrandTotal
 };
 
 terima.start_up();

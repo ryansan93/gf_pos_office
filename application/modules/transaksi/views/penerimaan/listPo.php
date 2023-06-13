@@ -1,6 +1,6 @@
 <?php if ( !empty($data) && count($data) > 0 ): ?>
 	<?php foreach ($data as $key => $value): ?>
-		<tr>
+		<tr class="data">
 			<?php $satuan = null; ?>
 			<td>
 				<select class="form-control item" data-required="1">
@@ -56,7 +56,7 @@
 		</tr>
 	<?php endforeach ?>
 <?php else: ?>
-	<tr>
+	<tr class="data">
 		<td>
 			<select class="form-control item" data-required="1">
 				<option value="">Pilih Item</option>

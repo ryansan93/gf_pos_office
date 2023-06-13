@@ -82,7 +82,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
+				<tr class="data">
 					<td>
 						<select class="form-control item" data-required="1">
 							<option value="">Pilih Item</option>
@@ -117,6 +117,12 @@
 					</td>
 				</tr>
 			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="4" class="text-right"><b>GRAND TOTAL</b></td>
+					<td class="text-right total"><b><?php echo angkaDecimal(0); ?></b></td>
+				</tr>
+			</tfoot>
 		</table>
 	</small>
 </div>

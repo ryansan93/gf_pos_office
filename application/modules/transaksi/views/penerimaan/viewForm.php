@@ -69,7 +69,7 @@
 			<tbody>
 				<?php $grand_total = 0; ?>
 				<?php foreach ($data['detail'] as $k_det => $v_det): ?>
-					<tr>
+					<tr class="data">
 						<td>
 							<?php echo strtoupper($v_det['item']['nama']); ?>
 						</td>
@@ -88,11 +88,13 @@
 					</tr>
 					<?php $grand_total += ($v_det['jumlah_terima'] * $v_det['harga']); ?>
 				<?php endforeach ?>
-				<tr>
-					<td colspan="4" class="text-right"><b>TOTAL</b></td>
-					<td class="text-right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
-				</tr>
 			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="4" class="text-right"><b>GRAND TOTAL</b></td>
+					<td class="text-right total"><b><?php echo angkaDecimal($grand_total); ?></b></td>
+				</tr>
+			</tfoot>
 		</table>
 	</small>
 </div>
