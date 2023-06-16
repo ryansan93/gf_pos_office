@@ -51,7 +51,7 @@
 		<label class="control-label">Supplier</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<input type="text" class="col-xs-12 form-control supplier uppercase" placeholder="Supplier (MAX : 50)" data-required="1" maxlength="50" onblur="po.autocompleteSupplier()">
+		<input type="text" class="col-xs-12 form-control supplier uppercase" placeholder="Supplier (MAX : 50)" data-required="1" maxlength="50" onkeyup="po.autocompleteSupplier()">
 	</div>
 </div>
 
