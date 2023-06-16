@@ -119,14 +119,10 @@ var po = {
     }, // end - autocomplete_kota_kab
 
     setautocompleteSupplier : function (element) {
-        console.log( $(element).val() );
-
         $( element ).autocomplete({
             source : function(request, response){
                 var elm = $(this)[0].element[0];
                 var elm_name = $(elm).attr('name');
-
-                console.log( elm_name );
 
                 $(elm).attr('data-id', '');
 
