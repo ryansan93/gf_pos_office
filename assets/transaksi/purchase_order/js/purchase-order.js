@@ -113,6 +113,36 @@ var po = {
         }
     }, // end - addRow
 
+    autocompleteSupplier: function () {
+        var ipt = $('input.supplier');
+        po.setautocompleteSupplier(ipt);
+    }, // end - autocomplete_kota_kab
+
+    setautocompleteSupplier : function (element) {
+        // $( "[name=kabupaten]" ).autocomplete({
+        $( element ).autocomplete({
+            source : function(request, response){
+                var elm = $(this)[0].element[0];
+                var elm_name = $(elm).attr('name');
+
+                $(elm).attr('data-id', '');
+
+                $.ajax({
+                    url: 'transaksi/PurchaseOrder/autocompleteSupplier',
+                    beforeSend: function(){},
+                    async:    true,
+                    data : request,
+                    dataType: "json",
+                    success: response
+                });
+            },
+            minLength: 1,
+            select: function( event, ui ) {
+                $(this).attr('data-id', ui.item.id );
+            }
+        });
+    }, // end - set_autocomplete_prokes
+
 	changeTabActive: function(elm) {
         var vhref = $(elm).data('href');
         var edit = $(elm).data('edit');

@@ -23,10 +23,13 @@ class PurchaseOrder extends Public_Controller {
     {
         if ( $this->hakAkses['a_view'] == 1 ) {
             $this->add_external_js(array(
+                "assets/jquery/easy-autocomplete/jquery.easy-autocomplete.min.js",
                 "assets/select2/js/select2.min.js",
                 "assets/transaksi/purchase_order/js/purchase-order.js",
             ));
             $this->add_external_css(array(
+                "assets/jquery/easy-autocomplete/easy-autocomplete.min.css",
+                "assets/jquery/easy-autocomplete/easy-autocomplete.themes.min.css",
                 "assets/select2/css/select2.min.css",
                 "assets/transaksi/purchase_order/css/purchase-order.css",
             ));
@@ -84,6 +87,42 @@ class PurchaseOrder extends Public_Controller {
         }
 
         return $tax;
+    }
+
+    public function autocompleteSupplier() {
+        $term = $this->input->get('term');
+
+        $data = array();
+
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select supplier from po
+            where
+                supplier like '%".$term."%'
+            group by
+                supplier
+        ";
+        $d_supl = $m_conf->hydrateRaw( $sql );
+
+        if ( $d_supl->count() > 0 ) {
+            $d_supl = $d_supl->toArray();
+
+            foreach ($d_supl as $key => $value) {
+                $data[] = array(
+                    'label'=>$value['supplier'],
+                    'value'=>$value['supplier'],
+                    'id' => null
+                );
+            }
+        } else {
+            $data = array(
+                'label'=>"not found",
+                'value'=>"",
+                'id' => ""
+            );
+        }
+
+        display_json($data);
     }
 
     public function loadForm()
