@@ -68,6 +68,9 @@ class GroupItem extends Public_Controller {
             if ( !$d_gi ) {
                 $m_gi->kode = $params['kode'];
                 $m_gi->nama = $params['nama'];
+                $m_gi->coa = $params['coa'];
+                $m_gi->ket_coa = $params['ket_coa'];
+                $m_gi->mstatus = 1;
                 $m_gi->save();
 
                 $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
@@ -107,7 +110,10 @@ class GroupItem extends Public_Controller {
             $m_gi = new \Model\Storage\GroupItem_model();
             $m_gi->where('kode', $params['kode'])->update(
                 array(
-                    'nama' => $params['nama']
+                    'nama' => $params['nama'],
+                    'coa' => $params['coa'],
+                    'ket_coa' => $params['ket_coa'],
+                    'mstatus' => 1
                 )
             );
 
@@ -133,7 +139,12 @@ class GroupItem extends Public_Controller {
             $m_gi = new \Model\Storage\GroupItem_model();
             $d_gi = $m_gi->where('kode', $kode)->first();
 
-            $m_gi->where('kode', $kode)->delete();
+            // $m_gi->where('kode', $kode)->delete();
+            $m_gi->where('kode', $kode)->update(
+                array(
+                    'mstatus' => 0
+                )
+            );
 
             $deskripsi_log = 'di-delete oleh ' . $this->userdata['detail_user']['nama_detuser'];
             Modules::run( 'base/event/delete', $d_gi, $deskripsi_log );

@@ -129,13 +129,13 @@ class BillOfMaterial extends Public_Controller {
     {
         $params = $this->input->get('params');
 
-        $start_date = $params['start_date'];
-        $end_date = $params['end_date'];
+        // $start_date = $params['start_date'];
+        // $end_date = $params['end_date'];
         $menu_kode = $params['menu_kode'];
 
         $kondisi = '';
         if ( $menu_kode[0] != 'all' ) {
-            $kondisi = "and m.kode_menu in ('".implode("', '", $menu_kode)."')";
+            $kondisi = "where m.kode_menu in ('".implode("', '", $menu_kode)."')";
         }
 
         $m_bom = new \Model\Storage\Bom_model();
@@ -149,9 +149,7 @@ class BillOfMaterial extends Public_Controller {
                 branch br
                 on
                     m.branch_kode = br.kode_branch
-            where
-                b.tgl_berlaku between '".$start_date."' and '".$end_date."'
-                ".$kondisi."
+            ".$kondisi."
             order by
                 b.tgl_berlaku desc,
                 m.nama asc
@@ -206,7 +204,7 @@ class BillOfMaterial extends Public_Controller {
                 bom_det bd
                 on
                     b.id = bd.id_header
-            right join
+            left join
                 (
                     select * from (
                         select items.satuan, items.pengali, cast(i.kode as varchar(20)) as kode, i.nama, 'item' as jenis from item i 
@@ -229,7 +227,8 @@ class BillOfMaterial extends Public_Controller {
                         data.satuan is not null
                 ) i
                 on
-                    bd.item_kode = i.kode
+                    bd.item_kode = i.kode and
+                    bd.satuan = i.satuan
             where
                 b.id = ".$id."
         ";

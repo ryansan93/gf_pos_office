@@ -50,7 +50,7 @@ class Penerimaan extends Public_Controller {
     public function getItem()
     {
         $m_item = new \Model\Storage\Item_model();
-        $d_item = $m_item->with(['satuan'])->orderBy('nama', 'asc')->get();
+        $d_item = $m_item->with(['satuan', 'group'])->orderBy('nama', 'asc')->get();
 
         $data_item = null;
         if ( $d_item->count() > 0 ) {
@@ -94,14 +94,91 @@ class Penerimaan extends Public_Controller {
     {
         $params = $this->input->get('params');
 
+        $start_date = $params['start_date'];
+        $end_date = $params['end_date'];
+
         $tgl_stok_opname = $this->config->item('tgl_stok_opname');
 
-        $m_terima = new \Model\Storage\Terima_model();
-        $d_terima = $m_terima->where('tgl_terima', '>', $tgl_stok_opname)->with(['gudang'])->orderBy('tgl_terima', 'desc')->get();
+        // $m_terima = new \Model\Storage\Terima_model();
+        // $d_terima = $m_terima->where('tgl_terima', '>', $tgl_stok_opname)->with(['gudang'])->orderBy('tgl_terima', 'desc')->get();
+
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select 
+                t.kode_terima, 
+                t.tgl_terima,
+                t.no_faktur,
+                t.supplier,
+                t.pic,
+                t.gudang_kode,
+                t.po_no,
+                g.nama as nama_gudang,
+                gi.coa,
+                gi.ket_coa,
+                sum(ti.jumlah_terima * ti.harga) as total
+            from terima t
+            right join
+                gudang g
+                on
+                    t.gudang_kode = g.kode_gudang
+            right join
+                terima_item ti
+                on
+                    t.kode_terima = ti.terima_kode
+            right join
+                item i
+                on
+                    ti.item_kode = i.kode
+            right join
+                group_item gi
+                on
+                    i.group_kode = gi.kode
+            where     
+                t.tgl_terima between '".$start_date."' and '".$end_date."'
+            group by
+                t.kode_terima, 
+                t.tgl_terima,
+                t.no_faktur,
+                t.supplier,
+                t.pic,
+                t.gudang_kode,
+                t.po_no,
+                g.nama,
+                gi.coa,
+                gi.ket_coa
+        ";
+        $d_terima = $m_conf->hydrateRaw( $sql );
 
         $data = null;
         if ( $d_terima->count() > 0 ) {
-            $data = $d_terima->toArray();
+            $d_terima = $d_terima->toArray();
+
+            foreach ($d_terima as $key => $value) {
+                if ( !isset($data[ $value['kode_terima'] ]) ) {
+                    $data[ $value['kode_terima'] ] = array(
+                        'kode_terima' => $value['kode_terima'],
+                        'tgl_terima' => $value['tgl_terima'],
+                        'no_faktur' => $value['no_faktur'],
+                        'supplier' => $value['supplier'],
+                        'pic' => $value['pic'],
+                        'gudang_kode' => $value['gudang_kode'],
+                        'po_no' => $value['po_no'],
+                        'nama_gudang' => $value['nama_gudang'],
+                        'total' => $value['total'],
+                        'list_coa' => null
+                    );
+                    $data[ $value['kode_terima'] ]['list_coa'][ $value['coa'] ] = array(
+                        'coa' => $value['coa'],
+                        'ket_coa' => $value['ket_coa']
+                    );
+                } else {
+                    $data[ $value['kode_terima'] ]['total'] += $value['total'];
+                    $data[ $value['kode_terima'] ]['list_coa'][ $value['coa'] ] = array(
+                        'coa' => $value['coa'],
+                        'ket_coa' => $value['ket_coa']
+                    );
+                }
+            }
         }
 
         $content['data'] = $data;
@@ -246,10 +323,10 @@ class Penerimaan extends Public_Controller {
             $kode_terima = $m_terima->getNextIdRibuan();
             $no_invoice = $m_terima->getNextNoInvoice();
 
-            $conf = new \Model\Storage\Conf();
-            $sql = "EXEC sp_hitung_stok_awal @tanggal = '".$params['tgl_terima']."'";
+            // $conf = new \Model\Storage\Conf();
+            // $sql = "EXEC sp_hitung_stok_awal @tanggal = '".$params['tgl_terima']."'";
 
-            $d_conf = $conf->hydrateRaw($sql);
+            // $d_conf = $conf->hydrateRaw($sql);
 
             $m_terima->kode_terima = $kode_terima;
             $m_terima->tgl_terima = $params['tgl_terima'];
@@ -294,10 +371,55 @@ class Penerimaan extends Public_Controller {
         try {
             $kode = $params['kode'];
 
-            $conf = new \Model\Storage\Conf();
-            $sql = "EXEC sp_tambah_stok @kode = '".$kode."', @table = 'terima'";
+            $m_conf = new \Model\Storage\Conf();
 
-            $d_conf = $conf->hydrateRaw($sql);
+            $tgl_transaksi = null;
+            $gudang = null;
+            $barang = null;
+
+            $sql_tgl_dan_gudang = "
+                select t.* from terima t
+                where
+                    t.kode_terima = '".$kode."'
+            ";
+            $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
+            if ( $d_tgl_dan_gudang->count() > 0 ) {
+                $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
+                $tgl_transaksi = $d_tgl_dan_gudang['tgl_terima'];
+                $gudang = $d_tgl_dan_gudang['gudang_kode'];
+            }
+
+            $sql_barang = "
+                select t.tgl_terima, ti.item_kode from terima_item ti
+                right join
+                    terima t
+                    on
+                        t.kode_terima = ti.terima_kode
+                where
+                    ti.terima_kode = '".$kode."'
+                group by
+                    t.tgl_terima,
+                    ti.item_kode
+            ";
+            $d_barang = $m_conf->hydrateRaw( $sql_barang );
+            if ( $d_barang->count() > 0 ) {
+                $d_barang = $d_barang->toArray();
+
+                foreach ($d_barang as $key => $value) {
+                    $barang[] = $value['item_kode'];
+                }
+            }
+
+            $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
+
+            // $conf = new \Model\Storage\Conf();
+            // $sql = "EXEC sp_tambah_stok @kode = '".$kode."', @table = 'terima'";
+
+            $d_conf = $m_conf->hydrateRaw($sql);
+
+            // if ( $d_conf->count() > 0 ) {
+            //     cetak_r( $d_conf->toArray() );
+            // }
 
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di simpan.';
@@ -310,10 +432,53 @@ class Penerimaan extends Public_Controller {
 
     public function tes()
     {
-        $m_terima = new \Model\Storage\Terima_model();
-        $no_invoice = $m_terima->getNextNoInvoice();
+        $kode = 'TR23060002';
 
-        cetak_r( $no_invoice );
+        $m_conf = new \Model\Storage\Conf();
+
+        $tgl_transaksi = null;
+        $gudang = null;
+        $barang = null;
+
+        $sql_tgl_dan_gudang = "
+            select t.* from terima t
+            where
+                t.kode_terima = '".$kode."'
+        ";
+        $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
+        if ( $d_tgl_dan_gudang->count() > 0 ) {
+            $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
+            $tgl_transaksi = $d_tgl_dan_gudang['tgl_terima'];
+            $gudang = $d_tgl_dan_gudang['gudang_kode'];
+        }
+
+        $sql_barang = "
+            select t.tgl_terima, ti.item_kode from terima_item ti
+            right join
+                terima t
+                on
+                    t.kode_terima = ti.terima_kode
+            where
+                ti.terima_kode = '".$kode."'
+            group by
+                t.tgl_terima,
+                ti.item_kode
+        ";
+        $d_barang = $m_conf->hydrateRaw( $sql_barang );
+        if ( $d_barang->count() > 0 ) {
+            $d_barang = $d_barang->toArray();
+
+            foreach ($d_barang as $key => $value) {
+                $barang[] = $value['item_kode'];
+            }
+        }
+
+        $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
+
+        $d_conf = $m_conf->hydrateRaw($sql);
+        if ( $d_conf->count() > 0 ) {
+            cetak_r( $d_conf->toArray() );
+        }
     }
 
     public function updatePo($no_po)

@@ -71,12 +71,16 @@ var gi = {
 		} else {
 			var kode = $(div).find('.kode').val().toUpperCase();
 			var nama = $(div).find('.nama').val().toUpperCase();
+			var coa = $(div).find('.coa').val().toUpperCase();
+			var ket_coa = $(div).find('.ket_coa').val().toUpperCase();
 
 			bootbox.confirm('Apakah anda yakin ingin menyimpan data ?', function(result) {
 				if ( result ) {
 					var data = {
 						'kode': kode,
-						'nama': nama
+						'nama': nama,
+						'coa': coa,
+						'ket_coa': ket_coa
 					};
 
 			        $.ajax({
@@ -121,12 +125,16 @@ var gi = {
 		} else {
 			var kode = $(div).find('.kode').val().toUpperCase();
 			var nama = $(div).find('.nama').val().toUpperCase();
+			var coa = $(div).find('.coa').val().toUpperCase();
+			var ket_coa = $(div).find('.ket_coa').val().toUpperCase();
 
 			bootbox.confirm('Apakah anda yakin ingin meng-ubah data ?', function(result) {
 				if ( result ) {
 					var data = {
 						'kode': kode,
-						'nama': nama
+						'nama': nama,
+						'coa': coa,
+						'ket_coa': ket_coa
 					};
 
 			        $.ajax({

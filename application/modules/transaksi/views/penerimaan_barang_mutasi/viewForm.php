@@ -12,7 +12,7 @@
 		<label class="control-label">Asal</label>
 	</div>
 	<div class="col-xs-10 no-padding">
-		<label class="control-label">: <?php echo $data['gudang_asal']['nama']; ?></label>
+		<label class="control-label">: <?php echo $data['nama_gudang_asal']; ?></label>
 	</div>
 </div>
 
@@ -21,7 +21,7 @@
 		<label class="control-label">Tujuan</label>
 	</div>
 	<div class="col-xs-10 no-padding">
-		<label class="control-label">: <?php echo $data['gudang_tujuan']['nama']; ?></label>
+		<label class="control-label">: <?php echo $data['nama_gudang_tujuan']; ?></label>
 	</div>
 </div>
 
@@ -58,19 +58,31 @@
 				<tr>
 					<th class="col-xs-1">Group</th>
 					<th class="col-xs-2">Item</th>
+					<th class="col-xs-2">COA SAP</th>
 					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
+					<th class="col-xs-1">Harga (Rp.)</th>
+					<th class="col-xs-2">Total (Rp.)</th>
 				</tr>
 			</thead>
 			<tbody>
+				<?php $grand_total = 0; ?>
 				<?php foreach ($data['detail'] as $k_det => $v_det): ?>
 					<tr>
-						<td class="text-center"><?php echo $v_det['item']['group']['nama']; ?></td>
-						<td><?php echo $v_det['item']['nama']; ?></td>
-						<td class="text-center"><?php echo $v_det['item']['satuan']; ?></td>
+						<td class="text-center"><?php echo $v_det['nama_group_item']; ?></td>
+						<td><?php echo $v_det['nama_item']; ?></td>
+						<td><?php echo $v_det['coa'].'<br>'.$v_det['ket_coa']; ?></td>
+						<td class="text-center"><?php echo $v_det['satuan']; ?></td>
 						<td class="text-right"><?php echo angkaDecimal($v_det['jumlah']); ?></td>
+						<td class="text-right"><?php echo angkaDecimal($v_det['harga']); ?></td>
+						<td class="text-right"><?php echo angkaDecimal($v_det['total']); ?></td>
+						<?php $grand_total += $v_det['total']; ?>
 					</tr>
 				<?php endforeach ?>
+				<tr>
+					<td class="text-right" colspan="6"><b>TOTAL</b></td>
+					<td class="text-right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
+				</tr>
 			</tbody>
 		</table>
 	</small>

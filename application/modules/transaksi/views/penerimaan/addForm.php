@@ -73,7 +73,8 @@
 		<table class="table table-bordered tbl_detail" style="margin-bottom: 0px;">
 			<thead>
 				<tr>
-					<th class="col-xs-4">Item</th>
+					<th class="col-xs-2">Item</th>
+					<th class="col-xs-2">COA SAP</th>
 					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-2">Jumlah</th>
 					<th class="col-xs-2">Harga Satuan (Rp.)</th>
@@ -87,12 +88,15 @@
 						<select class="form-control item" data-required="1">
 							<option value="">Pilih Item</option>
 							<?php foreach ($item as $k_item => $v_item): ?>
-								<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>'><?php echo strtoupper($v_item['nama']); ?></option>
+								<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' data-coa='<?php echo $v_item['group']['coa']; ?>' data-ketcoa='<?php echo $v_item['group']['ket_coa']; ?>'><?php echo strtoupper($v_item['nama']); ?></option>
 							<?php endforeach ?>
 						</select>
 					</td>
+					<td class="coa">
+						-
+					</td>
 					<td>
-						<select class="form-control satuan" data-required="1" disabled>
+						<select class="form-control satuan" data-required="1" style="padding-left: 3px; padding-right: 3px;" disabled>
 							<option value="">Pilih Satuan</option>
 						</select>
 					</td>
@@ -119,7 +123,7 @@
 			</tbody>
 			<tfoot>
 				<tr>
-					<td colspan="4" class="text-right"><b>GRAND TOTAL</b></td>
+					<td colspan="5" class="text-right"><b>GRAND TOTAL</b></td>
 					<td class="text-right total"><b><?php echo angkaDecimal(0); ?></b></td>
 				</tr>
 			</tfoot>

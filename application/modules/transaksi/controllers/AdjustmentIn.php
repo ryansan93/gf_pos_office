@@ -195,10 +195,51 @@ class AdjustmentIn extends Public_Controller {
         try {
             $kode = $params['kode'];
 
-            $conf = new \Model\Storage\Conf();
-            $sql = "EXEC sp_tambah_stok @kode = '".$kode."', @table = 'adjin'";
+            // $conf = new \Model\Storage\Conf();
+            // $sql = "EXEC sp_tambah_stok @kode = '".$kode."', @table = 'adjin'";
 
-            $d_conf = $conf->hydrateRaw($sql);
+            $m_conf = new \Model\Storage\Conf();
+
+            $tgl_transaksi = null;
+            $gudang = null;
+            $barang = null;
+
+            $sql_tgl_dan_gudang = "
+                select a.* from adjin a
+                where
+                    a.kode_adjin = '".$kode."'
+            ";
+            $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
+            if ( $d_tgl_dan_gudang->count() > 0 ) {
+                $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
+                $tgl_transaksi = $d_tgl_dan_gudang['tgl_adjin'];
+                $gudang = $d_tgl_dan_gudang['gudang_kode'];
+            }
+
+            $sql_barang = "
+                select a.tgl_adjin, ai.item_kode from adjin_item ai
+                right join
+                    adjin a
+                    on
+                        a.kode_adjin = ai.adjin_kode
+                where
+                    ai.adjin_kode = '".$kode."'
+                group by
+                    a.tgl_adjin,
+                    ai.item_kode
+            ";
+            $d_barang = $m_conf->hydrateRaw( $sql_barang );
+            if ( $d_barang->count() > 0 ) {
+                $d_barang = $d_barang->toArray();
+
+                foreach ($d_barang as $key => $value) {
+                    $barang[] = $value['item_kode'];
+                }
+            }
+
+            $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
+
+            $d_conf = $m_conf->hydrateRaw($sql);
 
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di simpan.';
@@ -207,5 +248,55 @@ class AdjustmentIn extends Public_Controller {
         }
 
         display_json( $this->result );
+    }
+
+    public function tes()
+    {
+        $kode = 'AI23020001';
+
+        $m_conf = new \Model\Storage\Conf();
+
+        $tgl_transaksi = null;
+        $gudang = null;
+        $barang = null;
+
+        $sql_tgl_dan_gudang = "
+            select a.* from adjin a
+            where
+                a.kode_adjin = '".$kode."'
+        ";
+        $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
+        if ( $d_tgl_dan_gudang->count() > 0 ) {
+            $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
+            $tgl_transaksi = $d_tgl_dan_gudang['tgl_adjin'];
+            $gudang = $d_tgl_dan_gudang['gudang_kode'];
+        }
+
+        $sql_barang = "
+            select a.tgl_adjin, ai.item_kode from adjin_item ai
+            right join
+                adjin a
+                on
+                    a.kode_adjin = ai.adjin_kode
+            where
+                ai.adjin_kode = '".$kode."'
+            group by
+                a.tgl_adjin,
+                ai.item_kode
+        ";
+        $d_barang = $m_conf->hydrateRaw( $sql_barang );
+        if ( $d_barang->count() > 0 ) {
+            $d_barang = $d_barang->toArray();
+
+            foreach ($d_barang as $key => $value) {
+                $barang[] = $value['item_kode'];
+            }
+        }
+
+        cetak_r( $tgl_transaksi );
+        cetak_r( $gudang );
+        cetak_r( $barang );
+
+        // $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
     }
 }

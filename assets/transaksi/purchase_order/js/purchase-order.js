@@ -116,7 +116,7 @@ var po = {
     autocompleteSupplier: function () {
         var ipt = $('input.supplier');
         po.setautocompleteSupplier(ipt);
-    }, // end - autocomplete_kota_kab
+    }, // end - autocompleteSupplier
 
     setautocompleteSupplier : function (element) {
         $( element ).autocomplete({
@@ -140,7 +140,7 @@ var po = {
                 $(this).attr('data-id', ui.item.id );
             }
         });
-    }, // end - set_autocomplete_prokes
+    }, // end - setautocompleteSupplier
 
 	changeTabActive: function(elm) {
         var vhref = $(elm).data('href');

@@ -23,6 +23,22 @@
 							<input type="text" class="col-sm-6 form-control nama uppercase" placeholder="Nama" data-required="1" value="<?php echo $data['nama']; ?>">
 						</td>
 					</tr>
+					<tr>
+						<td class="col-sm-2">				
+							<label class="control-label">COA SAP</label>
+						</td>
+						<td class="col-sm-10">
+							<input type="text" class="col-sm-6 form-control coa uppercase" placeholder="COA (MAX:50)" data-required="1" maxlength="50" value="<?php echo $data['coa']; ?>">
+						</td>
+					</tr>
+					<tr>
+						<td class="col-sm-2">				
+							<label class="control-label">KET COA SAP</label>
+						</td>
+						<td class="col-sm-10">
+							<textarea class="form-control ket_coa" data-required="1" placeholder="KETERANGAN COA (MAX:250)" maxlength="250"><?php echo trim($data['ket_coa']); ?></textarea>
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>

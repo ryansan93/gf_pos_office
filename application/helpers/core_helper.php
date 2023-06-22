@@ -253,7 +253,7 @@ if (! function_exists ( 'angkaRibuan' )) {
 	function angkaRibuan($angka, $default = 0) {
     if ( isset($angka) ) {
       if (is_numeric( $angka )) {
-        return number_format ( $angka, 0, '', '.' );
+        return number_format ( $angka, 0, '', ',' );
       } else {
         return $angka;
       }
@@ -267,7 +267,7 @@ if (! function_exists ( 'angkaDecimal' )) {
 	function angkaDecimal($angka, $default = 0) {
     if ( isset($angka) ) {
       if (is_numeric( $angka )) {
-        return number_format ( ($angka*1), 2, ',', '.' );
+        return number_format ( ($angka*1), 2, '.', ',' );
       } else {
         return $angka;
       }

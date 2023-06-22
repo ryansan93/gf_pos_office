@@ -47,6 +47,11 @@ var terima = {
             var select_satuan = $(_tr).find('select.satuan');
 
             var data = e.params.data.element.dataset;
+            var coa = JSON.parse( data.coa );
+            var ket_coa = JSON.parse( data.ketcoa );
+
+            $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
+
             var satuan = JSON.parse( data.satuan );
 
             var opt = '<option value="">Pilih Satuan</option>';
@@ -320,9 +325,7 @@ var terima = {
 		                data: {
 		                	'params': data
 		                },
-		                beforeSend: function() {
-		                    showLoading();
-		                },
+		                beforeSend: function() { showLoading('Proses Simpan . . .'); },
 		                success: function(data) {
 		                    hideLoading();
 		                    if ( data.status == 1 ) {
@@ -347,7 +350,7 @@ var terima = {
             },
             type: 'POST',
             dataType: 'JSON',
-            beforeSend: function() { showLoading(); },
+            beforeSend: function() { showLoading('Hitung Stok . . .'); },
             success: function(data) {
                 hideLoading();
                 if ( data.status == 1 ) {

@@ -41,14 +41,17 @@
 					<th class="col-xs-1">Tanggal Mutasi</th>
 					<th class="col-xs-1">Kode Mutasi</th>
 					<th class="col-xs-2">Nama PiC</th>
-					<th class="col-xs-2">Asal</th>
-					<th class="col-xs-2">Tujuan</th>
-					<th class="col-xs-1">Terima</th>
+					<th class="col-xs-1">Asal</th>
+					<th class="col-xs-1">Tujuan</th>
+					<th class="col-xs-1">COA SAP</th>
+					<th class="col-xs-2">Keterangan COA SAP</th>
+					<th class="col-xs-1">Status Terima</th>
+					<th class="col-xs-1">Grand Total</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="5">Data tidak ditemukan.</td>
+					<td colspan="9">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>

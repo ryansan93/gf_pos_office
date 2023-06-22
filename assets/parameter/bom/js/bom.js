@@ -226,8 +226,8 @@ var bom = {
             bootbox.alert('Harap lengkapi data terlebih dahulu.');
         } else {
             var params = {
-                'start_date': dateSQL( $(div).find('#StartDate').data('DateTimePicker').date() ),
-                'end_date': dateSQL( $(div).find('#EndDate').data('DateTimePicker').date() ),
+                // 'start_date': dateSQL( $(div).find('#StartDate').data('DateTimePicker').date() ),
+                // 'end_date': dateSQL( $(div).find('#EndDate').data('DateTimePicker').date() ),
                 'menu_kode': $(div).find('.menu_riwayat').select2('val')
             };
 

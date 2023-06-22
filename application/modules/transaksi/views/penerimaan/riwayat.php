@@ -48,16 +48,19 @@
 		<table class="table table-bordered tbl_riwayat">
 			<thead>
 				<tr>
-					<th class="col-xs-1">No. Faktur</th>
+					<th class="col-xs-1">No. PO</th>
 					<th class="col-xs-1">Tanggal Terima</th>
 					<th class="col-xs-1">Kode Terima</th>
 					<th class="col-xs-2">Gudang</th>
 					<th class="col-xs-2">Supplier</th>
+					<th class="col-xs-1">COA SAP</th>
+					<th class="col-xs-2">Keterangan COA SAP</th>
+					<th class="col-xs-1">Grand Total</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="5">Data tidak ditemukan.</td>
+					<td colspan="8">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>

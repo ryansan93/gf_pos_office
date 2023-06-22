@@ -200,6 +200,8 @@ class MutasiStok extends Public_Controller {
                 if ( $d_conf_stok->count() > 0 ) {
                     $d_conf_stok = $d_conf_stok->toArray();
 
+                    // cetak_r( $d_conf_stok );
+
                     foreach ($d_conf_stok as $k_det => $v_det) {
                         $id_header = $v_det['id_header'];
                         $item_kode = $v_det['item_kode'];
@@ -215,13 +217,13 @@ class MutasiStok extends Public_Controller {
                         ";
                         $d_harga = $conf->hydrateRaw($sql);
 
-                        $harga_beli = 0;
+                        $harga_beli = $v_det['harga_beli'];
+                        $harga_rata = 0;
                         if ( $d_harga->count() > 0 ) {
                             $d_harga = $d_harga->toArray();
 
-                            $harga_beli = $d_harga[0]['harga'];
+                            $harga_rata = $d_harga[0]['harga'];
                         }
-                        // $harga_beli = $v_det['harga_beli'];
 
                         $conf = new \Model\Storage\Conf();
                         $sql = "
@@ -249,7 +251,7 @@ class MutasiStok extends Public_Controller {
                         $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['nama'] = $v_det['nama'];
                         $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['satuan'] = $v_det['satuan'];
 
-                        $key_masuk = $v_det['tgl_trans'].' | '.str_replace('-', '', substr($v_det['tanggal'], 0, 10)).'-'.$v_det['kode_trans'].'-'.$harga_beli; 
+                        $key_masuk = str_replace('-', '', substr($v_det['tanggal'], 0, 10)).'-'.$v_det['kode_trans'].'-'.$harga_beli; 
 
                         if ( !isset($data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]) ) {
                             $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['kode'] = $v_det['kode_trans'];
@@ -257,14 +259,14 @@ class MutasiStok extends Public_Controller {
                             $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] = $v_det['sisa_stok'];
                             $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['keluar'] = 0;
                             $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['stok_akhir'] = $v_det['sisa_stok'];
-                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['harga'] = $harga_beli;
-                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] = ($v_det['sisa_stok'] * $harga_beli);
+                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['harga'] = $harga_rata;
+                            $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] = ($v_det['sisa_stok'] * $harga_rata);
 
                             if ( !empty($data_stokt) ) {
                                 foreach ($data_stokt as $k => $v) {
                                     $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] += $v['jumlah'];
                                     $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['stok_akhir'] += $v['jumlah'];
-                                    $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] += ($v['jumlah'] * $harga_beli);
+                                    $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] += ($v['jumlah'] * $harga_rata);
                                 }
                             }
                         }
@@ -333,8 +335,8 @@ class MutasiStok extends Public_Controller {
                                 $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['masuk'] = 0;
                                 $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['keluar'] = $v_detd['jumlah'];
                                 $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['stok_akhir'] = $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] - $v_detd['jumlah'];
-                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['harga'] = $harga_beli;
-                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['nilai'] = ($v_detd['jumlah'] * $harga_beli);
+                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['harga'] = $harga_rata;
+                                $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($tanggal, 0, 10) ]['keluar'][ $key_keluar ]['nilai'] = ($v_detd['jumlah'] * $harga_rata);
                             }
 
                             if ( isset($data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk']) && !empty($data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk']) ) {

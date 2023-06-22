@@ -282,10 +282,54 @@ class StokOpname extends Public_Controller {
         try {
             $kode = $params['kode'];
 
-            $conf = new \Model\Storage\Conf();
-            $sql = "EXEC sp_stok_opname @kode = '$kode'";
+            $m_conf = new \Model\Storage\Conf();
 
-            $d_conf = $conf->hydrateRaw($sql);
+            $tgl_transaksi = null;
+            $gudang = null;
+            $barang = null;
+
+            $sql_tgl_dan_gudang = "
+                select so.* from stok_opname so
+                where
+                    so.kode_stok_opname = '".$kode."'
+            ";
+            $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
+            if ( $d_tgl_dan_gudang->count() > 0 ) {
+                $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
+                $tgl_transaksi = $d_tgl_dan_gudang['tanggal'];
+                $gudang = $d_tgl_dan_gudang['gudang_kode'];
+            }
+
+            $sql_barang = "
+                select so.tanggal, sod.item_kode from stok_opname_det sod
+                right join
+                    stok_opname so
+                    on
+                        so.id = sod.id_header
+                where
+                    so.kode_stok_opname = '".$kode."' and
+                    sod.jumlah > 0
+                group by
+                    so.tanggal,
+                    sod.item_kode
+            ";
+            $d_barang = $m_conf->hydrateRaw( $sql_barang );
+            if ( $d_barang->count() > 0 ) {
+                $d_barang = $d_barang->toArray();
+
+                foreach ($d_barang as $key => $value) {
+                    $barang[] = $value['item_kode'];
+                }
+            }
+
+            $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
+
+            $d_conf = $m_conf->hydrateRaw($sql);
+
+            // $conf = new \Model\Storage\Conf();
+            // $sql = "EXEC sp_stok_opname @kode = '$kode'";
+
+            // $d_conf = $conf->hydrateRaw($sql);
 
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di simpan.';
@@ -294,6 +338,55 @@ class StokOpname extends Public_Controller {
         }
 
         display_json( $this->result );
+    }
+
+    public function tes()
+    {
+        $kode = 'SO23060001';
+
+        $m_conf = new \Model\Storage\Conf();
+
+        $tgl_transaksi = null;
+        $gudang = null;
+        $barang = null;
+
+        $sql_tgl_dan_gudang = "
+            select so.* from stok_opname so
+            where
+                so.kode_stok_opname = '".$kode."'
+        ";
+        $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
+        if ( $d_tgl_dan_gudang->count() > 0 ) {
+            $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
+            $tgl_transaksi = $d_tgl_dan_gudang['tanggal'];
+            $gudang = $d_tgl_dan_gudang['gudang_kode'];
+        }
+
+        $sql_barang = "
+            select so.tanggal, sod.item_kode from stok_opname_det sod
+            right join
+                stok_opname so
+                on
+                    so.id = sod.id_header
+            where
+                so.kode_stok_opname = '".$kode."' and
+                sod.jumlah > 0
+            group by
+                so.tanggal,
+                sod.item_kode
+        ";
+        $d_barang = $m_conf->hydrateRaw( $sql_barang );
+        if ( $d_barang->count() > 0 ) {
+            $d_barang = $d_barang->toArray();
+
+            foreach ($d_barang as $key => $value) {
+                $barang[] = $value['item_kode'];
+            }
+        }
+
+        cetak_r($tgl_transaksi);
+        cetak_r($gudang);
+        cetak_r($barang);
     }
 
     public function injekHargaItem($tanggal, $kode_gudang)

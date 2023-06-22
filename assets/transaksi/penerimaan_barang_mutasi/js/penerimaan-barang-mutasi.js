@@ -199,7 +199,7 @@ var pbm = {
             },
             type: 'POST',
             dataType: 'JSON',
-            beforeSend: function() { showLoading(); },
+            beforeSend: function() { showLoading('Hitung Stok . . .'); },
             success: function(data) {
                 hideLoading();
                 if ( data.status == 1 ) {

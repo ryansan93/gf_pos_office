@@ -4,7 +4,7 @@
 
 <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 
-<div class="col-xs-6 no-padding" style="margin-bottom: 5px; padding-right: 5px;">
+<!-- <div class="col-xs-6 no-padding" style="margin-bottom: 5px; padding-right: 5px;">
 	<div class="col-xs-12 no-padding">
 		<label class="control-label">Tgl Awal</label>
 	</div>
@@ -30,7 +30,7 @@
 	        </span>
 	    </div>
 	</div>
-</div>
+</div> -->
 
 <div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
 	<div class="col-xs-12 no-padding">

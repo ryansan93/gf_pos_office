@@ -27,8 +27,12 @@ var mutasi = {
         $("#TglMutasi").datetimepicker({
             locale: 'id',
             format: 'DD MMM Y',
-            minDate: moment(new Date((today+' 00:00:00'))).subtract(7, 'days')
+            minDate: moment(new Date((today+' 00:00:00'))).subtract(7, 'days'),
+            useCurrent: false
+        }).on('dp.hide', function(e) {
+            mutasi.getHargaItem();
         });
+
         if ( !empty($("#TglMutasi").find('input').data('tgl')) ) {
             var tgl = $("#TglMutasi").find('input').data('tgl');
             $("#TglMutasi").data('DateTimePicker').date( moment(new Date((tgl+' 00:00:00'))) );
@@ -39,7 +43,9 @@ var mutasi = {
             priceFormat( $(this) );
         });
 
-        $('select.asal').select2();
+        $('select.asal').select2().on('select2:select', function (e) {
+            mutasi.getHargaItem();
+        });
         $('select.tujuan').select2();
         $('select.item').select2().on('select2:select', function (e) {
             var _tr = $(this).closest('tr');
@@ -48,8 +54,12 @@ var mutasi = {
             var val_satuan = $(select_satuan).attr('data-val');
 
             var data = e.params.data.element.dataset;
-            var satuan = JSON.parse( data.satuan );
+            var coa = JSON.parse( data.coa );
+            var ket_coa = JSON.parse( data.ketcoa );
 
+            $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
+
+            var satuan = JSON.parse( data.satuan );
             var opt = '<option value="">Pilih Satuan</option>';
             for (var i = 0; i < satuan.length; i++) {
                 var selected = null;
@@ -59,13 +69,20 @@ var mutasi = {
                     }
                 }
 
-                opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" '+selected+' >'+satuan[i].satuan+'</option>';
+                opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" data-harga="'+satuan[i].harga+'" '+selected+' >'+satuan[i].satuan+'</option>';
             }
 
             $(select_satuan).html( opt );
             $(select_satuan).removeAttr('disabled');
             $(_tr).find('.jumlah').removeAttr('disabled');
-            $(_tr).find('.harga').removeAttr('disabled');
+
+            $(select_satuan).on('change', function() {
+                var harga = parseFloat($(this).find('option:selected').attr('data-harga'));
+
+                $(_tr).find('td.harga').html( numeral.formatDec(harga) );
+
+                mutasi.hitTotal( $(this) );
+            });
         });
     }, // end - setting_up
 
@@ -169,6 +186,47 @@ var mutasi = {
         };
     }, // end - changeTabActive
 
+    getHargaItem: function() {
+        var dcontent = $('div#action');
+
+        var asal = $(dcontent).find('select.asal').select2().val();
+        var tgl_mutasi = $(dcontent).find('#TglMutasi input').val();
+
+        if ( !empty(asal) && !empty(tgl_mutasi) ) {
+            $('select.item').removeAttr('disabled', 'disabled');
+
+            var tbody = $(dcontent).find('table.tbl_riwayat tbody');
+
+            var params = {
+                'asal': asal,
+                'tgl_mutasi': dateSQL( $(dcontent).find('#TglMutasi').data('DateTimePicker').date() )
+            };
+
+            $.ajax({
+                url : 'transaksi/Mutasi/getHargaItem',
+                data : {
+                    'params' : params
+                },
+                type : 'GET',
+                dataType : 'HTML',
+                beforeSend : function(){ showLoading('Ambil Harga Mutasi . . .'); },
+                success : function(html){
+                    $.map( $('table tbody').find('tr select.item'), function(select) {
+                        $(select).html( html );
+                        $(select).select2();
+                    });
+
+                    hideLoading();
+                    // $(tbody).html(html);
+                },
+            });
+        } else {
+            $('select.item').attr('disabled', 'disabled');
+            $('select.item').val('');
+            $('select.item').select2();
+        }
+    }, // end - getHargaItem
+
     loadForm: function(v_id = null, resubmit = null) {
         var dcontent = $('div#action');
 
@@ -193,9 +251,17 @@ var mutasi = {
 
                         var val_satuan = $(select_satuan).attr('data-val');
 
-                        var data = $(select).find('option:selected').attr('data-satuan');
+                        var data_coa = $(select).find('option:selected').attr('data-coa');
+                        var data_ketcoa = $(select).find('option:selected').attr('data-ketcoa');
 
-                        var satuan = JSON.parse( data );
+                        var coa = data_coa;
+                        var ket_coa = data_ketcoa;
+
+                        $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
+
+                        var data_satuan = $(select).find('option:selected').attr('data-satuan');
+
+                        var satuan = JSON.parse( data_satuan );
 
                         var opt = '<option value="">Pilih Satuan</option>';
                         for (var i = 0; i < satuan.length; i++) {
@@ -206,13 +272,20 @@ var mutasi = {
                                 }
                             }
 
-                            opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" '+selected+' >'+satuan[i].satuan+'</option>';
+                            opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" data-harga="'+satuan[i].harga+'" '+selected+' >'+satuan[i].satuan+'</option>';
                         }
 
                         $(select_satuan).html( opt );
                         $(select_satuan).removeAttr('disabled');
                         $(_tr).find('.jumlah').removeAttr('disabled');
-                        $(_tr).find('.harga').removeAttr('disabled');
+
+                        $(select_satuan).on('change', function() {
+                            var harga = parseFloat($(this).find('option:selected').attr('data-harga'));
+
+                            $(_tr).find('td.harga').html( numeral.formatDec(harga) );
+
+                            mutasi.hitTotal( $(this) );
+                        });
                     });
                 }
             },
@@ -319,7 +392,7 @@ var mutasi = {
 		                    hideLoading();
 		                    if ( data.status == 1 ) {
 		                    	bootbox.alert(data.message, function() {
-		                    		location.reload();
+		                    		mutasi.loadForm(data.content.id, '');
 		                    	});
 		                    } else {
 		                        bootbox.alert(data.message);
@@ -393,7 +466,7 @@ var mutasi = {
                             hideLoading();
                             if ( data.status == 1 ) {
                                 bootbox.alert(data.message, function() {
-                                    location.reload();
+                                    mutasi.loadForm(data.content.id, '');
                                 });
                             } else {
                                 bootbox.alert(data.message);
@@ -467,6 +540,33 @@ var mutasi = {
             }
         });
     }, // end - approve
+
+    hitTotal: function (elm) {
+        var tr = $(elm).closest('tr');
+
+        var jumlah = numeral.unformat( $(tr).find('.jumlah').val() );
+        var harga = numeral.unformat( $(tr).find('.harga').text() );
+
+        var total = jumlah * harga;
+
+        $(tr).find('.total').text( numeral.formatDec(total) );
+
+        mutasi.hitGrandTotal( $(tr) );
+    }, // end - hitTotal
+
+    hitGrandTotal: function (tr) {
+        var tbody = $(tr).closest('tbody');
+        var table = $(tbody).closest('table');
+
+        var grand_total = 0;
+        $.map( $(tbody).find('tr'), function(_tr) {
+            var total = numeral.unformat( $(_tr).find('.total').text() );
+
+            grand_total += parseFloat( total );
+        });
+
+        $(table).find('tfoot .grand_total b').text( numeral.formatDec( grand_total ) );
+    }, // end - hitGrandTotal
 };
 
 mutasi.start_up();
