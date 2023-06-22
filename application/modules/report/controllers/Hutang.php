@@ -240,6 +240,10 @@ class Hutang extends Public_Controller {
                     ";
                     $d_bayar_hutang = $m_conf->hydrateRaw($sql);
 
+                    // if ( stristr($value['kode_faktur'], '2306160035') !== FALSE || stristr($value['kode_faktur'], '2306170228') !== FALSE || stristr($value['kode_faktur'], '2306170229') !== FALSE ) {
+                    //     cetak_r( $sql );
+                    // }
+
                     $jenis_bayar = null;
 
                     $total_bayar = 0;

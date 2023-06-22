@@ -54,6 +54,9 @@ var mutasi = {
             var val_satuan = $(select_satuan).attr('data-val');
 
             var data = e.params.data.element.dataset;
+
+            console.log( data );
+
             var coa = JSON.parse( data.coa );
             var ket_coa = JSON.parse( data.ketcoa );
 
