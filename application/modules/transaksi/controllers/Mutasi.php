@@ -156,7 +156,7 @@ class Mutasi extends Public_Controller {
         $opt = "<option value=''>-- Pilih Item --</option>";
         if ( !empty($data) ) {
             foreach ($data as $key => $value) {
-                $opt .= "<option value='".$value['kode']."' data-satuan='".json_encode($value['satuan'])."' data-coa='".encodeURIComponent($value['coa'])."' data-ketcoa='".encodeURIComponent($value['ket_coa'])."'>".strtoupper($value['nama'])."</option>";
+                $opt .= "<option value='".$value['kode']."' data-satuan='".json_encode($value['satuan'])."' data-coa='".$value['coa']."' data-ketcoa='".$value['ket_coa']."'>".strtoupper($value['nama'])."</option>";
             }
         }
 

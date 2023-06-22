@@ -55,8 +55,8 @@ var mutasi = {
 
             var data = e.params.data.element.dataset;
 
-            var coa = JSON.parse( decodeURIComponent(data.coa) );
-            var ket_coa = JSON.parse( decodeURIComponent(data.ketcoa) );
+            var coa = data.coa;
+            var ket_coa = data.ketcoa;
 
             $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
 
