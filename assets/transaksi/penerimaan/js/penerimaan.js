@@ -306,6 +306,11 @@ var terima = {
                             $(_tr).find('.jumlah').removeAttr('disabled');
                             $(_tr).find('.harga').removeAttr('disabled');
                         });
+
+                        $(tr).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
+                            // $(this).priceFormat(Config[$(this).data('tipe')]);
+                            priceFormat( $(this) );
+                        });
                     });
 
                     // terima.setting_up();
@@ -351,7 +356,9 @@ var terima = {
                         'no_faktur': $(dcontent).find('.no_faktur').val(),
                         'nama_pic': $(dcontent).find('.nama_pic').val(),
                         'gudang': $(dcontent).find('.gudang').select2('val'),
-                        'supplier': $(dcontent).find('.supplier').val(),
+                        'supplier': $(dcontent).find('.supplier option:selected').text(),
+                        'supplier_kode': $(dcontent).find('.supplier').select2('val'),
+                        // 'supplier': $(dcontent).find('.supplier').val(),
 						'no_po': $(dcontent).find('.po').select2('val'),
 						'detail': detail
 					};

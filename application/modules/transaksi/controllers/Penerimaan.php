@@ -347,6 +347,7 @@ class Penerimaan extends Public_Controller {
             $m_terima->tgl_terima = $params['tgl_terima'];
             $m_terima->no_faktur = $no_invoice;
             $m_terima->supplier = $params['supplier'];
+            $m_terima->supplier_kode = $params['supplier_kode'];
             $m_terima->pic = $params['nama_pic'];
             $m_terima->gudang_kode = $params['gudang'];
             $m_terima->po_no = (isset($params['no_po']) && !empty($params['no_po'])) ? $params['no_po'] : null;
