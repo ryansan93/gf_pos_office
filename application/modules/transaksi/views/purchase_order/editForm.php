@@ -57,7 +57,21 @@
 		<label class="control-label">Supplier</label>
 	</div>
 	<div class="col-xs-12 no-padding">
-		<input type="text" class="col-xs-12 form-control supplier uppercase" placeholder="Supplier (MAX : 50)" data-required="1" value="<?php echo $data['supplier'] ?>" maxlength="50">
+		<!-- <input type="text" class="col-xs-12 form-control supplier uppercase" placeholder="Supplier (MAX : 50)" data-required="1" value="<?php echo $data['supplier'] ?>" maxlength="50"> -->
+		<select class="form-control supplier" data-required="1">
+			<option value="">Pilih Supplier</option>
+			<?php if ( !empty($supplier) ): ?>
+				<?php foreach ($supplier as $key => $value): ?>
+					<?php
+						$selected = null;
+						if ( $value['kode'] == $data['supplier_kode'] ) {
+							$selected = 'selected';
+						}
+					?>
+					<option value="<?php echo $value['kode']; ?>" <?php echo $selected; ?> ><?php echo $value['nama']; ?></option>
+				<?php endforeach ?>
+			<?php endif ?>
+		</select>
 	</div>
 </div>
 

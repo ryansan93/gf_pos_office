@@ -37,6 +37,7 @@ var po = {
         });
 
         $('.gudang').select2();
+        $('.supplier').select2();
         $('.item').select2().on('select2:select', function (e) {
             var _tr = $(this).closest('tr');
             var select_satuan = $(_tr).find('select.satuan');
@@ -267,7 +268,8 @@ var po = {
 						'tgl_po': dateSQL( $(dcontent).find('#TglPo').data('DateTimePicker').date() ),
                         'no_po': $(dcontent).find('.no_po').val(),
                         'gudang': $(dcontent).find('.gudang').select2('val'),
-                        'supplier': $(dcontent).find('.supplier').val(),
+                        'supplier': $(dcontent).find('.supplier option:selected').text(),
+                        'supplier_kode': $(dcontent).find('.supplier').select2('val'),
                         'tax_id': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-id') : null,
 						'tax': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-nilai') : null,
 						'detail': detail
@@ -333,7 +335,8 @@ var po = {
                         'tgl_po': dateSQL( $(dcontent).find('#TglPo').data('DateTimePicker').date() ),
                         'no_po': $(dcontent).find('.no_po').val(),
                         'gudang': $(dcontent).find('.gudang').select2('val'),
-                        'supplier': $(dcontent).find('.supplier').val(),
+                        'supplier': $(dcontent).find('.supplier option:selected').text(),
+                        'supplier_kode': $(dcontent).find('.supplier').select2('val'),
                         'tax_id': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-id') : null,
                         'tax': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-nilai') : null,
                         'detail': detail

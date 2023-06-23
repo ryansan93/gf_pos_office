@@ -662,6 +662,12 @@ class SummaryPenjualanHarian extends Public_Controller {
                     $data[ $key ]['kategori_pembayaran'][2] += ($value['id'] == 2) ? $value['nilai'] : 0;
                     $data[ $key ]['kategori_pembayaran'][3] += ($value['id'] == 3) ? $value['nilai'] : 0;
                     $data[ $key ]['kategori_pembayaran'][4] += ($value['id'] == 4) ? $value['nilai'] : 0;
+
+                    if ( $value['id'] != 4 ) {
+                        if ( isset($data[ $key ]['kategori_pembayaran'][4]) && $data[ $key ]['kategori_pembayaran'][4] > 0 ) {
+                            $data[ $key ]['kategori_pembayaran'][4] -= $value['nilai'];
+                        }
+                    }
                 } else {
                     if ( !isset($data[ $key ]) ) {
                         $data[ $key ]['date'] = $value['tgl_trans'];

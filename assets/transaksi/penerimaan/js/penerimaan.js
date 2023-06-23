@@ -36,10 +36,20 @@ var terima = {
             priceFormat( $(this) );
         });
 
+        $('select.supplier').select2();
         $('.gudang').select2().on('select2:select', function (e) {
             terima.getPo( $(this) );
+            terima.getPoItem('');
 
-            $('input.supplier').removeAttr('disabled');
+            // $('input.supplier').removeAttr('disabled');
+            var gudang = $(this).val();
+
+            if ( !empty(gudang) ) {
+                $('select.supplier').removeAttr('disabled');
+            } else {
+                $('select.supplier').attr('disabled', 'disabled');
+            }
+            $('select.supplier').val('').trigger('change');
         });
 
         $('.item').select2().on('select2:select', function (e) {
@@ -47,8 +57,8 @@ var terima = {
             var select_satuan = $(_tr).find('select.satuan');
 
             var data = e.params.data.element.dataset;
-            var coa = JSON.parse( data.coa );
-            var ket_coa = JSON.parse( data.ketcoa );
+            var coa = data.coa;
+            var ket_coa = data.ketcoa;
 
             $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
 
@@ -228,7 +238,7 @@ var terima = {
 
                     if ( data.status == 1 ) {
                         for (var i = 0; i < data.content.length; i++) {
-                            opt += '<option value="'+data.content[i].no_po+'" data-supplier="'+data.content[i].supplier+'">'+data.content[i].tgl_po+' | '+data.content[i].no_po+' | '+data.content[i].supplier+'</option>';
+                            opt += '<option value="'+data.content[i].no_po+'" data-supplier="'+data.content[i].supplier+'" data-supplierkode="'+data.content[i].supplier_kode+'">'+data.content[i].tgl_po+' | '+data.content[i].no_po+' | '+data.content[i].supplier+'</option>';
                         }
                     } else {
                         bootbox.alert( data.message );
@@ -239,8 +249,11 @@ var terima = {
                         var val = $(this).select2('val');
 
                         var supplier = e.params.data.element.dataset.supplier;
+                        var supplier_kode = e.params.data.element.dataset.supplierkode;
 
-                        $('input.supplier').val( supplier );
+                        $('select.supplier').val(supplier_kode).trigger('change');
+
+                        // $('input.supplier').val( supplier );
 
                         terima.getPoItem( val );
                     });
@@ -270,7 +283,32 @@ var terima = {
                 if ( data.status == 1 ) {
                     $('table.tbl_detail').find('tbody').html( data.content.html );
 
-                    terima.setting_up();
+                    $.map( $('table.tbl_detail').find('tbody tr'), function(tr) {
+                        $(tr).find('select.item').select2().on('select2:select', function (e) {
+                            var _tr = $(this).closest('tr');
+                            var select_satuan = $(_tr).find('select.satuan');
+
+                            var data = e.params.data.element.dataset;
+                            var coa = data.coa;
+                            var ket_coa = data.ketcoa;
+
+                            $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
+
+                            var satuan = JSON.parse( data.satuan );
+
+                            var opt = '<option value="">Pilih Satuan</option>';
+                            for (var i = 0; i < satuan.length; i++) {
+                                opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'">'+satuan[i].satuan+'</option>';
+                            }
+
+                            $(select_satuan).html( opt );
+                            $(select_satuan).removeAttr('disabled');
+                            $(_tr).find('.jumlah').removeAttr('disabled');
+                            $(_tr).find('.harga').removeAttr('disabled');
+                        });
+                    });
+
+                    // terima.setting_up();
                     terima.hitGrandTotal();
                 } else {
                     bootbox.alert( data.message );

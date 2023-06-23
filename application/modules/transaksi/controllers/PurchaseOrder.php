@@ -89,6 +89,19 @@ class PurchaseOrder extends Public_Controller {
         return $tax;
     }
 
+    public function getSupplier()
+    {
+        $m_supl = new \Model\Storage\Supplier_model();
+        $d_supl = $m_supl->orderBy('nama', 'asc')->get();
+
+        $data = null;
+        if ( $d_supl->count() > 0 ) {
+            $data = $d_supl->toArray();
+        }
+
+        return $data;
+    }
+
     public function autocompleteSupplier() {
         $term = $this->input->get('term');
 
@@ -202,6 +215,7 @@ class PurchaseOrder extends Public_Controller {
         $content['tax'] = $this->getTax();
         $content['item'] = $this->getItem();
         $content['gudang'] = $this->getGudang();
+        $content['supplier'] = $this->getSupplier();
         $content['data'] = $data;
 
         $html = $this->load->view($this->pathView . 'editForm', $content, TRUE);
@@ -214,6 +228,7 @@ class PurchaseOrder extends Public_Controller {
         $content['tax'] = $this->getTax();
         $content['item'] = $this->getItem();
         $content['gudang'] = $this->getGudang();
+        $content['supplier'] = $this->getSupplier();
 
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
 
@@ -224,7 +239,7 @@ class PurchaseOrder extends Public_Controller {
     {
         $params = $this->input->post('params');
 
-        try {            
+        try {
             $m_po = new \Model\Storage\Po_model();
             $now = $m_po->getDate();
 
@@ -233,6 +248,7 @@ class PurchaseOrder extends Public_Controller {
             $m_po->no_po = $no_po;
             $m_po->tgl_po = $params['tgl_po'];
             $m_po->supplier = $params['supplier'];
+            $m_po->supplier_kode = $params['supplier_kode'];
             $m_po->pic = !empty($params['nama_pic']) ? $params['nama_pic'] : null;
             $m_po->gudang_kode = $params['gudang'];
             $m_po->done = 0;
@@ -278,6 +294,7 @@ class PurchaseOrder extends Public_Controller {
                 array(
                     'tgl_po' => $params['tgl_po'],
                     'supplier' => $params['supplier'],
+                    'supplier_kode' => $params['supplier_kode'],
                     'pic' => !empty($params['nama_pic']) ? $params['nama_pic'] : null,
                     'gudang_kode' => $params['gudang'],
                     'tax' => (isset($params['tax']) && !empty($params['tax'])) ? $params['tax'] : null,
@@ -373,13 +390,13 @@ class PurchaseOrder extends Public_Controller {
                 pi.item_kode as item_kode,
                 pi.harga as harga,
                 pi.jumlah as jumlah_po,
-                t.jumlah_terima
+                isnull(t.jumlah_terima, 0) as jumlah_terima
             from po_item pi
             right join
                 po p 
                 on
                     pi.po_no = p.no_po
-            right join
+            left join
                 (
                     select ti.item_kode, ti.harga, sum(ti.jumlah_terima) as jumlah_terima, t.po_no from terima_item ti 
                     right join
@@ -395,7 +412,7 @@ class PurchaseOrder extends Public_Controller {
                     t.po_no = p.no_po and
                     t.item_kode = pi.item_kode
             where
-                pi.jumlah > t.jumlah_terima and
+                pi.jumlah > isnull(t.jumlah_terima, 0) and
                 p.no_po = '".$no_po."'
         ";
         $d_po = $m_conf->hydrateRaw( $sql );

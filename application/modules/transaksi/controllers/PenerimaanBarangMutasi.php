@@ -142,7 +142,7 @@ class PenerimaanBarangMutasi extends Public_Controller {
                 stok_trans st
                 on
                     st.kode_trans = m.kode_mutasi
-            right join
+            left join
                 stok s
                 on
                     s.id = st.id_header and

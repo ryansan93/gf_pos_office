@@ -1,7 +1,11 @@
 <?php if ( !empty($data) && count($data) > 0 ): ?>
 	<?php foreach ($data as $key => $value): ?>
 		<tr class="data">
-			<?php $satuan = null; ?>
+			<?php 
+				$satuan = null; 
+				$coa = null; 
+				$ket_coa = null; 
+			?>
 			<td>
 				<select class="form-control item" data-required="1">
 					<option value="">Pilih Item</option>
@@ -11,11 +15,16 @@
 							if ( $v_item['kode'] == $value['item_kode'] ) {
 								$selected = 'selected';
 								$satuan = $v_item['satuan'];
+								$coa = $v_item['group']['coa']; 
+								$ket_coa = $v_item['group']['ket_coa']; 
 							}
 						?>
-						<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' <?php echo $selected; ?> ><?php echo strtoupper($v_item['nama']); ?></option>
+						<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' data-coa="<?php echo $v_item['group']['coa']; ?>" data-ketcoa="<?php echo $v_item['group']['ket_coa']; ?>" <?php echo $selected; ?> ><?php echo strtoupper($v_item['nama']); ?></option>
 					<?php endforeach ?>
 				</select>
+			</td>
+			<td class="coa">
+				<?php echo $coa.'<br>'.$ket_coa ?>
 			</td>
 			<td>
 				<select class="form-control satuan" data-required="1" disabled>
@@ -61,9 +70,12 @@
 			<select class="form-control item" data-required="1">
 				<option value="">Pilih Item</option>
 				<?php foreach ($item as $k_item => $v_item): ?>
-					<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>'><?php echo strtoupper($v_item['nama']); ?></option>
+					<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' data-coa="<?php echo $v_item['group']['coa']; ?>" data-ketcoa="<?php echo $v_item['group']['ket_coa']; ?>"><?php echo strtoupper($v_item['nama']); ?></option>
 				<?php endforeach ?>
 			</select>
+		</td>
+		<td class="coa">
+			-
 		</td>
 		<td>
 			<select class="form-control satuan" data-required="1" disabled>

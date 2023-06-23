@@ -73,6 +73,19 @@ class Penerimaan extends Public_Controller {
         return $data;
     }
 
+    public function getSupplier()
+    {
+        $m_supl = new \Model\Storage\Supplier_model();
+        $d_supl = $m_supl->orderBy('nama', 'asc')->get();
+
+        $data = null;
+        if ( $d_supl->count() > 0 ) {
+            $data = $d_supl->toArray();
+        }
+
+        return $data;
+    }
+
     public function loadForm()
     {
         $id = $this->input->get('id');
@@ -200,6 +213,7 @@ class Penerimaan extends Public_Controller {
                     p.no_po,
                     SUBSTRING(cast(p.tgl_po as varchar(10)), 9, 2) + '-' + SUBSTRING(cast(p.tgl_po as varchar(10)), 6, 2) + '-' + SUBSTRING(cast(p.tgl_po as varchar(10)), 0, 5) as tgl_po,
                     p.supplier,
+                    p.supplier_kode,
                     p.gudang_kode
                 from po p
                 where
@@ -306,6 +320,7 @@ class Penerimaan extends Public_Controller {
     {
         $content['item'] = $this->getItem();
         $content['gudang'] = $this->getGudang();
+        $content['supplier'] = $this->getSupplier();
 
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
 
