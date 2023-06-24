@@ -39,6 +39,8 @@ class PosisiStok extends Public_Controller {
             $content['report'] = $this->load->view($this->pathView . 'report', null, TRUE);
             $content['gudang'] = $this->getGudang();
             $content['item'] = $this->getItem();
+            $content['group_item'] = $this->getGroupItem();
+
             $content['akses'] = $this->hakAkses;
 
             $data['title_menu'] = 'Laporan Posisi Stok';
@@ -76,6 +78,19 @@ class PosisiStok extends Public_Controller {
         return $data_item;
     }
 
+    public function getGroupItem()
+    {
+        $m_gi = new \Model\Storage\GroupItem_model();
+        $d_gi = $m_gi->orderBy('nama', 'asc')->get();
+
+        $data_gi = null;
+        if ( $d_gi->count() > 0 ) {
+            $data_gi = $d_gi->toArray();
+        }
+
+        return $data_gi;
+    }
+
     public function getLists()
     {
         $params = $this->input->post('params');
@@ -87,6 +102,7 @@ class PosisiStok extends Public_Controller {
             $end_date = $params['end_date'];
             $gudang = $params['gudang'];
             $item = $params['item'];
+            $group_item = $params['group_item'];
 
             $m_stokt = new \Model\Storage\StokTanggal_model();
             $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
@@ -96,7 +112,7 @@ class PosisiStok extends Public_Controller {
                 $data = $d_stokt->toArray();
             }
 
-            $mappingDataReport = $this->mappingDataReport( $data, $item, $gudang );
+            $mappingDataReport = $this->mappingDataReport( $data, $item, $gudang, $group_item );
 
             $content_report['data'] = $mappingDataReport;
             $html_report = $this->load->view($this->pathView . 'list', $content_report, TRUE);
@@ -114,38 +130,23 @@ class PosisiStok extends Public_Controller {
         display_json( $this->result );
     }
 
-    public function mappingDataReport($_data, $_item, $_gudang)
+    public function mappingDataReport($_data, $_item, $_gudang, $_group_item)
     {
-        $kode_item = array();
-        if ( !empty( $_item ) ) {
-            foreach ($_item as $k_item => $v_item) {
-                if ( stristr($v_item, 'all') !== FALSE ) {
-                    $m_item = new \Model\Storage\Item_model();
-                    $d_item = $m_item->orderBy('nama', 'asc')->get()->toArray();
-
-                    foreach ($d_item as $k_item => $v_item) {
-                        $kode_item[] = trim($v_item['kode']);
-                    }
-
-                    break;
-                } else {
-                    $m_item = new \Model\Storage\Item_model();
-                    $d_item = $m_item->where('kode', $v_item)->orderBy('nama', 'asc')->get()->toArray();
-
-                    foreach ($d_item as $k_item => $v_item) {
-                        $kode_item[] = trim($v_item['kode']);
-                    }
-                }
-            }
-        }
-
         $data = null;
         if ( !empty($_data) ) {
             foreach ($_data as $k_data => $v_data) {
                 $data[ $v_data['gudang_kode'] ]['kode'] = $v_data['gudang_kode'];
                 $data[ $v_data['gudang_kode'] ]['nama'] = $v_data['gudang']['nama'];
 
-                $_kode_item = "'".implode("', '", $kode_item)."'";
+                $sql_item = null;
+                if ( !in_array('all', $_item) ) {
+                    $sql_item = "and s.item_kode in ('".implode("', '", $_item)."')";
+                }
+
+                $sql_group_item = null;
+                if ( !in_array('all', $_group_item) ) {
+                    $sql_group_item = "and gi.kode in ('".implode("', '", $_group_item)."')";
+                }
 
                 $id_stok_tanggal = $v_data['id'];
                 $kode_gudang = $v_data['gudang_kode'];
@@ -158,12 +159,18 @@ class PosisiStok extends Public_Controller {
                         s.tanggal,
                         sum(s.sisa_stok) as sisa_stok,
                         i.nama as nama,
+                        i.group_kode,
+                        gi.nama as nama_group,
                         isatuan.satuan
                     from stok s
                     right join
                         item i
                         on
                             s.item_kode = i.kode
+                    right join
+                        group_item gi
+                        on
+                            i.group_kode = gi.kode
                     right join
                         (
                             select is1.* from item_satuan is1
@@ -179,13 +186,16 @@ class PosisiStok extends Public_Controller {
                             i.kode = isatuan.item_kode
                     where
                         s.id_header = $id_stok_tanggal and
-                        s.gudang_kode = '$kode_gudang' and
-                        s.item_kode in ($_kode_item)
+                        s.gudang_kode = '$kode_gudang'
+                        ".$sql_item."
+                        ".$sql_group_item."
                     group by
                         s.id_header,
                         s.item_kode,
                         s.tanggal,
                         i.nama,
+                        i.group_kode,
+                        gi.nama,
                         isatuan.satuan
                 ";
 
@@ -217,19 +227,22 @@ class PosisiStok extends Public_Controller {
 
                         $key_item = $v_det['nama'].' | '.$v_det['item_kode'];
 
-                        $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['kode'] = $v_det['item_kode'];
-                        $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['nama'] = $v_det['nama'];
-                        $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['satuan'] = $v_det['satuan'];
+                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['kode'] = $v_det['group_kode'];
+                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['nama'] = $v_det['nama_group'];
+
+                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['kode'] = $v_det['item_kode'];
+                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['nama'] = $v_det['nama'];
+                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['satuan'] = $v_det['satuan'];
 
                         $key_tanggal = str_replace('-', '', substr($v_det['tanggal'], 0, 10));
 
-                        $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['tanggal'] = $v_det['tanggal'];
-                        $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['jumlah'] = $v_det['sisa_stok'];
-                        $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['harga'] = $harga_beli;
-                        $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['nilai_stok'] = $v_det['sisa_stok'] * $harga_beli;
+                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['tanggal'] = $v_det['tanggal'];
+                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['jumlah'] = $v_det['sisa_stok'];
+                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['harga'] = $harga_beli;
+                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['nilai_stok'] = $v_det['sisa_stok'] * $harga_beli;
 
-                        ksort( $data[ $v_data['gudang_kode'] ]['detail'] );
-                        ksort( $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail_tanggal'] );
+                        ksort( $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'] );
+                        ksort( $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'] );
                     }
                 }
             }

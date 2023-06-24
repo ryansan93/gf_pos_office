@@ -44,15 +44,29 @@
 					</div>
 				</div>
 
-				<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+				<div class="col-xs-6 no-padding" style="margin-bottom: 5px; padding-right: 5px;">
+					<div class="col-xs-12 no-padding">
+						<label class="control-label">Group Item</label>
+					</div>
+					<div class="col-xs-12 no-padding">
+						<select class="form-control group_item" multiple="multiple" data-required="1">
+							<option value="all" > All </option>
+							<?php foreach ($group_item as $k_gi => $v_gi): ?>
+								<option value="<?php echo $v_gi['kode']; ?>"><?php echo strtoupper($v_gi['nama']); ?></option>
+							<?php endforeach ?>
+						</select>
+					</div>
+				</div>
+
+				<div class="col-xs-6 no-padding" style="margin-bottom: 5px; padding-left: 5px;">
 					<div class="col-xs-12 no-padding">
 						<label class="control-label">Item</label>
 					</div>
 					<div class="col-xs-12 no-padding">
-						<select class="form-control item" name="item[]" multiple="multiple" data-required="1">
+						<select class="form-control item" multiple="multiple" data-required="1" disabled>
 							<option value="all" > All </option>
 							<?php foreach ($item as $k_item => $v_item): ?>
-								<option value="<?php echo $v_item['kode']; ?>"><?php echo strtoupper($v_item['nama']); ?></option>
+								<option value="<?php echo $v_item['kode']; ?>" data-kodegroup="<?php echo $v_item['group']['kode']; ?>"><?php echo strtoupper($v_item['nama']); ?></option>
 							<?php endforeach ?>
 						</select>
 					</div>
@@ -62,7 +76,7 @@
 					<button type="button" class="col-xs-12 btn btn-primary pull-right tampilkan_riwayat" onclick="ps.getLists(this)"><i class="fa fa-search"></i> Tampilkan</button>
 				</div>
 			</div>
-			<div class="col-xs-12 no-padding"><hr></div>
+			<div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 			<div class="col-xs-12 no-padding">
 				<?php echo $report; ?>
 			</div>

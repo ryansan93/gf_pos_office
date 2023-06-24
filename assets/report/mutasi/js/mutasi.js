@@ -1,6 +1,6 @@
-var terima = {
+var mutasi = {
 	start_up: function () {
-		terima.setting_up();
+		mutasi.setting_up();
 	}, // end - start_up
 
 	setting_up: function() {
@@ -21,31 +21,31 @@ var terima = {
         	$("#StartDate").data("DateTimePicker").maxDate(moment(new Date(maxDate)));
         });
 
-        $('.gudang').select2({placeholder: 'Pilih Gudang'}).on("select2:select", function (e) {
-            var gudang = $('.gudang').select2().val();
+        $('.gudang_asal').select2({placeholder: 'Pilih Gudang'}).on("select2:select", function (e) {
+            var gudang = $('.gudang_asal').select2().val();
 
             for (var i = 0; i < gudang.length; i++) {
                 if ( gudang[i] == 'all' ) {
-                    $('.gudang').select2().val('all').trigger('change');
+                    $('.gudang_asal').select2().val('all').trigger('change');
 
                     i = gudang.length;
                 }
             }
 
-            $('.gudang').next('span.select2').css('width', '100%');
+            $('.gudang_asal').next('span.select2').css('width', '100%');
         });
-        $('.supplier').select2({placeholder: 'Pilih Supplier'}).on("select2:select", function (e) {
-            var supplier = $('.supplier').select2().val();
+        $('.gudang_tujuan').select2({placeholder: 'Pilih Gudang'}).on("select2:select", function (e) {
+            var gudang = $('.gudang_tujuan').select2().val();
 
-            for (var i = 0; i < supplier.length; i++) {
-                if ( supplier[i] == 'all' ) {
-                    $('.supplier').select2().val('all').trigger('change');
+            for (var i = 0; i < gudang.length; i++) {
+                if ( gudang[i] == 'all' ) {
+                    $('.gudang_tujuan').select2().val('all').trigger('change');
 
-                    i = supplier.length;
+                    i = gudang.length;
                 }
             }
 
-            $('.supplier').next('span.select2').css('width', '100%');
+            $('.gudang_tujuan').next('span.select2').css('width', '100%');
         });
 	}, // end - setting_up
 
@@ -65,14 +65,14 @@ var terima = {
 			bootbox.alert('Harap lengkapi data terlebih dahulu.');
 		} else {
 			var params = {
-				'gudang': $('.gudang').select2('val'),
-				'supplier': $('.supplier').select2('val'),
+				'gudang_asal': $('.gudang_asal').select2('val'),
+				'gudang_tujuan': $('.gudang_tujuan').select2('val'),
 				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
 				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
 			};
 
 			$.ajax({
-	            url: 'report/Penerimaan/getLists',
+	            url: 'report/Mutasi/getLists',
 	            data: {
 	                'params': params
 	            },
@@ -107,14 +107,14 @@ var terima = {
 			bootbox.alert('Harap lengkapi data terlebih dahulu.');
 		} else {
 			var params = {
-				'gudang': $('.gudang').select2('val'),
-				'supplier': $('.supplier').select2('val'),
+				'gudang_asal': $('.gudang_asal').select2('val'),
+				'gudang_tujuan': $('.gudang_tujuan').select2('val'),
 				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
 				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
 			};
 
 			$.ajax({
-	            url: 'report/Penerimaan/excryptParamsExportExcel',
+	            url: 'report/Mutasi/excryptParamsExportExcel',
 	            data: {
 	                'params': params
 	            },
@@ -124,7 +124,7 @@ var terima = {
 	            success: function(data) {
 	                hideLoading();
 	                if ( data.status == 1 ) {
-	                	window.open('report/Penerimaan/exportExcel/'+data.content.data, 'blank');
+	                	window.open('report/Mutasi/exportExcel/'+data.content.data, 'blank');
 	                } else {
 	                    bootbox.alert(data.message);
 	                }
@@ -134,4 +134,4 @@ var terima = {
 	}, // end - exportExcel
 };
 
-terima.start_up();
+mutasi.start_up();

@@ -22,21 +22,62 @@ var ps = {
       //   });
 
         $('.gudang').select2();
-        $('.item').select2({placeholder: 'Pilih Item'}).on("select2:select", function (e) {
-            var item = $('.item').select2().val();
+        $('.item').select2({placeholder: 'Pilih Item'});
 
-            for (var i = 0; i < item.length; i++) {
-                if ( item[i] == 'all' ) {
-                    $('.item').select2().val('all').trigger('change');
+        $('.group_item').select2({placeholder: 'Pilih Group Item'})
+        .on("select2:select", function (e) {
+            var group_item = $('.group_item').select2('val');
 
-                    i = item.length;
+            for (var i = 0; i < group_item.length; i++) {
+                if ( group_item[i] == 'all' ) {
+                    $('.group_item').select2().val('all').trigger('change');
+
+                    i = group_item.length;
                 }
             }
 
-            $('.item').next('span.select2').css('width', '100%');
+            $('.group_item').next('span.select2').css('width', '100%');
+
+            ps.getItem( group_item );
+        })
+        .on("select2:unselect", function (e) {
+        	var group_item = $('.group_item').select2('val');
+
+        	ps.getItem( group_item );
         });
-        $('.item').next('span.select2').css('width', '100%');
 	}, // end - setting_up
+
+	getItem: function(kode_group) {
+		$('.item').find('option:not([value=all])').attr('disabled', 'disabled');
+
+		if ( !empty(kode_group) ) {
+			if ( !kode_group.includes("all") ) {
+				for (var i = 0; i < kode_group.length; i++) {
+					$('.item').find('option[data-kodegroup="'+kode_group[i]+'"]').removeAttr('disabled');
+				}
+			} else {
+				$('.item').find('option').removeAttr('disabled');
+			}
+
+			$('.item').removeAttr('disabled');
+			$('.item').select2({placeholder: 'Pilih Item'}).on("select2:select", function (e) {
+	            var item = $('.item').select2().val();
+
+	            for (var i = 0; i < item.length; i++) {
+	                if ( item[i] == 'all' ) {
+	                    $('.item').select2().val('all').trigger('change');
+
+	                    i = item.length;
+	                }
+	            }
+
+	            $('.item').next('span.select2').css('width', '100%');
+	        });
+		} else {
+			$('.item').attr('disabled', 'disabled');
+			$('.item').select2({placeholder: 'Pilih Item'});
+		}
+	}, // end - getItem
 
 	getLists: function(elm) {
 		var err = 0
@@ -56,6 +97,7 @@ var ps = {
 			var params = {
 				'gudang': $('.gudang').val(),
 				'item': $('.item').val(),
+				'group_item': $('.group_item').val(),
 				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
 				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
 			};
@@ -71,8 +113,7 @@ var ps = {
 	            success: function(data) {
 	                hideLoading();
 	                if ( data.status == 1 ) {
-	                	$('table.tbl_report tbody').remove();
-	                	$('table.tbl_report thead').after( data.content.list_report );
+	                	$('table.tbl_report tbody').html( data.content.list_report );
 	                } else {
 	                    bootbox.alert(data.message);
 	                }

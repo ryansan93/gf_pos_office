@@ -1,8 +1,8 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Penerimaan extends Public_Controller {
+class Mutasi extends Public_Controller {
 
-    private $pathView = 'report/penerimaan/';
+    private $pathView = 'report/mutasi/';
     private $url;
     private $hakAkses;
 
@@ -25,23 +25,22 @@ class Penerimaan extends Public_Controller {
             $this->add_external_js(
                 array(
                     "assets/select2/js/select2.min.js",
-                    'assets/report/penerimaan/js/penerimaan.js'
+                    'assets/report/mutasi/js/mutasi.js'
                 )
             );
             $this->add_external_css(
                 array(
                     "assets/select2/css/select2.min.css",
-                    'assets/report/penerimaan/css/penerimaan.css'
+                    'assets/report/mutasi/css/mutasi.css'
                 )
             );
             $data = $this->includes;
 
             $content['report'] = $this->load->view($this->pathView . 'report', null, TRUE);
             $content['gudang'] = $this->getGudang();
-            $content['supplier'] = $this->getSupplier();
             $content['akses'] = $this->hakAkses;
 
-            $data['title_menu'] = 'Laporan Penerimaan';
+            $data['title_menu'] = 'Laporan Mutasi';
             $data['view'] = $this->load->view($this->pathView . 'index', $content, TRUE);
 
             $this->load->view($this->template, $data);
@@ -63,67 +62,86 @@ class Penerimaan extends Public_Controller {
         return $data;
     }
 
-    public function getSupplier()
+    public function getData($gudang_asal, $gudang_tujuan, $start_date, $end_date)
     {
-        $m_supl = new \Model\Storage\Supplier_model();
-        $d_supl = $m_supl->orderBy('nama', 'asc')->get();
-
-        $data = null;
-        if ( $d_supl->count() > 0 ) {
-            $data = $d_supl->toArray();
+        $sql_gudang_asal = "";
+        if ( !in_array('all', $gudang_asal) ) {
+            $sql_gudang_asal = "and m.asal in ('".implode("', '", $gudang_asal)."')";
         }
 
-        return $data;
-    }
-
-    public function getData($gudang, $supplier, $start_date, $end_date)
-    {
-        $sql_gudang = "";
-        if ( !in_array('all', $gudang) ) {
-            $sql_gudang = "and t.gudang_kode in ('".implode("', '", $gudang)."')";
-        }
-
-        $sql_supplier = "";
-        if ( !in_array('all', $supplier) ) {
-            $sql_supplier = "and t.supplier_kode in ('".implode("', '", $supplier)."')";
+        $sql_gudang_tujuan = "";
+        if ( !in_array('all', $gudang_tujuan) ) {
+            $sql_gudang_tujuan = "and m.tujuan in ('".implode("', '", $gudang_tujuan)."')";
         }
 
         $m_conf = new \Model\Storage\Conf();
         $sql = "
-            select 
-                t.po_no, 
-                t.kode_terima, 
-                t.tgl_terima, 
-                t.supplier,
-                g.nama as nama_gudang, 
+            select  
+                m.kode_mutasi, 
+                m.tgl_mutasi, 
+                g_asal.nama as nama_gudang_asal, 
+                g_tujuan.nama as nama_gudang_tujuan, 
                 i.nama as nama_item,
-                ti.jumlah_terima,
-                ti.harga,
-                ti.satuan,
+                mi.jumlah,
+                (isnull(sh.harga, 0) * mi.pengali) as harga,
+                mi.satuan,
                 gi.coa
-            from terima_item ti
+            from mutasi_item mi
             right join
                 item i
                 on
-                    ti.item_kode = i.kode
+                    mi.item_kode = i.kode
             right join
                 group_item gi
                 on
                     i.group_kode = gi.kode
             right join
-                terima t
+                mutasi m
                 on
-                    ti.terima_kode = t.kode_terima
+                    mi.mutasi_kode = m.kode_mutasi
             right join
-                gudang g
+                gudang g_asal
                 on
-                    t.gudang_kode = g.kode_gudang
+                    m.asal = g_asal.kode_gudang
+            right join
+                gudang g_tujuan
+                on
+                    m.tujuan = g_tujuan.kode_gudang
+            left join
+                (
+                    select 
+                        s.id, 
+                        s.id_header, 
+                        s.item_kode, 
+                        st.kode_trans,
+                        st.jumlah,
+                        st.tbl_name
+                    from stok_trans st
+                    right join
+                        stok s
+                        on
+                            st.id_header = s.id
+                ) st
+                on
+                    st.kode_trans = m.kode_mutasi and
+                    st.item_kode = mi.item_kode
+            left join
+                (
+                    select sh1.* from stok_harga sh1
+                    right join
+                        (select max(id) as id, id_header, item_kode from stok_harga group by id_header, item_kode) sh2
+                        on
+                            sh1.id = sh2.id
+                ) sh
+                on
+                    sh.id_header = st.id_header and
+                    sh.item_kode = mi.item_kode
             where
-                t.tgl_terima between '".$start_date."' and '".$end_date."'
-                ".$sql_gudang."
-                ".$sql_supplier."
+                m.tgl_mutasi between '".$start_date."' and '".$end_date."'
+                ".$sql_gudang_asal."
+                ".$sql_gudang_tujuan."
             order by
-                t.tgl_terima asc,
+                m.tgl_mutasi asc,
                 i.nama asc
         ";
         $d_terima = $m_conf->hydrateRaw( $sql );
@@ -143,10 +161,10 @@ class Penerimaan extends Public_Controller {
         try {
             $start_date = $params['start_date'].' 00:00:00';
             $end_date = $params['end_date'].' 23:59:59';
-            $gudang = $params['gudang'];
-            $supplier = $params['supplier'];
+            $gudang_asal = $params['gudang_asal'];
+            $gudang_tujuan = $params['gudang_tujuan'];
 
-            $data = $this->getData( $gudang, $supplier, $start_date, $end_date );
+            $data = $this->getData($gudang_asal, $gudang_tujuan, $start_date, $end_date);
 
             $content_report['data'] = $data;
             $html_report = $this->load->view($this->pathView . 'list_report', $content_report, TRUE);
@@ -186,23 +204,23 @@ class Penerimaan extends Public_Controller {
 
         $start_date = $_data_params['start_date'].' 00:00:00';
         $end_date = $_data_params['end_date'].' 23:59:59';
-        $gudang = $_data_params['gudang'];
-        $supplier = $_data_params['supplier'];
+        $gudang_asal = $_data_params['gudang_asal'];
+        $gudang_tujuan = $_data_params['gudang_tujuan'];
 
-        $detail = $this->getData( $gudang, $supplier, $start_date, $end_date );
+        $detail = $this->getData($gudang_asal, $gudang_tujuan, $start_date, $end_date);
 
         $data = array(
-            'gudang' => $gudang,
-            'supplier' => $supplier,
+            'gudang_asal' => $gudang_asal,
+            'gudang_tujuan' => $gudang_tujuan,
             'start_date' => $start_date,
             'end_date' => $end_date,
             'detail' => $detail
         );
 
         $content['data'] = $data;
-        $res_view_html = $this->load->view('report/penerimaan/export_excel', $content, true);
+        $res_view_html = $this->load->view('report/mutasi/export_excel', $content, true);
 
-        $filename = 'export-penerimaan-barang-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
+        $filename = 'export-mutasi-barang-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
 
         header("Content-type: application/xls");
         header("Content-Disposition: attachment; filename=".$filename."");

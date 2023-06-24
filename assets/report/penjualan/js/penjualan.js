@@ -69,6 +69,49 @@ var jual = {
 	        });
 		}
 	}, // end - getLists
+
+	exportExcel: function(elm) {
+		var err = 0
+
+		$.map( $('[data-required=1]'), function(ipt) {
+			if ( empty($(ipt).val()) ) {
+				$(ipt).parent().addClass('has-error');
+				err++;
+			} else {
+				$(ipt).parent().removeClass('has-error');
+			}
+		});
+
+		if ( err > 0 ) {
+			bootbox.alert('Harap lengkapi data terlebih dahulu.');
+		} else {
+			var params = {
+				'branch': $('select.branch').select2('val'),
+				'shift': $('select.shift').select2('val'),
+				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
+				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date()),
+				'tipe': $(elm).attr('data-tipe')
+			};
+
+			$.ajax({
+	            url: 'report/Penjualan/excryptParamsExportExcel',
+	            data: {
+	                'params': params
+	            },
+	            type: 'POST',
+	            dataType: 'JSON',
+	            beforeSend: function() { showLoading(); },
+	            success: function(data) {
+	                hideLoading();
+	                if ( data.status == 1 ) {
+	                	window.open('report/Penjualan/exportExcel/'+data.content.data, 'blank');
+	                } else {
+	                    bootbox.alert(data.message);
+	                }
+	            }
+	        });
+		}
+	}, // end - exportExcel
 };
 
 jual.start_up();

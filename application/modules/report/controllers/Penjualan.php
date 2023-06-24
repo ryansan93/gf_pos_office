@@ -721,4 +721,99 @@ class Penjualan extends Public_Controller {
 
         return $data;
     }
+
+    public function excryptParamsExportExcel()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $paramsEncrypt = exEncrypt( json_encode($params) );
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('data' => $paramsEncrypt);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function exportExcel($_params)
+    {
+        $_data_params = json_decode( exDecrypt( $_params ), true );
+
+        $shift = $_data_params['shift'];
+        $branch = $_data_params['branch'];
+        $start_date = $_data_params['start_date'].' 00:00:00';
+        $end_date = $_data_params['end_date'].' 23:59:59';
+        $tipe = $_data_params['tipe'];
+
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select
+                _data.kode_branch,
+                max(_data.tgl_trans) as tgl_trans,
+                _data.kode_faktur,
+                max(_data.mstatus) as mstatus
+            from 
+            (
+                select j.branch as kode_branch, j.tgl_trans as tgl_trans, j.kode_faktur as kode_faktur, j.mstatus from jual j where mstatus = 1
+
+                union all
+
+                select j.branch as kode_branch, j.tgl_trans as tgl_trans, jg.faktur_kode_gabungan as kode_faktur, j.mstatus from jual_gabungan jg
+                right join
+                    jual j
+                    on
+                        jg.faktur_kode = j.kode_faktur
+                where
+                    j.mstatus = 1
+            ) _data
+            where
+                _data.tgl_trans between '".$start_date."' and '".$end_date."' and
+                _data.kode_branch = '".$branch."' and
+                _data.kode_faktur is not null
+            group by
+                _data.kode_branch,
+                _data.kode_faktur
+        ";
+        $d_jual = $m_conf->hydrateRaw( $sql );
+
+        $_data = null;
+        if ( $d_jual->count() > 0 ) {
+            $_data = $d_jual->toArray();
+        }
+
+        $data_pembayaran = $this->mappingDataReportDetailPembayaran( $_data, $shift );
+
+        $detail = null;
+        $nama_view = null;
+        $filename = null;
+        if ( $tipe == 'harian' ) {
+            $detail = $this->mappingDataReportHarian( $_data, $shift );
+            $nama_view = 'export_excel_harian';
+            $filename = 'export-penjualan-harian-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
+        } else {
+            $detail = $this->mappingDataReportHarianProduk( $_data, $shift );
+            $nama_view = 'export_excel_produk';
+            $filename = 'export-penjualan-produk-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
+        }
+
+
+        $data = array(
+            'shift' => $shift,
+            'branch' => $branch,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'pembayaran' => $data_pembayaran,
+            'detail' => $detail
+        );
+
+        $content['data'] = $data;
+        $res_view_html = $this->load->view('report/penjualan/'.$nama_view, $content, true);
+
+        header("Content-type: application/xls");
+        header("Content-Disposition: attachment; filename=".$filename."");
+        echo $res_view_html;
+    }
 }

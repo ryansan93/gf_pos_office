@@ -139,14 +139,23 @@ class PenerimaanBarangMutasi extends Public_Controller {
                 on
                     gi.kode = i.group_kode
             left join
-                stok_trans st
+                (
+                    select 
+                        s.id, 
+                        s.id_header, 
+                        s.item_kode, 
+                        st.kode_trans,
+                        st.jumlah,
+                        st.tbl_name
+                    from stok_trans st
+                    right join
+                        stok s
+                        on
+                            st.id_header = s.id
+                ) st
                 on
-                    st.kode_trans = m.kode_mutasi
-            left join
-                stok s
-                on
-                    s.id = st.id_header and
-                    s.item_kode = mi.item_kode
+                    st.kode_trans = m.kode_mutasi and
+                    st.item_kode = mi.item_kode
             left join
                 (
                     select sh1.* from stok_harga sh1
@@ -156,7 +165,7 @@ class PenerimaanBarangMutasi extends Public_Controller {
                             sh1.id = sh2.id
                 ) sh
                 on
-                    sh.id_header = s.id_header and
+                    sh.id_header = st.id_header and
                     sh.item_kode = mi.item_kode
             where
                 m.tgl_mutasi between '".$start_date."' and '".$end_date."'
@@ -265,14 +274,23 @@ class PenerimaanBarangMutasi extends Public_Controller {
                 on
                     gi.kode = i.group_kode
             left join
-                stok_trans st
+                (
+                    select 
+                        s.id, 
+                        s.id_header, 
+                        s.item_kode, 
+                        st.kode_trans,
+                        st.jumlah,
+                        st.tbl_name
+                    from stok_trans st
+                    right join
+                        stok s
+                        on
+                            st.id_header = s.id
+                ) st
                 on
-                    st.kode_trans = m.kode_mutasi
-            left join
-                stok s
-                on
-                    s.id = st.id_header and
-                    s.item_kode = mi.item_kode
+                    st.kode_trans = m.kode_mutasi and
+                    st.item_kode = mi.item_kode
             left join
                 (
                     select sh1.* from stok_harga sh1
@@ -282,7 +300,7 @@ class PenerimaanBarangMutasi extends Public_Controller {
                             sh1.id = sh2.id
                 ) sh
                 on
-                    sh.id_header = s.id_header and
+                    sh.id_header = st.id_header and
                     sh.item_kode = mi.item_kode
             where
                 m.kode_mutasi = '".$kode."'

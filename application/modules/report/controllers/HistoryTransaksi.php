@@ -184,28 +184,96 @@ class HistoryTransaksi extends Public_Controller {
             //         tbl.kode_faktur desc,
             //         lt.waktu desc
             // ";
+
+            // $sql = "
+            //     select
+            //         lt.*,
+            //         j.kode_faktur,
+            //         j.pesanan_kode
+            //     from 
+            //         (
+            //             select lt1.* from log_tables lt1
+            //             right join
+            //                 (select max(id) as id, user_id, CONVERT(VARCHAR(20), waktu, 120) as waktu from log_tables group by user_id, CONVERT(VARCHAR(20), waktu, 120)) lt2
+            //                 on
+            //                     lt1.id = lt2.id
+            //         ) lt
+            //     right join
+            //         jual j
+            //         on
+            //             j.kode_faktur = lt.tbl_id or
+            //             j.pesanan_kode = lt.tbl_id
+            //     where
+            //         lt.waktu between '".$start_date."' and '".$end_date."' and
+            //         j.branch = '".$branch."'
+            //     order by
+            //         j.kode_faktur desc,
+            //         lt.waktu desc
+            // ";
+
             $sql = "
-                select
-                    lt.*,
+                select 
+                    lt.id,
+                    lt.tbl_name,
+                    lt_max.tbl_id,
+                    lt.user_id,
+                    lt.waktu,
+                    CASE
+                        WHEN lt._action like '%update%' THEN
+                            REPLACE(lt.deskripsi, 'di-delete', 'di-update')
+                        ELSE
+                            lt.deskripsi
+                    END as deskripsi,
+                    lt._action,
+                    lt.keterangan,
+                    lt.verifikasi_id,
+                    lt._json,
                     j.kode_faktur,
                     j.pesanan_kode
                 from log_tables lt
                 right join
+                    (
+                        select 
+                            max(lt.id) as id,
+                            max(lt.tbl_id) as tbl_id,
+                            lt.user_id, 
+                            CONVERT(VARCHAR(20), lt.waktu, 120) as waktu
+                        from log_tables lt
+                        right join
+                            jual j
+                            on
+                                lt.tbl_id = j.kode_faktur 
+                        where
+                            lt.waktu between '".$start_date."' and '".$end_date."' and
+                            j.branch = '".$branch."'
+                        group by 
+                            lt.user_id, 
+                            CONVERT(VARCHAR(20), lt.waktu, 120)
+                    ) lt_max
+                    on
+                        lt_max.id = lt.id
+                left join
                     jual j
                     on
-                        j.kode_faktur = lt.tbl_id
-                where
-                    lt.waktu between '".$start_date."' and '".$end_date."' and
-                    j.branch = '".$branch."'
+                        j.kode_faktur = lt_max.tbl_id
                 order by
-                    lt.tbl_id desc,
+                    j.pesanan_kode desc,
+                    j.kode_faktur desc,
                     lt.waktu desc
             ";
-            $d_conf = $m_conf->hydrateRaw( $sql );
+            $d_history = $m_conf->hydrateRaw( $sql );
 
             $data = null;
-            if ( $d_conf->count() > 0 ) {
-                $data = $d_conf->toArray();
+            if ( $d_history->count() > 0 ) {
+                $data = $d_history->toArray();
+
+                // foreach ($d_history as $key => $value) {
+                //     $key = $value['pesanan_kode'].' | '.$value['kode_faktur'].' | '.$value['waktu'];
+
+                //     $data[ $key ] = $value;
+                // }
+
+                // krsort( $data );
             }
 
             $content['data'] = $data;
