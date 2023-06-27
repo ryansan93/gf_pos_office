@@ -12,14 +12,10 @@ var pt = {
             locale: 'id',
             format: 'DD MMM Y'
         });
-      //   $("#StartDate").on("dp.change", function (e) {
-    		// var minDate = dateSQL($("#StartDate").data("DateTimePicker").date())+' 00:00:00';
-      //   	$("#EndDate").data("DateTimePicker").minDate(moment(new Date(minDate)));
-      //   });
-      //   $("#EndDate").on("dp.change", function (e) {
-    		// var maxDate = dateSQL($("#EndDate").data("DateTimePicker").date())+' 23:59:59';
-      //   	$("#StartDate").data("DateTimePicker").maxDate(moment(new Date(maxDate)));
-      //   });
+
+        $('.filter').select2();
+        $('.branch').select2();
+        $('.jumlah').select2();
 	}, // end - settingUp
 
 	getLists: function(elm) {
@@ -39,7 +35,10 @@ var pt = {
 		} else {
 			var params = {
 				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
-				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
+				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date()),
+				'filter': $('.filter').select2().val(),
+				'branch': $('.branch').select2().val(),
+				'jumlah': $('.jumlah').select2().val()
 			};
 
 			$.ajax({
@@ -53,7 +52,7 @@ var pt = {
 	            success: function(html) {
 	                hideLoading();
 
-	                $('table.tbl_report tbody').html( html );
+	                $('.report').html( html );
 	            }
 	        });
 		}
