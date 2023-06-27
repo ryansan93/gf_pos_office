@@ -47,7 +47,7 @@ class ProdukTerlaris extends Public_Controller {
             $content['filter'] = $this->filter;
             $content['branch'] = $this->getBranch();
 
-            $data['title_menu'] = 'Laporan Performance';
+            $data['title_menu'] = 'Laporan Performance Produk dan Member';
             $data['view'] = $this->load->view($this->pathView . 'index', $content, TRUE);
 
             $this->load->view($this->template, $data);
