@@ -57,6 +57,18 @@ var pt = {
 	        });
 		}
 	}, // end - getLists
+
+	export_excel : function () {
+		var _data = '<table border="1">'+$('table.tbl_report').html()+'</table>';
+
+        var blob = new Blob([_data], { type: 'application/vnd.ms-excel' });
+        var downloadUrl = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "export-performance-produk-dan-member.xls";
+        document.body.appendChild(a);
+        a.click();
+	}, // end - export_excel
 };
 
 pt.startUp();
