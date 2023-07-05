@@ -208,7 +208,12 @@ class StokOpname extends Public_Controller {
 
         $m_so = new \Model\Storage\StokOpname_model();
         $sql = "
-            select so.id, so.tanggal, g.nama from stok_opname so
+            select 
+                so.id, 
+                so.kode_stok_opname, 
+                so.tanggal, 
+                g.nama 
+            from stok_opname so
             right join
                 gudang g
                 on
