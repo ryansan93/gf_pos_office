@@ -2,9 +2,8 @@
 	<?php foreach ($data as $k_item => $v_item): ?>
 		<tr class="search v-center data">
 			<td class="kode"><?php echo $v_item['kode']; ?></td>
-			<td>
-				<?php echo strtoupper($v_item['nama']); ?>
-			</td>
+			<td class="group_item"><?php echo strtoupper($v_item['nama_group']); ?></td>
+			<td class="item"><?php echo strtoupper($v_item['nama']); ?></td>
 			<td>
 				<select class="form-control satuan" data-required="1">
 					<?php foreach ($v_item['satuan'] as $k_satuan => $v_satuan): ?>									

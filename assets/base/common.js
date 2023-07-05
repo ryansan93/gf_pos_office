@@ -303,6 +303,45 @@ function filter_all(elm, sensitive = false) {
     }
 }
 
+function filter_by_column(elm, sensitive = false) {
+    var _tr_search = $(elm).closest('tr.search');
+    var _target_table = $(elm).data('table');
+
+    var _table = $('table.'+_target_table);
+    var _tbody = $(_table).find('tbody');
+    var _content, _target;
+
+    _tbody.find('tr').show();
+
+    $.map( $(_tbody).find('tr.search'), function(tr){
+        // CEK DI TR ADA ATAU TIDAK
+        var ada = 1;
+        $.map( $(_tr_search).find('input.filter_by_column'), function (ipt) {
+            var _target_column = $(ipt).data('column');
+            _content = $(ipt).val().toUpperCase().trim();
+
+            if (!empty(_content) && _content != '') {
+                var td_val = $(tr).find('td.'+_target_column).html().trim();
+                if ( !sensitive ) {
+                    if (td_val.toUpperCase().indexOf(_content) == -1) {
+                        ada = 0;
+                    }
+                } else {
+                    if (td_val.toUpperCase() != _content) {
+                        ada = 0;
+                    }
+                }
+            }
+        });
+
+        if ( ada == 0 ) {
+            $(tr).hide();
+        } else {
+            $(tr).show();
+        };
+    });
+}
+
 /* seperti str_pad di php */
 function str_pad(str, len, replace) {
     var str = "" + str;

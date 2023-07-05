@@ -1,3 +1,5 @@
+var timeout = null;
+
 var so = {
 	startUp: function () {
 		so.settingUp();
@@ -9,8 +11,8 @@ var so = {
             locale: 'id',
             format: 'DD MMM Y'
         });
-        var minDateTglStokOpname = today+' 00:00:00';
-        $("#TglStokOpname").data("DateTimePicker").minDate(moment(new Date(minDateTglStokOpname)));
+        // var minDateTglStokOpname = today+' 00:00:00';
+        // $("#TglStokOpname").data("DateTimePicker").minDate(moment(new Date(minDateTglStokOpname)));
 
 		$("#StartDate").datetimepicker({
             locale: 'id',
@@ -31,6 +33,8 @@ var so = {
             }
         });
 
+        $('select.group_item').select2({placeholder: '-- Pilih Group Item --'});
+
         $('.gudang').select2();
         $('.gudang_riwayat').select2();
 
@@ -38,6 +42,15 @@ var so = {
             // $(this).priceFormat(Config[$(this).data('tipe')]);
 
             priceFormat( $(this) );
+        });
+
+        $('.filter_by_column').keyup(function () {
+            var elm = $(this);
+
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                filter_by_column( elm );
+            }, 250);
         });
 	}, // end - settingUp
 
@@ -102,7 +115,8 @@ var so = {
         } else {
             var params = {
                 'tanggal': dateSQL( $(div).find('#TglStokOpname').data('DateTimePicker').date() ),
-                'gudang_kode': $(div).find('.gudang').select2('val')
+                'gudang_kode': $(div).find('.gudang').select2('val'),
+                'group_item': $(div).find('select.group_item').select2('val')
             };
 
             $.ajax({
@@ -179,10 +193,10 @@ var so = {
 
         var data_item = 0;
         $.map( $(div).find('tr.data'), function (tr) {
-            var jumlah = $(tr).find('input.jumlah').val();
-            var harga = $(tr).find('input.harga').val();
+            var jumlah = numeral.unformat($(tr).find('input.jumlah').val());
+            var harga = numeral.unformat($(tr).find('input.harga').val());
 
-            if ( !empty(jumlah) || !empty(harga) ) {
+            if ( jumlah > 0 || !empty(harga) ) {
                 if ( empty(jumlah) ) {
                     $(tr).find('input.jumlah').parent().addClass('has-error');
                     err++;
@@ -210,16 +224,16 @@ var so = {
         } else {
             var list_item = $.map( $(div).find('tr.data'), function (tr) {
                 // if ( $(tr).find('input[type=checkbox]:checked') ) {
-                var jumlah = $(tr).find('input.jumlah').val();
-                var harga = $(tr).find('input.harga').val();
+                var jumlah = numeral.unformat($(tr).find('input.jumlah').val());
+                var harga = numeral.unformat($(tr).find('input.harga').val());
 
-                if ( !empty(jumlah) && !empty(harga) ) {
+                if ( jumlah > 0 && !empty(harga) ) {
                     var _list_item = {
                         'item_kode': $(tr).find('td.kode').text(),
                         'satuan': $(tr).find('select.satuan').val(),
                         'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
-                        'jumlah': numeral.unformat( jumlah ),
-                        'harga': numeral.unformat( harga )
+                        'jumlah': jumlah,
+                        'harga': harga
                     };
 
                     return _list_item;

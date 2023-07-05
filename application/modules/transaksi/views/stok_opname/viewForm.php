@@ -28,6 +28,7 @@
 			<thead>
 				<tr>
 					<th class="col-xs-1">Kode</th>
+					<th class="col-xs-1">Group Item</th>
 					<th class="col-xs-2">Item</th>
 					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
