@@ -43,31 +43,31 @@
 				<?php if ( !empty($v_data['jenis_bayar']) ): ?>
 					<?php foreach ($v_data['jenis_bayar'] as $k_jb => $v_jb): ?>
 						<tr class="search">
-							<td><?php echo tglIndonesia($v_data['tgl_pesan'], '-', ' '); ?></td>
-							<td><?php echo $v_data['nama_kasir']; ?></td>
-							<td><?php echo $v_data['faktur_kode']; ?></td>
-							<td><?php echo !empty($v_data['member_group']) ? $v_data['member_group'] : '-'; ?></td>
-							<td><?php echo $v_data['member']; ?></td>
+							<td class="str"><?php echo substr($v_data['tgl_pesan'], 0, 10); ?></td>
+							<td class="str"><?php echo $v_data['nama_kasir']; ?></td>
+							<td class="str"><?php echo $v_data['faktur_kode']; ?></td>
+							<td class="str"><?php echo !empty($v_data['member_group']) ? $v_data['member_group'] : '-'; ?></td>
+							<td class="str"><?php echo $v_data['member']; ?></td>
 							<td class="decimal_number_format"><?php echo ($v_data['hutang']); ?></td>
 							<td class="decimal_number_format"><?php echo ($v_data['bayar']); ?></td>
-							<td><?php echo !empty($v_data['remark']) ? $v_data['remark'] : '-'; ?></td>
-							<td><?php echo !empty($v_jb['jenis_bayar']) ? $v_jb['jenis_bayar'] : '-'; ?></td>
-							<td><?php echo !empty($v_jb['tgl_bayar']) ? tglIndonesia($v_jb['tgl_bayar'], '-', ' ') : '-'; ?></td>
+							<td class="str"><?php echo !empty($v_data['remark']) ? $v_data['remark'] : '-'; ?></td>
+							<td class="str"><?php echo !empty($v_jb['jenis_bayar']) ? $v_jb['jenis_bayar'] : '-'; ?></td>
+							<td class="str"><?php echo !empty($v_jb['tgl_bayar']) ? substr($v_jb['tgl_bayar'], 0, 10) : '-'; ?></td>
 							<td class="decimal_number_format"><?php echo ($v_jb['nominal']); ?></td>
 						</tr>
 					<?php endforeach ?>
 				<?php else: ?>
 					<tr class="search">
-						<td><?php echo tglIndonesia($v_data['tgl_pesan'], '-', ' '); ?></td>
-						<td><?php echo $v_data['nama_kasir']; ?></td>
-						<td><?php echo $v_data['faktur_kode']; ?></td>
-						<td><?php echo !empty($v_data['member_group']) ? $v_data['member_group'] : '-'; ?></td>
-						<td><?php echo $v_data['member']; ?></td>
+						<td class="str"><?php echo substr($v_data['tgl_pesan'], 0, 10); ?></td>
+						<td class="str"><?php echo $v_data['nama_kasir']; ?></td>
+						<td class="str"><?php echo $v_data['faktur_kode']; ?></td>
+						<td class="str"><?php echo !empty($v_data['member_group']) ? $v_data['member_group'] : '-'; ?></td>
+						<td class="str"><?php echo $v_data['member']; ?></td>
 						<td class="decimal_number_format"><?php echo ($v_data['hutang']); ?></td>
 						<td class="decimal_number_format"><?php echo ($v_data['bayar']); ?></td>
-						<td><?php echo !empty($v_data['remark']) ? $v_data['remark'] : '-'; ?></td>
-						<td><?php echo '-'; ?></td>
-						<td><?php echo '-'; ?></td>
+						<td class="str"><?php echo !empty($v_data['remark']) ? $v_data['remark'] : '-'; ?></td>
+						<td class="str"><?php echo '-'; ?></td>
+						<td class="str"><?php echo '-'; ?></td>
 						<td class="decimal_number_format"><?php echo 0; ?></td>
 					</tr>
 				<?php endif ?>
@@ -77,7 +77,7 @@
 				?>
 			<?php endforeach ?>
 			<tr>
-				<td class="text-right" colspan="5"><b>TOTAL</b></td>
+				<td class="text-right str" colspan="5"><b>TOTAL</b></td>
 				<td class="decimal_number_format"><b><?php echo ($total_hutang); ?></b></td>
 				<td class="decimal_number_format"><b><?php echo ($total_bayar); ?></b></td>
 				<td class="text-right"></td>
