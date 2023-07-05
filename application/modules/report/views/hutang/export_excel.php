@@ -52,7 +52,7 @@
 							<td class="decimal_number_format"><?php echo ($v_data['bayar']); ?></td>
 							<td class="str"><?php echo !empty($v_data['remark']) ? $v_data['remark'] : '-'; ?></td>
 							<td class="str"><?php echo !empty($v_jb['jenis_bayar']) ? $v_jb['jenis_bayar'] : '-'; ?></td>
-							<td class="str"><?php // echo !empty($v_jb['tgl_bayar']) ? substr($v_jb['tgl_bayar'], 0, 10) : '-'; ?></td>
+							<td class="str"><?php echo !empty($v_jb['tgl_bayar']) ? substr($v_jb['tgl_bayar'], 0, 10) : '-'; ?></td>
 							<td class="decimal_number_format"><?php echo ((float) $v_jb['nominal']); ?></td>
 						</tr>
 					<?php endforeach ?>
