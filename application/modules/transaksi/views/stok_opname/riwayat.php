@@ -58,13 +58,14 @@
 		<table class="table table-bordered tbl_riwayat">
 			<thead>
 				<tr>
+					<th class="col-xs-2">Kode</th>
 					<th class="col-xs-4">Tanggal</th>
-					<th class="col-xs-8">Gudang</th>
+					<th class="col-xs-6">Gudang</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="2">Data tidak ditemukan.</td>
+					<td colspan="3">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>
