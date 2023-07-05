@@ -1728,26 +1728,72 @@ class StokOpname extends Public_Controller {
 
             echo $keterangan_barang;
         } else {
-            cetak_r('lengkap');
-            // $m_so = new \Model\Storage\StokOpname_model();
+            // cetak_r('lengkap');
+            $m_so = new \Model\Storage\StokOpname_model();
 
-            // $kode_stok_opname = $m_so->getNextIdRibuan();
+            $kode_stok_opname = $m_so->getNextIdRibuan();
 
-            // $m_so->tanggal = '2023-07-01';
-            // $m_so->gudang_kode = 'GDG-PUSAT';
-            // $m_so->kode_stok_opname = $kode_stok_opname;
-            // $m_so->save();
+            $m_so->tanggal = '2023-07-01';
+            $m_so->gudang_kode = 'GDG-PUSAT';
+            $m_so->kode_stok_opname = $kode_stok_opname;
+            $m_so->save();
 
-            // foreach ($data as $k_li => $v_li) {
-            //     $m_sod = new \Model\Storage\StokOpnameDet_model();
-            //     $m_sod->id_header = $m_so->id;
-            //     $m_sod->item_kode = $v_li['kode_barang'];
-            //     $m_sod->satuan = $v_li['satuan'];
-            //     $m_sod->pengali = $v_li['pengali'];
-            //     $m_sod->jumlah = $v_li['jumlah'];
-            //     $m_sod->harga = $v_li['harga'];
-            //     $m_sod->save();
-            // }
+            foreach ($data as $k_li => $v_li) {
+                $m_sod = new \Model\Storage\StokOpnameDet_model();
+                $m_sod->id_header = $m_so->id;
+                $m_sod->item_kode = $v_li['kode_barang'];
+                $m_sod->satuan = $v_li['satuan'];
+                $m_sod->pengali = $v_li['pengali'];
+                $m_sod->jumlah = $v_li['jumlah'];
+                $m_sod->harga = $v_li['harga'];
+                $m_sod->save();
+            }
+
+            $kode = $kode_stok_opname;
+
+            $m_conf = new \Model\Storage\Conf();
+
+            $tgl_transaksi = null;
+            $gudang = null;
+            $barang = null;
+
+            $sql_tgl_dan_gudang = "
+                select so.* from stok_opname so
+                where
+                    so.kode_stok_opname = '".$kode."'
+            ";
+            $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
+            if ( $d_tgl_dan_gudang->count() > 0 ) {
+                $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
+                $tgl_transaksi = $d_tgl_dan_gudang['tanggal'];
+                $gudang = $d_tgl_dan_gudang['gudang_kode'];
+            }
+
+            $sql_barang = "
+                select so.tanggal, sod.item_kode from stok_opname_det sod
+                right join
+                    stok_opname so
+                    on
+                        so.id = sod.id_header
+                where
+                    so.kode_stok_opname = '".$kode."' and
+                    sod.jumlah > 0
+                group by
+                    so.tanggal,
+                    sod.item_kode
+            ";
+            $d_barang = $m_conf->hydrateRaw( $sql_barang );
+            if ( $d_barang->count() > 0 ) {
+                $d_barang = $d_barang->toArray();
+
+                foreach ($d_barang as $key => $value) {
+                    $barang[] = $value['item_kode'];
+                }
+            }
+
+            $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
+
+            $d_conf = $m_conf->hydrateRaw($sql);
         }
     }
 }
