@@ -255,8 +255,8 @@ class StokOpname extends Public_Controller {
         }
 
         $content['akses'] = $this->hakAkses;
-        $content['item'] = $this->getItem();
-        $content['gudang'] = $this->getGudang();
+        // $content['item'] = $this->getItem();
+        // $content['gudang'] = $this->getGudang();
         $content['data'] = $data;
 
         $html = $this->load->view($this->pathView . 'viewForm', $content, TRUE);

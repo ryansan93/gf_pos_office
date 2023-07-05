@@ -9,6 +9,6 @@ class StokOpnameDet_model extends Conf{
 
 	public function item()
 	{
-		return $this->hasOne('\Model\Storage\Item_model', 'kode', 'item_kode')->with(['satuan']);
+		return $this->hasOne('\Model\Storage\Item_model', 'kode', 'item_kode')->with(['satuan', 'group']);
 	}
 }
