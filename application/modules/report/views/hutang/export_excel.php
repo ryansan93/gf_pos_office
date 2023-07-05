@@ -53,7 +53,7 @@
 							<td><?php echo !empty($v_data['remark']) ? $v_data['remark'] : '-'; ?></td>
 							<td><?php echo !empty($v_jb['jenis_bayar']) ? $v_jb['jenis_bayar'] : '-'; ?></td>
 							<td><?php echo !empty($v_jb['tgl_bayar']) ? tglIndonesia($v_jb['tgl_bayar'], '-', ' ') : '-'; ?></td>
-							<td class="decimal_number_format"><?php echo !empty($v_jb['nominal']) ? ($v_jb['nominal']) : '-'; ?></td>
+							<td class="decimal_number_format"><?php echo !empty($v_jb['nominal']) ? ($v_jb['nominal']) : 0; ?></td>
 						</tr>
 					<?php endforeach ?>
 				<?php else: ?>
