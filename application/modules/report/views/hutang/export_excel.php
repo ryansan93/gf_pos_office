@@ -1,3 +1,8 @@
+<style type="text/css">
+	.str { mso-number-format:\@; }
+	.decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
+	.number_format { mso-number-format: "\#\,\#\#0"; }
+</style>
 <div style="width: 100%;">
 	<h3>Laporan Hutang Pelanggan</h3>
 </div>
@@ -43,12 +48,12 @@
 							<td><?php echo $v_data['faktur_kode']; ?></td>
 							<td><?php echo !empty($v_data['member_group']) ? $v_data['member_group'] : '-'; ?></td>
 							<td><?php echo $v_data['member']; ?></td>
-							<td class="text-right"><?php echo ($v_data['hutang']); ?></td>
-							<td class="text-right"><?php echo ($v_data['bayar']); ?></td>
+							<td class="decimal_number_format"><?php echo ($v_data['hutang']); ?></td>
+							<td class="decimal_number_format"><?php echo ($v_data['bayar']); ?></td>
 							<td><?php echo !empty($v_data['remark']) ? $v_data['remark'] : '-'; ?></td>
 							<td><?php echo !empty($v_jb['jenis_bayar']) ? $v_jb['jenis_bayar'] : '-'; ?></td>
 							<td><?php echo !empty($v_jb['tgl_bayar']) ? tglIndonesia($v_jb['tgl_bayar'], '-', ' ') : '-'; ?></td>
-							<td class="text-right"><?php echo !empty($v_jb['nominal']) ? angkaRibuan($v_jb['nominal']) : '-'; ?></td>
+							<td class="decimal_number_format"><?php echo !empty($v_jb['nominal']) ? ($v_jb['nominal']) : '-'; ?></td>
 						</tr>
 					<?php endforeach ?>
 				<?php else: ?>
@@ -58,12 +63,12 @@
 						<td><?php echo $v_data['faktur_kode']; ?></td>
 						<td><?php echo !empty($v_data['member_group']) ? $v_data['member_group'] : '-'; ?></td>
 						<td><?php echo $v_data['member']; ?></td>
-						<td class="text-right"><?php echo ($v_data['hutang']); ?></td>
-						<td class="text-right"><?php echo ($v_data['bayar']); ?></td>
+						<td class="decimal_number_format"><?php echo ($v_data['hutang']); ?></td>
+						<td class="decimal_number_format"><?php echo ($v_data['bayar']); ?></td>
 						<td><?php echo !empty($v_data['remark']) ? $v_data['remark'] : '-'; ?></td>
 						<td><?php echo '-'; ?></td>
 						<td><?php echo '-'; ?></td>
-						<td class="text-right"><?php echo 0; ?></td>
+						<td class="decimal_number_format"><?php echo 0; ?></td>
 					</tr>
 				<?php endif ?>
 				<?php 
@@ -73,12 +78,12 @@
 			<?php endforeach ?>
 			<tr>
 				<td class="text-right" colspan="5"><b>TOTAL</b></td>
-				<td class="text-right"><b><?php echo ($total_hutang); ?></b></td>
-				<td class="text-right"><b><?php echo ($total_bayar); ?></b></td>
+				<td class="decimal_number_format"><b><?php echo ($total_hutang); ?></b></td>
+				<td class="decimal_number_format"><b><?php echo ($total_bayar); ?></b></td>
 				<td class="text-right"></td>
 				<td class="text-right"></td>
 				<td class="text-right"></td>
-				<td class="text-right"><b><?php echo ($total_bayar); ?></b></td>
+				<td class="decimal_number_format"><b><?php echo ($total_bayar); ?></b></td>
 			</tr>
 		<?php else: ?>
 			<tr>
