@@ -266,12 +266,20 @@ class SinkronPajak extends Public_Controller {
 
             $data_real = $this->getData($kode_branch, $start_date, $end_date);
 
-            if ( stristr($kode_branch, 'gtr') ) {
-                $m_jual = new \Model\Storage\Pajak\JualGtr_model();
-            } else {
-                $m_jual = new \Model\Storage\Pajak\JualTr_model();
-            }
+            $m_jual = new \Model\Storage\Pajak\Jual_model();
             $d_pajak = $m_jual->whereBetween('TGL_TRANSAKSI', [$start_date, $end_date])->orderBy('NO_BILL', 'asc')->get();
+
+            $m_conf = new \Model\Storage\Pajak\ConfPajak();
+            $sql = "
+                select g_jual.* from grafam.dbo.jual g_jual
+                right join
+                    gf_pos.dbo.jual gf_jual
+                    on
+                        g_jual.NO_BILL = gf_jual.kode_faktur
+                where
+                    gf_jual.branch = '".$kode_branch."'
+            ";
+            $d_pajak = $m_conf->hydrateRaw( $sql );
 
             $data_pajak = null;
             if ( $d_pajak->count() > 0 ) {
@@ -307,22 +315,13 @@ class SinkronPajak extends Public_Controller {
 
             $data_real = $this->getData($kode_branch, $start_date, $end_date);
 
-            if ( stristr($kode_branch, 'gtr') ) {
-                $m_jual = new \Model\Storage\Pajak\JualGtr_model();
-            } else {
-                $m_jual = new \Model\Storage\Pajak\JualTr_model();
-            }
-
+            $m_jual = new \Model\Storage\Pajak\Jual_model();
             $m_jual->whereBetween('TGL_TRANSAKSI', [$start_date, $end_date])->delete();
 
             if ( !empty($data_real) ) {
-                foreach ($data_real as $key => $value) {
-                    if ( stristr($kode_branch, 'gtr') ) {
-                        $m_jual = new \Model\Storage\Pajak\JualGtr_model();
-                    } else {
-                        $m_jual = new \Model\Storage\Pajak\JualTr_model();
-                    }
-                    
+                foreach ($data_real as $key => $value) {                    
+                    $m_jual = new \Model\Storage\Pajak\Jual_model();
+
                     if ( $value['ppn'] > 0 ) {
                         $m_jual->NO_BILL = $value['kode_faktur'];
                         $m_jual->TGL_TRANSAKSI = $value['tgl_trans'];

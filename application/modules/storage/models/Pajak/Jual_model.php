@@ -2,7 +2,7 @@
 namespace Model\Storage\Pajak;
 use \Model\Storage\Pajak\ConfPajak as ConfPajak;
 
-class JualTr_model extends ConfPajak{
-	protected $table = 'jual_tr';
+class Jual_model extends ConfPajak{
+	protected $table = 'jual';
 	public $timestamps = false;
 }
