@@ -337,7 +337,6 @@ class SinkronPajak extends Public_Controller {
             } else {
                 $this->result['message'] = 'Tidak ada data penjualan yg akan di sinkron.';
             }
-
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
         }

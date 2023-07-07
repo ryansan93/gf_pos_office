@@ -124,7 +124,7 @@ class StokOpname extends Public_Controller {
                 i.kode,
                 i.nama,
                 gi.nama as nama_group,
-                sh.harga,
+                s.harga,
                 s.jumlah
             from item i
             right join
@@ -133,31 +133,22 @@ class StokOpname extends Public_Controller {
                     i.group_kode = gi.kode
             left join
                 (
-                    select sh.item_kode, sh.harga from stok_harga sh
-                    right join
-                        (
-                            select top 1 * from stok_tanggal where gudang_kode = '".$gudang_kode."' and tanggal <= GETDATE() order by tanggal desc
-                        ) st
-                        on
-                            sh.id_header = st.id
-                     group by
-                        sh.item_kode, 
-                        sh.harga
-                ) sh
-                on
-                    i.kode = sh.item_kode
-            left join
-                (
-                    select s.gudang_kode, s.item_kode, sum(s.jumlah) as jumlah from stok s
+                    select s.gudang_kode, s.item_kode, sum(s.jumlah) as jumlah, sh.harga from stok s
                     right join
                         (
                             select top 1 * from stok_tanggal where gudang_kode = '".$gudang_kode."' and tanggal <= GETDATE() order by tanggal desc
                         ) st
                         on
                             s.id_header = st.id
+                    left join
+                        stok_harga sh
+                        on
+                            sh.id_header = st.id and
+                            sh.item_kode = s.item_kode
                     group by
                         s.gudang_kode, 
-                        s.item_kode
+                        s.item_kode,
+                        sh.harga
                 ) s
                 on
                     i.kode = s.item_kode
@@ -424,1277 +415,1095 @@ class StokOpname extends Public_Controller {
     {
         $data = array(
             array(
-                'kode_barang' => 'BRG2302005',
+                'kode_brg' => 'BRG2302005',
                 'satuan' => 'PAX',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'jumlah' => 3,
                 'harga' => 50000.00
             ),
             array(
-                'kode_barang' => 'BRG2302009',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302009',
+                'satuan' => 'BTL',
+                'jumlah' => 2,
                 'harga' => 9000.00
             ),
             array(
-                'kode_barang' => 'BRG2302020',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 7.00,
+                'kode_brg' => 'BRG2302020',
+                'satuan' => 'BTL',
+                'jumlah' => 7,
                 'harga' => 35000.00
             ),
             array(
-                'kode_barang' => 'BRG2302023',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 15.00,
+                'kode_brg' => 'BRG2302023',
+                'satuan' => 'KG',
+                'jumlah' => 15,
                 'harga' => 14000.00
             ),
             array(
-                'kode_barang' => 'BRG2302027',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 5.00,
+                'kode_brg' => 'BRG2302027',
+                'satuan' => 'CAN',
+                'jumlah' => 5,
                 'harga' => 18000.00
             ),
             array(
-                'kode_barang' => 'BRG2302034',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302034',
+                'satuan' => 'CAN',
+                'jumlah' => 3,
                 'harga' => 65000.00
             ),
             array(
-                'kode_barang' => 'BRG2302035',
-                'satuan' => 'GRM',
-                'pengali' => 0,
-                'jumlah' => 4.00,
+                'kode_brg' => 'BRG2302035',
+                'satuan' => 'CAN',
+                'jumlah' => 4,
                 'harga' => 21000.00
             ),
             array(
-                'kode_barang' => 'BRG2302036',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 4.00,
+                'kode_brg' => 'BRG2302036',
+                'satuan' => 'BTL',
+                'jumlah' => 4,
                 'harga' => 14414.50
             ),
             array(
-                'kode_barang' => 'BRG2302040',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 19.00,
+                'kode_brg' => 'BRG2302040',
+                'satuan' => 'PAX',
+                'jumlah' => 19,
                 'harga' => 26000.00
             ),
             array(
-                'kode_barang' => 'BRG2302047',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 6.00,
+                'kode_brg' => 'BRG2302047',
+                'satuan' => 'BTL',
+                'jumlah' => 6,
                 'harga' => 13513.00
             ),
             array(
-                'kode_barang' => 'BRG2302053',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 7.50,
+                'kode_brg' => 'BRG2302053',
+                'satuan' => 'KG',
+                'jumlah' => 7.5,
                 'harga' => 83950.00
             ),
             array(
-                'kode_barang' => 'BRG2302054',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 6.00,
+                'kode_brg' => 'BRG2302054',
+                'satuan' => 'KG',
+                'jumlah' => 6,
                 'harga' => 108500.00
             ),
             array(
-                'kode_barang' => 'BRG2302075',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 27.00,
+                'kode_brg' => 'BRG2302075',
+                'satuan' => 'PAX',
+                'jumlah' => 27,
                 'harga' => 19000.00
             ),
             array(
-                'kode_barang' => 'BRG2302560',
+                'kode_brg' => 'BRG2302560',
                 'satuan' => 'BTL',
-                'pengali' => 0,
-                'jumlah' => 80.00,
+                'jumlah' => 80,
                 'harga' => 27027.00
             ),
             array(
-                'kode_barang' => 'BRG2302561',
+                'kode_brg' => 'BRG2302561',
                 'satuan' => 'CAN',
-                'pengali' => 0,
-                'jumlah' => 48.00,
+                'jumlah' => 48,
                 'harga' => 16929.42
             ),
             array(
-                'kode_barang' => 'BRG2302079',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302079',
+                'satuan' => 'BTL',
+                'jumlah' => 1,
                 'harga' => 32500.00
             ),
             array(
-                'kode_barang' => 'BRG2302082',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302082',
+                'satuan' => 'BOX',
+                'jumlah' => 2,
                 'harga' => 155000.00
             ),
             array(
-                'kode_barang' => 'BRG2302085',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302085',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 29000.00
             ),
             array(
-                'kode_barang' => 'BRG2302087',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302087',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 78000.00
             ),
             array(
-                'kode_barang' => 'BRG2302088',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 21.00,
+                'kode_brg' => 'BRG2302088',
+                'satuan' => 'PACK',
+                'jumlah' => 21,
                 'harga' => 15600.00
             ),
             array(
-                'kode_barang' => 'BRG2302089',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 48.00,
+                'kode_brg' => 'BRG2302089',
+                'satuan' => 'PACK',
+                'jumlah' => 48,
                 'harga' => 16500.00
             ),
             array(
-                'kode_barang' => 'BRG2302090',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 5.00,
+                'kode_brg' => 'BRG2302090',
+                'satuan' => 'KG',
+                'jumlah' => 5,
                 'harga' => 105000.00
             ),
             array(
-                'kode_barang' => 'BRG2302091',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 5.00,
+                'kode_brg' => 'BRG2302091',
+                'satuan' => 'KG',
+                'jumlah' => 5,
                 'harga' => 140000.00
             ),
             array(
-                'kode_barang' => 'BRG2302093',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 75.00,
+                'kode_brg' => 'BRG2302093',
+                'satuan' => 'PCS',
+                'jumlah' => 75,
                 'harga' => 2513.75
             ),
             array(
-                'kode_barang' => 'BRG2302098',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302098',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 84375.00
             ),
             array(
-                'kode_barang' => 'BRG2302104',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302104',
+                'satuan' => 'PACK',
+                'jumlah' => 2,
                 'harga' => 54000.00
             ),
             array(
-                'kode_barang' => 'BRG2302108',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
+                'kode_brg' => 'BRG2302108',
+                'satuan' => 'KG',
                 'jumlah' => 0.25,
                 'harga' => 210000.00
             ),
             array(
-                'kode_barang' => 'BRG2302110',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302110',
+                'satuan' => 'PACK',
+                'jumlah' => 1,
                 'harga' => 74200.00
             ),
             array(
-                'kode_barang' => 'BRG2302580',
+                'kode_brg' => 'BRG2302580',
                 'satuan' => 'GLN',
-                'pengali' => 0,
-                'jumlah' => 26.00,
+                'jumlah' => 26,
                 'harga' => 13288.00
             ),
             array(
-                'kode_barang' => 'BRG2302562',
+                'kode_brg' => 'BRG2302562',
                 'satuan' => 'BTL',
-                'pengali' => 0,
-                'jumlah' => 384.00,
+                'jumlah' => 384,
                 'harga' => 1221.83
             ),
             array(
-                'kode_barang' => 'BRG2302122',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 7.00,
+                'kode_brg' => 'BRG2302122',
+                'satuan' => 'KG',
+                'jumlah' => 7,
                 'harga' => 170000.00
             ),
             array(
-                'kode_barang' => 'BRG2302124',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 17.00,
+                'kode_brg' => 'BRG2302124',
+                'satuan' => 'KG',
+                'jumlah' => 17,
                 'harga' => 253221.77
             ),
             array(
-                'kode_barang' => 'BRG2302125',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302125',
+                'satuan' => 'KG',
+                'jumlah' => 1,
                 'harga' => 165000.00
             ),
             array(
-                'kode_barang' => 'BRG2302127',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302127',
+                'satuan' => 'KG',
+                'jumlah' => 1,
                 'harga' => 57000.00
             ),
             array(
-                'kode_barang' => 'BRG2302129',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302129',
+                'satuan' => 'PACK',
+                'jumlah' => 1,
                 'harga' => 84000.00
             ),
             array(
-                'kode_barang' => 'BRG2302131',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302131',
+                'satuan' => 'LTR',
+                'jumlah' => 1,
                 'harga' => 56859.38
             ),
             array(
-                'kode_barang' => 'BRG2302134',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 5.00,
+                'kode_brg' => 'BRG2302134',
+                'satuan' => 'BTL',
+                'jumlah' => 5,
                 'harga' => 15000.00
             ),
             array(
-                'kode_barang' => 'BRG2302136',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 5.00,
+                'kode_brg' => 'BRG2302136',
+                'satuan' => 'KG',
+                'jumlah' => 5,
                 'harga' => 70000.00
             ),
             array(
-                'kode_barang' => 'BRG2302138',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 4.00,
+                'kode_brg' => 'BRG2302138',
+                'satuan' => 'CAN',
+                'jumlah' => 4,
                 'harga' => 29000.00
             ),
             array(
-                'kode_barang' => 'BRG2302139',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 6.00,
+                'kode_brg' => 'BRG2302139',
+                'satuan' => 'KG',
+                'jumlah' => 6,
                 'harga' => 65500.00
             ),
             array(
-                'kode_barang' => 'BRG2302143',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 5.00,
+                'kode_brg' => 'BRG2302143',
+                'satuan' => 'KG',
+                'jumlah' => 5,
                 'harga' => 39500.00
             ),
             array(
-                'kode_barang' => 'BRG2302150',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
+                'kode_brg' => 'BRG2302150',
+                'satuan' => 'KG',
                 'jumlah' => 9.75,
                 'harga' => 112000.00
             ),
             array(
-                'kode_barang' => 'BRG2302591',
+                'kode_brg' => 'BRG2302591',
                 'satuan' => 'PACK',
-                'pengali' => 0,
-                'jumlah' => 20.00,
+                'jumlah' => 20,
                 'harga' => 22750.00
             ),
             array(
-                'kode_barang' => 'BRG2302588',
+                'kode_brg' => 'BRG2302588',
                 'satuan' => 'PACK',
-                'pengali' => 0,
-                'jumlah' => 10.00,
+                'jumlah' => 10,
                 'harga' => 18400.00
             ),
             array(
-                'kode_barang' => 'BRG2302179',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302179',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 226000.00
             ),
             array(
-                'kode_barang' => 'BRG2302180',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 5.50,
+                'kode_brg' => 'BRG2302180',
+                'satuan' => 'KG',
+                'jumlah' => 5.5,
                 'harga' => 80000.00
             ),
             array(
-                'kode_barang' => 'BRG2302181',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
+                'kode_brg' => 'BRG2302181',
+                'satuan' => 'KG',
                 'jumlah' => 0.25,
                 'harga' => 180000.00
             ),
             array(
-                'kode_barang' => 'BRG2302185',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302185',
+                'satuan' => 'PACK',
+                'jumlah' => 3,
                 'harga' => 19200.00
             ),
             array(
-                'kode_barang' => 'BRG2302186',
+                'kode_brg' => 'BRG2302186',
                 'satuan' => 'PACK',
-                'pengali' => 0,
-                'jumlah' => 20.00,
+                'jumlah' => 20,
                 'harga' => 50270.00
             ),
             array(
-                'kode_barang' => 'BRG2302188',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 37.00,
+                'kode_brg' => 'BRG2302188',
+                'satuan' => 'LTR',
+                'jumlah' => 37,
                 'harga' => 13964.00
             ),
             array(
-                'kode_barang' => 'BRG2302189',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 6.00,
+                'kode_brg' => 'BRG2302189',
+                'satuan' => 'CAN',
+                'jumlah' => 6,
                 'harga' => 60000.00
             ),
             array(
-                'kode_barang' => 'BRG2302191',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 15.00,
+                'kode_brg' => 'BRG2302191',
+                'satuan' => 'PACK',
+                'jumlah' => 15,
                 'harga' => 4500.00
             ),
             array(
-                'kode_barang' => 'BRG2302192',
+                'kode_brg' => 'BRG2302192',
                 'satuan' => 'KG',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'jumlah' => 1,
                 'harga' => 260000.00
             ),
             array(
-                'kode_barang' => 'BRG2302193',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 4.00,
+                'kode_brg' => 'BRG2302193',
+                'satuan' => 'KG',
+                'jumlah' => 4,
                 'harga' => 41017.19
             ),
             array(
-                'kode_barang' => 'BRG2302568',
+                'kode_brg' => 'BRG2302568',
                 'satuan' => 'BTL',
-                'pengali' => 0,
-                'jumlah' => 80.00,
+                'jumlah' => 80,
                 'harga' => 37550.18
             ),
             array(
-                'kode_barang' => 'BRG2302194',
+                'kode_brg' => 'BRG2302194',
                 'satuan' => 'KG',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'jumlah' => 1,
                 'harga' => 25000.00
             ),
             array(
-                'kode_barang' => 'BRG2302195',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 6.50,
+                'kode_brg' => 'BRG2302195',
+                'satuan' => 'KG',
+                'jumlah' => 6.5,
                 'harga' => 17500.00
             ),
             array(
-                'kode_barang' => 'BRG2302196',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 82.00,
+                'kode_brg' => 'BRG2302196',
+                'satuan' => 'KG',
+                'jumlah' => 82,
                 'harga' => 12725.00
             ),
             array(
-                'kode_barang' => 'BRG2302199',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302199',
+                'satuan' => 'CAN',
+                'jumlah' => 2,
                 'harga' => 148333.33
             ),
             array(
-                'kode_barang' => 'BRG2302201',
+                'kode_brg' => 'BRG2302201',
                 'satuan' => 'PCS',
-                'pengali' => 0,
-                'jumlah' => 26.00,
+                'jumlah' => 26,
                 'harga' => 2701.65
             ),
             array(
-                'kode_barang' => 'BRG2302206',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302206',
+                'satuan' => 'KG',
+                'jumlah' => 1,
                 'harga' => 151002.78
             ),
             array(
-                'kode_barang' => 'BRG2302211',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 6.80,
+                'kode_brg' => 'BRG2302211',
+                'satuan' => 'KG',
+                'jumlah' => 6.8,
                 'harga' => 80000.00
             ),
             array(
-                'kode_barang' => 'BRG2302569',
+                'kode_brg' => 'BRG2302569',
                 'satuan' => 'BTL',
-                'pengali' => 0,
-                'jumlah' => 48.00,
+                'jumlah' => 48,
                 'harga' => 5360.33
             ),
             array(
-                'kode_barang' => 'BRG2302221',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 12.00,
+                'kode_brg' => 'BRG2302221',
+                'satuan' => 'CAN',
+                'jumlah' => 12,
                 'harga' => 13500.00
             ),
             array(
-                'kode_barang' => 'BRG2302226',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
+                'kode_brg' => 'BRG2302226',
+                'satuan' => 'KG',
                 'jumlah' => 3.75,
                 'harga' => 230000.00
             ),
             array(
-                'kode_barang' => 'BRG2302228',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302228',
+                'satuan' => 'CAN',
+                'jumlah' => 2,
                 'harga' => 16000.00
             ),
             array(
-                'kode_barang' => 'BRG2302230',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302230',
+                'satuan' => 'KG',
+                'jumlah' => 3,
                 'harga' => 15500.00
             ),
             array(
-                'kode_barang' => 'BRG2302231',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 20.00,
+                'kode_brg' => 'BRG2302231',
+                'satuan' => 'KG',
+                'jumlah' => 20,
                 'harga' => 16000.00
             ),
             array(
-                'kode_barang' => 'BRG2302233',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302233',
+                'satuan' => 'BTL',
+                'jumlah' => 1,
                 'harga' => 22000.00
             ),
             array(
-                'kode_barang' => 'BRG2302234',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 7.00,
+                'kode_brg' => 'BRG2302234',
+                'satuan' => 'KG',
+                'jumlah' => 7,
                 'harga' => 28000.00
             ),
             array(
-                'kode_barang' => 'BRG2302235',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302235',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 185000.00
             ),
             array(
-                'kode_barang' => 'BRG2302237',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 4.00,
+                'kode_brg' => 'BRG2302237',
+                'satuan' => 'KG',
+                'jumlah' => 4,
                 'harga' => 29000.00
             ),
             array(
-                'kode_barang' => 'BRG2302240',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
+                'kode_brg' => 'BRG2302240',
+                'satuan' => 'KG',
                 'jumlah' => 27.25,
                 'harga' => 70000.00
             ),
             array(
-                'kode_barang' => 'BRG2302248',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302248',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 130000.00
             ),
             array(
-                'kode_barang' => 'BRG2302249',
+                'kode_brg' => 'BRG2302249',
                 'satuan' => 'GLN',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'jumlah' => 1,
                 'harga' => 64408.57
             ),
             array(
-                'kode_barang' => 'BRG2302252',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302252',
+                'satuan' => 'GLN',
+                'jumlah' => 1,
                 'harga' => 124598.10
             ),
             array(
-                'kode_barang' => 'BRG2302256',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 8.00,
+                'kode_brg' => 'BRG2302256',
+                'satuan' => 'PACK',
+                'jumlah' => 8,
                 'harga' => 22006.15
             ),
             array(
-                'kode_barang' => 'BRG2302257',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 11.00,
+                'kode_brg' => 'BRG2302257',
+                'satuan' => 'PACK',
+                'jumlah' => 11,
                 'harga' => 20445.31
             ),
             array(
-                'kode_barang' => 'BRG2302258',
+                'kode_brg' => 'BRG2302258',
                 'satuan' => 'PCS',
-                'pengali' => 0,
-                'jumlah' => 5.00,
+                'jumlah' => 5,
                 'harga' => 9500.00
             ),
             array(
-                'kode_barang' => 'BRG2302263',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302263',
+                'satuan' => 'KG',
+                'jumlah' => 3,
                 'harga' => 57000.00
             ),
             array(
-                'kode_barang' => 'BRG2302280',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302280',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 30000.00
             ),
             array(
-                'kode_barang' => 'BRG2302284',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302284',
+                'satuan' => 'BTL',
+                'jumlah' => 2,
                 'harga' => 120000.00
             ),
             array(
-                'kode_barang' => 'BRG2302286',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302286',
+                'satuan' => 'PAIL',
+                'jumlah' => 1,
                 'harga' => 92000.00
             ),
             array(
-                'kode_barang' => 'BRG2302288',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 9.00,
+                'kode_brg' => 'BRG2302288',
+                'satuan' => 'PACK',
+                'jumlah' => 9,
                 'harga' => 95000.00
             ),
             array(
-                'kode_barang' => 'BRG2302291',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 43.00,
+                'kode_brg' => 'BRG2302291',
+                'satuan' => 'PACK',
+                'jumlah' => 43,
                 'harga' => 27109.00
             ),
             array(
-                'kode_barang' => 'BRG2302293',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 10.00,
+                'kode_brg' => 'BRG2302293',
+                'satuan' => 'PACK',
+                'jumlah' => 10,
                 'harga' => 24818.00
             ),
             array(
-                'kode_barang' => 'BRG2302299',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302299',
+                'satuan' => 'KG',
+                'jumlah' => 2,
                 'harga' => 32500.00
             ),
             array(
-                'kode_barang' => 'BRG2302300',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 13.00,
+                'kode_brg' => 'BRG2302300',
+                'satuan' => 'PACK',
+                'jumlah' => 13,
                 'harga' => 25675.00
             ),
             array(
-                'kode_barang' => 'BRG2302301',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 8.00,
+                'kode_brg' => 'BRG2302301',
+                'satuan' => 'PACK',
+                'jumlah' => 8,
                 'harga' => 8000.00
             ),
             array(
-                'kode_barang' => 'BRG2302305',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 4.00,
+                'kode_brg' => 'BRG2302305',
+                'satuan' => 'KG',
+                'jumlah' => 4,
                 'harga' => 15000.00
             ),
             array(
-                'kode_barang' => 'BRG2302590',
+                'kode_brg' => 'BRG2302590',
                 'satuan' => 'PACK',
-                'pengali' => 0,
-                'jumlah' => 40.00,
+                'jumlah' => 40,
                 'harga' => 27900.00
             ),
             array(
-                'kode_barang' => 'BRG2302310',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 39.00,
+                'kode_brg' => 'BRG2302310',
+                'satuan' => 'CAN',
+                'jumlah' => 39,
                 'harga' => 25000.00
             ),
             array(
-                'kode_barang' => 'BRG2302318',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 4.00,
+                'kode_brg' => 'BRG2302318',
+                'satuan' => 'CAN',
+                'jumlah' => 4,
                 'harga' => 31000.00
             ),
             array(
-                'kode_barang' => 'BRG2302322',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302322',
+                'satuan' => 'BTL',
+                'jumlah' => 2,
                 'harga' => 75000.00
             ),
             array(
-                'kode_barang' => 'BRG2302570',
+                'kode_brg' => 'BRG2302570',
                 'satuan' => 'BTL',
-                'pengali' => 0,
-                'jumlah' => 6.00,
+                'jumlah' => 6,
                 'harga' => 173700.00
             ),
             array(
-                'kode_barang' => 'BRG2302324',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302324',
+                'satuan' => 'BTL',
+                'jumlah' => 3,
                 'harga' => 75000.00
             ),
             array(
-                'kode_barang' => 'BRG2302583',
+                'kode_brg' => 'BRG2302583',
                 'satuan' => 'PACK',
-                'pengali' => 0,
-                'jumlah' => 100.00,
+                'jumlah' => 100,
                 'harga' => 36300.00
             ),
             array(
-                'kode_barang' => 'BRG2302581',
+                'kode_brg' => 'BRG2302581',
                 'satuan' => 'PACK',
-                'pengali' => 0,
-                'jumlah' => 60.00,
+                'jumlah' => 60,
                 'harga' => 36300.00
             ),
             array(
-                'kode_barang' => 'BRG2302582',
+                'kode_brg' => 'BRG2302582',
                 'satuan' => 'PACK',
-                'pengali' => 0,
-                'jumlah' => 40.00,
+                'jumlah' => 40,
                 'harga' => 36300.00
             ),
             array(
-                'kode_barang' => 'BRG2302329',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302329',
+                'satuan' => 'PACK',
+                'jumlah' => 3,
                 'harga' => 31000.00
             ),
             array(
-                'kode_barang' => 'BRG2302330',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302330',
+                'satuan' => 'PAIL',
+                'jumlah' => 1,
                 'harga' => 210000.00
             ),
             array(
-                'kode_barang' => 'BRG2302332',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302332',
+                'satuan' => 'BTL',
+                'jumlah' => 1,
                 'harga' => 11000.00
             ),
             array(
-                'kode_barang' => 'BRG2302335',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 8.00,
+                'kode_brg' => 'BRG2302335',
+                'satuan' => 'PACK',
+                'jumlah' => 8,
                 'harga' => 14500.00
             ),
             array(
-                'kode_barang' => 'BRG2302337',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302337',
+                'satuan' => 'KG',
+                'jumlah' => 2,
                 'harga' => 78000.00
             ),
             array(
-                'kode_barang' => 'BRG2302339',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 180.00,
+                'kode_brg' => 'BRG2302339',
+                'satuan' => 'PACK',
+                'jumlah' => 180,
                 'harga' => 3243.25
             ),
             array(
-                'kode_barang' => 'BRG2302341',
-                'satuan' => 'LTR',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302341',
+                'satuan' => 'GLN',
+                'jumlah' => 3,
                 'harga' => 350343.00
             ),
             array(
-                'kode_barang' => 'BRG2302342',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 8.00,
+                'kode_brg' => 'BRG2302342',
+                'satuan' => 'BTL',
+                'jumlah' => 8,
                 'harga' => 27000.00
             ),
             array(
-                'kode_barang' => 'BRG2302343',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 9.00,
+                'kode_brg' => 'BRG2302343',
+                'satuan' => 'BTL',
+                'jumlah' => 9,
                 'harga' => 70000.00
             ),
             array(
-                'kode_barang' => 'BRG2302344',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302344',
+                'satuan' => 'BTL',
+                'jumlah' => 2,
                 'harga' => 93338.67
             ),
             array(
-                'kode_barang' => 'BRG2302347',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
+                'kode_brg' => 'BRG2302347',
+                'satuan' => 'KG',
                 'jumlah' => 8.58,
                 'harga' => 94170.00
             ),
             array(
-                'kode_barang' => 'BRG2302350',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 4.00,
+                'kode_brg' => 'BRG2302350',
+                'satuan' => 'BTL',
+                'jumlah' => 4,
                 'harga' => 31000.00
             ),
             array(
-                'kode_barang' => 'BRG2302351',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 18.00,
+                'kode_brg' => 'BRG2302351',
+                'satuan' => 'PACK',
+                'jumlah' => 18,
                 'harga' => 3500.00
             ),
             array(
-                'kode_barang' => 'BRG2302355',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302355',
+                'satuan' => 'PACK',
+                'jumlah' => 3,
                 'harga' => 9945.45
             ),
             array(
-                'kode_barang' => 'BRG2302571',
+                'kode_brg' => 'BRG2302571',
                 'satuan' => 'BTL',
-                'pengali' => 0,
-                'jumlah' => 168.00,
+                'jumlah' => 168,
                 'harga' => 4734.83
             ),
             array(
-                'kode_barang' => 'BRG2302357',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302357',
+                'satuan' => 'PACK',
+                'jumlah' => 2,
                 'harga' => 72500.00
             ),
             array(
-                'kode_barang' => 'BRG2302572',
+                'kode_brg' => 'BRG2302572',
                 'satuan' => 'BTL',
-                'pengali' => 0,
-                'jumlah' => 216.00,
+                'jumlah' => 216,
                 'harga' => 5930.58
             ),
             array(
-                'kode_barang' => 'BRG2302358',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 5.00,
+                'kode_brg' => 'BRG2302358',
+                'satuan' => 'BTL',
+                'jumlah' => 5,
                 'harga' => 15135.00
             ),
             array(
-                'kode_barang' => 'BRG2302359',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
+                'kode_brg' => 'BRG2302359',
+                'satuan' => 'KG',
                 'jumlah' => 1.25,
                 'harga' => 76000.00
             ),
             array(
-                'kode_barang' => 'BRG2302360',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302360',
+                'satuan' => 'KG',
+                'jumlah' => 1,
                 'harga' => 125000.00
             ),
             array(
-                'kode_barang' => 'BRG2302361',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302361',
+                'satuan' => 'BTL',
+                'jumlah' => 1,
                 'harga' => 27000.00
             ),
             array(
-                'kode_barang' => 'BRG2302366',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302366',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 320000.00
             ),
             array(
-                'kode_barang' => 'BRG2302369',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302369',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 72000.00
             ),
             array(
-                'kode_barang' => 'BRG2302373',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 10.00,
+                'kode_brg' => 'BRG2302373',
+                'satuan' => 'BTL',
+                'jumlah' => 10,
                 'harga' => 3000.00
             ),
             array(
-                'kode_barang' => 'BRG2302374',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 9.00,
+                'kode_brg' => 'BRG2302374',
+                'satuan' => 'BTL',
+                'jumlah' => 9,
                 'harga' => 3500.00
             ),
             array(
-                'kode_barang' => 'BRG2302375',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 6.00,
+                'kode_brg' => 'BRG2302375',
+                'satuan' => 'BTL',
+                'jumlah' => 6,
                 'harga' => 2500.00
             ),
             array(
-                'kode_barang' => 'BRG2302573',
+                'kode_brg' => 'BRG2302573',
                 'satuan' => 'BTL',
-                'pengali' => 0,
-                'jumlah' => 288.00,
+                'jumlah' => 288,
                 'harga' => 4527.04
             ),
             array(
-                'kode_barang' => 'BRG2302388',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 8.00,
+                'kode_brg' => 'BRG2302388',
+                'satuan' => 'BTL',
+                'jumlah' => 8,
                 'harga' => 30000.00
             ),
             array(
-                'kode_barang' => 'BRG2302389',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302389',
+                'satuan' => 'BTL',
+                'jumlah' => 3,
                 'harga' => 17340.33
             ),
             array(
-                'kode_barang' => 'BRG2302391',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302391',
+                'satuan' => 'KG',
+                'jumlah' => 1,
                 'harga' => 110000.00
             ),
             array(
-                'kode_barang' => 'BRG2302392',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302392',
+                'satuan' => 'PACK',
+                'jumlah' => 3,
                 'harga' => 57500.00
             ),
             array(
-                'kode_barang' => 'BRG2302393',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302393',
+                'satuan' => 'GLN',
+                'jumlah' => 3,
                 'harga' => 229730.00
             ),
             array(
-                'kode_barang' => 'BRG2302395',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 6.60,
+                'kode_brg' => 'BRG2302395',
+                'satuan' => 'KG',
+                'jumlah' => 6.6,
                 'harga' => 185000.00
             ),
             array(
-                'kode_barang' => 'BRG2302396',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 4.00,
+                'kode_brg' => 'BRG2302396',
+                'satuan' => 'CAN',
+                'jumlah' => 4,
                 'harga' => 16500.00
             ),
             array(
-                'kode_barang' => 'BRG2302584',
+                'kode_brg' => 'BRG2302584',
                 'satuan' => 'PACK',
-                'pengali' => 0,
-                'jumlah' => 100.00,
+                'jumlah' => 100,
                 'harga' => 29100.00
             ),
             array(
-                'kode_barang' => 'BRG2302587',
+                'kode_brg' => 'BRG2302587',
                 'satuan' => 'PACK',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'jumlah' => 3,
                 'harga' => 33525.00
             ),
             array(
-                'kode_barang' => 'BRG2302586',
+                'kode_brg' => 'BRG2302586',
                 'satuan' => 'PACK',
-                'pengali' => 0,
-                'jumlah' => 20.00,
+                'jumlah' => 20,
                 'harga' => 33525.00
             ),
             array(
-                'kode_barang' => 'BRG2302398',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302398',
+                'satuan' => 'PACK',
+                'jumlah' => 3,
                 'harga' => 36000.00
             ),
             array(
-                'kode_barang' => 'BRG2302400',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 11.00,
+                'kode_brg' => 'BRG2302400',
+                'satuan' => 'BTL',
+                'jumlah' => 11,
                 'harga' => 18500.00
             ),
             array(
-                'kode_barang' => 'BRG2302402',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 5.00,
+                'kode_brg' => 'BRG2302402',
+                'satuan' => 'BTL',
+                'jumlah' => 5,
                 'harga' => 22900.00
             ),
             array(
-                'kode_barang' => 'BRG2302403',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302403',
+                'satuan' => 'GLN',
+                'jumlah' => 3,
                 'harga' => 114507.06
             ),
             array(
-                'kode_barang' => 'BRG2302404',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 21.00,
+                'kode_brg' => 'BRG2302404',
+                'satuan' => 'PACK',
+                'jumlah' => 21,
                 'harga' => 5540.76
             ),
             array(
-                'kode_barang' => 'BRG2302406',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302406',
+                'satuan' => 'CAN',
+                'jumlah' => 3,
                 'harga' => 105000.00
             ),
             array(
-                'kode_barang' => 'BRG2302407',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302407',
+                'satuan' => 'GLN',
+                'jumlah' => 2,
                 'harga' => 81512.24
             ),
             array(
-                'kode_barang' => 'BRG2302408',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 15.00,
+                'kode_brg' => 'BRG2302408',
+                'satuan' => 'PACK',
+                'jumlah' => 15,
                 'harga' => 4568.70
             ),
             array(
-                'kode_barang' => 'BRG2302410',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 25.00,
+                'kode_brg' => 'BRG2302410',
+                'satuan' => 'PACK',
+                'jumlah' => 25,
                 'harga' => 47000.00
             ),
             array(
-                'kode_barang' => 'BRG2302425',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 3.50,
+                'kode_brg' => 'BRG2302425',
+                'satuan' => 'KG',
+                'jumlah' => 3.5,
                 'harga' => 10500.00
             ),
             array(
-                'kode_barang' => 'BRG2302437',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302437',
+                'satuan' => 'KG',
+                'jumlah' => 1,
                 'harga' => 29000.00
             ),
             array(
-                'kode_barang' => 'BRG2302575',
+                'kode_brg' => 'BRG2302575',
                 'satuan' => 'BTL',
-                'pengali' => 0,
-                'jumlah' => 96.00,
+                'jumlah' => 96,
                 'harga' => 2402.42
             ),
             array(
-                'kode_barang' => 'BRG2302438',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 5.00,
+                'kode_brg' => 'BRG2302438',
+                'satuan' => 'PACK',
+                'jumlah' => 5,
                 'harga' => 34000.00
             ),
             array(
-                'kode_barang' => 'BRG2302440',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302440',
+                'satuan' => 'BTL',
+                'jumlah' => 1,
                 'harga' => 26000.00
             ),
             array(
-                'kode_barang' => 'BRG2302441',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 8.00,
+                'kode_brg' => 'BRG2302441',
+                'satuan' => 'PACK',
+                'jumlah' => 8,
                 'harga' => 16900.00
             ),
             array(
-                'kode_barang' => 'BRG2302576',
+                'kode_brg' => 'BRG2302576',
                 'satuan' => 'CAN',
-                'pengali' => 0,
-                'jumlah' => 48.00,
+                'jumlah' => 48,
                 'harga' => 3941.46
             ),
             array(
-                'kode_barang' => 'BRG2302443',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302443',
+                'satuan' => 'KG',
+                'jumlah' => 2,
                 'harga' => 48500.00
             ),
             array(
-                'kode_barang' => 'BRG2302444',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 41.00,
+                'kode_brg' => 'BRG2302444',
+                'satuan' => 'PCS',
+                'jumlah' => 41,
                 'harga' => 1778.86
             ),
             array(
-                'kode_barang' => 'BRG2302445',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 16.00,
+                'kode_brg' => 'BRG2302445',
+                'satuan' => 'PACK',
+                'jumlah' => 16,
                 'harga' => 29090.93
             ),
             array(
-                'kode_barang' => 'BRG2302451',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302451',
+                'satuan' => 'BTL',
+                'jumlah' => 1,
                 'harga' => 33002.92
             ),
             array(
-                'kode_barang' => 'BRG2302453',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 1.00,
+                'kode_brg' => 'BRG2302453',
+                'satuan' => 'KG',
+                'jumlah' => 1,
                 'harga' => 58000.00
             ),
             array(
-                'kode_barang' => 'BRG2302454',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 95.00,
+                'kode_brg' => 'BRG2302454',
+                'satuan' => 'CAN',
+                'jumlah' => 95,
                 'harga' => 10876.38
             ),
             array(
-                'kode_barang' => 'BRG2302455',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 24.00,
+                'kode_brg' => 'BRG2302455',
+                'satuan' => 'CAN',
+                'jumlah' => 24,
                 'harga' => 10322.72
             ),
             array(
-                'kode_barang' => 'BRG2302456',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 6.00,
+                'kode_brg' => 'BRG2302456',
+                'satuan' => 'PACK',
+                'jumlah' => 6,
                 'harga' => 15000.00
             ),
             array(
-                'kode_barang' => 'BRG2302457',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 7.00,
+                'kode_brg' => 'BRG2302457',
+                'satuan' => 'CAN',
+                'jumlah' => 7,
                 'harga' => 19000.00
             ),
             array(
-                'kode_barang' => 'BRG2302458',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 10.00,
+                'kode_brg' => 'BRG2302458',
+                'satuan' => 'BTL',
+                'jumlah' => 10,
                 'harga' => 17900.00
             ),
             array(
-                'kode_barang' => 'BRG2302459',
+                'kode_brg' => 'BRG2302459',
                 'satuan' => 'PCS',
-                'pengali' => 0,
-                'jumlah' => 31.00,
+                'jumlah' => 31,
                 'harga' => 5400.00
             ),
             array(
-                'kode_barang' => 'BRG2302469',
-                'satuan' => 'SACT',
-                'pengali' => 0,
+                'kode_brg' => 'BRG2302469',
+                'satuan' => 'PACK',
                 'jumlah' => 21.15,
                 'harga' => 137633.01
             ),
             array(
-                'kode_barang' => 'BRG2302472',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 25.00,
+                'kode_brg' => 'BRG2302472',
+                'satuan' => 'KG',
+                'jumlah' => 25,
                 'harga' => 28000.00
             ),
             array(
-                'kode_barang' => 'BRG2302477',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
+                'kode_brg' => 'BRG2302477',
+                'satuan' => 'KG',
                 'jumlah' => 39.85,
                 'harga' => 138000.00
             ),
             array(
-                'kode_barang' => 'BRG2302479',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.50,
+                'kode_brg' => 'BRG2302479',
+                'satuan' => 'KG',
+                'jumlah' => 2.5,
                 'harga' => 15000.00
             ),
             array(
-                'kode_barang' => 'BRG2302480',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 6.00,
+                'kode_brg' => 'BRG2302480',
+                'satuan' => 'KG',
+                'jumlah' => 6,
                 'harga' => 12500.00
             ),
             array(
-                'kode_barang' => 'BRG2302483',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 6.00,
+                'kode_brg' => 'BRG2302483',
+                'satuan' => 'PACK',
+                'jumlah' => 6,
                 'harga' => 12000.00
             ),
             array(
-                'kode_barang' => 'BRG2302484',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
+                'kode_brg' => 'BRG2302484',
+                'satuan' => 'KG',
                 'jumlah' => 7.75,
                 'harga' => 19090.00
             ),
             array(
-                'kode_barang' => 'BRG2302485',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 13.00,
+                'kode_brg' => 'BRG2302485',
+                'satuan' => 'KG',
+                'jumlah' => 13,
                 'harga' => 14500.00
             ),
             array(
-                'kode_barang' => 'BRG2302486',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 23.00,
+                'kode_brg' => 'BRG2302486',
+                'satuan' => 'KG',
+                'jumlah' => 23,
                 'harga' => 14000.00
             ),
             array(
-                'kode_barang' => 'BRG2302489',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302489',
+                'satuan' => 'PACK',
+                'jumlah' => 3,
                 'harga' => 35000.00
             ),
             array(
-                'kode_barang' => 'BRG2302490',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302490',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 110000.00
             ),
             array(
-                'kode_barang' => 'BRG2302502',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.00,
+                'kode_brg' => 'BRG2302502',
+                'satuan' => 'PACK',
+                'jumlah' => 2,
                 'harga' => 8000.00
             ),
             array(
-                'kode_barang' => 'BRG2302508',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 4.00,
+                'kode_brg' => 'BRG2302508',
+                'satuan' => 'CAN',
+                'jumlah' => 4,
                 'harga' => 18500.00
             ),
             array(
-                'kode_barang' => 'BRG2302552',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 2.50,
+                'kode_brg' => 'BRG2302552',
+                'satuan' => 'KG',
+                'jumlah' => 2.5,
                 'harga' => 24000.00
             ),
             array(
-                'kode_barang' => 'BRG2302509',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302509',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 95000.00
             ),
             array(
-                'kode_barang' => 'BRG2302516',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 10.00,
+                'kode_brg' => 'BRG2302516',
+                'satuan' => 'KG',
+                'jumlah' => 10,
                 'harga' => 130000.00
             ),
             array(
-                'kode_barang' => 'BRG2302524',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 16.00,
+                'kode_brg' => 'BRG2302524',
+                'satuan' => 'BTL',
+                'jumlah' => 16,
                 'harga' => 6000.00
             ),
             array(
-                'kode_barang' => 'BRG2302525',
-                'satuan' => 'ML',
-                'pengali' => 0,
-                'jumlah' => 3.00,
+                'kode_brg' => 'BRG2302525',
+                'satuan' => 'BTL',
+                'jumlah' => 3,
                 'harga' => 12000.00
             ),
             array(
-                'kode_barang' => 'BRG2302542',
-                'satuan' => 'GRAM',
-                'pengali' => 0,
-                'jumlah' => 0.50,
+                'kode_brg' => 'BRG2302542',
+                'satuan' => 'KG',
+                'jumlah' => 0.5,
                 'harga' => 55000.00
             ),
         );
@@ -1703,23 +1512,23 @@ class StokOpname extends Public_Controller {
         $idx_barang_tidak_ditemukan = 0;
         foreach ($data as $k_data => $v_data) {
             $m_item = new \Model\Storage\Item_model();
-            $d_item = $m_item->where('kode', $v_data['kode_barang'])->first();
+            $d_item = $m_item->where('kode', $v_data['kode_brg'])->first();
 
             $m_is = new \Model\Storage\ItemSatuan_model();
-            $d_is = $m_is->where('item_kode', $v_data['kode_barang'])->where('satuan', $v_data['satuan'])->first();
+            $d_is = $m_is->where('item_kode', $v_data['kode_brg'])->where('satuan', $v_data['satuan'])->first();
 
             if ( !$d_item || !$d_is ) {
-                cetak_r('KODE : '.$v_data['kode_barang']);
-                cetak_r('KODE : '.$v_data['kode_barang'].' | SATUAN : '.$v_data['satuan']);
+                cetak_r('NAMA : '.$d_item->nama);
+                cetak_r('KODE : '.$v_data['kode_brg'].' | SATUAN : '.$v_data['satuan']);
 
                 if ( $keterangan_barang != '' ) {
                     $keterangan_barang .= '<br>';
                 }
                 if ( !$d_item ) {
-                    $keterangan_barang .= 'KODE : '.$v_data['kode_barang'];
+                    $keterangan_barang .= 'KODE : '.$v_data['kode_brg'];
                 }
                 if ( !$d_item ) {
-                    $keterangan_barang .= 'KODE : '.$v_data['kode_barang'].' | SATUAN : '.$v_data['satuan'];
+                    $keterangan_barang .= 'KODE : '.$v_data['kode_brg'].' | SATUAN : '.$v_data['satuan'];
                 }
 
                 $idx_barang_tidak_ditemukan++;
@@ -1733,72 +1542,72 @@ class StokOpname extends Public_Controller {
 
             echo $keterangan_barang;
         } else {
-            // cetak_r('lengkap');
-            $m_so = new \Model\Storage\StokOpname_model();
+            cetak_r('lengkap');
+            // $m_so = new \Model\Storage\StokOpname_model();
 
-            $kode_stok_opname = $m_so->getNextIdRibuan();
+            // $kode_stok_opname = $m_so->getNextIdRibuan();
 
-            $m_so->tanggal = '2023-07-01';
-            $m_so->gudang_kode = 'GDG-PUSAT';
-            $m_so->kode_stok_opname = $kode_stok_opname;
-            $m_so->save();
+            // $m_so->tanggal = '2023-07-01';
+            // $m_so->gudang_kode = 'GDG-PUSAT';
+            // $m_so->kode_stok_opname = $kode_stok_opname;
+            // $m_so->save();
 
-            foreach ($data as $k_li => $v_li) {
-                $m_sod = new \Model\Storage\StokOpnameDet_model();
-                $m_sod->id_header = $m_so->id;
-                $m_sod->item_kode = $v_li['kode_barang'];
-                $m_sod->satuan = $v_li['satuan'];
-                $m_sod->pengali = $v_li['pengali'];
-                $m_sod->jumlah = $v_li['jumlah'];
-                $m_sod->harga = $v_li['harga'];
-                $m_sod->save();
-            }
+            // foreach ($data as $k_li => $v_li) {
+            //     $m_sod = new \Model\Storage\StokOpnameDet_model();
+            //     $m_sod->id_header = $m_so->id;
+            //     $m_sod->item_kode = $v_li['kode_brg'];
+            //     $m_sod->satuan = $v_li['satuan'];
+            //     $m_sod->pengali = $v_li['pengali'];
+            //     $m_sod->jumlah = $v_li['jumlah'];
+            //     $m_sod->harga = $v_li['harga'];
+            //     $m_sod->save();
+            // }
 
-            $kode = $kode_stok_opname;
+            // $kode = $kode_stok_opname;
 
-            $m_conf = new \Model\Storage\Conf();
+            // $m_conf = new \Model\Storage\Conf();
 
-            $tgl_transaksi = null;
-            $gudang = null;
-            $barang = null;
+            // $tgl_transaksi = null;
+            // $gudang = null;
+            // $barang = null;
 
-            $sql_tgl_dan_gudang = "
-                select so.* from stok_opname so
-                where
-                    so.kode_stok_opname = '".$kode."'
-            ";
-            $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
-            if ( $d_tgl_dan_gudang->count() > 0 ) {
-                $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
-                $tgl_transaksi = $d_tgl_dan_gudang['tanggal'];
-                $gudang = $d_tgl_dan_gudang['gudang_kode'];
-            }
+            // $sql_tgl_dan_gudang = "
+            //     select so.* from stok_opname so
+            //     where
+            //         so.kode_stok_opname = '".$kode."'
+            // ";
+            // $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
+            // if ( $d_tgl_dan_gudang->count() > 0 ) {
+            //     $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
+            //     $tgl_transaksi = $d_tgl_dan_gudang['tanggal'];
+            //     $gudang = $d_tgl_dan_gudang['gudang_kode'];
+            // }
 
-            $sql_barang = "
-                select so.tanggal, sod.item_kode from stok_opname_det sod
-                right join
-                    stok_opname so
-                    on
-                        so.id = sod.id_header
-                where
-                    so.kode_stok_opname = '".$kode."' and
-                    sod.jumlah > 0
-                group by
-                    so.tanggal,
-                    sod.item_kode
-            ";
-            $d_barang = $m_conf->hydrateRaw( $sql_barang );
-            if ( $d_barang->count() > 0 ) {
-                $d_barang = $d_barang->toArray();
+            // $sql_barang = "
+            //     select so.tanggal, sod.item_kode from stok_opname_det sod
+            //     right join
+            //         stok_opname so
+            //         on
+            //             so.id = sod.id_header
+            //     where
+            //         so.kode_stok_opname = '".$kode."' and
+            //         sod.jumlah > 0
+            //     group by
+            //         so.tanggal,
+            //         sod.item_kode
+            // ";
+            // $d_barang = $m_conf->hydrateRaw( $sql_barang );
+            // if ( $d_barang->count() > 0 ) {
+            //     $d_barang = $d_barang->toArray();
 
-                foreach ($d_barang as $key => $value) {
-                    $barang[] = $value['item_kode'];
-                }
-            }
+            //     foreach ($d_barang as $key => $value) {
+            //         $barang[] = $value['item_kode'];
+            //     }
+            // }
 
-            $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
+            // $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
 
-            $d_conf = $m_conf->hydrateRaw($sql);
+            // $d_conf = $m_conf->hydrateRaw($sql);
         }
     }
 }
