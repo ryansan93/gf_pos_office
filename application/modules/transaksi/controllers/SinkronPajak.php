@@ -266,8 +266,8 @@ class SinkronPajak extends Public_Controller {
 
             $data_real = $this->getData($kode_branch, $start_date, $end_date);
 
-            $m_jual = new \Model\Storage\Pajak\Jual_model();
-            $d_pajak = $m_jual->whereBetween('TGL_TRANSAKSI', [$start_date, $end_date])->orderBy('NO_BILL', 'asc')->get();
+            // $m_jual = new \Model\Storage\Pajak\Jual_model();
+            // $d_pajak = $m_jual->whereBetween('TGL_TRANSAKSI', [$start_date, $end_date])->orderBy('NO_BILL', 'asc')->get();
 
             $m_conf = new \Model\Storage\Pajak\ConfPajak();
             $sql = "
@@ -277,7 +277,12 @@ class SinkronPajak extends Public_Controller {
                     on
                         g_jual.NO_BILL = gf_jual.kode_faktur
                 where
-                    gf_jual.branch = '".$kode_branch."'
+                    gf_jual.branch = '".$kode_branch."' and
+                    g_jual.TGL_TRANSAKSI BETWEEN '".$start_date."' and '".$end_date."' and
+                    g_jual.NO_BILL is not null
+
+                order by
+                    g_jual.NO_BILL
             ";
             $d_pajak = $m_conf->hydrateRaw( $sql );
 
