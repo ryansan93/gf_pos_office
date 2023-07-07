@@ -244,60 +244,62 @@ class PosisiStok extends Public_Controller {
                         ksort( $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'] );
                         ksort( $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'] );
                     }
-                } else {
-                    foreach ($_item as $k_item => $v_item) {
-                        $conf = new \Model\Storage\Conf();
-                        $sql = "
-                            select top 1
-                                i.kode,
-                                i.nama,
-                                i.group_kode,
-                                gi.nama as group_nama,
-                                st.satuan
-                            from item i
-                            right join
-                                group_item gi
-                                on
-                                    i.group_kode = gi.kode
-                            left join
-                                item_satuan st
-                                on
-                                    st.item_kode = i.kode
-                            where
-                                i.kode = '".$v_item."' and
-                                st.pengali = 1
-                        ";
-                        $d_item = $conf->hydrateRaw($sql);
+                }
+                
+                foreach ($_item as $k_item => $v_item) {
+                    $conf = new \Model\Storage\Conf();
+                    $sql = "
+                        select top 1
+                            i.kode,
+                            i.nama,
+                            i.group_kode,
+                            gi.nama as group_nama,
+                            st.satuan
+                        from item i
+                        right join
+                            group_item gi
+                            on
+                                i.group_kode = gi.kode
+                        left join
+                            item_satuan st
+                            on
+                                st.item_kode = i.kode
+                        where
+                            i.kode = '".$v_item."' and
+                            st.pengali = 1
+                    ";
+                    $d_item = $conf->hydrateRaw($sql);
 
-                        $nama_item = null;
-                        $satuan = null;
-                        $group_kode = null;
-                        $group_nama = null;
-                        if ( $d_item->count() > 0 ) {
-                            $nama_item = $d_item->toArray()[0]['nama'];
-                            $satuan = $d_item->toArray()[0]['satuan'];
-                            $group_kode = $d_item->toArray()[0]['group_kode'];
-                            $group_nama = $d_item->toArray()[0]['group_nama'];
-                        }
+                    $nama_item = null;
+                    $satuan = null;
+                    $group_kode = null;
+                    $group_nama = null;
+                    if ( $d_item->count() > 0 ) {
+                        $nama_item = $d_item->toArray()[0]['nama'];
+                        $satuan = $d_item->toArray()[0]['satuan'];
+                        $group_kode = $d_item->toArray()[0]['group_kode'];
+                        $group_nama = $d_item->toArray()[0]['group_nama'];
+                    }
 
-                        $conf = new \Model\Storage\Conf();
-                        $sql = "
-                            select top 1
-                                * 
-                            from stok_harga sh
-                            where
-                                sh.id_header = ".$id_stok_tanggal." and
-                                sh.item_kode = '".$v_item."'
-                        ";
-                        $d_harga = $conf->hydrateRaw($sql);
+                    $conf = new \Model\Storage\Conf();
+                    $sql = "
+                        select top 1
+                            * 
+                        from stok_harga sh
+                        where
+                            sh.id_header = ".$id_stok_tanggal." and
+                            sh.item_kode = '".$v_item."'
+                    ";
+                    $d_harga = $conf->hydrateRaw($sql);
 
-                        $harga = 0;
-                        if ( $d_harga->count() > 0 ) {
-                            $harga = $d_harga->toArray()[0]['harga'];
-                        }
+                    $harga = 0;
+                    if ( $d_harga->count() > 0 ) {
+                        $harga = $d_harga->toArray()[0]['harga'];
+                    }
 
-                        $key_item = $nama_item.' | '.$v_item;
+                    $key_item = $nama_item.' | '.$v_item;
 
+                    if ( !isset($data[ $v_data['gudang_kode'] ]['group_item'][ $group_kode ]['detail'][ $key_item ]) ) {
                         $data[ $v_data['gudang_kode'] ]['group_item'][ $group_kode ]['kode'] = $group_kode;
                         $data[ $v_data['gudang_kode'] ]['group_item'][ $group_kode ]['nama'] = $group_nama;
 
