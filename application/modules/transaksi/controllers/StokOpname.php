@@ -883,7 +883,7 @@ class StokOpname extends Public_Controller {
 
         $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
 
-        // cetak_r( $sql, 1 );
+        cetak_r( $sql, 1 );
 
         $d_conf = $m_conf->hydrateRaw($sql);
     }
