@@ -384,18 +384,68 @@ class StokOpname extends Public_Controller {
             $gudang = $d_tgl_dan_gudang['gudang_kode'];
         }
 
+        // $sql_barang = "
+        //     select so.tanggal, sod.item_kode from stok_opname_det sod
+        //     right join
+        //         stok_opname so
+        //         on
+        //             so.id = sod.id_header
+        //     where
+        //         so.kode_stok_opname = '".$kode."' and
+        //         sod.jumlah > 0
+        //     group by
+        //         so.tanggal,
+        //         sod.item_kode
+        // ";
         $sql_barang = "
-            select so.tanggal, sod.item_kode from stok_opname_det sod
+            select 
+                i.kode,
+                i.nama,
+                gi.nama as nama_group,
+                sh.harga,
+                s.jumlah
+            from item i
             right join
-                stok_opname so
+                group_item gi
                 on
-                    so.id = sod.id_header
+                    i.group_kode = gi.kode
+            left join
+                (
+                    select st.id, st.gudang_kode, s.item_kode, sum(s.jumlah) as jumlah from stok s
+                    right join
+                        (
+                            select top 1 * from stok_tanggal where gudang_kode = 'GDG-PUSAT' and tanggal <= GETDATE() order by tanggal desc
+                        ) st
+                        on
+                            s.id_header = st.id
+                    group by
+                        st.id,
+                        st.gudang_kode, 
+                        s.item_kode
+                ) s
+                on
+                    i.kode = s.item_kode
+            left join
+                (
+                    select st.id, st.gudang_kode, sh.item_kode, sh.harga from stok_harga sh
+                    right join
+                        (
+                            select top 1 * from stok_tanggal where gudang_kode = 'GDG-PUSAT' and tanggal <= GETDATE() order by tanggal desc
+                        ) st
+                        on
+                            sh.id_header = st.id
+                    group by
+                        st.id, 
+                        st.gudang_kode, 
+                        sh.item_kode, 
+                        sh.harga
+                ) sh
+                on
+                    sh.item_kode = i.kode
             where
-                so.kode_stok_opname = '".$kode."' and
-                sod.jumlah > 0
-            group by
-                so.tanggal,
-                sod.item_kode
+                i.kode = '".$kode."'
+            order by
+                i.nama asc
         ";
         $d_barang = $m_conf->hydrateRaw( $sql_barang );
         if ( $d_barang->count() > 0 ) {
