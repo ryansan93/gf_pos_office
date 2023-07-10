@@ -364,7 +364,7 @@ class StokOpname extends Public_Controller {
 
     public function tes()
     {
-        $kode = 'SO23060001';
+        $kode = 'SO23070005';
 
         $m_conf = new \Model\Storage\Conf();
 
@@ -406,9 +406,9 @@ class StokOpname extends Public_Controller {
             }
         }
 
-        cetak_r($tgl_transaksi);
-        cetak_r($gudang);
-        cetak_r($barang);
+        $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
+
+        $d_conf = $m_conf->hydrateRaw($sql);
     }
 
     public function injekStokOpname()
