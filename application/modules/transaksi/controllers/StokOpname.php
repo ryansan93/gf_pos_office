@@ -119,12 +119,49 @@ class StokOpname extends Public_Controller {
         }
 
         $m_conf = new \Model\Storage\Conf();
+        // $sql = "
+        //     select 
+        //         i.kode,
+        //         i.nama,
+        //         gi.nama as nama_group,
+        //         s.harga,
+        //         s.jumlah
+        //     from item i
+        //     right join
+        //         group_item gi
+        //         on
+        //             i.group_kode = gi.kode
+        //     left join
+        //         (
+        //             select s.gudang_kode, s.item_kode, sum(s.jumlah) as jumlah, sh.harga from stok s
+        //             right join
+        //                 (
+        //                     select top 1 * from stok_tanggal where gudang_kode = '".$gudang_kode."' and tanggal <= GETDATE() order by tanggal desc
+        //                 ) st
+        //                 on
+        //                     s.id_header = st.id
+        //             left join
+        //                 stok_harga sh
+        //                 on
+        //                     sh.id_header = st.id and
+        //                     sh.item_kode = s.item_kode
+        //             group by
+        //                 s.gudang_kode, 
+        //                 s.item_kode,
+        //                 sh.harga
+        //         ) s
+        //         on
+        //             i.kode = s.item_kode
+        //     ".$sql_group_item."
+        //     order by
+        //         i.nama asc
+        // ";
         $sql = "
             select 
                 i.kode,
                 i.nama,
                 gi.nama as nama_group,
-                s.harga,
+                sh.harga,
                 s.jumlah
             from item i
             right join
@@ -133,25 +170,37 @@ class StokOpname extends Public_Controller {
                     i.group_kode = gi.kode
             left join
                 (
-                    select s.gudang_kode, s.item_kode, sum(s.jumlah) as jumlah, sh.harga from stok s
+                    select st.id, st.gudang_kode, s.item_kode, sum(s.jumlah) as jumlah from stok s
                     right join
                         (
-                            select top 1 * from stok_tanggal where gudang_kode = '".$gudang_kode."' and tanggal <= GETDATE() order by tanggal desc
+                            select top 1 * from stok_tanggal where gudang_kode = 'GDG-PUSAT' and tanggal <= GETDATE() order by tanggal desc
                         ) st
                         on
                             s.id_header = st.id
-                    left join
-                        stok_harga sh
-                        on
-                            sh.id_header = st.id and
-                            sh.item_kode = s.item_kode
                     group by
-                        s.gudang_kode, 
-                        s.item_kode,
-                        sh.harga
+                        st.id,
+                        st.gudang_kode, 
+                        s.item_kode
                 ) s
                 on
                     i.kode = s.item_kode
+            left join
+                (
+                    select st.id, st.gudang_kode, sh.item_kode, sh.harga from stok_harga sh
+                    right join
+                        (
+                            select top 1 * from stok_tanggal where gudang_kode = 'GDG-PUSAT' and tanggal <= GETDATE() order by tanggal desc
+                        ) st
+                        on
+                            sh.id_header = st.id
+                    group by
+                        st.id, 
+                        st.gudang_kode, 
+                        sh.item_kode, 
+                        sh.harga
+                ) sh
+                on
+                    sh.item_kode = i.kode
             ".$sql_group_item."
             order by
                 i.nama asc
@@ -384,68 +433,18 @@ class StokOpname extends Public_Controller {
             $gudang = $d_tgl_dan_gudang['gudang_kode'];
         }
 
-        // $sql_barang = "
-        //     select so.tanggal, sod.item_kode from stok_opname_det sod
-        //     right join
-        //         stok_opname so
-        //         on
-        //             so.id = sod.id_header
-        //     where
-        //         so.kode_stok_opname = '".$kode."' and
-        //         sod.jumlah > 0
-        //     group by
-        //         so.tanggal,
-        //         sod.item_kode
-        // ";
         $sql_barang = "
-            select 
-                i.kode,
-                i.nama,
-                gi.nama as nama_group,
-                sh.harga,
-                s.jumlah
-            from item i
+            select so.tanggal, sod.item_kode from stok_opname_det sod
             right join
-                group_item gi
+                stok_opname so
                 on
-                    i.group_kode = gi.kode
-            left join
-                (
-                    select st.id, st.gudang_kode, s.item_kode, sum(s.jumlah) as jumlah from stok s
-                    right join
-                        (
-                            select top 1 * from stok_tanggal where gudang_kode = 'GDG-PUSAT' and tanggal <= GETDATE() order by tanggal desc
-                        ) st
-                        on
-                            s.id_header = st.id
-                    group by
-                        st.id,
-                        st.gudang_kode, 
-                        s.item_kode
-                ) s
-                on
-                    i.kode = s.item_kode
-            left join
-                (
-                    select st.id, st.gudang_kode, sh.item_kode, sh.harga from stok_harga sh
-                    right join
-                        (
-                            select top 1 * from stok_tanggal where gudang_kode = 'GDG-PUSAT' and tanggal <= GETDATE() order by tanggal desc
-                        ) st
-                        on
-                            sh.id_header = st.id
-                    group by
-                        st.id, 
-                        st.gudang_kode, 
-                        sh.item_kode, 
-                        sh.harga
-                ) sh
-                on
-                    sh.item_kode = i.kode
+                    so.id = sod.id_header
             where
-                i.kode = '".$kode."'
-            order by
-                i.nama asc
+                so.kode_stok_opname = '".$kode."' and
+                sod.jumlah > 0
+            group by
+                so.tanggal,
+                sod.item_kode
         ";
         $d_barang = $m_conf->hydrateRaw( $sql_barang );
         if ( $d_barang->count() > 0 ) {
