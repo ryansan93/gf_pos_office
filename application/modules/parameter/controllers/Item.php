@@ -77,13 +77,14 @@ class Item extends Public_Controller {
             $d_item_kode = $m_item->where('kode', $params['kode'])->first();
 
             if ( !$d_item_kode ) {
-                // $kode = $m_item->getNextId();
+                $kode = $m_item->getNextId();
 
-                $m_item->kode = $params['kode'];
+                $m_item->kode = $kode;
                 $m_item->nama = $params['nama'];
                 $m_item->brand = $params['brand'];
                 $m_item->group_kode = $params['group'];
                 $m_item->keterangan = $params['keterangan'];
+                $m_item->kode_text = $params['kode'];
                 $m_item->save();
 
                 foreach ($params['satuan'] as $k_satuan => $v_satuan) {
