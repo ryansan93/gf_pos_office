@@ -5,7 +5,7 @@ use \Model\Storage\Conf as Conf;
 class Item_model extends Conf {
 	protected $table = 'item';
 	protected $primaryKey = 'kode';
-	protected $kodeTable = 'ITM';
+	protected $kodeTable = 'BRG';
     public $timestamps = false;
 
     public function group()

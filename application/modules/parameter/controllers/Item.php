@@ -89,7 +89,7 @@ class Item extends Public_Controller {
 
                 foreach ($params['satuan'] as $k_satuan => $v_satuan) {
                     $m_is = new \Model\Storage\ItemSatuan_model();
-                    $m_is->item_kode = $params['kode'];
+                    $m_is->item_kode = $kode;
                     $m_is->satuan = $v_satuan['satuan'];
                     $m_is->pengali = $v_satuan['pengali'];
                     $m_is->save();
