@@ -887,11 +887,13 @@ class StokOpname extends Public_Controller {
             $d_sod = $m_sod->where('id_header', $d_so->id)->where('item_kode', $v_li[0])->first();
 
             $m_is = new \Model\Storage\ItemSatuan_model();
-            $d_is = $m_is->where('item_kode', $v_li[0])->where('satuan', 'like', $v_li['1'])->first();
+            $d_is = $m_is->where('item_kode', $v_li[0])->where('satuan', 'like', $v_li[1])->first();
 
             $pengali = 0;
             if ( $d_is ) {
                 $pengali = $d_is->pengali;
+            } else {
+                cetak_r( $v_li[0].' -> '.$v_li[1] );
             }
 
             if ( $d_sod ) {
@@ -900,13 +902,12 @@ class StokOpname extends Public_Controller {
 
             $m_sod = new \Model\Storage\StokOpnameDet_model();
             $m_sod->id_header = $d_so->id;
-            $m_sod->item_kode = $v_li['0'];
-            $m_sod->satuan = $v_li['1'];
+            $m_sod->item_kode = $v_li[0];
+            $m_sod->satuan = $v_li[1];
             $m_sod->pengali = $pengali;
-            $m_sod->jumlah = $v_li['2'];
-            $m_sod->harga = $v_li['3'];
+            $m_sod->jumlah = $v_li[2];
+            $m_sod->harga = $v_li[3];
             $m_sod->save();
-
         }
 
         // $m_conf = new \Model\Storage\Conf();
