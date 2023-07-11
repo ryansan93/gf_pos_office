@@ -902,7 +902,7 @@ class StokOpname extends Public_Controller {
             $m_sod->id_header = $d_so->id;
             $m_sod->item_kode = $v_li['0'];
             $m_sod->satuan = $v_li['1'];
-            $m_sod->pengali = $v_li['pengali'];
+            $m_sod->pengali = $pengali;
             $m_sod->jumlah = $v_li['2'];
             $m_sod->harga = $v_li['3'];
             $m_sod->save();
