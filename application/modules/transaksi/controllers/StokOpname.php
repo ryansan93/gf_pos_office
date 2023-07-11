@@ -878,79 +878,78 @@ class StokOpname extends Public_Controller {
         
         $kode = 'SO23070005';
 
-        $m_so = new \Model\Storage\StokOpname_model();
-        $d_so = $m_so->where('kode_stok_opname', $kode)->first();
+        // $m_so = new \Model\Storage\StokOpname_model();
+        // $d_so = $m_so->where('kode_stok_opname', $kode)->first();
 
-        foreach ($data as $k_li => $v_li) {
-            $m_sod = new \Model\Storage\StokOpnameDet_model();
-            $d_sod = $m_sod->where('id_header', $d_so->id)->where('item_kode', $v_li[0])->first();
+        // foreach ($data as $k_li => $v_li) {
+        //     $m_sod = new \Model\Storage\StokOpnameDet_model();
+        //     $d_sod = $m_sod->where('id_header', $d_so->id)->where('item_kode', $v_li[0])->first();
 
-            $m_is = new \Model\Storage\ItemSatuan_model();
-            $d_is = $m_is->where('item_kode', $v_li[0])->where('satuan', 'like', $v_li[1])->first();
+        //     $m_is = new \Model\Storage\ItemSatuan_model();
+        //     $d_is = $m_is->where('item_kode', $v_li[0])->where('satuan', 'like', $v_li[1])->first();
 
-            $pengali = 0;
-            if ( $d_is ) {
-                $pengali = $d_is->pengali;
-            } else {
-                cetak_r( $v_li[0].' -> '.$v_li[1] );
-            }
+        //     $pengali = 0;
+        //     if ( $d_is ) {
+        //         $pengali = $d_is->pengali;
+        //     } else {
+        //         cetak_r( $v_li[0].' -> '.$v_li[1] );
+        //     }
 
-            if ( $d_sod ) {
-                $m_sod->where('id_header', $d_so->id)->where('item_kode', $v_li[0])->delete();
-            }
+        //     if ( $d_sod ) {
+        //         $m_sod->where('id_header', $d_so->id)->where('item_kode', $v_li[0])->delete();
+        //     }
 
-            $m_sod = new \Model\Storage\StokOpnameDet_model();
-            $m_sod->id_header = $d_so->id;
-            $m_sod->item_kode = $v_li[0];
-            $m_sod->satuan = $v_li[1];
-            $m_sod->pengali = $pengali;
-            $m_sod->jumlah = $v_li[2];
-            $m_sod->harga = $v_li[3];
-            $m_sod->save();
+        //     $m_sod = new \Model\Storage\StokOpnameDet_model();
+        //     $m_sod->id_header = $d_so->id;
+        //     $m_sod->item_kode = $v_li[0];
+        //     $m_sod->satuan = $v_li[1];
+        //     $m_sod->pengali = $pengali;
+        //     $m_sod->jumlah = $v_li[2];
+        //     $m_sod->harga = $v_li[3];
+        //     $m_sod->save();
+        // }
+
+        $m_conf = new \Model\Storage\Conf();
+
+        $tgl_transaksi = null;
+        $gudang = null;
+        $barang = null;
+
+        $sql_tgl_dan_gudang = "
+            select so.* from stok_opname so
+            where
+                so.kode_stok_opname = '".$kode."'
+        ";
+        $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
+        if ( $d_tgl_dan_gudang->count() > 0 ) {
+            $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
+            $tgl_transaksi = $d_tgl_dan_gudang['tanggal'];
+            $gudang = $d_tgl_dan_gudang['gudang_kode'];
         }
 
-        // $m_conf = new \Model\Storage\Conf();
+        $sql_barang = "
+            select so.tanggal, sod.item_kode from stok_opname_det sod
+            right join
+                stok_opname so
+                on
+                    so.id = sod.id_header
+            where
+                so.kode_stok_opname = '".$kode."'
+            group by
+                so.tanggal,
+                sod.item_kode
+        ";
+        $d_barang = $m_conf->hydrateRaw( $sql_barang );
+        if ( $d_barang->count() > 0 ) {
+            $d_barang = $d_barang->toArray();
 
-        // $tgl_transaksi = null;
-        // $gudang = null;
-        // $barang = null;
+            foreach ($d_barang as $key => $value) {
+                $barang[] = $value['item_kode'];
+            }
+        }
 
-        // $sql_tgl_dan_gudang = "
-        //     select so.* from stok_opname so
-        //     where
-        //         so.kode_stok_opname = '".$kode."'
-        // ";
-        // $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
-        // if ( $d_tgl_dan_gudang->count() > 0 ) {
-        //     $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
-        //     $tgl_transaksi = $d_tgl_dan_gudang['tanggal'];
-        //     $gudang = $d_tgl_dan_gudang['gudang_kode'];
-        // }
+        $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
 
-        // $sql_barang = "
-        //     select so.tanggal, sod.item_kode from stok_opname_det sod
-        //     right join
-        //         stok_opname so
-        //         on
-        //             so.id = sod.id_header
-        //     where
-        //         so.kode_stok_opname = '".$kode."' and
-        //         sod.jumlah > 0
-        //     group by
-        //         so.tanggal,
-        //         sod.item_kode
-        // ";
-        // $d_barang = $m_conf->hydrateRaw( $sql_barang );
-        // if ( $d_barang->count() > 0 ) {
-        //     $d_barang = $d_barang->toArray();
-
-        //     foreach ($d_barang as $key => $value) {
-        //         $barang[] = $value['item_kode'];
-        //     }
-        // }
-
-        // $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
-
-        // $d_conf = $m_conf->hydrateRaw($sql);
+        $d_conf = $m_conf->hydrateRaw($sql);
     }
 }
