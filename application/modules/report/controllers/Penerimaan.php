@@ -131,7 +131,13 @@ class Penerimaan extends Public_Controller {
 
         $data = null;
         if ( $d_terima->count() > 0 ) {
-            $data = $d_terima->toArray();
+            $d_terima = $d_terima->toArray();
+
+            foreach ($d_terima as $key => $value) {
+                $data[ $value['tgl_terima'] ]['tgl_terima'] = $value['tgl_terima'];
+                $data[ $value['tgl_terima'] ]['detail'][ $value['kode_terima'] ]['kode'] = $value['kode_terima'];
+                $data[ $value['tgl_terima'] ]['detail'][ $value['kode_terima'] ]['detail'][] = $value;
+            }
         }
 
         return $data;
