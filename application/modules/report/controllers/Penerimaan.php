@@ -124,6 +124,7 @@ class Penerimaan extends Public_Controller {
                 ".$sql_supplier."
             order by
                 t.tgl_terima asc,
+                t.kode_terima asc,
                 i.nama asc
         ";
         $d_terima = $m_conf->hydrateRaw( $sql );
