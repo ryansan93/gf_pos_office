@@ -156,13 +156,17 @@ class PosisiStok extends Public_Controller {
                     select 
                         s.id_header,
                         s.item_kode,
-                        s.tanggal,
+                        st.tanggal,
                         sum(s.sisa_stok) as sisa_stok,
                         i.nama as nama,
                         i.group_kode,
                         gi.nama as nama_group,
                         isatuan.satuan
                     from stok s
+                    right join
+                        stok_tanggal st
+                        on
+                            s.id_header = st.id
                     right join
                         item i
                         on
@@ -192,7 +196,7 @@ class PosisiStok extends Public_Controller {
                     group by
                         s.id_header,
                         s.item_kode,
-                        s.tanggal,
+                        st.tanggal,
                         i.nama,
                         i.group_kode,
                         gi.nama,
@@ -234,9 +238,9 @@ class PosisiStok extends Public_Controller {
                         $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['nama'] = $v_det['nama'];
                         $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['satuan'] = $v_det['satuan'];
 
-                        $key_tanggal = str_replace('-', '', substr($v_det['tanggal'], 0, 10));
+                        $key_tanggal = str_replace('-', '', substr($v_data['tanggal'], 0, 10));
 
-                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['tanggal'] = $v_det['tanggal'];
+                        $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['tanggal'] = $v_data['tanggal'];
                         $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['jumlah'] = $v_det['sisa_stok'];
                         $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['harga'] = $harga_beli;
                         $data[ $v_data['gudang_kode'] ]['group_item'][ $v_det['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['nilai_stok'] = $v_det['sisa_stok'] * $harga_beli;
