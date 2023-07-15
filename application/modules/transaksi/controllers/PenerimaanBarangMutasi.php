@@ -451,7 +451,7 @@ class PenerimaanBarangMutasi extends Public_Controller {
 
     public function tes()
     {
-        $kode = 'MT23070006';
+        $kode = 'MT23070004';
 
         $m_conf = new \Model\Storage\Conf();
 
