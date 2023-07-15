@@ -72,7 +72,7 @@
 				</tr>
 			<?php endforeach ?>
 			<tr>
-				<td align="right" colspan="11"><b>TOTAL</b></td>
+				<td align="right" colspan="11"><b>GRAND TOTAL</b></td>
 				<td align="right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
 			</tr>
 		<?php else: ?>
