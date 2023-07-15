@@ -48,12 +48,12 @@
 			</tr> -->
 		<?php endforeach ?>
 	<?php endforeach ?>
-	<tr>
+	<!-- <tr>
 		<td colspan="4" class="text-right"><b>GRAND TOTAL</b></td>
 		<td class="text-right"><b><?php echo angkaDecimal($grand_total_jumlah); ?></b></td>
 		<td colspan="2" class="text-right"></td>
 		<td class="text-right"><b><?php echo angkaDecimal($grand_total_nilai); ?></b></td>
-	</tr>
+	</tr> -->
 <?php else: ?>
 	<tr>
 		<td colspan="8">Data tidak ditemukan.</td>
