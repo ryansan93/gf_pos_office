@@ -285,7 +285,7 @@ class PosisiStok extends Public_Controller {
                             from stok_harga sh
                             where
                                 sh.id_header = ".$id_stok_tanggal." and
-                                sh.item_kode = '".$v_item."'
+                                sh.item_kode = '".$v_item['kode']."'
                         ";
                         $d_harga = $conf->hydrateRaw($sql);
 
@@ -294,13 +294,13 @@ class PosisiStok extends Public_Controller {
                             $harga = $d_harga->toArray()[0]['harga'];
                         }
 
-                        $key_item = $nama_item.' | '.$v_item;
+                        $key_item = $nama_item.' | '.$v_item['kode'];
 
                         if ( !isset($data[ $v_data['gudang_kode'] ]['group_item'][ $group_kode ]['detail'][ $key_item ]) ) {
                             $data[ $v_data['gudang_kode'] ]['group_item'][ $group_kode ]['kode'] = $group_kode;
                             $data[ $v_data['gudang_kode'] ]['group_item'][ $group_kode ]['nama'] = $group_nama;
 
-                            $data[ $v_data['gudang_kode'] ]['group_item'][ $group_kode ]['detail'][ $key_item ]['kode'] = $v_item;
+                            $data[ $v_data['gudang_kode'] ]['group_item'][ $group_kode ]['detail'][ $key_item ]['kode'] = $v_item['kode'];
                             $data[ $v_data['gudang_kode'] ]['group_item'][ $group_kode ]['detail'][ $key_item ]['nama'] = $nama_item;
                             $data[ $v_data['gudang_kode'] ]['group_item'][ $group_kode ]['detail'][ $key_item ]['satuan'] = $satuan;
 
