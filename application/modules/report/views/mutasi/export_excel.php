@@ -35,25 +35,41 @@
 	<tbody>
 		<?php if ( !empty($data['detail']) && count($data['detail']) > 0 ): ?>
 			<?php $grand_total = 0; ?>
-			<?php foreach ($data['detail'] as $k_data => $v_data): ?>
+			<?php foreach ($data['detail'] as $k_tanggal => $v_tanggal): ?>
+				<?php $total_per_tanggal = 0; ?>
+				<?php foreach ($tanggal['detail'] as $k_kode => $v_kode): ?>
+					<?php $total_per_kode = 0; ?>
+					<?php foreach ($kode['detail'] as $k_det => $v_det): ?>
+						<tr>
+							<td class="text-center"><?php echo tglIndonesia($v_det['tgl_mutasi'], '-', ' '); ?></td>
+							<td class="text-center"><?php echo $v_det['kode_mutasi']; ?></td>
+							<td><?php echo $v_det['nama_gudang_asal']; ?></td>
+							<td><?php echo $v_det['nama_gudang_tujuan']; ?></td>
+							<td><?php echo $v_det['nama_item']; ?></td>
+							<td><?php echo $v_det['coa']; ?></td>
+							<td><?php echo $v_det['satuan']; ?></td>
+							<td align="right"><?php echo angkaDecimal($v_det['jumlah']); ?></td>
+							<td align="right"><?php echo angkaDecimal($v_det['harga']); ?></td>
+							<?php $total = $v_det['jumlah'] * $v_det['harga']; ?>
+							<?php $grand_total += $total; ?>
+							<?php $total_per_tanggal += $total; ?>
+							<?php $total_per_kode += $total; ?>
+							<td align="right"><?php echo angkaDecimal($total); ?></td>
+						</tr>
+					<?php endforeach ?>
+					<tr>
+						<td align="right" colspan="11"><b>TOTAL</b></td>
+						<td align="right"><b><?php echo angkaDecimal($total_per_kode); ?></b></td>
+					</tr>
+				<?php endforeach ?>
 				<tr>
-					<td class="text-center"><?php echo tglIndonesia($v_data['tgl_mutasi'], '-', ' '); ?></td>
-					<td class="text-center"><?php echo $v_data['kode_mutasi']; ?></td>
-					<td><?php echo $v_data['nama_gudang_asal']; ?></td>
-					<td><?php echo $v_data['nama_gudang_tujuan']; ?></td>
-					<td><?php echo $v_data['nama_item']; ?></td>
-					<td><?php echo $v_data['coa']; ?></td>
-					<td><?php echo $v_data['satuan']; ?></td>
-					<td class="text-right"><?php echo angkaDecimal($v_data['jumlah']); ?></td>
-					<td class="text-right"><?php echo angkaDecimal($v_data['harga']); ?></td>
-					<?php $total = $v_data['jumlah'] * $v_data['harga']; ?>
-					<?php $grand_total += $total; ?>
-					<td class="text-right"><?php echo angkaDecimal($total); ?></td>
+					<td align="right" colspan="9"><b>TOTAL PER TANGGAL - <?php echo tglIndonesia($v_det['tgl_mutasi'], '-', ' '); ?></b></td>
+					<td align="right"><b><?php echo angkaDecimal($total_per_tanggal); ?></b></td>
 				</tr>
 			<?php endforeach ?>
 			<tr>
-				<td class="text-right" colspan="9" align="right"><b>TOTAL</b></td>
-				<td class="text-right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
+				<td align="right" colspan="9"><b>TOTAL</b></td>
+				<td align="right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
 			</tr>
 		<?php else: ?>
 			<tr>

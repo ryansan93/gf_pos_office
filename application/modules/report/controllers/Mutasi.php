@@ -142,13 +142,20 @@ class Mutasi extends Public_Controller {
                 ".$sql_gudang_tujuan."
             order by
                 m.tgl_mutasi asc,
+                m.kode_mutasi asc,
                 i.nama asc
         ";
-        $d_terima = $m_conf->hydrateRaw( $sql );
+        $d_mutasi = $m_conf->hydrateRaw( $sql );
 
         $data = null;
-        if ( $d_terima->count() > 0 ) {
-            $data = $d_terima->toArray();
+        if ( $d_mutasi->count() > 0 ) {
+            $d_mutasi = $d_mutasi->toArray();
+
+            foreach ($d_mutasi as $key => $value) {
+                $data[ $value['tgl_mutasi'] ]['tgl_mutasi'] = $value['tgl_mutasi'];
+                $data[ $value['tgl_mutasi'] ]['detail'][ $value['kode_mutasi'] ]['kode'] = $value['kode_mutasi'];
+                $data[ $value['tgl_mutasi'] ]['detail'][ $value['kode_mutasi'] ]['detail'][] = $value;
+            }
         }
 
         return $data;
