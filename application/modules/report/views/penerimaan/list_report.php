@@ -10,6 +10,7 @@
 					<td class="text-center"><?php echo $v_det['kode_terima']; ?></td>
 					<td class="text-center"><?php echo $v_det['po_no']; ?></td>
 					<td><?php echo $v_det['supplier']; ?></td>
+					<td><?php echo $v_det['npwp_supplier']; ?></td>
 					<td><?php echo $v_det['nama_gudang']; ?></td>
 					<td><?php echo $v_det['nama_item']; ?></td>
 					<td><?php echo $v_det['coa']; ?></td>
@@ -24,7 +25,7 @@
 				</tr>
 			<?php endforeach ?>
 			<tr>
-				<td class="text-right" colspan="10"><b>TOTAL PER KODE - <?php echo $v_det['kode_terima']; ?></b></td>
+				<td class="text-right" colspan="10"><b>TOTAL</b></td>
 				<td class="text-right"><b><?php echo angkaDecimal($total_per_kode); ?></b></td>
 			</tr>
 		<?php endforeach ?>

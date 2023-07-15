@@ -27,7 +27,7 @@ var mutasi = {
         $("#TglMutasi").datetimepicker({
             locale: 'id',
             format: 'DD MMM Y',
-            minDate: moment(new Date((today+' 00:00:00'))).subtract(7, 'days'),
+            // minDate: moment(new Date((today+' 00:00:00'))).subtract(7, 'days'),
             useCurrent: false
         }).on('dp.hide', function(e) {
             mutasi.getHargaItem();

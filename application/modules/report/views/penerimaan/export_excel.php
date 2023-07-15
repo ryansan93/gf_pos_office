@@ -24,8 +24,9 @@
 			<th class="col-xs-1">Kode Terima</th>
 			<th class="col-xs-1">Kode PO</th>
 			<th class="col-xs-1">Supplier</th>
+			<th class="col-xs-1">NPWP</th>
 			<th class="col-xs-1">Gudang</th>
-			<th class="col-xs-2">Nama Item</th>
+			<th class="col-xs-1">Nama Item</th>
 			<th class="col-xs-1">COA SAP</th>
 			<th class="col-xs-1">Satuan</th>
 			<th class="col-xs-1">Jumlah</th>
@@ -46,6 +47,7 @@
 							<td align="center"><?php echo $v_det['kode_terima']; ?></td>
 							<td align="center"><?php echo $v_det['po_no']; ?></td>
 							<td><?php echo $v_det['supplier']; ?></td>
+							<td><?php echo $v_det['npwp_supplier']; ?></td>
 							<td><?php echo $v_det['nama_gudang']; ?></td>
 							<td><?php echo $v_det['nama_item']; ?></td>
 							<td><?php echo $v_det['coa']; ?></td>
@@ -60,7 +62,7 @@
 						</tr>
 					<?php endforeach ?>
 						<tr>
-						<td align="right" colspan="10"><b>TOTAL PER KODE - <?php echo $v_det['kode_terima']; ?></b></td>
+						<td align="right" colspan="10"><b>TOTAL</b></td>
 						<td align="right"><b><?php echo angkaDecimal($total_per_kode); ?></b></td>
 					</tr>
 				<?php endforeach ?>

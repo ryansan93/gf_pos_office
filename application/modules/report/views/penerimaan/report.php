@@ -7,8 +7,9 @@
 					<th class="col-xs-1">Kode Terima</th>
 					<th class="col-xs-1">Kode PO</th>
 					<th class="col-xs-1">Supplier</th>
+					<th class="col-xs-1">NPWP</th>
 					<th class="col-xs-1">Gudang</th>
-					<th class="col-xs-2">Nama Item</th>
+					<th class="col-xs-1">Nama Item</th>
 					<th class="col-xs-1">COA SAP</th>
 					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
@@ -18,7 +19,7 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="11">Data tidak ditemukan.</td>
+					<td colspan="12">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>

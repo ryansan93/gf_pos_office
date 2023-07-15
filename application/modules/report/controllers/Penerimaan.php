@@ -95,6 +95,7 @@ class Penerimaan extends Public_Controller {
                 t.kode_terima, 
                 t.tgl_terima, 
                 t.supplier,
+                supl.npwp as npwp_supplier,
                 g.nama as nama_gudang, 
                 i.nama as nama_item,
                 ti.jumlah_terima,
@@ -118,6 +119,10 @@ class Penerimaan extends Public_Controller {
                 gudang g
                 on
                     t.gudang_kode = g.kode_gudang
+            left join
+                supplier supl
+                on
+                    t.supplier_kode = supl.kode
             where
                 t.tgl_terima between '".$start_date."' and '".$end_date."'
                 ".$sql_gudang."
