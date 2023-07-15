@@ -62,22 +62,22 @@
 						</tr>
 					<?php endforeach ?>
 						<tr>
-						<td align="right" colspan="10"><b>TOTAL</b></td>
+						<td align="right" colspan="11"><b>TOTAL</b></td>
 						<td align="right"><b><?php echo angkaDecimal($total_per_kode); ?></b></td>
 					</tr>
 				<?php endforeach ?>
 				<tr>
-					<td align="right" colspan="10"><b>TOTAL PER TANGGAL - <?php echo tglIndonesia($v_det['tgl_terima'], '-', ' '); ?></b></td>
+					<td align="right" colspan="11"><b>TOTAL PER TANGGAL - <?php echo tglIndonesia($v_det['tgl_terima'], '-', ' '); ?></b></td>
 					<td align="right"><b><?php echo angkaDecimal($total_per_tanggal); ?></b></td>
 				</tr>
 			<?php endforeach ?>
 			<tr>
-				<td align="right" colspan="10"><b>TOTAL</b></td>
+				<td align="right" colspan="11"><b>TOTAL</b></td>
 				<td align="right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
 			</tr>
 		<?php else: ?>
 			<tr>
-				<td colspan="11">Data tidak ditemukan.</td>
+				<td colspan="12">Data tidak ditemukan.</td>
 			</tr>
 		<?php endif ?>
 	</tbody>
