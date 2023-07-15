@@ -40,12 +40,12 @@
 					<?php $idx_tgl++; ?>
 				<?php endforeach ?>
 			<?php endforeach ?>
-			<tr>
+			<!-- <tr>
 				<td colspan="4" class="text-right"><b>TOTAL</b></td>
 				<td class="text-right"><b><?php echo angkaDecimal($total_jumlah_gi); ?></b></td>
 				<td colspan="2" class="text-right"></td>
 				<td class="text-right"><b><?php echo angkaDecimal($total_nilai); ?></b></td>
-			</tr>
+			</tr> -->
 		<?php endforeach ?>
 	<?php endforeach ?>
 	<tr>
