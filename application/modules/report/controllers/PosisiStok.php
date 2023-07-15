@@ -273,16 +273,10 @@ class PosisiStok extends Public_Controller {
                     $d_item = $d_item->toArray();
 
                     foreach ($d_item as $k_item => $v_item) {
-                        $nama_item = null;
-                        $satuan = null;
-                        $group_kode = null;
-                        $group_nama = null;
-                        if ( $d_item->count() > 0 ) {
-                            $nama_item = $v_item['nama'];
-                            $satuan = $v_item['satuan'];
-                            $group_kode = $v_item['group_kode'];
-                            $group_nama = $v_item['group_nama'];
-                        }
+                        $nama_item = $v_item['nama'];
+                        $satuan = $v_item['satuan'];
+                        $group_kode = $v_item['group_kode'];
+                        $group_nama = $v_item['group_nama'];
 
                         $conf = new \Model\Storage\Conf();
                         $sql = "
