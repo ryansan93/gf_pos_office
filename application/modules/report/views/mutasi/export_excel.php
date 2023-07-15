@@ -58,7 +58,7 @@
 						</tr>
 					<?php endforeach ?>
 					<tr>
-						<td align="right" colspan="11"><b>TOTAL</b></td>
+						<td align="right" colspan="9"><b>TOTAL</b></td>
 						<td align="right"><b><?php echo angkaDecimal($total_per_kode); ?></b></td>
 					</tr>
 				<?php endforeach ?>
