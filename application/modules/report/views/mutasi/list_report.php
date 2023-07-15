@@ -2,7 +2,7 @@
 	<?php $grand_total = 0; ?>
 	<?php foreach ($data as $k_tanggal => $v_tanggal): ?>
 		<?php $total_per_tanggal = 0; ?>
-		<?php foreach ($v_tangga['detail'] as $k_kode => $v_kode): ?>
+		<?php foreach ($v_tanggal['detail'] as $k_kode => $v_kode): ?>
 			<?php $total_per_kode = 0; ?>
 			<?php foreach ($v_kode['detail'] as $k_det => $v_det): ?>
 				<tr>

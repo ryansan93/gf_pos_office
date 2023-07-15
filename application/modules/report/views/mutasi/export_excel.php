@@ -37,9 +37,9 @@
 			<?php $grand_total = 0; ?>
 			<?php foreach ($data['detail'] as $k_tanggal => $v_tanggal): ?>
 				<?php $total_per_tanggal = 0; ?>
-				<?php foreach ($tanggal['detail'] as $k_kode => $v_kode): ?>
+				<?php foreach ($v_tanggal['detail'] as $k_kode => $v_kode): ?>
 					<?php $total_per_kode = 0; ?>
-					<?php foreach ($kode['detail'] as $k_det => $v_det): ?>
+					<?php foreach ($v_kode['detail'] as $k_det => $v_det): ?>
 						<tr>
 							<td class="text-center"><?php echo tglIndonesia($v_det['tgl_mutasi'], '-', ' '); ?></td>
 							<td class="text-center"><?php echo $v_det['kode_mutasi']; ?></td>
