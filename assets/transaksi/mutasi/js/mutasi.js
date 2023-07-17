@@ -61,6 +61,7 @@ var mutasi = {
             $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
 
             var satuan = JSON.parse( data.satuan );
+
             var opt = '<option value="">Pilih Satuan</option>';
             for (var i = 0; i < satuan.length; i++) {
                 var selected = null;
@@ -146,12 +147,50 @@ var mutasi = {
         $.each($(tbody).find('select.item'), function(a) {
             $(this).select2();
             $(this).on('select2:select', function (e) {
-                var data = e.params.data.element.dataset;
+                // var data = e.params.data.element.dataset;
+
+                // var _tr = $(this).closest('tr');
+
+                // $(_tr).find('.satuan').val( data.satuan );
+                // $(_tr).find('.group').val( data.namagroup );
 
                 var _tr = $(this).closest('tr');
+                var select_satuan = $(_tr).find('select.satuan');
 
-                $(_tr).find('.satuan').val( data.satuan );
-                $(_tr).find('.group').val( data.namagroup );
+                var val_satuan = $(select_satuan).attr('data-val');
+
+                var data = e.params.data.element.dataset;
+
+                var coa = data.coa;
+                var ket_coa = data.ketcoa;
+
+                $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
+
+                var satuan = JSON.parse( data.satuan );
+
+                var opt = '<option value="">Pilih Satuan</option>';
+                for (var i = 0; i < satuan.length; i++) {
+                    var selected = null;
+                    if ( !empty(select_satuan) ) {
+                        if ( satuan[i].satuan == val_satuan ) {
+                            selected = 'selected';
+                        }
+                    }
+
+                    opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" data-harga="'+satuan[i].harga+'" '+selected+' >'+satuan[i].satuan+'</option>';
+                }
+
+                $(select_satuan).html( opt );
+                $(select_satuan).removeAttr('disabled');
+                $(_tr).find('.jumlah').removeAttr('disabled');
+
+                $(select_satuan).on('change', function() {
+                    var harga = parseFloat($(this).find('option:selected').attr('data-harga'));
+
+                    $(_tr).find('td.harga').html( numeral.formatDec(harga) );
+
+                    mutasi.hitTotal( $(this) );
+                });
             });
         });
     }, // end - addRow
