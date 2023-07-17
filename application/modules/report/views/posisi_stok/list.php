@@ -5,7 +5,7 @@
 			<td colspan="8" style="background-color: #ededed;"><b><?php echo $v_gudang['nama']; ?></b></td>
 		</tr>
 		<?php foreach ($v_gudang['group_item'] as $k_gi => $v_gi): ?>
-			<?php $idx_gi = 0; $total_jumlah_gi = 0; $total_nilai = 0; ?>
+			<?php $idx_gi = 0; $total_jumlah_gi = 0; $total_nilai_gi = 0; ?>
 			<?php
 				$rowspan_gi = 0;
 				foreach ($v_gi['detail'] as $k_item => $v_item) {
@@ -13,7 +13,10 @@
 				}
 			?>
 			<?php foreach ($v_gi['detail'] as $k_item => $v_item): ?>
-				<?php $idx_tgl = 0; ?>
+				<?php 
+					$idx_tgl = 0; 
+					$key_tgl = null;
+				?>
 				<?php foreach ($v_item['detail_tanggal'] as $k_tgl => $v_tgl): ?>
 					<tr>
 						<?php if ( $idx_gi == 0 ): ?>
@@ -30,22 +33,27 @@
 						<td class="text-right"><?php echo angkaDecimal($v_tgl['nilai_stok']); ?></td>
 					</tr>
 					<?php
-						$total_jumlah_gi += $v_tgl['jumlah'];
-						$total_nilai += $v_tgl['nilai_stok'];
 						$grand_total_jumlah += $v_tgl['jumlah'];
 						$grand_total_nilai += $v_tgl['nilai_stok'];
 					?>
 
 					<?php $idx_gi++; ?>
 					<?php $idx_tgl++; ?>
+
+					<?php
+						if ( (count($v_item['detail_tanggal'])-1) == $idx_tgl ) {
+							$total_jumlah_gi += $v_tgl['jumlah'];
+							$total_nilai_gi += $v_tgl['nilai_stok'];
+						}
+					?>
 				<?php endforeach ?>
 			<?php endforeach ?>
-			<!-- <tr>
+			<tr>
 				<td colspan="4" class="text-right"><b>TOTAL</b></td>
 				<td class="text-right"><b><?php echo angkaDecimal($total_jumlah_gi); ?></b></td>
 				<td colspan="2" class="text-right"></td>
-				<td class="text-right"><b><?php echo angkaDecimal($total_nilai); ?></b></td>
-			</tr> -->
+				<td class="text-right"><b><?php echo angkaDecimal($total_nilai_gi); ?></b></td>
+			</tr>
 		<?php endforeach ?>
 	<?php endforeach ?>
 	<!-- <tr>
