@@ -37,15 +37,15 @@
 						$grand_total_nilai += $v_tgl['nilai_stok'];
 					?>
 
-					<?php $idx_gi++; ?>
-					<?php $idx_tgl++; ?>
-
 					<?php
 						if ( (count($v_item['detail_tanggal'])-1) == $idx_tgl ) {
 							$total_jumlah_gi += $v_tgl['jumlah'];
 							$total_nilai_gi += $v_tgl['nilai_stok'];
 						}
 					?>
+
+					<?php $idx_gi++; ?>
+					<?php $idx_tgl++; ?>
 				<?php endforeach ?>
 			<?php endforeach ?>
 			<tr>
