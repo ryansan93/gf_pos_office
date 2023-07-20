@@ -413,7 +413,7 @@ class StokOpname extends Public_Controller {
 
     public function tes()
     {
-        $kode = 'SO23070005';
+        $kode = 'SO23070009';
 
         $m_conf = new \Model\Storage\Conf();
 
