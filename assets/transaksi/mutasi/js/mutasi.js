@@ -607,6 +607,32 @@ var mutasi = {
 
         $(table).find('tfoot .grand_total b').text( numeral.formatDec( grand_total ) );
     }, // end - hitGrandTotal
+
+    exportExcel: function(elm) {
+        var err = 0
+
+        var params = {
+            'kode': $(elm).attr('data-id')
+        };
+
+        $.ajax({
+            url: 'transaksi/Mutasi/excryptParamsExportExcel',
+            data: {
+                'params': params
+            },
+            type: 'POST',
+            dataType: 'JSON',
+            beforeSend: function() { showLoading(); },
+            success: function(data) {
+                hideLoading();
+                if ( data.status == 1 ) {
+                    window.open('transaksi/Mutasi/exportExcel/'+data.content.data, 'blank');
+                } else {
+                    bootbox.alert(data.message);
+                }
+            }
+        });
+    }, // end - exportExcel
 };
 
 mutasi.start_up();

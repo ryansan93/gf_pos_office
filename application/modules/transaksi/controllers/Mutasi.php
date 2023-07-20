@@ -723,4 +723,149 @@ class Mutasi extends Public_Controller {
 
         display_json( $this->result );
     }
+
+    public function excryptParamsExportExcel()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $paramsEncrypt = exEncrypt( json_encode($params) );
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('data' => $paramsEncrypt);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function exportExcel($_params)
+    {
+        $_data_params = json_decode( exDecrypt( $_params ), true );
+
+        $kode = exDecrypt($_data_params['kode']);
+
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select
+                m.kode_mutasi,
+                m.nama_pic,
+                m.tgl_mutasi,
+                m.asal,
+                g_asal.nama as nama_gudang_asal,
+                m.tujuan,
+                g_tujuan.nama as nama_gudang_tujuan,
+                m.no_sj,
+                m.lampiran,
+                m.keterangan,
+                m.g_status,
+                mi.item_kode,
+                i.nama as nama_item,
+                mi.jumlah,
+                mi.satuan,
+                mi.pengali,
+                gi.nama as nama_group_item,
+                gi.coa,
+                gi.ket_coa,
+                (isnull(sh.harga, 0) / mi.pengali) as harga,
+                ((mi.jumlah * mi.pengali) * isnull(sh.harga, 0)) as total
+            from mutasi_item mi
+            right join
+                mutasi m
+                on
+                    mi.mutasi_kode = m.kode_mutasi
+            right join
+                gudang g_asal
+                on
+                    m.asal = g_asal.kode_gudang
+            right join
+                gudang g_tujuan
+                on
+                    m.tujuan = g_tujuan.kode_gudang
+            right join
+                item i
+                on
+                    i.kode = mi.item_kode
+            right join
+                group_item gi
+                on
+                    gi.kode = i.group_kode
+            left join
+                (
+                    select 
+                        s.id, 
+                        s.id_header, 
+                        s.item_kode, 
+                        st.kode_trans,
+                        st.jumlah,
+                        st.tbl_name
+                    from stok_trans st
+                    right join
+                        stok s
+                        on
+                            st.id_header = s.id
+                ) st
+                on
+                    st.kode_trans = m.kode_mutasi and
+                    st.item_kode = mi.item_kode
+            left join
+                (
+                    select sh1.* from stok_harga sh1
+                    right join
+                        (select max(id) as id, id_header, item_kode from stok_harga group by id_header, item_kode) sh2
+                        on
+                            sh1.id = sh2.id
+                ) sh
+                on
+                    sh.id_header = st.id_header and
+                    sh.item_kode = mi.item_kode
+            where
+                m.kode_mutasi = '".$kode."'
+        ";
+        $d_mutasi = $m_conf->hydrateRaw( $sql );
+
+        $data = null;
+        if ( $d_mutasi ) {
+            $d_mutasi = $d_mutasi->toArray();
+
+            $data = array(
+                'kode_mutasi' => $d_mutasi[0]['kode_mutasi'],
+                'nama_pic' => $d_mutasi[0]['nama_pic'],
+                'tgl_mutasi' => $d_mutasi[0]['tgl_mutasi'],
+                'asal' => $d_mutasi[0]['asal'],
+                'nama_gudang_asal' => $d_mutasi[0]['nama_gudang_asal'],
+                'tujuan' => $d_mutasi[0]['tujuan'],
+                'nama_gudang_tujuan' => $d_mutasi[0]['nama_gudang_tujuan'],
+                'no_sj' => $d_mutasi[0]['no_sj'],
+                'lampiran' => $d_mutasi[0]['lampiran'],
+                'keterangan' => $d_mutasi[0]['keterangan'],
+                'g_status' => $d_mutasi[0]['g_status']
+            );
+
+            foreach ($d_mutasi as $key => $value) {
+                $data['detail'][] = array(
+                    'item_kode' => $value['item_kode'],
+                    'nama_item' => $value['nama_item'],
+                    'jumlah' => $value['jumlah'],
+                    'satuan' => $value['satuan'],
+                    'pengali' => $value['pengali'],
+                    'nama_group_item' => $value['nama_group_item'],
+                    'coa' => $value['coa'],
+                    'ket_coa' => $value['ket_coa'],
+                    'harga' => $value['harga'],
+                    'total' => $value['total']
+                );
+            }
+        }
+
+        $content['data'] = $data;
+        $res_view_html = $this->load->view('transaksi/mutasi/exportExcel', $content, true);
+
+        $filename = 'export-detail-mutasi-'.$kode.'.xls';
+
+        header("Content-type: application/xls");
+        header("Content-Disposition: attachment; filename=".$filename."");
+        echo $res_view_html;
+    }
 }

@@ -99,6 +99,13 @@
 
 <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 
+<div class="col-xs-12 no-padding" style="padding-bottom: 5px;">
+	<!-- <button type="button" class="col-xs-12 btn btn-primary pull-right" onclick="mutasi.changeTabActive(this)" data-id="<?php echo $data['kode_mutasi']; ?>" data-href="action" data-edit="edit"><i class="fa fa-edit"></i> Edit</button> -->
+	<div class="col-xs-6 no-padding">
+		<button type="button" class="btn btn-default pull-left" data-id="<?php echo exEncrypt($data['kode_mutasi']); ?>" onclick="mutasi.exportExcel(this)"><i class="fa fa-file-excel-o"></i> Export</button>
+	</div>
+</div>
+
 <?php if ( $data['g_status'] == getStatus('submit') ): ?>
 	<?php if ( $akses['a_edit'] == 1 || $akses['a_delete'] == 1 ): ?>
 		<?php if ( $akses['a_edit'] == 1 ): ?>
