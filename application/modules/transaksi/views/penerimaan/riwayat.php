@@ -66,3 +66,7 @@
 		</table>
 	</small>
 </div>
+
+<div class="col-xs-12 no-padding">
+	<button type="button" class="btn btn-default pull-right" onclick="terima.exportExcel(this)"><i class="fa fa-file-excel-o"></i> Export</button>
+</div>

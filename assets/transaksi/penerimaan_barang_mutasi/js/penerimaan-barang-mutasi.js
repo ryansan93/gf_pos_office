@@ -212,6 +212,18 @@ var pbm = {
             }
         });
     }, // end - hitungStok
+
+    exportExcel : function () {
+        var _data = '<table border="1">'+$('table.tbl_riwayat').html()+'</table>';
+
+        var blob = new Blob([_data], { type: 'application/vnd.ms-excel' });
+        var downloadUrl = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "export-penerimaan-barang-mutasi.xls";
+        document.body.appendChild(a);
+        a.click();
+    }, // end - exportExcel
 };
 
 pbm.start_up();

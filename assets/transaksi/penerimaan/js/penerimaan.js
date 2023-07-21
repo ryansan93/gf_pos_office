@@ -432,6 +432,18 @@ var terima = {
 
         $('tfoot td.total').find('b').html( numeral.formatDec(grand_total) );
     }, // end - hitGrandTotal
+
+    exportExcel : function () {
+        var _data = '<table border="1">'+$('table.tbl_riwayat').html()+'</table>';
+
+        var blob = new Blob([_data], { type: 'application/vnd.ms-excel' });
+        var downloadUrl = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = downloadUrl;
+        a.download = "export-penerimaan-barang.xls";
+        document.body.appendChild(a);
+        a.click();
+    }, // end - exportExcel
 };
 
 terima.start_up();
