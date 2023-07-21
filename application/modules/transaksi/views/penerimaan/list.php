@@ -5,7 +5,8 @@
 			<td class="text-center"><?php echo strtoupper(tglIndonesia($v_data['tgl_terima'], '-', ' ')); ?></td>
 			<td class="text-center"><?php echo $v_data['kode_terima']; ?></td>
 			<td><?php echo strtoupper($v_data['nama_gudang']); ?></td>
-			<td><?php echo strtoupper($v_data['supplier']); ?></td>
+			<td><?php echo strtoupper($v_data['npwp_supplier']); ?></td>
+			<td><?php echo strtoupper($v_data['npwp']); ?></td>
 			<td>
 				<?php
 					if ( !empty($v_data['list_coa']) ) {
@@ -49,6 +50,6 @@
 	<?php endforeach ?>
 <?php else: ?>
 	<tr>
-		<td colspan="8">Data tidak ditemukan.</td>
+		<td colspan="9">Data tidak ditemukan.</td>
 	</tr>
 <?php endif ?>

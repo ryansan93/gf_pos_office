@@ -121,7 +121,8 @@ class Penerimaan extends Public_Controller {
                 t.kode_terima, 
                 t.tgl_terima,
                 t.no_faktur,
-                t.supplier,
+                supl.nama as supplier,
+                supl.npwp as npwp_supplier,
                 t.pic,
                 t.gudang_kode,
                 t.po_no,
@@ -134,6 +135,10 @@ class Penerimaan extends Public_Controller {
                 gudang g
                 on
                     t.gudang_kode = g.kode_gudang
+            right join
+                supplier supl
+                on
+                    t.supplier_kode = supl.kode
             right join
                 terima_item ti
                 on
@@ -173,6 +178,7 @@ class Penerimaan extends Public_Controller {
                         'tgl_terima' => $value['tgl_terima'],
                         'no_faktur' => $value['no_faktur'],
                         'supplier' => $value['supplier'],
+                        'npwp_supplier' => $value['npwp_supplier'],
                         'pic' => $value['pic'],
                         'gudang_kode' => $value['gudang_kode'],
                         'po_no' => $value['po_no'],

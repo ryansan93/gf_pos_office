@@ -53,6 +53,7 @@
 					<th class="col-xs-1">Kode Terima</th>
 					<th class="col-xs-2">Gudang</th>
 					<th class="col-xs-2">Supplier</th>
+					<th class="col-xs-1">NPWP</th>
 					<th class="col-xs-1">COA SAP</th>
 					<th class="col-xs-2">Keterangan COA SAP</th>
 					<th class="col-xs-1">Grand Total</th>
@@ -60,7 +61,7 @@
 			</thead>
 			<tbody>
 				<tr>
-					<td colspan="8">Data tidak ditemukan.</td>
+					<td colspan="9">Data tidak ditemukan.</td>
 				</tr>
 			</tbody>
 		</table>
