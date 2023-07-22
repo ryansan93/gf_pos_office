@@ -24,8 +24,13 @@ class PDFGenerator
         // }
     }
 
-    public function upload($html, $filename, $kertas = 'a4', $type = 'portrait')
+    public function upload($html, $filename, $kertas = 'a4', $type = 'portrait', $location = null)
     {
+        $path = 'uploads/'.$filename.".pdf";
+        if ( !empty($location) ) {
+            $path = $location.$filename.".pdf";
+        }
+
         // include autoloader
         if (!defined('DOMPDF_ENABLE_AUTOLOAD')) define('DOMPDF_ENABLE_AUTOLOAD', true);
         require_once("./vendor/dompdf/dompdf_config.inc.php");
@@ -37,6 +42,6 @@ class PDFGenerator
         $dompdf->render();
 
         $output = $dompdf->output();
-        file_put_contents('uploads/'.$filename.".pdf", $output);
+        file_put_contents($path, $output);
     }
 }

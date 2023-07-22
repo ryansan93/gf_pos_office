@@ -6,7 +6,11 @@
 	    }
 	}
 
-	@page { size: 8.3in 5.7in;  margin: 0em 2em 0em 2em; }
+	@page { 
+		/*size: 8.3in 5.7in;*/
+		size: A5 landscape;
+		margin: 0em 2em 0em 2em; 
+	}
 
 	div.contain {
 		font-size: 9pt;

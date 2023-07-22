@@ -407,7 +407,38 @@ var po = {
     exportPdf : function (elm) {
         var no_po = $(elm).attr('data-id');
 
-        window.open('transaksi/PurchaseOrder/exportPdf/'+no_po, 'blank');
+        var params = {
+            'no_po': no_po
+        };
+
+        $.ajax({
+            url: 'transaksi/PurchaseOrder/exportPdf',
+            dataType: 'json',
+            type: 'post',
+            data: {
+                'params': params
+            },
+            beforeSend: function() {
+                showLoading('Proses Print . . .');
+            },
+            success: function(data) {
+                hideLoading();
+                if ( data.status == 1 ) {
+                    var ifr = document.createElement("iframe");
+                    ifr.src = data.content.url;
+                    ifr.id = "PDF";
+                    ifr.style.width = "0px";
+                    ifr.style.height = "0px";
+                    ifr.style.border = "0px";
+                    document.body.appendChild(ifr);
+
+                    var PDFG = document.getElementById("PDF");
+                    PDFG.contentWindow.print();
+                } else {
+                    bootbox.alert(data.message);
+                };
+            },
+        });
     }, // end - exportPdf
 };
 

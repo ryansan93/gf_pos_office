@@ -361,24 +361,40 @@ class PurchaseOrder extends Public_Controller {
         display_json( $this->result );
     }
 
-    public function exportPdf($_no_po)
+    public function exportPdf()
     {
-        $no_po = exDecrypt( $_no_po );
+        $params = $this->input->post('params');
 
-        $m_po = new \Model\Storage\Po_model();
-        $d_po = $m_po->where('no_po', $no_po)->with(['gudang', 'detail'])->first();
+        try {
+            $_no_po = $params['no_po'];
+            
+            $no_po = exDecrypt( $_no_po );
 
-        $data = null;
-        if ( $d_po ) {
-            $data = $d_po->toArray();
+            $m_po = new \Model\Storage\Po_model();
+            $d_po = $m_po->where('no_po', $no_po)->with(['gudang', 'detail'])->first();
+
+            $data = null;
+            if ( $d_po ) {
+                $data = $d_po->toArray();
+            }
+
+            $content['data'] = $data;
+
+            $res_view_html = $this->load->view($this->pathView.'exportPdf', $content, true);
+
+            $this->load->library('PDFGenerator');
+            // $this->pdfgenerator->generate($res_view_html, $no_po, "a5", "landscape");
+            $this->pdfgenerator->upload($res_view_html, $no_po, "a5", "landscape", "uploads/po/");
+
+            $path = "uploads/po/".$no_po.".pdf";
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('url' => $path);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
         }
 
-        $content['data'] = $data;
-
-        $res_view_html = $this->load->view($this->pathView.'exportPdf', $content, true);
-
-        $this->load->library('PDFGenerator');
-        $this->pdfgenerator->generate($res_view_html, $no_po, "a5", "landscape");
+        display_json( $this->result );
     }
 
     public function updatePo($no_po)
