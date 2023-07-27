@@ -27,7 +27,7 @@ var adjout = {
         $("#TglAdjust").datetimepicker({
             locale: 'id',
             format: 'DD MMM Y',
-            minDate: moment(new Date((today+' 00:00:00')))
+            // minDate: moment(new Date((today+' 00:00:00')))
         });
         if ( !empty($("#TglAdjust").find('input').data('tgl')) ) {
             var tgl = $("#TglAdjust").find('input').data('tgl');
