@@ -6,8 +6,16 @@
 			<td class="item"><?php echo strtoupper($v_item['nama']); ?></td>
 			<td>
 				<select class="form-control satuan" data-required="1">
-					<?php foreach ($v_item['satuan'] as $k_satuan => $v_satuan): ?>									
-						<option value="<?php echo $v_satuan['satuan']; ?>" data-pengali="<?php echo $v_satuan['pengali']; ?>"><?php echo $v_satuan['satuan']; ?></option>
+					<?php foreach ($v_item['satuan'] as $k_satuan => $v_satuan): ?>
+						<?php
+							$selected = null;
+							if ( !empty( $v_item['d_satuan'] ) ) {
+								if ( $v_item['d_satuan'] == $v_satuan['satuan'] ) {
+									$selected = 'selected';
+								}
+							}
+						?>
+						<option value="<?php echo $v_satuan['satuan']; ?>" data-pengali="<?php echo $v_satuan['pengali']; ?>" <?php echo $selected; ?> ><?php echo $v_satuan['satuan']; ?></option>
 					<?php endforeach ?>
 				</select>
 			</td>

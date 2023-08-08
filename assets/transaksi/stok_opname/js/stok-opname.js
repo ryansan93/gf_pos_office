@@ -11,8 +11,11 @@ var so = {
             locale: 'id',
             format: 'DD MMM Y'
         });
-        // var minDateTglStokOpname = today+' 00:00:00';
-        // $("#TglStokOpname").data("DateTimePicker").minDate(moment(new Date(minDateTglStokOpname)));
+
+        var data_tgl = $("#TglStokOpname").find('input').attr('data-tgl');
+        if ( !empty(data_tgl) ) {
+            $("#TglStokOpname").data("DateTimePicker").date(moment(new Date(data_tgl)));
+        }
 
 		$("#StartDate").datetimepicker({
             locale: 'id',
@@ -92,12 +95,22 @@ var so = {
                 hideLoading();
                 $(dcontent).html(html);
 
+                if ( $(dcontent).find('button.btn-list-item').length > 0 ) {
+                    var id = $(dcontent).find('button.btn-list-item').attr('data-id');
+
+                    if ( !empty( id ) ) {
+                        setTimeout(function(){
+                            $(dcontent).find('button.btn-list-item').click();
+                        }, 500);
+                    }
+                }
+
                 so.settingUp();
             },
         });
     }, // end - loadForm
 
-    getListItem: function () {
+    getListItem: function (elm) {
         var div = $('#action');
 
         var err = 0;
@@ -116,7 +129,8 @@ var so = {
             var params = {
                 'tanggal': dateSQL( $(div).find('#TglStokOpname').data('DateTimePicker').date() ),
                 'gudang_kode': $(div).find('.gudang').select2('val'),
-                'group_item': $(div).find('select.group_item').select2('val')
+                'group_item': $(div).find('select.group_item').select2('val'),
+                'so_id': $(elm).attr('data-id')
             };
 
             $.ajax({
@@ -263,7 +277,7 @@ var so = {
                             success: function(data) {
                                 hideLoading();
                                 if ( data.status == 1 ) {
-                                    so.hitungStokOpname( data.content.kode );
+                                    so.hitungStokOpname( data.content.kode, data.content.tanggal );
                                 } else {
                                     bootbox.alert( data.message );
                                 }
@@ -275,8 +289,139 @@ var so = {
         }
 	}, // end - save
 
-    hitungStokOpname: function (kode) {
-        var params = {'kode': kode};
+    edit: function (elm) {
+        var div = $('#action');
+
+		var err = 0;
+
+        $.map( $(div).find('[data-required=1]'), function (ipt) {
+            if ( empty( $(ipt).val() ) ) {
+                $(ipt).parent().addClass('has-error');
+                err++;
+            } else {
+                $(ipt).parent().removeClass('has-error');
+            }
+        });
+
+        var data_item = 0;
+        $.map( $(div).find('tr.data'), function (tr) {
+            var jumlah = numeral.unformat($(tr).find('input.jumlah').val());
+            var harga = numeral.unformat($(tr).find('input.harga').val());
+
+            if ( jumlah > 0 || !empty(harga) ) {
+                if ( empty(jumlah) ) {
+                    $(tr).find('input.jumlah').parent().addClass('has-error');
+                    err++;
+                } else {
+                    $(tr).find('input.jumlah').parent().removeClass('has-error');
+                }
+
+                if ( empty(harga) ) {
+                    $(tr).find('input.harga').parent().addClass('has-error');
+                    err++;
+                } else {
+                    $(tr).find('input.harga').parent().removeClass('has-error');
+                }
+
+                if ( !empty(jumlah) && !empty(harga) ) {
+                    data_item++;
+                }
+            }
+        });
+
+        if ( err > 0 ) {
+            bootbox.alert('Harap lengkapi data terlebih dahulu.');
+        } else if ( data_item == 0 ) {
+            bootbox.alert('Tidak ada data Item yang anda isi, harap cek kembali inputan anda.');
+        } else {
+            var list_item = $.map( $(div).find('tr.data'), function (tr) {
+                // if ( $(tr).find('input[type=checkbox]:checked') ) {
+                var jumlah = numeral.unformat($(tr).find('input.jumlah').val());
+                var harga = numeral.unformat($(tr).find('input.harga').val());
+
+                if ( jumlah > 0 && !empty(harga) ) {
+                    var _list_item = {
+                        'item_kode': $(tr).find('td.kode').text(),
+                        'satuan': $(tr).find('select.satuan').val(),
+                        'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
+                        'jumlah': jumlah,
+                        'harga': harga
+                    };
+
+                    return _list_item;
+                }
+                // }
+            });
+
+            if ( list_item.length == 0 ) {
+                bootbox.alert('Tidak ada item yang anda pilih.');
+            } else {
+                bootbox.confirm('Apakah anda yakin ingin meng-ubah data Stok Opname ?', function (result) {
+                    if ( result ) {
+                        var params = {
+                            'id': $(elm).attr('data-id'),
+                            'gudang_kode': $('.gudang').select2('val'),
+                            'tanggal': dateSQL( $('#TglStokOpname').data('DateTimePicker').date() ),
+                            'list_item': list_item
+                        };
+
+                        $.ajax({
+                            url: 'transaksi/StokOpname/edit',
+                            data: {
+                                'params': params
+                            },
+                            type: 'POST',
+                            dataType: 'JSON',
+                            beforeSend: function() { showLoading(); },
+                            success: function(data) {
+                                hideLoading();
+                                if ( data.status == 1 ) {
+                                    so.hitungStokOpname( data.content.kode, data.content.tanggal, data.content.delete );
+                                } else {
+                                    bootbox.alert( data.message );
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        }
+	}, // end - edit
+
+    delete: function (elm) {
+        bootbox.confirm('Apakah anda yakin ingin meng-ubah data Stok Opname ?', function (result) {
+            if ( result ) {
+                var params = {
+                    'id': $(elm).attr('data-id')
+                };
+
+                $.ajax({
+                    url: 'transaksi/StokOpname/delete',
+                    data: {
+                        'params': params
+                    },
+                    type: 'POST',
+                    dataType: 'JSON',
+                    beforeSend: function() { showLoading(); },
+                    success: function(data) {
+                        hideLoading();
+                        if ( data.status == 1 ) {
+                            so.hitungStokOpname( data.content.kode, data.content.tanggal, data.content.delete );
+                        } else {
+                            bootbox.alert( data.message );
+                        }
+                    }
+                });
+            }
+        });
+    }, // end - delete
+
+    hitungStokOpname: function (kode, tanggal, _delete) {
+        var params = {
+            'kode': kode,
+            'tanggal': tanggal,
+            'delete': _delete
+        };
 
         $.ajax({
             url: 'transaksi/StokOpname/hitungStokOpname',

@@ -6,7 +6,13 @@
 		<div class="col-xs-12 no-padding">
 			<select class="form-control gudang" data-required="1">
 				<?php foreach ($gudang as $key => $value): ?>
-					<option value="<?php echo $value['kode_gudang']; ?>"><?php echo $value['nama']; ?></option>
+                    <?php
+                        $selected = null;
+                        if ( $value['kode_gudang'] == $data['gudang_kode'] ) {
+                            $selected = 'selected';
+                        }
+                    ?>
+					<option value="<?php echo $value['kode_gudang']; ?>" <?php echo $selected; ?> ><?php echo $value['nama']; ?></option>
 				<?php endforeach ?>
 			</select>
 		</div>
@@ -18,7 +24,7 @@
 		</div>
 		<div class="col-xs-12 no-padding">
 			<div class="input-group date datetimepicker" name="tglStokOpname" id="TglStokOpname">
-		        <input type="text" class="form-control text-center" placeholder="Tanggal" data-required="1" />
+		        <input type="text" class="form-control text-center" placeholder="Tanggal" data-required="1" data-tgl="<?php echo $data['tanggal']; ?>" />
 		        <span class="input-group-addon">
 		            <span class="glyphicon glyphicon-calendar"></span>
 		        </span>
@@ -40,7 +46,7 @@
 	</div>
 
 	<div class="col-xs-12 no-padding">
-		<button type="button" class="btn btn-primary col-xs-12 btn-list-item" onclick="so.getListItem(this)"><i class="fa fa-search"></i> Tampilkan Item</button>
+		<button type="button" class="btn btn-primary col-xs-12 btn-list-item" onclick="so.getListItem(this)" data-id="<?php echo $data['id']; ?>"><i class="fa fa-search"></i> Tampilkan Item</button>
 	</div>	
 </div>
 
@@ -90,5 +96,10 @@
 <div class="col-xs-12 no-padding"><hr></div>
 
 <div class="col-xs-12 no-padding">
-	<button type="button" class="btn btn-primary pull-right" onclick="so.save()"><i class="fa fa-save"></i> Simpan</button>
+    <div class="col-xs-6 no-padding" style="padding-right: 5px;">
+        <button type="button" class="col-xs-12 btn btn-danger pull-right" onclick="so.changeTabActive()" data-href="action" data-edit="" data-id="<?php echo $data['id']; ?>"><i class="fa fa-times"></i> Batal</button>
+    </div>
+    <div class="col-xs-6 no-padding" style="padding-left: 5px;">
+        <button type="button" class="col-xs-12 btn btn-primary pull-right" onclick="so.edit(this)" data-id="<?php echo $data['id']; ?>"><i class="fa fa-save"></i> Simpan Perubahan</button>
+    </div>
 </div>

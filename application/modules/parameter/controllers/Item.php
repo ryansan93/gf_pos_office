@@ -74,10 +74,16 @@ class Item extends Public_Controller {
 
         try {
             $m_item = new \Model\Storage\Item_model();
+            $now = $m_item->getDate();
+
             $d_item_kode = $m_item->where('kode', $params['kode'])->first();
 
             if ( !$d_item_kode ) {
-                $kode = $m_item->getNextId();
+                if ( $now['tanggal'] < '2023-09-01' ) {
+                    $kode = $m_item->getNextId_agustus();
+                } else {
+                    $kode = $m_item->getNextId();
+                }
 
                 $m_item->kode = $kode;
                 $m_item->nama = $params['nama'];
