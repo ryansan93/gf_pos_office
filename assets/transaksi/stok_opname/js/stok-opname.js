@@ -308,7 +308,7 @@ var so = {
             var jumlah = numeral.unformat($(tr).find('input.jumlah').val());
             var harga = numeral.unformat($(tr).find('input.harga').val());
 
-            if ( jumlah > 0 || !empty(harga) ) {
+            if ( !empty(jumlah) || !empty(harga) ) {
                 if ( empty(jumlah) ) {
                     $(tr).find('input.jumlah').parent().addClass('has-error');
                     err++;
