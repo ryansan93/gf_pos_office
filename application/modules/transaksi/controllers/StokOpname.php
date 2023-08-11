@@ -373,6 +373,8 @@ class StokOpname extends Public_Controller {
         $params = $this->input->post('params');
 
         try {
+            cetak_r( $params, 1 );
+
             $m_so = new \Model\Storage\StokOpname_model();
             $d_so_old = $m_so->where('id', $params['id'])->first();
 
