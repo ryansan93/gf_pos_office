@@ -116,7 +116,7 @@ class StokOpname extends Public_Controller {
 
         $sql_group_item = null;
         if ( !empty($group_item) ) {
-            $sql_group_item = "where gi.kode in ('".implode("', '", $group_item)."')";
+            $sql_group_item = "and gi.kode in ('".implode("', '", $group_item)."')";
         }
 
         $sql_so_item = "
@@ -193,7 +193,10 @@ class StokOpname extends Public_Controller {
                 on
                     sh.item_kode = i.kode
             ".$sql_so_item."
-            ".$sql_group_item."
+            where
+                i.kode is not null and
+                i.nama is not null
+                ".$sql_group_item."
             order by
                 i.nama asc
         ";
@@ -345,6 +348,7 @@ class StokOpname extends Public_Controller {
             $this->result['content'] = array(
                 'kode' => $kode_stok_opname,
                 'tanggal' => $tanggal,
+                'kode_gudang' => $params['gudang_kode'],
                 'delete' => 0
             );
         } catch (Exception $e) {
@@ -361,6 +365,11 @@ class StokOpname extends Public_Controller {
         try {
             $m_so = new \Model\Storage\StokOpname_model();
             $d_so_old = $m_so->where('id', $params['id'])->first();
+
+            $kode_gudang = $d_so_old->gudang_kode;
+            if ( $kode_gudang != $params['gudang_kode'] ) {
+                $kode_gudang = $kode_gudang.','.$d_so_old->gudang_kode;
+            }
 
             $m_so->where('id', $params['id'])->update(
                 array(
@@ -397,6 +406,7 @@ class StokOpname extends Public_Controller {
             $this->result['content'] = array(
                 'kode' => $d_so->kode_stok_opname,
                 'tanggal' => $tanggal,
+                'kode_gudang' => $kode_gudang,
                 'delete' => 0
             );
         } catch (Exception $e) {
@@ -418,11 +428,13 @@ class StokOpname extends Public_Controller {
             Modules::run( 'base/event/delete', $d_so, $deskripsi_log );
 
             $tanggal = $d_so->tanggal;
+            $kode_gudang = $d_so->gudang_kode;
 
             $this->result['status'] = 1;
             $this->result['content'] = array(
                 'kode' => $d_so->kode_stok_opname,
                 'tanggal' => $tanggal,
+                'kode_gudang' => $kode_gudang,
                 'delete' => 1
             );
         } catch (Exception $e) {
@@ -440,6 +452,7 @@ class StokOpname extends Public_Controller {
             $kode = $params['kode'];
             $tgl_transaksi = $params['tanggal'];
             $delete = (isset($params['delete']) && !empty($params['delete'])) ?: 0;
+            $gudang = $params['kode_gudang'];
 
             $m_conf = new \Model\Storage\Conf();
 
@@ -454,7 +467,7 @@ class StokOpname extends Public_Controller {
             $d_tgl_dan_gudang = $m_conf->hydrateRaw( $sql_tgl_dan_gudang );
             if ( $d_tgl_dan_gudang->count() > 0 ) {
                 $d_tgl_dan_gudang = $d_tgl_dan_gudang->toArray()[0];
-                $gudang = $d_tgl_dan_gudang['gudang_kode'];
+                // $gudang = $d_tgl_dan_gudang['gudang_kode'];
             }
 
             $sql_barang = "

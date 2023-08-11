@@ -277,7 +277,7 @@ var so = {
                             success: function(data) {
                                 hideLoading();
                                 if ( data.status == 1 ) {
-                                    so.hitungStokOpname( data.content.kode, data.content.tanggal );
+                                    so.hitungStokOpname( data.content.kode, data.content.tanggal, data.content.delete, data.content.kode_gudang );
                                 } else {
                                     bootbox.alert( data.message );
                                 }
@@ -376,7 +376,7 @@ var so = {
                             success: function(data) {
                                 hideLoading();
                                 if ( data.status == 1 ) {
-                                    so.hitungStokOpname( data.content.kode, data.content.tanggal, data.content.delete );
+                                    so.hitungStokOpname( data.content.kode, data.content.tanggal, data.content.delete, data.content.kode_gudang );
                                 } else {
                                     bootbox.alert( data.message );
                                 }
@@ -406,7 +406,7 @@ var so = {
                     success: function(data) {
                         hideLoading();
                         if ( data.status == 1 ) {
-                            so.hitungStokOpname( data.content.kode, data.content.tanggal, data.content.delete );
+                            so.hitungStokOpname( data.content.kode, data.content.tanggal, data.content.delete, data.content.kode_gudang );
                         } else {
                             bootbox.alert( data.message );
                         }
@@ -416,11 +416,12 @@ var so = {
         });
     }, // end - delete
 
-    hitungStokOpname: function (kode, tanggal, _delete) {
+    hitungStokOpname: function (kode, tanggal, _delete, kode_gudang) {
         var params = {
             'kode': kode,
             'tanggal': tanggal,
-            'delete': _delete
+            'delete': _delete,
+            'kode_gudang': kode_gudang
         };
 
         $.ajax({
