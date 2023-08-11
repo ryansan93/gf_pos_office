@@ -155,7 +155,7 @@ class StokOpname extends Public_Controller {
                         ''
                 END as d_satuan
             from item i
-            right join
+            left join
                 group_item gi
                 on
                     i.group_kode = gi.kode
@@ -449,8 +449,6 @@ class StokOpname extends Public_Controller {
         $params = $this->input->post('params');
 
         try {
-            cetak_r( $params, 1 );
-
             $kode = $params['kode'];
             $tgl_transaksi = $params['tanggal'];
             $delete = (isset($params['delete']) && !empty($params['delete'])) ?: 0;
@@ -524,7 +522,7 @@ class StokOpname extends Public_Controller {
 
     public function tes()
     {
-        $kode = 'SO23070009';
+        $kode = 'SO23080029';
 
         $m_conf = new \Model\Storage\Conf();
 
