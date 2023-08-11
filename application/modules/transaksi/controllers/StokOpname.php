@@ -368,7 +368,7 @@ class StokOpname extends Public_Controller {
 
             $kode_gudang = $d_so_old->gudang_kode;
             if ( $kode_gudang != $params['gudang_kode'] ) {
-                $kode_gudang = $kode_gudang.','.$d_so_old->gudang_kode;
+                $kode_gudang = $d_so_old->gudang_kode.','.$kode_gudang;
             }
 
             $m_so->where('id', $params['id'])->update(
