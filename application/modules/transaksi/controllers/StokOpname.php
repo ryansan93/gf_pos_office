@@ -470,7 +470,6 @@ class StokOpname extends Public_Controller {
 
             $m_conf = new \Model\Storage\Conf();
 
-            $gudang = null;
             $barang = null;
 
             $sql_tgl_dan_gudang = "
@@ -484,8 +483,6 @@ class StokOpname extends Public_Controller {
                 // $gudang = $d_tgl_dan_gudang['gudang_kode'];
             }
 
-            // (sod.jumlah <> sod.jumlah_old or (sod.jumlah * (sod.harga / sod.pengali)) <> (sod.jumlah_old * (sod.harga_old / sod.pengali_old))) and
-
             $sql_barang = "
                 select so.tanggal, sod.item_kode from stok_opname_det sod
                 right join
@@ -494,6 +491,7 @@ class StokOpname extends Public_Controller {
                         so.id = sod.id_header
                 where
                     so.kode_stok_opname = '".$kode."' and
+                    (sod.jumlah <> sod.jumlah_old or (sod.jumlah * sod.harga) <> (sod.jumlah_old * sod.harga_old)) and
                     (sod.jumlah > 0 or sod.harga > 0)
                 group by
                     so.tanggal,
@@ -565,7 +563,9 @@ class StokOpname extends Public_Controller {
                 on
                     so.id = sod.id_header
             where
-                so.kode_stok_opname = '".$kode."'
+                so.kode_stok_opname = '".$kode."' and
+                (sod.jumlah <> sod.jumlah_old or (sod.jumlah * sod.harga) <> (sod.jumlah_old * sod.harga_old)) and
+                (sod.jumlah > 0 or sod.harga > 0)
             group by
                 so.tanggal,
                 sod.item_kode
@@ -578,8 +578,6 @@ class StokOpname extends Public_Controller {
                 $barang[] = $value['item_kode'];
             }
         }
-
-        cetak_r( $barang );
 
         $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
 
