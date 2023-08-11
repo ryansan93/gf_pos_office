@@ -308,7 +308,7 @@ var so = {
             var jumlah = numeral.unformat($(tr).find('input.jumlah').val());
             var harga = numeral.unformat($(tr).find('input.harga').val());
 
-            if ( !empty(jumlah) || !empty(harga) ) {
+            if ( jumlah > 0 || !empty(harga) ) {
                 if ( empty(jumlah) ) {
                     $(tr).find('input.jumlah').parent().addClass('has-error');
                     err++;
@@ -339,7 +339,7 @@ var so = {
                 var jumlah = numeral.unformat($(tr).find('input.jumlah').val());
                 var harga = numeral.unformat($(tr).find('input.harga').val());
 
-                if ( jumlah > 0 || harga > 0 ) {
+                if ( !empty(jumlah) || !empty(harga) ) {
                     var _list_item = {
                         'item_kode': $(tr).find('td.kode').text(),
                         'satuan': $(tr).find('select.satuan').val(),
