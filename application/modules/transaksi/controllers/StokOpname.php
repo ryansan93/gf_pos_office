@@ -449,6 +449,8 @@ class StokOpname extends Public_Controller {
         $params = $this->input->post('params');
 
         try {
+            cetak_r( $params, 1 );
+
             $kode = $params['kode'];
             $tgl_transaksi = $params['tanggal'];
             $delete = (isset($params['delete']) && !empty($params['delete'])) ?: 0;
