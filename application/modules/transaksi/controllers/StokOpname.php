@@ -153,7 +153,13 @@ class StokOpname extends Public_Controller {
                         sod.satuan
                     ELSE
                         ''
-                END as d_satuan
+                END as d_satuan,
+                CASE
+                    WHEN ( ".$so_id." > 0 ) THEN
+                        sod.pengali
+                    ELSE
+                        0
+                END as d_pengali
             from item i
             left join
                 group_item gi
@@ -336,6 +342,10 @@ class StokOpname extends Public_Controller {
                 $m_sod->pengali = $v_li['pengali'];
                 $m_sod->jumlah = $v_li['jumlah'];
                 $m_sod->harga = $v_li['harga'];
+                $m_sod->satuan_old = $v_li['satuan_old'];
+                $m_sod->pengali_old = $v_li['pengali_old'];
+                $m_sod->jumlah_old = $v_li['jumlah_old'];
+                $m_sod->harga_old = $v_li['harga_old'];
                 $m_sod->save();
             }
 
@@ -389,6 +399,10 @@ class StokOpname extends Public_Controller {
                 $m_sod->pengali = $v_li['pengali'];
                 $m_sod->jumlah = $v_li['jumlah'];
                 $m_sod->harga = $v_li['harga'];
+                $m_sod->satuan_old = $v_li['satuan_old'];
+                $m_sod->pengali_old = $v_li['pengali_old'];
+                $m_sod->jumlah_old = $v_li['jumlah_old'];
+                $m_sod->harga_old = $v_li['harga_old'];
                 $m_sod->save();
             }
 
@@ -470,6 +484,8 @@ class StokOpname extends Public_Controller {
                 // $gudang = $d_tgl_dan_gudang['gudang_kode'];
             }
 
+            // (sod.jumlah <> sod.jumlah_old or (sod.jumlah * (sod.harga / sod.pengali)) <> (sod.jumlah_old * (sod.harga_old / sod.pengali_old))) and
+
             $sql_barang = "
                 select so.tanggal, sod.item_kode from stok_opname_det sod
                 right join
@@ -478,7 +494,7 @@ class StokOpname extends Public_Controller {
                         so.id = sod.id_header
                 where
                     so.kode_stok_opname = '".$kode."' and
-                    sod.jumlah > 0
+                    (sod.jumlah > 0 or sod.harga > 0)
                 group by
                     so.tanggal,
                     sod.item_kode

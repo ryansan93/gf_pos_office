@@ -247,7 +247,11 @@ var so = {
                         'satuan': $(tr).find('select.satuan').val(),
                         'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
                         'jumlah': jumlah,
-                        'harga': harga
+                        'harga': harga,
+                        'satuan_old': $(tr).find('select.satuan').attr('data-awal-satuan'),
+                        'pengali_old': $(tr).find('select.satuan').attr('data-awal-pengali'),
+                        'jumlah_old': $(tr).find('input.jumlah').attr('data-awal'),
+                        'harga_old': $(tr).find('input.harga').attr('data-awal')
                     };
 
                     return _list_item;
@@ -345,7 +349,11 @@ var so = {
                         'satuan': $(tr).find('select.satuan').val(),
                         'pengali': $(tr).find('select.satuan option:selected').attr('data-pengali'),
                         'jumlah': jumlah,
-                        'harga': harga
+                        'harga': harga,
+                        'satuan_old': $(tr).find('select.satuan').attr('data-awal-satuan'),
+                        'pengali_old': $(tr).find('select.satuan').attr('data-awal-pengali'),
+                        'jumlah_old': $(tr).find('input.jumlah').attr('data-awal'),
+                        'harga_old': $(tr).find('input.harga').attr('data-awal')
                     };
 
                     return _list_item;
