@@ -345,7 +345,7 @@ class StokOpname extends Public_Controller {
                 $m_sod->satuan_old = isset($v_li['satuan_old']) ? $v_li['satuan_old'] : null;
                 $m_sod->pengali_old = (isset($v_li['pengali_old']) && $v_li['pengali_old'] > 0) ? $v_li['pengali_old'] : 0;
                 $m_sod->jumlah_old = (isset($v_li['jumlah_old']) && $v_li['jumlah_old'] > 0) ? $v_li['jumlah_old'] : 0;
-                $m_sod->harga_old = (isset($v_li['harga_old']) && isset($v_li['harga_old']) > 0) ? $v_li['harga_old'] : 0;
+                $m_sod->harga_old = (isset($v_li['harga_old']) && $v_li['harga_old'] > 0) ? $v_li['harga_old'] : 0;
                 $m_sod->save();
             }
 
@@ -402,7 +402,7 @@ class StokOpname extends Public_Controller {
                 $m_sod->satuan_old = isset($v_li['satuan_old']) ? $v_li['satuan_old'] : null;
                 $m_sod->pengali_old = (isset($v_li['pengali_old']) && $v_li['pengali_old'] > 0) ? $v_li['pengali_old'] : 0;
                 $m_sod->jumlah_old = (isset($v_li['jumlah_old']) && $v_li['jumlah_old'] > 0) ? $v_li['jumlah_old'] : 0;
-                $m_sod->harga_old = (isset($v_li['harga_old']) && isset($v_li['harga_old']) > 0) ? $v_li['harga_old'] : 0;
+                $m_sod->harga_old = (isset($v_li['harga_old']) && $v_li['harga_old'] > 0) ? $v_li['harga_old'] : 0;
                 $m_sod->save();
             }
 
