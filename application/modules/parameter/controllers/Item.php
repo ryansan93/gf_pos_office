@@ -68,6 +68,21 @@ class Item extends Public_Controller {
         echo $html;
     }
 
+    public function modalEditForm()
+    {
+        $kode = $this->input->get('kode');
+
+        $m_item = new \Model\Storage\Item_model();
+        $d_item = $m_item->where('kode', $kode)->with(['satuan'])->first()->toArray();
+
+        $content['data'] = $d_item;
+        $content['group'] = $this->getGroupItem();
+
+        $html = $this->load->view($this->pathView . 'editForm', $content, TRUE);
+
+        echo $html;
+    }
+
     public function save()
     {
         $params = $this->input->post('params');
@@ -114,21 +129,6 @@ class Item extends Public_Controller {
         }
 
         display_json( $this->result );
-    }
-
-    public function modalEditForm()
-    {
-        $kode = $this->input->get('kode');
-
-        $m_item = new \Model\Storage\Item_model();
-        $d_item = $m_item->where('kode', $kode)->with(['satuan'])->first()->toArray();
-
-        $content['data'] = $d_item;
-        $content['group'] = $this->getGroupItem();
-
-        $html = $this->load->view($this->pathView . 'editForm', $content, TRUE);
-
-        echo $html;
     }
 
     public function edit()

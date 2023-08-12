@@ -9,8 +9,8 @@ class Item_model extends Conf {
     public $timestamps = false;
 
 	public function getNextId_agustus(){
-		$id = $this->whereRaw("SUBSTRING(".$this->primaryKey.",4,4) = cast(right(year(current_timestamp),2) as char(2))+replace(str(month(getdate()),2),' ',0)")
-								->selectRaw("'".$this->kodeTable."'+right(year(current_timestamp),2)+replace(str(month(getdate()),2),' ',0)+replace(str(substring(coalesce(max(".$this->primaryKey."),'000'),8,3)+1,3), ' ', '0') as nextId")
+		$id = $this->whereRaw("SUBSTRING(".$this->primaryKey.",4,4) = cast(right(year(current_timestamp),2) as char(2))+'07'")
+								->selectRaw("'".$this->kodeTable."'+right(year(current_timestamp),2)+'07'+replace(str(substring(coalesce(max(".$this->primaryKey."),'000'),8,3)+1,3), ' ', '0') as nextId")
 								->first();
 		return $id->nextId;
 	}
