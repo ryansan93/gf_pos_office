@@ -657,8 +657,6 @@ class SummaryPenjualanHarian extends Public_Controller {
                 bd.nominal
         ";
 
-        cetak_r( $sql, 1 );
-
         $d_jual_by_kategori_pembayaran = $m_jual->hydrateRaw( $sql );
         if ( $d_jual_by_kategori_pembayaran->count() > 0 ) {
             $d_jual_by_kategori_pembayaran = $d_jual_by_kategori_pembayaran->toArray();
