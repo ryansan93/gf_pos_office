@@ -606,7 +606,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                 (
                     select byr1.id, byr1.faktur_kode, byr1.jml_tagihan, byr1.jml_bayar, byr1.kasir, byr1.diskon from bayar byr1
                     right join
-                        ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
+                        ( select max(id) as id, faktur_kode from bayar where tgl_trans between '".$start_date."' and '".$end_date."' group by faktur_kode ) byr2
                         on
                             byr1.id = byr2.id
                     where 
@@ -621,7 +621,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                         on
                             bh.id_header = b.id
                     where
-                        b.mstatus = 1
+                        b.mstatus = 1 and
+                        b.tgl_trans between '".$start_date."' and '".$end_date."'
                 ) byr
                 on
                     jl.kode_faktur = byr.faktur_kode
