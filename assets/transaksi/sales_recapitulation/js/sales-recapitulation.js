@@ -249,6 +249,7 @@ var sr = {
 
                 var data = {
                     'id_bayar': $(elm).attr('data-id'),
+                    // 'status_pembayaran': $(modal).find('select.status_pembayaran').select2('val'),
                     'jenis_bayar': $(modal).find('select.jenis_kartu option:selected').text(),
                     'kode_jenis_kartu': $(modal).find('select.jenis_kartu').select2('val'),
                     'jml_bayar': jml_bayar,

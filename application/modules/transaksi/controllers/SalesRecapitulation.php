@@ -501,6 +501,7 @@ class SalesRecapitulation extends Public_Controller
             select 
                 b.id,
                 b.jml_bayar,
+                j.kode_faktur,
                 j.total as total,
                 j.service_charge as service_charge,
                 j.ppn as ppn,
@@ -617,10 +618,12 @@ class SalesRecapitulation extends Public_Controller
         ";
         $d_bayar = $m_conf->hydrateRaw( $sql );
 
+        $kode_faktur = null;
         $sisa_tagihan = 0;
         if ( $d_bayar->count() > 0 ) {
             $d_bayar = $d_bayar->toArray()[0];
 
+            $kode_faktur = $d_bayar['kode_faktur'];
             $jml_tagihan = $d_bayar['grand_total'] + $d_bayar['grand_total_gabungan'];
 
             if ( $jml_tagihan > $d_bayar['jml_bayar'] ) {
@@ -633,6 +636,7 @@ class SalesRecapitulation extends Public_Controller
         }
 
         $content['id_bayar'] = $id_bayar;
+        $content['kode_faktur'] = $kode_faktur;
         $content['sisa_tagihan'] = $sisa_tagihan;
         $content['jenis_kartu'] = $this->getJenisKartu();
         $html = $this->load->view($this->pathView . 'modalAddPembayaran', $content, TRUE);
@@ -731,17 +735,67 @@ class SalesRecapitulation extends Public_Controller
         $id_verifikasi = $this->input->post('id_verifikasi');
 
         try {
+            $m_bayar = new \Model\Storage\Bayar_model();
+            $d_bayar = $m_bayar->where('id', $params['id_bayar'])->first();
+
+            // $id_header = null;
+
+            // if ( $params['status_pembayaran'] == 1 ) {
+            //     $m_bayar = new \Model\Storage\Bayar_model();
+            //     $now = $m_bayar->getDate();
+
+            //     $m_bayar->tgl_trans = $now['waktu'];
+            //     $m_bayar->faktur_kode = null;
+            //     $m_bayar->jml_tagihan = $d_bayar->jml_tagihan;
+            //     $m_bayar->jml_bayar = $d_bayar->jml_bayar;
+            //     $m_bayar->ppn = 0;
+            //     $m_bayar->service_charge = 0;
+            //     $m_bayar->diskon = 0;
+            //     $m_bayar->total = 0;
+            //     $m_bayar->member_kode = $d_bayar->member_kode;
+            //     $m_bayar->member = $d_bayar->member;
+            //     $m_bayar->kasir = $this->userid;
+            //     $m_bayar->nama_kasir = $this->userdata['detail_user']['nama_detuser'];
+            //     $m_bayar->mstatus = 1;
+            //     $m_bayar->save();
+
+            //     $id_header = $m_bayar->id;
+
+            //     $m_bayarh = new \Model\Storage\BayarHutang_model();
+            //     $m_bayarh->id_header = $id_header;
+            //     $m_bayarh->faktur_kode = $params['kode_faktur'];
+            //     $m_bayarh->hutang = $value['hutang'];
+            //     $m_bayarh->sudah_bayar = (isset($value['sudah_bayar']) && !empty($value['sudah_bayar']) && $value['sudah_bayar'] > 0) ? $value['sudah_bayar'] : 0;
+            //     $m_bayarh->bayar = $params['jml_bayar'];
+            //     $m_bayarh->save();
+
+            //     if ( $value['bayar'] >= $value['hutang'] ) {
+            //         $m_jual = new \Model\Storage\Jual_model();
+            //         $m_jual->where('kode_faktur', $value['faktur_kode'])->update(
+            //             array(
+            //                 'lunas' => 1
+            //             )
+            //         );
+            //     } else {
+            //         $m_jual = new \Model\Storage\Jual_model();
+            //         $m_jual->where('kode_faktur', $value['faktur_kode'])->update(
+            //             array(
+            //                 'lunas' => 0
+            //             )
+            //         );
+            //     }
+            // } else {
+            // }
+            $id_header = $params['id_bayar'];
+
             $m_bd = new \Model\Storage\BayarDet_model();
-            $m_bd->id_header = $params['id_bayar'];
+            $m_bd->id_header = $id_header;
             $m_bd->jenis_bayar = $params['jenis_bayar'];
             $m_bd->kode_jenis_kartu = $params['kode_jenis_kartu'];
             $m_bd->nominal = $params['jml_bayar'];
             $m_bd->no_kartu = $params['no_kartu'];
             $m_bd->nama_kartu = $params['nama_kartu'];
             $m_bd->save();
-
-            $m_bayar = new \Model\Storage\Bayar_model();
-            $d_bayar = $m_bayar->where('id', $params['id_bayar'])->first();
 
             $m_jk = new \Model\Storage\JenisKartu_model();
             $d_jk = $m_jk->where('kode_jenis_kartu', $params['kode_jenis_kartu'])->first();

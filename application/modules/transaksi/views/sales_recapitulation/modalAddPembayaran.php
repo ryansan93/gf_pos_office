@@ -3,6 +3,16 @@
     <button type="button" class="close" data-dismiss="modal" style="color: #000000;">&times;</button>
 </div>
 <div class="modal-body body no-padding">
+	<!-- <div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+		<div class="col-xs-12 no-padding"><label class="label-control">Status Pembayaran</label></div>
+		<div class="col-xs-12 no-padding">
+			<select class="col-xs-12 form-control status_pembayaran" data-required="1">
+				<option value="">-- Pilih Status Pembayaran --</option>
+				<option value="1">BARU</option>
+				<option value="0">UPDATE</option>
+			</select>
+		</div>
+	</div> -->
 	<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
 		<div class="col-xs-12 no-padding"><label class="label-control">Jenis Pembayaran</label></div>
 		<div class="col-xs-12 no-padding">
@@ -44,6 +54,6 @@
 	</div>
 	<div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 	<div class="col-xs-12 no-padding">
-		<button type="button" class="col-xs-12 btn btn-primary" onclick="sr.savePembayaran(this)" data-id="<?php echo $id_bayar; ?>"><i class="fa fa-check"></i> Apply</button>
+		<button type="button" class="col-xs-12 btn btn-primary" onclick="sr.savePembayaran(this)" data-id="<?php echo $id_bayar; ?>" data-kode="<?php echo $kode_faktur; ?>"><i class="fa fa-check"></i> Apply</button>
 	</div>
 </div>
