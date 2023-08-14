@@ -604,24 +604,52 @@ class SummaryPenjualanHarian extends Public_Controller {
                 ) jl
             right join
                 (
-                    select byr1.id, byr1.faktur_kode, byr1.jml_tagihan, byr1.jml_bayar, byr1.kasir, byr1.diskon from bayar byr1
+                    select byr1.id, byr1.faktur_kode, byr1.jml_tagihan, sum(bd.nominal) as jml_bayar, byr1.kasir, byr1.diskon from bayar byr1
                     right join
                         ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
                         on
                             byr1.id = byr2.id
-                    where 
+                    right join
+                        bayar_det bd
+                        on
+                            byr2.id = bd.id_header
+                    where
+                        not exists (
+                            select * from log_tables 
+                            where 
+                                tbl_name = 'bayar' and 
+                                tbl_id = byr2.id and 
+                                cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
+                                waktu > '".$end_date."'
+                            ) and
                         byr1.mstatus = 1 and
                         byr1.faktur_kode is not null
+                    group by
+                        byr1.id, byr1.faktur_kode, byr1.jml_tagihan, byr1.kasir, byr1.diskon
                     
                     union all
                     
-                    select b.id, bh.faktur_kode, bh.hutang as jml_tagihan, bh.bayar as jml_bayar, b.kasir, 0 as diskon from bayar_hutang bh 
+                    select b.id, bh.faktur_kode, bh.hutang as jml_tagihan, sum(bd.nominal) as jml_bayar, b.kasir, 0 as diskon from bayar_hutang bh 
                     right join
                         bayar b
                         on
                             bh.id_header = b.id
+                    right join
+                        bayar_det bd
+                        on
+                            b.id = bd.id_header
                     where
+                        not exists (
+                            select * from log_tables 
+                            where 
+                                tbl_name = 'bayar' and 
+                                tbl_id = b.id and 
+                                cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
+                                waktu > '".$end_date."'
+                            ) and
                         b.mstatus = 1
+                    group by
+                        b.id, bh.faktur_kode, bh.hutang as jml_tagihan, b.kasir
                 ) byr
                 on
                     jl.kode_faktur = byr.faktur_kode
@@ -638,6 +666,14 @@ class SummaryPenjualanHarian extends Public_Controller {
                 on
                     kjk.id = jk.kategori_jenis_kartu_id
             where
+                not exists (
+                    select * from log_tables 
+                    where 
+                        tbl_name = 'bayar' and 
+                        tbl_id = b.id and 
+                        cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
+                        waktu > '".$end_date."'
+                    ) and
                 jl.kode_faktur is not null
                 ".$sql_kasir."
             group by
