@@ -649,7 +649,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                             ) and
                         b.mstatus = 1
                     group by
-                        b.id, bh.faktur_kode, bh.hutang as jml_tagihan, b.kasir
+                        b.id, bh.faktur_kode, bh.hutang, b.kasir
                 ) byr
                 on
                     jl.kode_faktur = byr.faktur_kode
