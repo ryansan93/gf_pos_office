@@ -638,6 +638,13 @@ class SummaryPenjualanHarian extends Public_Controller {
                 on
                     kjk.id = jk.kategori_jenis_kartu_id
             where
+                not exists (
+                    select * from log_tables 
+                    where 
+                        tbl_name = 'bayar' and 
+                        tbl_id = byr.id and 
+                        cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%'
+                    ) and
                 jl.kode_faktur is not null
                 ".$sql_kasir."
             group by
