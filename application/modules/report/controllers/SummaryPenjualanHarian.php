@@ -670,7 +670,7 @@ class SummaryPenjualanHarian extends Public_Controller {
                     select * from log_tables 
                     where 
                         tbl_name = 'bayar' and 
-                        tbl_id = b.id and 
+                        tbl_id = byr.id and 
                         cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
                         waktu > '".$end_date."'
                     ) and
