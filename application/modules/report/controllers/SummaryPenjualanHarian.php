@@ -630,11 +630,6 @@ class SummaryPenjualanHarian extends Public_Controller {
                 on
                     byr.id = bd.id_header
             right join
-                    (select * from log_tables where tbl_name = 'bayar' and waktu between '".$start_date."' and '".$end_date."') lt
-                    on
-                        lt.tbl_id = byr.id and
-                        cast(lt._json as nvarchar(max)) like '%byr.id%'
-            right join
                 jenis_kartu jk
                 on
                     bd.kode_jenis_kartu = jk.kode_jenis_kartu
@@ -661,6 +656,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                 byr.jml_bayar,
                 bd.nominal
         ";
+
+        cetak_r( $sql, 1 );
 
         $d_jual_by_kategori_pembayaran = $m_jual->hydrateRaw( $sql );
         if ( $d_jual_by_kategori_pembayaran->count() > 0 ) {
