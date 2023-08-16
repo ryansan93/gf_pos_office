@@ -531,7 +531,7 @@ class SummaryPenjualanHarian extends Public_Controller {
             }
         }
 
-        $sql = "
+        /* $sql = "
             select 
                 jl.kode_faktur as kode_faktur,
                 jl.tgl_trans,
@@ -666,19 +666,199 @@ class SummaryPenjualanHarian extends Public_Controller {
                 on
                     kjk.id = jk.kategori_jenis_kartu_id
             where
-                not exists (
-                    select * from log_tables 
-                    where 
-                        tbl_name = 'bayar' and 
-                        tbl_id = byr.id and 
-                        cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
-                        waktu > '".$end_date."'
-                    ) and
+                (
+                    not exists (
+                        select * from log_tables 
+                        where 
+                            tbl_name = 'bayar' and 
+                            tbl_id = byr.id and 
+                            cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
+                            waktu > '".$end_date."'
+                        ) 
+                    or
+                    exists (
+                        select * from log_tables 
+                        where 
+                            tbl_name = 'bayar' and 
+                            tbl_id = byr.id and 
+                            cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
+                            cast(_json as nvarchar(max)) like '%\"jenis_bayar\":\"CL\"%' and
+                            waktu > '".$end_date."'
+                        )
+                )
+                and
                 jl.kode_faktur is not null
                 ".$sql_kasir."
             group by
                 jl.kode_faktur,
                 jl.tgl_trans,
+                jl.tagihan,
+                kjk.id,
+                byr.jml_tagihan,
+                byr.jml_bayar,
+                bd.nominal
+        ";
+        */
+        $sql = "
+            select 
+                jl.kode_faktur as kode_faktur,
+                byr.tgl_trans,
+                kjk.id,
+                case
+                    when kjk.id = 4 then
+                        case
+                            when (sum(jl.tagihan) - sum(byr.diskon)) >= byr.jml_bayar then
+                                (sum(jl.tagihan) - sum(byr.diskon)) - byr.jml_bayar
+                            else
+                                0
+                        end
+                    when kjk.id != 4 then
+                        sum(bd.nominal)
+                end as nilai
+            from (
+                    select 
+                        jl1.kode_faktur, 
+                        jl1.tgl_trans, 
+                        sum(jl1.tagihan) as tagihan 
+                    from (
+                        select 
+                            j.kode_faktur as kode_faktur,
+                            j.tgl_trans,
+                            sum(j.grand_total) as tagihan
+                        from jual j 
+                        where 
+                            j.tgl_trans between '".$start_date."' and '".$end_date."' and
+                            j.branch = '".$branch."' and
+                            j.mstatus = 1
+                        group by
+                            j.kode_faktur,
+                            j.tgl_trans
+
+                        UNION ALL
+
+                        select 
+                            jg.faktur_kode as kode_faktur,
+                            j.tgl_trans,
+                            sum(jg.jml_tagihan) as tagihan
+                        from jual_gabungan jg
+                        right join
+                            jual j1
+                            on
+                                j1.kode_faktur = jg.faktur_kode_gabungan
+                        right join
+                            (
+                                select 
+                                    j.kode_faktur as kode_faktur,
+                                    j.tgl_trans
+                                from jual j 
+                                where 
+                                    j.tgl_trans between '".$start_date."' and '".$end_date."' and
+                                    j.branch = '".$branch."'
+                                group by
+                                    j.kode_faktur,
+                                    j.tgl_trans
+                            ) j
+                            on
+                                j.kode_faktur = jg.faktur_kode
+                        group by
+                            jg.faktur_kode,
+                            j.tgl_trans
+                    ) jl1
+                    where
+                        jl1.kode_faktur is not null
+                    group by
+                        jl1.kode_faktur, 
+                        jl1.tgl_trans
+                ) jl
+            right join
+                (
+                    select byr1.id, byr1.tgl_trans, byr1.faktur_kode, byr1.jml_tagihan, sum(bd.nominal) as jml_bayar, byr1.kasir, byr1.diskon from bayar byr1
+                    right join
+                        ( select max(id) as id, faktur_kode from bayar group by faktur_kode ) byr2
+                        on
+                            byr1.id = byr2.id
+                    right join
+                        bayar_det bd
+                        on
+                            byr2.id = bd.id_header
+                    where
+                        byr1.mstatus = 1 and
+                        byr1.faktur_kode is not null
+                    group by
+                        byr1.id, byr1.tgl_trans, byr1.faktur_kode, byr1.jml_tagihan, byr1.kasir, byr1.diskon
+                                
+                    union all
+                                
+                    select b.id, b.tgl_trans, bh.faktur_kode, bh.hutang as jml_tagihan, sum(bd.nominal) as jml_bayar, b.kasir, 0 as diskon from bayar_hutang bh 
+                    right join
+                        bayar b
+                        on
+                            bh.id_header = b.id
+                    right join
+                        bayar_det bd
+                        on
+                            b.id = bd.id_header
+                    where
+                        b.mstatus = 1
+                    group by
+                        b.id, b.tgl_trans, bh.faktur_kode, bh.hutang, b.kasir
+                ) byr
+                on
+                    jl.kode_faktur = byr.faktur_kode
+            right join
+                bayar_det bd
+                on
+                    byr.id = bd.id_header
+            right join
+                jenis_kartu jk
+                on
+                    bd.kode_jenis_kartu = jk.kode_jenis_kartu
+            right join
+                kategori_jenis_kartu kjk
+                on
+                    kjk.id = jk.kategori_jenis_kartu_id
+            where
+                1 = (
+                    case
+                        when exists(select * from bayar_det where id_header = byr.id and jenis_bayar = 'CL') then
+                            case
+                                when 
+                                    (
+                                        not exists (
+                                            select * from log_tables 
+                                            where 
+                                                tbl_name = 'bayar' and 
+                                                tbl_id = byr.id and 
+                                                cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
+                                                cast(_json as nvarchar(max)) not like '%\"jenis_bayar\":\"CL\"%' and
+                                                waktu > '".$end_date."'
+                                            ) 
+                                        or
+                                        exists (
+                                            select * from log_tables 
+                                            where 
+                                                tbl_name = 'bayar' and 
+                                                tbl_id = byr.id and 
+                                                cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
+                                                cast(_json as nvarchar(max)) like '%\"jenis_bayar\":\"CL\"%' and
+                                                waktu > '".$end_date."'
+                                            )
+                                    )
+                                then
+                                    1
+                                else
+                                    0
+                            end
+                        else
+                            1
+                    end
+                )
+                and
+                jl.kode_faktur is not null and
+                cast(byr.tgl_trans as varchar(10)) = cast(jl.tgl_trans as varchar(10))
+            group by
+                jl.kode_faktur,
+                byr.tgl_trans,
                 jl.tagihan,
                 kjk.id,
                 byr.jml_tagihan,
@@ -726,7 +906,15 @@ class SummaryPenjualanHarian extends Public_Controller {
                 $total_without_cl = $data[ $key ]['kategori_pembayaran'][1] + $data[ $key ]['kategori_pembayaran'][2] + $data[ $key ]['kategori_pembayaran'][3];
                 $data[ $key ]['kategori_pembayaran'][4] = ($data[ $key ]['kategori_pembayaran'][4] > 0) ? $data[ $key ]['kategori_pembayaran'][4] - $total_without_cl : 0;
             }
-        }
+        } 
+        // else {
+        //     $data[ $key ]['kategori_pembayaran'] = array(
+        //         '1' => 0,
+        //         '2' => 0,
+        //         '3' => 0,
+        //         '4' => ($value['id'] == 4) ? $value['nilai'] : 0
+        //     );
+        // }
 
         // $sql = "
         //     select 
