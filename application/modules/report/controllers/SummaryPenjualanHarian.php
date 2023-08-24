@@ -707,8 +707,14 @@ class SummaryPenjualanHarian extends Public_Controller {
                 case
                     when kjk.id = 4 then
                         case
+                            /* 
                             when (sum(jl.tagihan) - sum(byr.diskon)) >= byr.jml_bayar then
                                 (sum(jl.tagihan) - sum(byr.diskon)) - byr.jml_bayar
+                            else
+                                0 
+                            */
+                            when (sum(jl.tagihan) - sum(byr.diskon)) >= sum(bd.nominal) then
+                                (sum(jl.tagihan) - sum(byr.diskon)) - sum(bd.nominal)
                             else
                                 0
                         end
@@ -824,16 +830,6 @@ class SummaryPenjualanHarian extends Public_Controller {
                             case
                                 when 
                                     (
-                                        not exists (
-                                            select * from log_tables 
-                                            where 
-                                                tbl_name = 'bayar' and 
-                                                tbl_id = byr.id and 
-                                                cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
-                                                cast(_json as nvarchar(max)) not like '%\"jenis_bayar\":\"CL\"%' and
-                                                waktu > '".$end_date."'
-                                            ) 
-                                        or
                                         exists (
                                             select * from log_tables 
                                             where 
@@ -843,6 +839,16 @@ class SummaryPenjualanHarian extends Public_Controller {
                                                 cast(_json as nvarchar(max)) like '%\"jenis_bayar\":\"CL\"%' and
                                                 waktu > '".$end_date."'
                                             )
+                                        or
+                                        not exists (
+                                            select * from log_tables 
+                                            where 
+                                                tbl_name = 'bayar' and 
+                                                tbl_id = byr.id and 
+                                                cast(_json as nvarchar(max)) like '%\"id\":'+cast(bd.id as nvarchar(max))+'%' and
+                                                cast(_json as nvarchar(max)) not like '%\"jenis_bayar\":\"CL\"%' and
+                                                waktu > '".$end_date."'
+                                            ) 
                                     )
                                 then
                                     1
@@ -865,6 +871,8 @@ class SummaryPenjualanHarian extends Public_Controller {
                 byr.jml_bayar,
                 bd.nominal
         ";
+
+        cetak_r( $sql, 1 );
 
         $d_jual_by_kategori_pembayaran = $m_jual->hydrateRaw( $sql );
         if ( $d_jual_by_kategori_pembayaran->count() > 0 ) {
