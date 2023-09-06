@@ -134,12 +134,28 @@ var adjin = {
         $.each($(tbody).find('select.item'), function(a) {
             $(this).select2();
             $(this).on('select2:select', function (e) {
-                var data = e.params.data.element.dataset;
-
                 var _tr = $(this).closest('tr');
+                var select_satuan = $(_tr).find('select.satuan');
 
-                $(_tr).find('.satuan').val( data.satuan );
-                $(_tr).find('.group').val( data.namagroup );
+                var data = e.params.data.element.dataset;
+                var satuan = JSON.parse( data.satuan );
+
+                var opt = '<option value="">Pilih Satuan</option>';
+                for (var i = 0; i < satuan.length; i++) {
+                    opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'">'+satuan[i].satuan+'</option>';
+                }
+
+                $(select_satuan).html( opt );
+                $(select_satuan).removeAttr('disabled');
+                $(_tr).find('.jumlah').removeAttr('disabled');
+                $(_tr).find('.harga').removeAttr('disabled');
+
+                // var data = e.params.data.element.dataset;
+
+                // var _tr = $(this).closest('tr');
+
+                // $(_tr).find('.satuan').val( data.satuan );
+                // $(_tr).find('.group').val( data.namagroup );
             });
         });
     }, // end - addRow
