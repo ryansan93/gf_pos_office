@@ -109,18 +109,22 @@ class Mutasi extends Public_Controller {
                     m.tujuan = g_tujuan.kode_gudang
             left join
                 (
-                    select 
-                        s.id, 
+                    select  
                         s.id_header, 
                         s.item_kode, 
                         st.kode_trans,
-                        st.jumlah,
-                        st.tbl_name
+                        sum(st.jumlah) as jumlah,
+                        cast(st.tbl_name as varchar(max)) as tbl_name
                     from stok_trans st
                     right join
                         stok s
                         on
                             st.id_header = s.id
+                    group by
+                        s.id_header, 
+                        s.item_kode, 
+                        st.kode_trans,
+                        cast(st.tbl_name as varchar(max))
                 ) st
                 on
                     st.kode_trans = m.kode_mutasi and
