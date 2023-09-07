@@ -140,18 +140,22 @@ class PenerimaanBarangMutasi extends Public_Controller {
                     gi.kode = i.group_kode
             left join
                 (
-                    select 
-                        s.id, 
+                    select  
                         s.id_header, 
                         s.item_kode, 
                         st.kode_trans,
-                        st.jumlah,
-                        st.tbl_name
+                        sum(st.jumlah) as jumlah,
+                        cast(st.tbl_name as varchar(max)) as tbl_name
                     from stok_trans st
                     right join
                         stok s
                         on
                             st.id_header = s.id
+                    group by
+                        s.id_header, 
+                        s.item_kode, 
+                        st.kode_trans,
+                        cast(st.tbl_name as varchar(max))
                 ) st
                 on
                     st.kode_trans = m.kode_mutasi and
