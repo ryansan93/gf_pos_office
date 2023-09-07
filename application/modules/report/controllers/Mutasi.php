@@ -88,22 +88,22 @@ class Mutasi extends Public_Controller {
                 gi.coa
             from mutasi_item mi
             right join
-                item i
-                on
-                    mi.item_kode = i.kode
-            right join
-                group_item gi
-                on
-                    i.group_kode = gi.kode
-            right join
                 mutasi m
                 on
                     mi.mutasi_kode = m.kode_mutasi
-            right join
+            left join
+                item i
+                on
+                    mi.item_kode = i.kode
+            left join
+                group_item gi
+                on
+                    i.group_kode = gi.kode
+            left join
                 gudang g_asal
                 on
                     m.asal = g_asal.kode_gudang
-            right join
+            left join
                 gudang g_tujuan
                 on
                     m.tujuan = g_tujuan.kode_gudang
