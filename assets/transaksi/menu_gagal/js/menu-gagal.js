@@ -22,6 +22,11 @@ var mg = {
 		$(tbody).append( $(tr_clone) );
 
 		$(tbody).find('tr:last select').select2({placeholder: 'Pilih Menu'});
+
+		$('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
+			// $(this).priceFormat(Config[$(this).data('tipe')]);
+			priceFormat( $(this) );
+		});
 	}, // end - addRow
 
 	removeRow: function (elm) {
@@ -72,10 +77,15 @@ var mg = {
             $('#action .branch').next('span.select2').css('width', '100%');
         });
         $('#action .branch').next('span.select2').css('width', '100%');
+
+		$('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
+			// $(this).priceFormat(Config[$(this).data('tipe')]);
+			priceFormat( $(this) );
+		});
 	}, // end - settingUp
 
 	getLists: function () {
-		var div_active = $('div.div-tab.active');
+		var div_active = $('#riwayat');
 
 		var err = 0;
 		$.map( $(div_active).find('[data-required=1]'), function (ipt) {
@@ -108,24 +118,31 @@ var mg = {
 		}
 	}, // end - getLists
 
-	changeTabActive: function (elm) {
-		var href = $(elm).attr('data-href');
+	changeTabActive: function(elm) {
+        var vhref = $(elm).data('href');
+        var edit = $(elm).data('edit');
+        // change tab-menu
+        $('.nav-tabs').find('a').removeClass('active');
+        $('.nav-tabs').find('a').removeClass('show');
+        $('.nav-tabs').find('li a[data-tab='+vhref+']').addClass('show');
+        $('.nav-tabs').find('li a[data-tab='+vhref+']').addClass('active');
 
-	    var div_tab_contain = $(elm).closest('div.tab-contain');
+        // change tab-content
+        $('.tab-pane').removeClass('show');
+        $('.tab-pane').removeClass('active');
+        $('div#'+vhref).addClass('show');
+        $('div#'+vhref).addClass('active');
 
-	    $(div_tab_contain).find('div.div-tab').removeClass('active');
-	    $(div_tab_contain).find('div.div-tab').addClass('non-active');
+        if ( vhref == 'action' ) {
+            var v_id = $(elm).attr('data-id');
 
-	    $(div_tab_contain).find('div#'+href).removeClass('non-active');
-	    $(div_tab_contain).find('div#'+href).addClass('active');
-
-	    var id = $(elm).attr('data-id');
-	    var edit = $(elm).attr('data-edit');
-
-	    mg.loadForm( id, edit );
-	}, // end - changeTabActive
+            mg.loadForm(v_id, edit);
+        };
+    }, // end - changeTabActive
 
 	loadForm: function (id, edit) {
+		var dcontent = $('#action');
+
 		$.ajax({
             url: 'transaksi/MenuGagal/loadForm',
             data: {
@@ -134,16 +151,14 @@ var mg = {
             },
             type: 'GET',
             dataType: 'HTML',
-            beforeSend: function() { showLoading(); },
+            beforeSend: function() { App.showLoaderInContent( $(dcontent) ) },
             success: function(html) {
-                hideLoading();
-                
-                $('div.div-tab.active').html( html );
+                App.hideLoaderInContent( $(dcontent), html );
 
                 mg.settingUp();
 
                 if ( !empty(edit) ) {
-                	var branch = $('div.div-tab.active').find('.branch').select2('val');
+                	var branch = $('div.tab-pane.active').find('.branch').select2('val');
 
                 	mg.getMenu( branch );
                 }
@@ -344,7 +359,7 @@ var mg = {
 	}, // end - delete
 
 	exportPdf: function(elm) {
-		var div_active = $('div.div-tab.active');
+		var div_active = $('div.tab-pane.active');
 		var err = 0
 
 		$.map( $(div_active).find('[data-required=1]'), function(ipt) {

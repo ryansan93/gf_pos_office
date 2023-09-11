@@ -42,13 +42,10 @@ class MenuGagal extends Public_Controller
             );
             $data = $this->includes;
 
-            $kodeBranch = null;
-
             $content['akses'] = $this->hakAkses;
-            $content['kode_branch'] = $kodeBranch;
 
-            $content['riwayatForm'] = $this->riwayatForm( $kodeBranch );
-            $content['addForm'] = $this->addForm( $kodeBranch );
+            $content['riwayatForm'] = $this->riwayatForm();
+            $content['addForm'] = $this->addForm();
 
             $data['title_menu'] = 'Menu Gagal';
             $data['view'] = $this->load->view($this->pathView . 'index', $content, TRUE);
@@ -112,25 +109,20 @@ class MenuGagal extends Public_Controller
         $html = null;
 
         if ( !empty($id) && !empty($edit) ) {
-            $html = $this->editForm( $this->kodebranch, $id );
+            $html = $this->editForm( $id );
         } else if ( !empty($id) && empty($edit) ) {
             $html = $this->viewForm( $id );
         } else {
-            $html = $this->addForm( $this->kodebranch );
+            $html = $this->addForm();
         }
 
         echo $html;
     }
 
-    public function getBranch( $kodeBranch )
+    public function getBranch()
     {
         $m_branch = new \Model\Storage\Branch_model();
-
-        if ( !empty($kodeBranch) ) {
-            $d_branch = $m_branch->where('kode_branch', $kodeBranch)->orderBy('nama', 'asc')->get();
-        } else {
-            $d_branch = $m_branch->orderBy('nama', 'asc')->get();
-        }
+        $d_branch = $m_branch->orderBy('nama', 'asc')->get();
 
         $data = null;
         if ( $d_branch->count() ) {
@@ -140,18 +132,18 @@ class MenuGagal extends Public_Controller
         return $data;
     }
 
-    public function riwayatForm( $kodeBranch )
+    public function riwayatForm()
     {
         $content['akses'] = $this->hakAkses;
-        $content['branch'] = $this->getBranch( $kodeBranch );
+        $content['branch'] = $this->getBranch();
         $html = $this->load->view($this->pathView . 'riwayatForm', $content, TRUE);
 
         return $html;
     }
 
-    public function addForm( $kodeBranch )
+    public function addForm()
     {
-        $content['branch'] = $this->getBranch( $kodeBranch );
+        $content['branch'] = $this->getBranch();
         $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
 
         return $html;
@@ -168,13 +160,13 @@ class MenuGagal extends Public_Controller
         return $html;
     }
 
-    public function editForm( $kodeBranch, $id )
+    public function editForm($id )
     {
         $m_wm = new \Model\Storage\WasteMenu_model();
         $d_wm = $m_wm->where('id', $id)->with(['branch', 'waste_menu_item'])->first()->toArray();
 
         $content['data'] = $d_wm;
-        $content['branch'] = $this->getBranch( $kodeBranch );
+        $content['branch'] = $this->getBranch();
         $html = $this->load->view($this->pathView . 'editForm', $content, TRUE);
 
         return $html;
