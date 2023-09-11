@@ -42,11 +42,13 @@ class MenuGagal extends Public_Controller
             );
             $data = $this->includes;
 
-            $content['akses'] = $this->hakAkses;
-            $content['kode_branch'] = $this->kodebranch;
+            $kodeBranch = null;
 
-            $content['riwayatForm'] = $this->riwayatForm( $this->kodebranch );
-            $content['addForm'] = $this->addForm( $this->kodebranch );
+            $content['akses'] = $this->hakAkses;
+            $content['kode_branch'] = $kodeBranch;
+
+            $content['riwayatForm'] = $this->riwayatForm( $kodeBranch );
+            $content['addForm'] = $this->addForm( $kodeBranch );
 
             $data['view'] = $this->load->view($this->pathView . 'index', $content, TRUE);
 
