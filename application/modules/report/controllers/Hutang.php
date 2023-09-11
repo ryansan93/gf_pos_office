@@ -36,6 +36,7 @@ class Hutang extends Public_Controller {
             );
             $data = $this->includes;
 
+            $content['branch'] = $this->getBranch();
             $content['report_hutang'] = $this->load->view($this->pathView . 'report_hutang', null, TRUE);
             $content['akses'] = $this->hakAkses;
 
@@ -48,7 +49,28 @@ class Hutang extends Public_Controller {
         }
     }
 
-    public function getDataHutang($start_date, $end_date)
+    public function getBranch() {
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select 
+                b.kode_branch as kode,
+                b.nama
+            from
+                branch b
+            order by
+                b.nama
+        ";
+        $d_conf = $m_conf->hydrateRaw( $sql );
+
+        $data = null;
+        if ( $d_conf->count() > 0 ) {
+            $data = $d_conf->toArray();
+        }
+
+        return $data;
+    }
+
+    public function getDataHutang($start_date, $end_date, $branch)
     {
         $data = null;
 
@@ -167,7 +189,8 @@ class Hutang extends Public_Controller {
                 on
                     data.kode_faktur = b.faktur_kode
             where
-                data.kode_faktur is not null
+                data.kode_faktur is not null and
+                jl.branch in ('".implode("', '", $branch)."')
             group by
                 data.kode_faktur,
                 data.grand_total,
@@ -303,8 +326,9 @@ class Hutang extends Public_Controller {
 
         $start_date = $params['start_date'].' 00:00:00';
         $end_date = $params['end_date'].' 23:59:59';
+        $branch = $params['branch'];
 
-        $data = $this->getDataHutang( $start_date, $end_date );
+        $data = $this->getDataHutang( $start_date, $end_date, $branch );
 
         $content['data'] = $data;
         $html = $this->load->view($this->pathView . 'list_report_hutang', $content, TRUE);

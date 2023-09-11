@@ -1,0 +1,87 @@
+.bootstrap-select>.dropdown-menu {
+	min-height: 100px !important;
+}
+.bootstrap-select>.dropdown-toggle.bs-placeholder { 
+	color: black; 
+	background-color: transparent;
+	border: 1px solid #ccc;
+}
+.bootstrap-select>.dropdown-toggle.bs-placeholder.disabled { 
+	color: #555;
+	background-color: #ccc;
+	border: 1px solid #ccc;
+}
+.bootstrap-select>.dropdown-toggle.bs-placeholder:hover:not(.disabled) { 
+	color: black; 
+	background-color: transparent;
+	border: 1px solid #ccc;
+}
+.bootstrap-select>.dropdown-toggle { 
+	color: black; 
+	background-color: transparent;
+	border: 1px solid #ccc;
+}
+.bootstrap-select>.dropdown-toggle.disabled { 
+	color: #555; 
+	background-color: #ccc;
+	border: 1px solid #ccc;
+}
+.bootstrap-select>.dropdown-toggle:hover:not(.disabled) { 
+	color: black; 
+	background-color: transparent;
+	border: 1px solid #ccc;
+}
+.bootstrap-select.has-error {
+    border: 1px solid #a94442;
+}
+
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+    padding: 3px;
+}
+.btn-add-row, .btn-remove-row {
+	padding: 0px 3px 0px 3px;
+	font-size: 10px;
+}
+
+span.select2 {
+	width: 100%!important;
+}
+
+.has-error .select2-selection {
+	border-color: rgb(185, 74, 72) !important;
+}
+
+.select2-selection.select2-selection--single {
+	height: 34px;
+}
+
+.select2-selection.select2-selection--single > .select2-selection__rendered {
+	line-height: 32px;
+}
+
+.select2-selection.select2-selection--single > .select2-selection__arrow {
+	height: 32px;
+}
+
+table {
+	overflow: auto;
+	table-layout: fixed;
+	width: 100%;
+}
+
+.tab-contain {
+	/*-ms-overflow-style: none; /* for Internet Explorer, Edge */
+    /*scrollbar-width: none; /* for Firefox */
+    overflow-y: scroll;
+}
+
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
