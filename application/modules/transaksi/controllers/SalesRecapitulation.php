@@ -2180,21 +2180,21 @@ class SalesRecapitulation extends Public_Controller
 
     public function tes()
     {
-        // $data_diskon = $this->hitDiskon('FAK-2305140064', 423565);
+        $data_diskon = $this->hitDiskon('FAK-2309090292', 458621);
         // $data_diskon = $this->hitDiskon('FAK-2302260182', 400867);
 
-        // cetak_r( $data_diskon );
+        cetak_r( $data_diskon );
 
         // $idFitur = getIdFitur( $this->current_base_uri );
 
         // cetak_r( substr($this->current_base_uri, 1) );
         // cetak_r( $idFitur );
 
-        $id_bayar_diskon = array(1942, 1941);
+        // $id_bayar_diskon = array(1942, 1941);
 
-        $m_bd = new \Model\Storage\BayarDiskon_model();
-        $d_bd = $m_bd->whereIn('id', $id_bayar_diskon)->get();
+        // $m_bd = new \Model\Storage\BayarDiskon_model();
+        // $d_bd = $m_bd->whereIn('id', $id_bayar_diskon)->get();
 
-        cetak_r( $d_bd->toJson() );
+        // cetak_r( $d_bd->toJson() );
     }
 }
