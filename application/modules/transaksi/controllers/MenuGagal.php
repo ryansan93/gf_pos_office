@@ -50,6 +50,7 @@ class MenuGagal extends Public_Controller
             $content['riwayatForm'] = $this->riwayatForm( $kodeBranch );
             $content['addForm'] = $this->addForm( $kodeBranch );
 
+            $data['title_menu'] = 'Menu Gagal';
             $data['view'] = $this->load->view($this->pathView . 'index', $content, TRUE);
 
             $this->load->view($this->template, $data);
