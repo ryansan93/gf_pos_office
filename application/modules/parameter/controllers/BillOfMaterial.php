@@ -187,13 +187,14 @@ class BillOfMaterial extends Public_Controller {
             select
                 b.id,
                 b.nama as nama_bom,
+                m.kode_menu as kode_menu,
                 m.nama as nama_menu,
                 b.tgl_berlaku,
                 b.additional,
                 b.jml_porsi,
                 bd.item_kode,
                 i.nama,
-                i.satuan,
+                bd.satuan,
                 bd.jumlah
             from bom b
             left join
@@ -207,7 +208,7 @@ class BillOfMaterial extends Public_Controller {
             left join
                 (
                     select * from (
-                        select items.satuan, items.pengali, cast(i.kode as varchar(20)) as kode, i.nama, 'item' as jenis from item i 
+                        select cast(i.kode as varchar(20)) as kode, i.nama, 'item' as jenis from item i 
                         right join
                             item_satuan items
                             on
@@ -215,7 +216,7 @@ class BillOfMaterial extends Public_Controller {
                                 
                         union all
                         
-                        select bs.satuan, bs.pengali, cast(b.id as varchar(20)) as kode, b.nama, 'bom' as jenis from bom b 
+                        select cast(b.id as varchar(20)) as kode, b.nama, 'bom' as jenis from bom b 
                         right join
                             bom_satuan bs 
                             on
@@ -223,14 +224,23 @@ class BillOfMaterial extends Public_Controller {
                         where
                             b.additional = 1
                     ) as data
-                    where
-                        data.satuan is not null
                 ) i
                 on
-                    bd.item_kode = i.kode and
-                    bd.satuan = i.satuan
+                    bd.item_kode = i.kode
             where
                 b.id = ".$id."
+            group by
+                b.id,
+                b.nama,
+                m.kode_menu,
+                m.nama,
+                b.tgl_berlaku,
+                b.additional,
+                b.jml_porsi,
+                bd.item_kode,
+                i.nama,
+                bd.satuan,
+                bd.jumlah
         ";
         $d_bom = $m_conf->hydrateRaw( $sql );
 
@@ -285,13 +295,14 @@ class BillOfMaterial extends Public_Controller {
             select
                 b.id,
                 b.nama as nama_bom,
+                m.kode_menu as kode_menu,
                 m.nama as nama_menu,
                 b.tgl_berlaku,
                 b.additional,
                 b.jml_porsi,
                 bd.item_kode,
                 i.nama,
-                i.satuan,
+                bd.satuan,
                 bd.jumlah
             from bom b
             left join
@@ -302,10 +313,10 @@ class BillOfMaterial extends Public_Controller {
                 bom_det bd
                 on
                     b.id = bd.id_header
-            right join
+            left join
                 (
                     select * from (
-                        select items.satuan, items.pengali, cast(i.kode as varchar(20)) as kode, i.nama, 'item' as jenis from item i 
+                        select cast(i.kode as varchar(20)) as kode, i.nama, 'item' as jenis from item i 
                         right join
                             item_satuan items
                             on
@@ -313,7 +324,7 @@ class BillOfMaterial extends Public_Controller {
                                 
                         union all
                         
-                        select bs.satuan, bs.pengali, cast(b.id as varchar(20)) as kode, b.nama, 'bom' as jenis from bom b 
+                        select cast(b.id as varchar(20)) as kode, b.nama, 'bom' as jenis from bom b 
                         right join
                             bom_satuan bs 
                             on
@@ -321,13 +332,23 @@ class BillOfMaterial extends Public_Controller {
                         where
                             b.additional = 1
                     ) as data
-                    where
-                        data.satuan is not null
                 ) i
                 on
                     bd.item_kode = i.kode
             where
                 b.id = ".$id."
+            group by
+                b.id,
+                b.nama,
+                m.kode_menu,
+                m.nama,
+                b.tgl_berlaku,
+                b.additional,
+                b.jml_porsi,
+                bd.item_kode,
+                i.nama,
+                bd.satuan,
+                bd.jumlah
         ";
         $d_bom = $m_conf->hydrateRaw( $sql );
 
@@ -348,6 +369,7 @@ class BillOfMaterial extends Public_Controller {
             $data = array(
                 'id' => $d_bom[0]['id'],
                 'nama_bom' => $d_bom[0]['nama_bom'],
+                'kode_menu' => $d_bom[0]['kode_menu'],
                 'nama_menu' => $d_bom[0]['nama_menu'],
                 'tgl_berlaku' => $d_bom[0]['tgl_berlaku'],
                 'additional' => $d_bom[0]['additional'],

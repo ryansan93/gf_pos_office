@@ -18,7 +18,7 @@
 			<?php foreach ($menu as $k_menu => $v_menu): ?>
 				<?php
 					$selected = null;
-					if ( !empty($data['menu_kode']) && $data['menu_kode'] == $v_menu['kode_menu'] ) {
+					if ( !empty($data['kode_menu']) && $data['kode_menu'] == $v_menu['kode_menu'] ) {
 						$selected = 'selected';
 					}
 				?>
