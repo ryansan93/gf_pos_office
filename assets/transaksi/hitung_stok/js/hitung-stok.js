@@ -9,27 +9,16 @@ var hs = {
             priceFormat( $(this) );
         });
 
-        $("[name=startDate]").datetimepicker({
+        $("[name=tanggal]").datetimepicker({
 			locale: 'id',
-            format: 'MMM YYYY',
+            format: 'DD MMM Y',
             useCurrent: false //Important! See issue #1075
 		});
-		$("[name=endDate]").datetimepicker({
-			locale: 'id',
-            format: 'MMM YYYY',
-			useCurrent: false //Important! See issue #1075
-		});
-		$("[name=startDate]").on("dp.change", function (e) {
-			var start_date = dateSQL($("[name=startDate]").data("DateTimePicker").date());
-			$("[name=endDate]").data("DateTimePicker").minDate(new Date(start_date.substr(0, 7)+'-01 00:00:00'));
-		});
-		$("[name=endDate]").on("dp.change", function (e) {
-			var end_date = dateSQL($("[name=endDate]").data("DateTimePicker").date());
-			$('[name=startDate]').data("DateTimePicker").maxDate(new Date(end_date.substr(0, 7)+'-01 23:59:59'));
-		});
+
+		$('select.gudang, select.item').select2();
 	}, // end - setting_up
 
-	hitung_stok: function() {
+	hitungStok: function() {
 		var err = 0;
 		$.map( $('[data-required=1]'), function(ipt) {
 			if ( empty($(ipt).val()) ) {
@@ -45,46 +34,37 @@ var hs = {
 		} else {
 			bootbox.confirm('Apakah anda yakin ingin proses perhitungan stok ?', function(result) {
 				if ( result ) {
-					var startDate = dateSQL( $('[name=startDate]').data('DateTimePicker').date() );
-					var endDate = dateSQL( $('[name=endDate]').data('DateTimePicker').date() );
-					
-					hs.exec_hitung_stok(startDate, endDate, endDate, $('[name=startDate]').find('input').val());
+					var params = {
+						tanggal : dateSQL( $('[name=tanggal]').data('DateTimePicker').date() ),
+						gudang : $('select.gudang').select2().val(),
+						item : $('select.item').select2().val()
+					};
+
+					$.ajax({
+						url: 'transaksi/HitungStok/hitungStok',
+						data: {
+							'params': params
+						},
+						type: 'POST',
+						dataType: 'JSON',
+						beforeSend: function() {
+							showLoading('Proses hitung stok . . .');
+						},
+						success: function(data) {
+							hideLoading();
+							if ( data.status == 1 ) {
+								bootbox.alert(data.message, function() {
+									location.reload();
+								});
+							} else {
+								bootbox.alert(data.message);
+							};
+						},
+					});
 				}
 			});
 		}
 	}, // end - hitung_stok
-
-	exec_hitung_stok: function(startDate, endDate, target, text_target) {
-		$.ajax({
-			url: 'transaksi/HitungStok/hitungStok',
-			data: {
-				'startDate': startDate,
-				'endDate': endDate,
-				'target': target
-			},
-			type: 'POST',
-			dataType: 'JSON',
-			beforeSend: function() {
-				showLoading('Proses hitung bulan <b>'+text_target.toUpperCase()+'<b>');
-			},
-			success: function(data) {
-				hideLoading();
-				if ( data.status == 1 ) {
-					if ( data.lanjut == 1 ) {
-						var params = data.params;
-
-						hs.exec_hitung_stok(params.start_date, params.end_date, params.target, params.text_target);
-					} else {
-						bootbox.alert(data.message, function() {
-							location.reload();
-						});
-					}
-				} else {
-					bootbox.alert(data.message);
-				};
-			},
-	    });
-	}, // end - exec_hitung_stok
 };
 
 hs.start_up();
