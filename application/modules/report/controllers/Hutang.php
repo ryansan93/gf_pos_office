@@ -357,6 +357,8 @@ class Hutang extends Public_Controller {
     {
         $_data_params = json_decode( exDecrypt( $_params ), true );
 
+        cetak_r($_data_params, 1);
+
         $start_date = $_data_params['start_date'];
         $end_date = $_data_params['end_date'];
 
