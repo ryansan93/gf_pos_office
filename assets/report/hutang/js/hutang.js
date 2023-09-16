@@ -78,6 +78,7 @@ var hutang = {
 			bootbox.alert('Harap lengkapi data terlebih dahulu.');
 		} else {
 			var params = {
+				'branch': $('.branch').select2('val'),
 				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
 				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
 			};

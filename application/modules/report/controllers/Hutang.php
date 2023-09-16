@@ -361,8 +361,9 @@ class Hutang extends Public_Controller {
 
         $start_date = $_data_params['start_date'];
         $end_date = $_data_params['end_date'];
+        $branch = $_data_params['branch'];
 
-        $data = $this->getDataHutang( $start_date, $end_date );
+        $data = $this->getDataHutang( $start_date, $end_date, $branch );
 
         $content['data'] = $data;
         $content['start_date'] = $start_date;
