@@ -213,8 +213,6 @@ class Hutang extends Public_Controller {
         if ( $d_jual_hutang->count() > 0 ) {
             $d_jual_hutang = $d_jual_hutang->toArray();
 
-            cetak_r($d_jual_hutang, 1);
-
             foreach ($d_jual_hutang as $key => $value) {
                 $m_conf = new \Model\Storage\Conf();
                 $sql = "
