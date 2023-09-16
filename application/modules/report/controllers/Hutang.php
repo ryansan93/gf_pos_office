@@ -213,6 +213,8 @@ class Hutang extends Public_Controller {
         if ( $d_jual_hutang->count() > 0 ) {
             $d_jual_hutang = $d_jual_hutang->toArray();
 
+            cetak_r($d_jual_hutang, 1);
+
             foreach ($d_jual_hutang as $key => $value) {
                 $m_conf = new \Model\Storage\Conf();
                 $sql = "
@@ -221,10 +223,9 @@ class Hutang extends Public_Controller {
                         j.kode_faktur = '".$value['kode_faktur']."' and
                         j.mstatus = 1
                 ";
-                $d_conf = $m_conf->hydrateRaw( $sql );
-                $d_jual = null;
-                if ( $d_conf->count() > 0 ) {
-                    $d_jual = $d_conf->toArray();
+                $d_jual = $m_conf->hydrateRaw( $sql );
+                if ( $d_jual->count() > 0 ) {
+                    $d_jual = $d_jual->toArray();
 
                     $m_conf = new \Model\Storage\Conf();
                     $sql = "
