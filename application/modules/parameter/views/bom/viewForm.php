@@ -86,14 +86,20 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php foreach ($data['detail'] as $k_det => $v_det): ?>
+				<?php if ( isset($data['detail']) && !empty($data['detail']) ) { ?>
+					<?php foreach ($data['detail'] as $k_det => $v_det): ?>
+						<tr class="search v-center data">
+							<td><?php echo strtoupper($v_det['item_kode']); ?></td>
+							<td><?php echo strtoupper($v_det['nama']); ?></td>
+							<td class="text-center"><?php echo $v_det['satuan']; ?></td>
+							<td class="text-right"><?php echo angkaDecimal($v_det['jumlah']); ?></td>
+						</tr>
+					<?php endforeach ?>
+				<?php } else { ?>
 					<tr class="search v-center data">
-						<td><?php echo strtoupper($v_det['item_kode']); ?></td>
-						<td><?php echo strtoupper($v_det['nama']); ?></td>
-						<td class="text-center"><?php echo $v_det['satuan']; ?></td>
-						<td class="text-right"><?php echo angkaDecimal($v_det['jumlah']); ?></td>
+						<td colspan="1">Data tidak ditemukan.</td>
 					</tr>
-				<?php endforeach ?>
+				<?php } ?>
 			</tbody>
 		</table>
 	</small>

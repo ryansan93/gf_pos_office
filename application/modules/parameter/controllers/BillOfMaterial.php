@@ -187,7 +187,7 @@ class BillOfMaterial extends Public_Controller {
                 menu m
                 on
                     b.menu_kode = m.kode_menu
-            right join
+            left join
                 bom_det bd
                 on
                     b.id = bd.id_header
