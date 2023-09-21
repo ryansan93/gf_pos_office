@@ -145,46 +145,77 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php foreach ($data['detail'] as $k_det => $v_det): ?>					
+				<?php if ( isset($data['detail']) && !empty($data['detail']) ) { ?>
+					<?php foreach ($data['detail'] as $k_det => $v_det): ?>					
+						<tr class="search v-center data">
+							<?php 
+								$satuan = null; 
+								$satuan_item = null; 
+							?>
+							<td>
+								<select class="form-control item" data-required="1">
+									<option value="">Pilih Item</option>
+									<?php foreach ($item as $k_item => $v_item): ?>
+										<?php
+											$selected = null;
+											if ( $v_item['kode'] == $v_det['item_kode'] ) {
+												$selected = 'selected';
+
+												$satuan = $v_item['satuan'];
+											}
+										?>
+										<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' <?php echo $selected; ?> ><?php echo strtoupper($v_item['nama']); ?></option>
+									<?php endforeach ?>
+								</select>
+							</td>
+							<td>
+								<select class="form-control satuan" data-required="1">
+									<option value="">Pilih Satuan</option>
+									<?php if ( !empty($satuan) ): ?>
+										<?php foreach ($satuan as $k_satuan => $v_satuan): ?>
+											<?php
+												$selected = null;
+												if ( $v_satuan['satuan'] == $v_det['satuan'] ) {
+													$selected = 'selected';
+												}
+											?>
+											<option value="<?php echo $v_satuan['satuan']; ?>" data-pengali="<?php echo $v_satuan['pengali']; ?>" <?php echo $selected; ?> ><?php echo $v_satuan['satuan']; ?></option>
+										<?php endforeach ?>
+									<?php endif ?>
+								</select>
+							</td>
+							<td>
+								<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-tipe="decimal"  maxlength="10" data-required="1" value="<?php echo angkaDecimal($v_det['jumlah']); ?>" >
+							</td>
+							<td>
+								<div class="col-xs-12 no-padding">
+									<div class="col-xs-6 no-padding" style="padding-right: 5px;">
+										<button type="button" class="col-xs-12 btn btn-danger" onclick="bom.removeRow(this)"><i class="fa fa-times"></i></button>
+									</div>
+									<div class="col-xs-6 no-padding" style="padding-left: 5px;">
+										<button type="button" class="col-xs-12 btn btn-primary" onclick="bom.addRow(this)"><i class="fa fa-plus"></i></button>
+									</div>
+								</div>
+							</td>
+						</tr>
+					<?php endforeach ?>
+				<?php } else { ?>
 					<tr class="search v-center data">
-						<?php 
-							$satuan = null; 
-							$satuan_item = null; 
-						?>
 						<td>
 							<select class="form-control item" data-required="1">
 								<option value="">Pilih Item</option>
 								<?php foreach ($item as $k_item => $v_item): ?>
-									<?php
-										$selected = null;
-										if ( $v_item['kode'] == $v_det['item_kode'] ) {
-											$selected = 'selected';
-
-											$satuan = $v_item['satuan'];
-										}
-									?>
-									<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' <?php echo $selected; ?> ><?php echo strtoupper($v_item['nama']); ?></option>
+									<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' data-jenis="<?php echo $v_item['jenis']; ?>"><?php echo strtoupper($v_item['nama']); ?></option>
 								<?php endforeach ?>
 							</select>
 						</td>
 						<td>
-							<select class="form-control satuan" data-required="1">
+							<select class="form-control satuan" data-required="1" disabled>
 								<option value="">Pilih Satuan</option>
-								<?php if ( !empty($satuan) ): ?>
-									<?php foreach ($satuan as $k_satuan => $v_satuan): ?>
-										<?php
-											$selected = null;
-											if ( $v_satuan['satuan'] == $v_det['satuan'] ) {
-												$selected = 'selected';
-											}
-										?>
-										<option value="<?php echo $v_satuan['satuan']; ?>" data-pengali="<?php echo $v_satuan['pengali']; ?>" <?php echo $selected; ?> ><?php echo $v_satuan['satuan']; ?></option>
-									<?php endforeach ?>
-								<?php endif ?>
 							</select>
 						</td>
 						<td>
-							<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-tipe="decimal"  maxlength="10" data-required="1" value="<?php echo angkaDecimal($v_det['jumlah']); ?>" >
+							<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-tipe="decimal"  maxlength="10" data-required="1">
 						</td>
 						<td>
 							<div class="col-xs-12 no-padding">
@@ -197,7 +228,7 @@
 							</div>
 						</td>
 					</tr>
-				<?php endforeach ?>
+				<?php } ?>
 			</tbody>
 		</table>
 	</small>
