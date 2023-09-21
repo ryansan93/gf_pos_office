@@ -495,7 +495,7 @@ class BillOfMaterial extends Public_Controller {
             
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di update.';
-            $this->result['content'] = array('id' => $id);
+            $this->result['content'] = array('id' => $params['id']);
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
         }
