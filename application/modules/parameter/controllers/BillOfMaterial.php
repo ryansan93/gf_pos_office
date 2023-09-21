@@ -256,12 +256,14 @@ class BillOfMaterial extends Public_Controller {
             );
 
             foreach ($d_bom as $k_bom => $v_bom) {
-                $data['detail'][ $k_bom ] = array(
-                    'item_kode' => $v_bom['item_kode'],
-                    'nama' => $v_bom['nama'],
-                    'satuan' => $v_bom['satuan'],
-                    'jumlah' => $v_bom['jumlah']
-                );
+                if ( $v_bom['jumlah'] > 0 ) {
+                    $data['detail'][ $k_bom ] = array(
+                        'item_kode' => $v_bom['item_kode'],
+                        'nama' => $v_bom['nama'],
+                        'satuan' => $v_bom['satuan'],
+                        'jumlah' => $v_bom['jumlah']
+                    );
+                }
             }
         }
 
