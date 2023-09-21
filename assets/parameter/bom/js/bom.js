@@ -209,6 +209,26 @@ var bom = {
         });
     }, // end - loadForm
 
+    copyForm: function(elm) {
+        var dcontent = $('div#action');
+
+        $.ajax({
+            url : 'parameter/BillOfMaterial/copyForm',
+            data : {
+                'id' :  $(elm).attr('data-id')
+            },
+            type : 'GET',
+            dataType : 'HTML',
+            beforeSend : function(){ showLoading(); },
+            success : function(html){
+                hideLoading();
+                $(dcontent).html(html);
+                
+                bom.settingUp();
+            },
+        });
+    }, // end - copyForm
+
     getLists: function () {
         var div = $('#riwayat');
 
@@ -320,7 +340,7 @@ var bom = {
                             hideLoading();
                             if ( data.status == 1 ) {
                                 bootbox.alert( data.message, function() {
-                                    bom.loadForm();
+                                    bom.loadForm(data.content.id);
                                 });
                             } else {
                                 bootbox.alert( data.message );

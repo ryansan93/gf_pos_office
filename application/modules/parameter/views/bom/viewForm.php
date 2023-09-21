@@ -101,11 +101,17 @@
 
 <div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 
-<div class="col-xs-12 no-padding">
+<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
 	<div class="col-xs-6 no-padding" style="padding-right: 5px;">
 		<button type="button" class="col-xs-12 btn btn-danger" data-id="<?php echo $data['id']; ?>" onclick="bom.delete(this)"><i class="fa fa-trash"></i> Hapus</button>
 	</div>
 	<div class="col-xs-6 no-padding" style="padding-left: 5px;">
 		<button type="button" class="col-xs-12 btn btn-primary" data-id="<?php echo $data['id']; ?>" onclick="bom.changeTabActive(this)" data-href="action" data-edit="edit"><i class="fa fa-edit"></i> Edit</button>
+	</div>
+</div>
+
+<div class="col-xs-12 no-padding">
+	<div class="col-xs-12 no-padding">
+		<button type="button" class="col-xs-12 btn btn-primary" data-id="<?php echo $data['id']; ?>" onclick="bom.copyForm(this)"><i class="fa fa-files-o"></i> Copy BOM</button>
 	</div>
 </div>

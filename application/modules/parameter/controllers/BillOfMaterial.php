@@ -167,129 +167,7 @@ class BillOfMaterial extends Public_Controller {
         echo $html;
     }
 
-    public function addForm()
-    {
-        $content['item'] = $this->getItem();
-        $content['menu'] = $this->getMenu();
-
-        $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
-
-        return $html;
-    }
-
-    public function viewForm($id)
-    {
-        // $m_bom = new \Model\Storage\Bom_model();
-        // $d_bom = $m_bom->where('id', $id)->with(['menu', 'detail'])->first()->toArray();
-
-        $m_conf = new \Model\Storage\Conf();
-        $sql = "
-            select
-                b.id,
-                b.nama as nama_bom,
-                m.kode_menu as kode_menu,
-                m.nama as nama_menu,
-                b.tgl_berlaku,
-                b.additional,
-                b.jml_porsi,
-                bd.item_kode,
-                i.nama,
-                bd.satuan,
-                bd.jumlah
-            from bom b
-            left join
-                menu m
-                on
-                    b.menu_kode = m.kode_menu
-            right join
-                bom_det bd
-                on
-                    b.id = bd.id_header
-            left join
-                (
-                    select * from (
-                        select cast(i.kode as varchar(20)) as kode, i.nama, 'item' as jenis from item i 
-                        right join
-                            item_satuan items
-                            on
-                                i.kode = items.item_kode
-                                
-                        union all
-                        
-                        select cast(b.id as varchar(20)) as kode, b.nama, 'bom' as jenis from bom b 
-                        right join
-                            bom_satuan bs 
-                            on
-                                b.id = bs.id_header 
-                        where
-                            b.additional = 1
-                    ) as data
-                ) i
-                on
-                    bd.item_kode = i.kode
-            where
-                b.id = ".$id."
-            group by
-                b.id,
-                b.nama,
-                m.kode_menu,
-                m.nama,
-                b.tgl_berlaku,
-                b.additional,
-                b.jml_porsi,
-                bd.item_kode,
-                i.nama,
-                bd.satuan,
-                bd.jumlah
-        ";
-        $d_bom = $m_conf->hydrateRaw( $sql );
-
-        $data = null;
-        if ( $d_bom->count() > 0 ) {
-            $d_bom = $d_bom->toArray();
-
-            $m_conf = new \Model\Storage\Conf();
-            $sql = "
-                select
-                    *
-                from bom_satuan bs
-                where
-                    bs.id_header = ".$id."
-            ";
-            $d_bom_satuan = $m_conf->hydrateRaw( $sql );
-
-            $data = array(
-                'id' => $d_bom[0]['id'],
-                'nama_bom' => $d_bom[0]['nama_bom'],
-                'nama_menu' => $d_bom[0]['nama_menu'],
-                'tgl_berlaku' => $d_bom[0]['tgl_berlaku'],
-                'additional' => $d_bom[0]['additional'],
-                'jml_porsi' => $d_bom[0]['jml_porsi'],
-                'satuan' => ($d_bom_satuan->count() > 0) ? $d_bom_satuan->toArray() : null
-            );
-
-            foreach ($d_bom as $k_bom => $v_bom) {
-                $data['detail'][ $k_bom ] = array(
-                    'item_kode' => $v_bom['item_kode'],
-                    'nama' => $v_bom['nama'],
-                    'satuan' => $v_bom['satuan'],
-                    'jumlah' => $v_bom['jumlah']
-                );
-            }
-        }
-
-        $content['data'] = $data;
-
-        $html = $this->load->view($this->pathView . 'viewForm', $content, TRUE);
-
-        return $html;
-    }
-
-    public function editForm($id)
-    {
-        // $m_bom = new \Model\Storage\Bom_model();
-        // $d_bom = $m_bom->where('id', $id)->with(['menu', 'detail'])->first()->toArray();
-
+    public function getData( $id ) {
         $m_conf = new \Model\Storage\Conf();
         $sql = "
             select
@@ -387,8 +265,39 @@ class BillOfMaterial extends Public_Controller {
             }
         }
 
+        return $data;
+    }
+
+    public function addForm()
+    {
+        $content['item'] = $this->getItem();
+        $content['menu'] = $this->getMenu();
+
+        $html = $this->load->view($this->pathView . 'addForm', $content, TRUE);
+
+        return $html;
+    }
+
+    public function viewForm($id)
+    {
+        // $m_bom = new \Model\Storage\Bom_model();
+        // $d_bom = $m_bom->where('id', $id)->with(['menu', 'detail'])->first()->toArray();
+
+        $data = $this->getData( $id );
         $content['data'] = $data;
 
+        $html = $this->load->view($this->pathView . 'viewForm', $content, TRUE);
+
+        return $html;
+    }
+
+    public function editForm($id)
+    {
+        // $m_bom = new \Model\Storage\Bom_model();
+        // $d_bom = $m_bom->where('id', $id)->with(['menu', 'detail'])->first()->toArray();
+
+        $data = $this->getData( $id );
+        $content['data'] = $data;
         $content['item'] = $this->getItem();
         $content['menu'] = $this->getMenu();
 
@@ -397,16 +306,69 @@ class BillOfMaterial extends Public_Controller {
         return $html;
     }
 
+    public function copyForm()
+    {
+        $id = $this->input->get('id');
+        // $m_bom = new \Model\Storage\Bom_model();
+        // $d_bom = $m_bom->where('id', $id)->with(['menu', 'detail'])->first()->toArray();
+
+        $data = $this->getData( $id );
+        $content['data'] = $data;
+        $content['item'] = $this->getItem();
+        $content['menu'] = $this->getMenu();
+
+        $html = $this->load->view($this->pathView . 'copyForm', $content, TRUE);
+
+        echo $html;
+    }
+
     public function save()
     {
         $params = $this->input->post('params');
 
         try {
+            $id = null;
             if ( isset($params['menu_kode']) && !empty($params['menu_kode']) ) {
-                foreach ($params['menu_kode'] as $k_menu => $v_menu) {
+                if ( is_array($params['menu_kode']) ) {
+                    foreach ($params['menu_kode'] as $k_menu => $v_menu) {
+                        $m_bom = new \Model\Storage\Bom_model();
+                        $m_bom->tgl_berlaku = $params['tanggal'];
+                        $m_bom->menu_kode = $v_menu;
+                        $m_bom->additional = $params['additional'];
+                        $m_bom->nama = $params['nama'];
+                        $m_bom->jml_porsi = $params['jml_porsi'];
+                        $m_bom->save();
+
+                        foreach ($params['list_item'] as $k_lm => $v_lm) {
+                            $m_bd = new \Model\Storage\BomDet_model();
+                            $m_bd->id_header = $m_bom->id;
+                            $m_bd->item_kode = $v_lm['item_kode'];
+                            $m_bd->satuan = $v_lm['satuan'];
+                            $m_bd->pengali = $v_lm['pengali'];
+                            $m_bd->jumlah = $v_lm['jumlah'];
+                            $m_bd->jenis = isset($v_lm['jenis']) ? $v_lm['jenis'] : null;
+                            $m_bd->save();
+                        }
+
+                        if ( isset($params['bom_satuan']) && !empty($params['bom_satuan']) ) {
+                            foreach ($params['bom_satuan'] as $k_bs => $v_bs) {
+                                $m_bs = new \Model\Storage\BomSatuan_model();
+                                $m_bs->id_header = $m_bom->id;
+                                $m_bs->satuan = $v_bs['satuan'];
+                                $m_bs->pengali = $v_bs['pengali'];
+                                $m_bs->save();
+                            }
+                        }
+
+                        $id = $m_bom->id;
+
+                        $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                        Modules::run( 'base/event/save', $m_bom, $deskripsi_log );
+                    }
+                } else {
                     $m_bom = new \Model\Storage\Bom_model();
                     $m_bom->tgl_berlaku = $params['tanggal'];
-                    $m_bom->menu_kode = $v_menu;
+                    $m_bom->menu_kode = $params['menu_kode'];
                     $m_bom->additional = $params['additional'];
                     $m_bom->nama = $params['nama'];
                     $m_bom->jml_porsi = $params['jml_porsi'];
@@ -419,7 +381,7 @@ class BillOfMaterial extends Public_Controller {
                         $m_bd->satuan = $v_lm['satuan'];
                         $m_bd->pengali = $v_lm['pengali'];
                         $m_bd->jumlah = $v_lm['jumlah'];
-                        $m_bd->jenis = $v_lm['jenis'];
+                        $m_bd->jenis = isset($v_lm['jenis']) ? $v_lm['jenis'] : null;
                         $m_bd->save();
                     }
 
@@ -432,6 +394,8 @@ class BillOfMaterial extends Public_Controller {
                             $m_bs->save();
                         }
                     }
+
+                    $id = $m_bom->id;
 
                     $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
                     Modules::run( 'base/event/save', $m_bom, $deskripsi_log );
@@ -466,12 +430,15 @@ class BillOfMaterial extends Public_Controller {
                     }
                 }
 
+                $id = $m_bom->id;
+
                 $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
                 Modules::run( 'base/event/save', $m_bom, $deskripsi_log );
             }
             
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di simpan.';
+            $this->result['content'] = array('id' => $id);
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
         }
@@ -526,6 +493,7 @@ class BillOfMaterial extends Public_Controller {
             
             $this->result['status'] = 1;
             $this->result['message'] = 'Data berhasil di update.';
+            $this->result['content'] = array('id' => $id);
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
         }
