@@ -82,7 +82,7 @@
 			<div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 			<div class="col-xs-12 no-padding report">
 				<h3>Data tidak ditemukan.</h3>
-				<!-- <?php echo $report; ?> -->
+				<?php // echo $report; ?>
 			</div>
 		</form>
 	</div>

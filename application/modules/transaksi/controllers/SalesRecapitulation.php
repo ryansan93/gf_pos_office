@@ -500,6 +500,7 @@ class SalesRecapitulation extends Public_Controller
         $id_bayar = $this->input->get('params');
 
         $m_conf = new \Model\Storage\Conf();
+        $now = $m_conf->getDate();
         $sql = "
             select 
                 b.id,
@@ -638,6 +639,7 @@ class SalesRecapitulation extends Public_Controller
             }
         }
 
+        $content['tanggal'] = $now['tanggal'];
         $content['id_bayar'] = $id_bayar;
         $content['kode_faktur'] = $kode_faktur;
         $content['sisa_tagihan'] = $sisa_tagihan;
@@ -741,6 +743,33 @@ class SalesRecapitulation extends Public_Controller
             $m_bayar = new \Model\Storage\Bayar_model();
             $d_bayar = $m_bayar->where('id', $params['id_bayar'])->first();
 
+            $start_date = $params['tanggal'].' 00:00:00.001';
+            $end_date = $params['tanggal'].' 23:59:59.999';
+            $d_bayar_by_tgl = $m_bayar->whereBetween('tgl_trans', [$start_date, $end_date])->where('mstatus', 1)->first();
+
+            $id_header = null;
+            if ( $d_bayar_by_tgl ) {
+                $id_header = $d_bayar_by_tgl->id;
+            } else {
+                $m_bayar = new \Model\Storage\Bayar_model();
+                $now = $m_bayar->getDate();
+
+                $m_bayar->tgl_trans = $params['tanggal'].' '.substr($now['waktu'], 11, 8);
+                $m_bayar->faktur_kode = null;
+                $m_bayar->jml_tagihan = $d_bayar->jml_tagihan;
+                $m_bayar->jml_bayar = $d_bayar->jml_bayar;
+                $m_bayar->ppn = 0;
+                $m_bayar->service_charge = 0;
+                $m_bayar->diskon = 0;
+                $m_bayar->total = 0;
+                $m_bayar->member_kode = $d_bayar->member_kode;
+                $m_bayar->member = $d_bayar->member;
+                $m_bayar->kasir = $this->userid;
+                $m_bayar->nama_kasir = $this->userdata['detail_user']['nama_detuser'];
+                $m_bayar->mstatus = 1;
+                $m_bayar->save();
+            }
+
             // $id_header = null;
 
             // if ( $params['status_pembayaran'] == 1 ) {
@@ -789,7 +818,7 @@ class SalesRecapitulation extends Public_Controller
             //     }
             // } else {
             // }
-            $id_header = $params['id_bayar'];
+            // $id_header = $params['id_bayar'];
 
             $m_bd = new \Model\Storage\BayarDet_model();
             $m_bd->id_header = $id_header;

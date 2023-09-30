@@ -148,10 +148,11 @@ var sr = {
                     var val = e.params.data.text.toLowerCase();
                     var cl = e.params.data.element.dataset.cl;
 
-                    if ( val.includes('tunai') || (!empty(cl) && cl == 1) ) {
-                        $(modal_body).find('div.non_tunai').addClass('hide');
+                    if ( !empty(cl) && cl == 1 ) {
+                        $(modal_body).find('.jml_bayar').val(0);
+                        $(modal_body).find('.jml_bayar').attr('disabled', 'disabled');
                     } else {
-                        $(modal_body).find('div.non_tunai').removeClass('hide');
+                        $(modal_body).find('.jml_bayar').removeAttr('disabled');
                     }
                 });
 
@@ -167,6 +168,14 @@ var sr = {
                     priceFormat( $(this) );
                 });
 
+                $(modal_body).find('#Tanggal').datetimepicker({
+                    locale: 'id',
+                    format: 'DD MMM Y'
+                });
+                var tgl = $(modal_body).find('#Tanggal input').attr('data-tgl');
+                if ( !empty(tgl) ) {
+                    $(modal_body).find('#Tanggal').data('DateTimePicker').date( moment(new Date(tgl)) );
+                }
 
                 $(this).removeAttr('tabindex');
             });
@@ -250,6 +259,7 @@ var sr = {
                 var data = {
                     'id_bayar': $(elm).attr('data-id'),
                     // 'status_pembayaran': $(modal).find('select.status_pembayaran').select2('val'),
+                    'tanggal': dateSQL($(modal).find('#Tanggal').data('DateTimePicker').date()),
                     'jenis_bayar': $(modal).find('select.jenis_kartu option:selected').text(),
                     'kode_jenis_kartu': $(modal).find('select.jenis_kartu').select2('val'),
                     'jml_bayar': jml_bayar,

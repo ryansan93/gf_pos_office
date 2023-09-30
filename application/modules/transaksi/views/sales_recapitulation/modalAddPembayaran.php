@@ -14,6 +14,17 @@
 		</div>
 	</div> -->
 	<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
+		<div class="col-xs-12 no-padding"><label class="label-control">Tgl Bayar</label></div>
+		<div class="col-xs-12 no-padding">
+			<div class="input-group date datetimepicker" name="tanggal" id="Tanggal">
+				<input type="text" class="form-control text-center" placeholder="Tanggal" data-required="1" data-tgl="<?php echo $tanggal; ?>" />
+				<span class="input-group-addon">
+					<span class="glyphicon glyphicon-calendar"></span>
+				</span>
+			</div>
+		</div>
+	</div>
+	<div class="col-xs-12 no-padding" style="margin-bottom: 10px;">
 		<div class="col-xs-12 no-padding"><label class="label-control">Jenis Pembayaran</label></div>
 		<div class="col-xs-12 no-padding">
 			<select class="col-xs-12 form-control jenis_kartu" data-required="1">

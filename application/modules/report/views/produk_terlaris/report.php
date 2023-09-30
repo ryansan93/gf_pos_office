@@ -1,9 +1,10 @@
 <div class="col-xs-12 no-padding">
 	<div class="col-md-12 search no-padding" style="margin-bottom: 10px;">
-		<button type="button" class="btn btn-default pull-right" onclick="pt.export_excel()"><i class="fa fa-print"></i> Export Excel</button>
+		<!-- <button type="button" class="btn btn-default pull-right" onclick="pt.export_excel()"><i class="fa fa-print"></i> Export Excel</button> -->
+		<button type="button" class="btn btn-default pull-right" onclick="pt.exportExcel(this)"><i class="fa fa-print"></i> Export Excel</button>
 	</div>
 	<small>
-		<?php if ( $filter == 0 ): ?>
+		<?php if ( !isset($filter) || $filter == 0 ): ?>
 			<table class="table table-bordered tbl_report" style="margin-bottom: 0px;">
 				<thead>
 					<tr>
