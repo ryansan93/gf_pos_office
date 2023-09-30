@@ -740,85 +740,129 @@ class SalesRecapitulation extends Public_Controller
         $id_verifikasi = $this->input->post('id_verifikasi');
 
         try {
-            $m_bayar = new \Model\Storage\Bayar_model();
-            $d_bayar = $m_bayar->where('id', $params['id_bayar'])->first();
-
+            $faktur_kode = $params['faktur_kode'];
             $start_date = $params['tanggal'].' 00:00:00.001';
             $end_date = $params['tanggal'].' 23:59:59.999';
-            $d_bayar_by_tgl = $m_bayar->whereBetween('tgl_trans', [$start_date, $end_date])->where('mstatus', 1)->first();
 
-            $id_header = null;
-            if ( $d_bayar_by_tgl ) {
-                $id_header = $d_bayar_by_tgl->id;
-            } else {
-                $m_bayar = new \Model\Storage\Bayar_model();
-                $now = $m_bayar->getDate();
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select j.* from jual j
+                where 
+                    j.kode_faktur = '".$faktur_kode."' and
+                    j.mstatus = 1
+            ";
+            $d_conf = $m_conf->hydrateRaw( $sql );
 
-                $m_bayar->tgl_trans = $params['tanggal'].' '.substr($now['waktu'], 11, 8);
-                $m_bayar->faktur_kode = null;
-                $m_bayar->jml_tagihan = $d_bayar->jml_tagihan;
-                $m_bayar->jml_bayar = $d_bayar->jml_bayar;
-                $m_bayar->ppn = 0;
-                $m_bayar->service_charge = 0;
-                $m_bayar->diskon = 0;
-                $m_bayar->total = 0;
-                $m_bayar->member_kode = $d_bayar->member_kode;
-                $m_bayar->member = $d_bayar->member;
-                $m_bayar->kasir = $this->userid;
-                $m_bayar->nama_kasir = $this->userdata['detail_user']['nama_detuser'];
-                $m_bayar->mstatus = 1;
-                $m_bayar->save();
+            $d_jual = null;
+            if ( $d_conf->count() > 0 ) {
+                $d_jual = $d_conf->toArray()[0];
             }
 
-            // $id_header = null;
+            if ( !empty($d_jual) ) {
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select 
+                        b.id, 
+                        b.faktur_kode, 
+                        b.tgl_trans, 
+                        b.mstatus 
+                    from bayar b 
+                    where 
+                        b.mstatus = 1 and
+                        b.faktur_kode = '".$faktur_kode."' and
+                        b.tgl_trans between '".$start_date."' and '".$end_date."'
+                ";
+                $d_conf = $m_conf->hydrateRaw( $sql );
 
-            // if ( $params['status_pembayaran'] == 1 ) {
-            //     $m_bayar = new \Model\Storage\Bayar_model();
-            //     $now = $m_bayar->getDate();
+                $id_header = null;
+                if ( $d_conf->count() > 0 ) {
+                    $d_conf = $d_conf->toArray()[0];
 
-            //     $m_bayar->tgl_trans = $now['waktu'];
-            //     $m_bayar->faktur_kode = null;
-            //     $m_bayar->jml_tagihan = $d_bayar->jml_tagihan;
-            //     $m_bayar->jml_bayar = $d_bayar->jml_bayar;
-            //     $m_bayar->ppn = 0;
-            //     $m_bayar->service_charge = 0;
-            //     $m_bayar->diskon = 0;
-            //     $m_bayar->total = 0;
-            //     $m_bayar->member_kode = $d_bayar->member_kode;
-            //     $m_bayar->member = $d_bayar->member;
-            //     $m_bayar->kasir = $this->userid;
-            //     $m_bayar->nama_kasir = $this->userdata['detail_user']['nama_detuser'];
-            //     $m_bayar->mstatus = 1;
-            //     $m_bayar->save();
+                    $id_header = $d_conf->id;
+                } else {
+                    $m_conf = new \Model\Storage\Conf();
+                    $sql = "
+                        select 
+                            b.id, 
+                            bh.faktur_kode, 
+                            b.tgl_trans, 
+                            b.mstatus 
+                        from bayar_hutang bh
+                        right join
+                            bayar b
+                            on
+                                bh.id_header = b.id
+                        where 
+                            b.mstatus = 1 and
+                            bh.faktur_kode = '".$faktur_kode."' and
+                            b.tgl_trans between '".$start_date."' and '".$end_date."'
+                    ";
+                    $d_conf = $m_conf->hydrateRaw( $sql );
 
-            //     $id_header = $m_bayar->id;
+                    if ( $d_conf->count() > 0 ) {
+                        $d_conf = $d_conf->toArray()[0];
+        
+                        $id_header = $d_conf['id'];
+                    } else {
+                        $m_conf = new \Model\Storage\Conf();
+                        $sql = "
+                            select data.faktur_kode, sum(data.jml_bayar) as sudah_bayar
+                            from (
+                                select * from bayar b where mstatus = 1
 
-            //     $m_bayarh = new \Model\Storage\BayarHutang_model();
-            //     $m_bayarh->id_header = $id_header;
-            //     $m_bayarh->faktur_kode = $params['kode_faktur'];
-            //     $m_bayarh->hutang = $value['hutang'];
-            //     $m_bayarh->sudah_bayar = (isset($value['sudah_bayar']) && !empty($value['sudah_bayar']) && $value['sudah_bayar'] > 0) ? $value['sudah_bayar'] : 0;
-            //     $m_bayarh->bayar = $params['jml_bayar'];
-            //     $m_bayarh->save();
+                                union all
 
-            //     if ( $value['bayar'] >= $value['hutang'] ) {
-            //         $m_jual = new \Model\Storage\Jual_model();
-            //         $m_jual->where('kode_faktur', $value['faktur_kode'])->update(
-            //             array(
-            //                 'lunas' => 1
-            //             )
-            //         );
-            //     } else {
-            //         $m_jual = new \Model\Storage\Jual_model();
-            //         $m_jual->where('kode_faktur', $value['faktur_kode'])->update(
-            //             array(
-            //                 'lunas' => 0
-            //             )
-            //         );
-            //     }
-            // } else {
-            // }
-            // $id_header = $params['id_bayar'];
+                                select b.* from bayar_hutang bh 
+                                left join
+                                    bayar b
+                                    on
+                                        bh.id_header = b.id
+                                where 
+                                    b.mstatus = 1
+                            ) data
+                            where 
+                                data.mstatus = 1 and
+                                data.faktur_kode = '".$faktur_kode."'
+                            group by
+                                data.faktur_kode
+                        ";
+                        $d_conf = $m_conf->hydrateRaw( $sql );
+
+                        $sudah_bayar = 0;
+                        if ( $d_conf->count() > 0 ) {
+                            $sudah_bayar = $d_conf->toArray()[0]['sudah_bayar'];
+                        }
+
+                        $m_bayar = new \Model\Storage\Bayar_model();
+                        $now = $m_bayar->getDate();
+
+                        $m_bayar->tgl_trans = $params['tanggal'].' '.substr($now['waktu'], 11, 8);
+                        $m_bayar->faktur_kode = null;
+                        $m_bayar->jml_tagihan = $params['sisa_tagihan'];
+                        $m_bayar->jml_bayar = $params['jml_bayar'];
+                        $m_bayar->ppn = 0;
+                        $m_bayar->service_charge = 0;
+                        $m_bayar->diskon = 0;
+                        $m_bayar->total = 0;
+                        $m_bayar->member_kode = $d_jual['kode_member'];
+                        $m_bayar->member = $d_jual['member'];
+                        $m_bayar->kasir = $this->userid;
+                        $m_bayar->nama_kasir = $this->userdata['detail_user']['nama_detuser'];
+                        $m_bayar->mstatus = 1;
+                        $m_bayar->save();
+
+                        $id_header = $m_bayar->id;
+
+                        $m_bh = new \Model\Storage\BayarHutang_model();
+                        $m_bh->id_header = $id_header;
+                        $m_bh->faktur_kode = $params['faktur_kode'];
+                        $m_bh->hutang = $params['sisa_tagihan'];
+                        $m_bh->bayar = $params['jml_bayar'];
+                        $m_bh->sudah_bayar = $sudah_bayar;
+                        $m_bh->save();
+                    }
+                }
+            }
 
             $m_bd = new \Model\Storage\BayarDet_model();
             $m_bd->id_header = $id_header;
@@ -841,11 +885,14 @@ class SalesRecapitulation extends Public_Controller
                 );
             }
 
+            $m_bayar = new \Model\Storage\Bayar_model();
+            $d_bayar = $m_bayar->where('id', $id_header)->first();
+
             $deskripsi_log = 'Tambah pembayaran oleh ' . $this->userdata['detail_user']['nama_detuser'];
             Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi, $m_bd);
 
             $this->result['status'] = 1;
-            $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
+            $this->result['content'] = array('kode_faktur' => $faktur_kode);
             $this->result['message'] = 'Data berhasil di simpan.';
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();
@@ -934,6 +981,7 @@ class SalesRecapitulation extends Public_Controller
 
         try {
             $id_bayar_det = $params['id'];
+            $faktur_kode = $params['faktur_kode'];
 
             $m_bd = new \Model\Storage\BayarDet_model();
             $d_bd = $m_bd->where('id', $id_bayar_det)->first();
@@ -959,7 +1007,7 @@ class SalesRecapitulation extends Public_Controller
             Modules::run( 'base/event/save', $d_bayar, $deskripsi_log, null, $keterangan, $id_verifikasi, $d_bd);
 
             $this->result['status'] = 1;
-            $this->result['content'] = array('kode_faktur' => $d_bayar->faktur_kode);
+            $this->result['content'] = array('kode_faktur' => $faktur_kode);
             $this->result['message'] = 'Data berhasil di hapus.';
         } catch (Exception $e) {
             $this->result['message'] = $e->getMessage();

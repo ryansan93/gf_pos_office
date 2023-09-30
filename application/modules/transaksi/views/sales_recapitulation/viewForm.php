@@ -90,7 +90,7 @@
                                             <?php echo angkaDecimal($v_jb['nominal']); ?>
                                         </div>
                                         <div class="col-xs-1 no-padding" style="padding-left: 5px;">
-                                            <button type="button" class="col-xs-12 btn btn-danger" style="padding: 1px;" data-id="<?php echo $v_jb['id']; ?>" onclick="sr.deletePembayaran(this)"><i class="fa fa-trash"></i></button>
+                                            <button type="button" class="col-xs-12 btn btn-danger" style="padding: 1px;" data-id="<?php echo $v_jb['id']; ?>" onclick="sr.deletePembayaran(this)" data-faktur="<?php echo $data['kode_faktur']; ?>"><i class="fa fa-trash"></i></button>
                                         </div>
                                     </div>
                                 <?php endforeach ?>

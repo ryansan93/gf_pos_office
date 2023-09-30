@@ -258,10 +258,12 @@ var sr = {
 
                 var data = {
                     'id_bayar': $(elm).attr('data-id'),
+                    'faktur_kode': $(elm).attr('data-kode'),
                     // 'status_pembayaran': $(modal).find('select.status_pembayaran').select2('val'),
                     'tanggal': dateSQL($(modal).find('#Tanggal').data('DateTimePicker').date()),
                     'jenis_bayar': $(modal).find('select.jenis_kartu option:selected').text(),
                     'kode_jenis_kartu': $(modal).find('select.jenis_kartu').select2('val'),
+                    'sisa_tagihan': sisa_tagihan,
                     'jml_bayar': jml_bayar,
                     'no_kartu': $(modal).find('input.no_kartu').val(),
                     'nama_kartu': $(modal).find('input.nama_kartu').val()
@@ -395,7 +397,8 @@ var sr = {
                 sr.verifikasiPinOtorisasi(function(data_verifikasi) {
                     if ( data_verifikasi.status == 1 ) {
                         var params = {
-                            'id': id
+                            'id': id,
+                            'faktur_kode': $(elm).attr('data-faktur')
                         };
 
                         $.ajax({
