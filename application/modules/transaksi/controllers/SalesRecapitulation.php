@@ -778,7 +778,7 @@ class SalesRecapitulation extends Public_Controller
                 if ( $d_conf->count() > 0 ) {
                     $d_conf = $d_conf->toArray()[0];
 
-                    $id_header = $d_conf->id;
+                    $id_header = $d_conf['id'];
                 } else {
                     $m_conf = new \Model\Storage\Conf();
                     $sql = "
