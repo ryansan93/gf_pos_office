@@ -5,6 +5,7 @@ class MutasiStok extends Public_Controller {
     private $pathView = 'report/mutasi_stok/';
     private $url;
     private $hakAkses;
+    private $_mappingDataReport;
 
     function __construct()
     {
@@ -96,9 +97,9 @@ class MutasiStok extends Public_Controller {
                 $data = $d_stokt->toArray();
             }
 
-            $mappingDataReport = $this->mappingDataReport( $data, $item, $gudang );
+            $this->_mappingDataReport = $this->mappingDataReport( $data, $item, $gudang );
 
-            $content_report['data'] = $mappingDataReport;
+            $content_report['data'] = $this->_mappingDataReport;
             $html_report = $this->load->view($this->pathView . 'list', $content_report, TRUE);
 
             $list_html = array(
@@ -356,6 +357,58 @@ class MutasiStok extends Public_Controller {
         }
 
         return $data;
+    }
+
+    public function excryptParamsExportExcel()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $paramsEncrypt = exEncrypt( json_encode($params) );
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('data' => $paramsEncrypt);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function exportExcel($_params)
+    {
+        $_data_params = json_decode( exDecrypt( $_params ), true );
+
+        $tgl_stok_opname = $this->config->item('tgl_stok_opname');
+
+        $start_date = ($_data_params['start_date'] >= $tgl_stok_opname) ? $_data_params['start_date'] : $tgl_stok_opname;
+        $end_date = $_data_params['end_date'];
+        $gudang = $_data_params['gudang'];
+        $item = $_data_params['item'];
+
+        $m_stokt = new \Model\Storage\StokTanggal_model();
+        $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
+
+        $data = null;
+        if ( $d_stokt->count() > 0 ) {
+            $data = $d_stokt->toArray();
+        }
+
+        $this->_mappingDataReport = $this->mappingDataReport( $data, $item, $gudang );
+
+        $gudang_nama = $this->_mappingDataReport[ $gudang ]['nama'];
+
+        $content['nama_gudang'] = $gudang_nama;
+        $content['start_date'] = $start_date;
+        $content['end_date'] = $end_date;
+        $content['data'] = $this->_mappingDataReport;
+        $res_view_html = $this->load->view('report/mutasi_stok/export_excel', $content, true);
+
+        $filename = 'export-mutasi-stok-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
+
+        header("Content-type: application/xls");
+        header("Content-Disposition: attachment; filename=".$filename."");
+        echo $res_view_html;
     }
 
     public function cekBarang()

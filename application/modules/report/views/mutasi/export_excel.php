@@ -1,3 +1,8 @@
+<style type="text/css">
+	.str { mso-number-format:\@; }
+	.decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
+	.number_format { mso-number-format: "\#\,\#\#0"; }
+</style>
 <div style="width: 100%;">
 	<h3>Laporan Penerimaan Barang</h3>
 </div>
@@ -41,35 +46,35 @@
 					<?php $total_per_kode = 0; ?>
 					<?php foreach ($v_kode['detail'] as $k_det => $v_det): ?>
 						<tr>
-							<td class="text-center"><?php echo tglIndonesia($v_det['tgl_mutasi'], '-', ' '); ?></td>
+							<td class="text-center"><?php echo $v_det['tgl_mutasi']; ?></td>
 							<td class="text-center"><?php echo $v_det['kode_mutasi']; ?></td>
 							<td><?php echo $v_det['nama_gudang_asal']; ?></td>
 							<td><?php echo $v_det['nama_gudang_tujuan']; ?></td>
 							<td><?php echo $v_det['nama_item']; ?></td>
 							<td><?php echo $v_det['coa']; ?></td>
 							<td><?php echo $v_det['satuan']; ?></td>
-							<td align="right"><?php echo angkaDecimal($v_det['jumlah']); ?></td>
-							<td align="right"><?php echo angkaDecimal($v_det['harga']); ?></td>
+							<td class="decimal_number_format" align="right"><?php echo ($v_det['jumlah']); ?></td>
+							<td class="decimal_number_format" align="right"><?php echo ($v_det['harga']); ?></td>
 							<?php $total = $v_det['jumlah'] * $v_det['harga']; ?>
 							<?php $grand_total += $total; ?>
 							<?php $total_per_tanggal += $total; ?>
 							<?php $total_per_kode += $total; ?>
-							<td align="right"><?php echo angkaDecimal($total); ?></td>
+							<td class="decimal_number_format" align="right"><?php echo ($total); ?></td>
 						</tr>
 					<?php endforeach ?>
 					<tr>
 						<td align="right" colspan="9"><b>TOTAL</b></td>
-						<td align="right"><b><?php echo angkaDecimal($total_per_kode); ?></b></td>
+						<td class="decimal_number_format" align="right"><b><?php echo ($total_per_kode); ?></b></td>
 					</tr>
 				<?php endforeach ?>
 				<tr>
 					<td align="right" colspan="9"><b>TOTAL PER TANGGAL - <?php echo tglIndonesia($v_det['tgl_mutasi'], '-', ' '); ?></b></td>
-					<td align="right"><b><?php echo angkaDecimal($total_per_tanggal); ?></b></td>
+					<td class="decimal_number_format" align="right"><b><?php echo ($total_per_tanggal); ?></b></td>
 				</tr>
 			<?php endforeach ?>
 			<tr>
 				<td align="right" colspan="9"><b>TOTAL</b></td>
-				<td align="right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
+				<td class="decimal_number_format" align="right"><b><?php echo ($grand_total); ?></b></td>
 			</tr>
 		<?php else: ?>
 			<tr>

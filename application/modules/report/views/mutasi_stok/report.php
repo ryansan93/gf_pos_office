@@ -1,6 +1,6 @@
 <div class="col-xs-12 no-padding">
 	<div class="col-md-12 search no-padding" style="margin-bottom: 10px;">
-		<button type="button" class="btn btn-default" onclick="ms.export_excel()"><i class="fa fa-print"></i> Export Excel</button>
+		<button type="button" class="btn btn-default" onclick="ms.exportExcel()"><i class="fa fa-print"></i> Export Excel</button>
 	</div>
 	<small>
 		<table class="table table-bordered tbl_report" style="margin-bottom: 0px;">

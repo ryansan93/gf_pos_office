@@ -325,4 +325,52 @@ class PosisiStok extends Public_Controller {
 
         return $data;
     }
+
+    public function excryptParamsExportExcel()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $paramsEncrypt = exEncrypt( json_encode($params) );
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('data' => $paramsEncrypt);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function exportExcel($_params)
+    {
+        $_data_params = json_decode( exDecrypt( $_params ), true );
+
+        $tgl_stok_opname = $this->config->item('tgl_stok_opname');
+
+        $start_date = $_data_params['start_date'];
+        $end_date = $_data_params['end_date'];
+        $gudang = $_data_params['gudang'];
+        $item = $_data_params['item'];
+        $group_item = $_data_params['group_item'];
+
+        $m_stokt = new \Model\Storage\StokTanggal_model();
+        $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
+
+        $data = null;
+        if ( $d_stokt->count() > 0 ) {
+            $data = $d_stokt->toArray();
+        }
+
+        $mappingDataReport = $this->mappingDataReport( $data, $item, $gudang, $group_item );
+
+        $content['data'] = $mappingDataReport;
+        $res_view_html = $this->load->view('report/posisi_stok/export_excel', $content, true);
+
+        $filename = 'export-posisi-stok-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
+
+        header("Content-type: application/xls");
+        header("Content-Disposition: attachment; filename=".$filename."");
+        echo $res_view_html;
+    }
 }

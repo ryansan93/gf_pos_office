@@ -2,6 +2,10 @@
 	td {
 		vertical-align: top;
 	}
+
+	.str { mso-number-format:\@; }
+	.decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
+	.number_format { mso-number-format: "\#\,\#\#0"; }
 </style>
 
 <div style="width: 100%;">
@@ -103,7 +107,7 @@
 									<td rowspan="<?php echo $rowspan_kategori; ?>"><?php echo strtoupper($v_jenis['nama']); ?></td>
 								<?php endif ?>
 								<?php if ( $idx_tanggal == 0 ): ?>
-									<td rowspan="<?php echo $rowspan_tanggal; ?>"><?php echo tglIndonesia($v_tanggal['tanggal'], '-', ' '); ?></td>
+									<td rowspan="<?php echo $rowspan_tanggal; ?>"><?php echo $v_tanggal['tanggal']; ?></td>
 								<?php endif ?>
 								<td>
 									<div class="col-xs-12 no-padding"><?php echo strtoupper($v_menu['nama']); ?></div>
@@ -113,12 +117,12 @@
 										<?php endforeach ?>
 									<?php endif ?>
 								</td>
-								<td align="right"><?php echo angkaRibuan($v_menu['jumlah']); ?></td>
-								<td align="right"><?php echo angkaRibuan($v_menu['harga']); ?></div></td>
-								<td align="right"><?php echo angkaDecimal($v_menu['total']); ?></td>
-								<td align="right"><?php echo angkaDecimal($v_menu['ppn']); ?></td>
-								<td align="right"><?php echo angkaDecimal($v_menu['service_charge']); ?></td>
-								<td align="right"><?php echo angkaDecimal($v_menu['grand_total']); ?></td>
+								<td class="number_format" align="right"><?php echo ($v_menu['jumlah']); ?></td>
+								<td class="number_format" align="right"><?php echo ($v_menu['harga']); ?></div></td>
+								<td class="decimal_number_format" align="right"><?php echo ($v_menu['total']); ?></td>
+								<td class="decimal_number_format" align="right"><?php echo ($v_menu['ppn']); ?></td>
+								<td class="decimal_number_format" align="right"><?php echo ($v_menu['service_charge']); ?></td>
+								<td class="decimal_number_format" align="right"><?php echo ($v_menu['grand_total']); ?></td>
 							</tr>
 							<?php $idx_shift++; ?>
 							<?php $idx_kategori++; ?>
@@ -150,42 +154,42 @@
 						<?php endforeach ?>
 						<tr class="total_by_tgl">
 							<td align="right" colspan="1"><b>TOTAL PER TANGGAL - <?php echo tglIndonesia($v_tanggal['tanggal'], '-', ' '); ?></b></td>
-							<td align="right"><b><?php echo angkaRibuan($jml_by_tgl); ?></b></td>
+							<td class="number_format" align="right"><b><?php echo ($jml_by_tgl); ?></b></td>
 							<td align="right"></td>
-							<td align="right"><b><?php echo angkaDecimal($total_by_tgl); ?></b></td>
-							<td align="right"><b><?php echo angkaDecimal($total_ppn_by_tgl); ?></b></td>
-							<td align="right"><b><?php echo angkaDecimal($total_service_charge_by_tgl); ?></b></td>
-							<td align="right"><b><?php echo angkaDecimal($total_after_ppn_by_tgl); ?></b></td>
+							<td class="decimal_number_format" align="right"><b><?php echo ($total_by_tgl); ?></b></td>
+							<td class="decimal_number_format" align="right"><b><?php echo ($total_ppn_by_tgl); ?></b></td>
+							<td class="decimal_number_format" align="right"><b><?php echo ($total_service_charge_by_tgl); ?></b></td>
+							<td class="decimal_number_format" align="right"><b><?php echo ($total_after_ppn_by_tgl); ?></b></td>
 						</tr>
 					<?php endforeach ?>
 					<tr class="total">
 						<td align="right" colspan="2"><b>TOTAL PER KATEGORI - <?php echo strtoupper($v_jenis['nama']); ?></b></td>
-						<td align="right"><b><?php echo angkaRibuan($jumlah); ?></b></td>
+						<td class="number_format" align="right"><b><?php echo ($jumlah); ?></b></td>
 						<td align="right"></td>
-						<td align="right"><b><?php echo angkaDecimal($total); ?></b></td>
-						<td align="right"><b><?php echo angkaDecimal($total_ppn); ?></b></td>
-						<td align="right"><b><?php echo angkaDecimal($total_service_charge); ?></b></td>
-						<td align="right"><b><?php echo angkaDecimal($total_after_ppn); ?></b></td>
+						<td class="decimal_number_format" align="right"><b><?php echo ($total); ?></b></td>
+						<td class="decimal_number_format" align="right"><b><?php echo ($total_ppn); ?></b></td>
+						<td class="decimal_number_format" align="right"><b><?php echo ($total_service_charge); ?></b></td>
+						<td class="decimal_number_format" align="right"><b><?php echo ($total_after_ppn); ?></b></td>
 					</tr>
 				<?php endforeach ?>
 				<tr class="total">
 					<td align="right" colspan="3"><b>TOTAL PER SHIFT - <?php echo strtoupper($v_shift['nama']); ?></b></td>
-					<td align="right"><b><?php echo angkaRibuan($jumlah_shift); ?></b></td>
+					<td class="number_format" align="right"><b><?php echo ($jumlah_shift); ?></b></td>
 					<td align="right"></td>
-					<td align="right"><b><?php echo angkaDecimal($total_shift); ?></b></td>
-					<td align="right"><b><?php echo angkaDecimal($total_ppn_shift); ?></b></td>
-					<td align="right"><b><?php echo angkaDecimal($total_service_charge_shift); ?></b></td>
-					<td align="right"><b><?php echo angkaDecimal($total_after_ppn_shift); ?></b></td>
+					<td class="decimal_number_format" align="right"><b><?php echo ($total_shift); ?></b></td>
+					<td class="decimal_number_format" align="right"><b><?php echo ($total_ppn_shift); ?></b></td>
+					<td class="decimal_number_format" align="right"><b><?php echo ($total_service_charge_shift); ?></b></td>
+					<td class="decimal_number_format" align="right"><b><?php echo ($total_after_ppn_shift); ?></b></td>
 				</tr>
 			<?php endforeach ?>
 			<tr class="grand_total">
 				<td align="right" colspan="4"><b>GRAND TOTAL</b></td>
-				<td align="right"><b><?php echo angkaRibuan($grand_jumlah); ?></b></td>
+				<td class="number_format" align="right"><b><?php echo ($grand_jumlah); ?></b></td>
 				<td align="right"></td>
-				<td align="right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
-				<td align="right"><b><?php echo angkaDecimal($grand_total_ppn); ?></b></td>
-				<td align="right"><b><?php echo angkaDecimal($grand_total_service_charge); ?></b></td>
-				<td align="right"><b><?php echo angkaDecimal($grand_total_after_ppn); ?></b></td>
+				<td class="decimal_number_format" align="right"><b><?php echo ($grand_total); ?></b></td>
+				<td class="decimal_number_format" align="right"><b><?php echo ($grand_total_ppn); ?></b></td>
+				<td class="decimal_number_format" align="right"><b><?php echo ($grand_total_service_charge); ?></b></td>
+				<td class="decimal_number_format" align="right"><b><?php echo ($grand_total_after_ppn); ?></b></td>
 			</tr>
 		<?php else: ?>
 			<tr>
@@ -216,10 +220,10 @@
 					<?php foreach ($v_tgl['jenis_pembayaran'] as $k_jp => $v_jp): ?>
 						<tr>
 							<?php if ( $idx_tgl == 0 ): ?>
-								<td rowspan="<?php echo (count($v_tgl['jenis_pembayaran'])+1); ?>"><?php echo tglIndonesia($v_tgl['tanggal'], '-', ' '); ?></td>
+								<td rowspan="<?php echo (count($v_tgl['jenis_pembayaran'])+1); ?>"><?php echo $v_tgl['tanggal']; ?></td>
 							<?php endif ?>
 							<td><?php echo strtoupper($v_jp['nama']); ?></td>
-							<td align="right"><?php echo angkaDecimal($v_jp['total']); ?></td>
+							<td class="decimal_number_format" align="right"><?php echo ($v_jp['total']); ?></td>
 						</tr>
 						<?php $idx_tgl++; ?>
 
@@ -228,13 +232,13 @@
 					<?php endforeach ?>
 					<tr>
 						<td align="right"><b>TOTAL</b></td>
-						<td align="right"><b><?php echo angkaDecimal($total_per_tanggal); ?></b></td>
+						<td class="decimal_number_format" align="right"><b><?php echo ($total_per_tanggal); ?></b></td>
 					</tr>
 				<?php endif ?>
 			<?php endforeach ?>
 			<tr>
 				<td colspan="2" align="right"><b>GRAND TOTAL</b></td>
-				<td align="right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
+				<td class="decimal_number_format" align="right"><b><?php echo ($grand_total); ?></b></td>
 			</tr>
 		<?php else: ?>
 			<tr>

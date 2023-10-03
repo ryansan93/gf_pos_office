@@ -122,17 +122,60 @@ var ps = {
 		}
 	}, // end - getLists
 
-	export_excel : function () {
-		var _data = '<table border="1">'+$('table.tbl_report').html()+'</table>';
+	// export_excel : function () {
+	// 	var _data = '<table border="1">'+$('table.tbl_report').html()+'</table>';
 
-        var blob = new Blob([_data], { type: 'application/vnd.ms-excel' });
-        var downloadUrl = URL.createObjectURL(blob);
-        var a = document.createElement("a");
-        a.href = downloadUrl;
-        a.download = "export-mutasi-stok.xls";
-        document.body.appendChild(a);
-        a.click();
-	}, // end - export_excel
+    //     var blob = new Blob([_data], { type: 'application/vnd.ms-excel' });
+    //     var downloadUrl = URL.createObjectURL(blob);
+    //     var a = document.createElement("a");
+    //     a.href = downloadUrl;
+    //     a.download = "export-mutasi-stok.xls";
+    //     document.body.appendChild(a);
+    //     a.click();
+	// }, // end - export_excel
+
+	exportExcel: function(elm) {
+		var err = 0
+
+		$.map( $('[data-required=1]'), function(ipt) {
+			if ( empty($(ipt).val()) ) {
+				$(ipt).parent().addClass('has-error');
+				err++;
+			} else {
+				$(ipt).parent().removeClass('has-error');
+			}
+		});
+
+		if ( err > 0 ) {
+			bootbox.alert('Harap lengkapi data terlebih dahulu.');
+		} else {
+			var params = {
+				'gudang': $('.gudang').val(),
+				'item': $('.item').val(),
+				'group_item': $('.group_item').val(),
+				'start_date': dateSQL($('#StartDate').data('DateTimePicker').date()),
+				'end_date': dateSQL($('#EndDate').data('DateTimePicker').date())
+			};
+
+			$.ajax({
+	            url: 'report/PosisiStok/excryptParamsExportExcel',
+	            data: {
+	                'params': params
+	            },
+	            type: 'POST',
+	            dataType: 'JSON',
+	            beforeSend: function() { showLoading(); },
+	            success: function(data) {
+	                hideLoading();
+	                if ( data.status == 1 ) {
+	                	window.open('report/PosisiStok/exportExcel/'+data.content.data, 'blank');
+	                } else {
+	                    bootbox.alert(data.message);
+	                }
+	            }
+	        });
+		}
+	}, // end - exportExcel
 };
 
 ps.start_up();
