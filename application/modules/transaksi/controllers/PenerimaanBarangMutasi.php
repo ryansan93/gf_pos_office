@@ -212,7 +212,7 @@ class PenerimaanBarangMutasi extends Public_Controller {
                         'nama_gudang_asal' => $value['nama_gudang_asal'],
                         'nama_gudang_tujuan' => $value['nama_gudang_tujuan'],
                         'g_status' => $value['g_status'],
-                        'total' => $value['total'],
+                        'total' => (float)$value['total'],
                         'list_coa' => null
                     );
                     $data[ $value['kode_mutasi'] ]['list_coa'][ $value['coa'] ] = array(
