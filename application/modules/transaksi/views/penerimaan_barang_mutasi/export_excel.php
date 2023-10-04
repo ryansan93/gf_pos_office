@@ -2,7 +2,6 @@
 	.str { mso-number-format:\@; }
 	.decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
 	.number_format { mso-number-format: "\#\,\#\#0"; }
-    td.thousands-separator {mso-number-format: "\#\,\#\#0\.00"}
 </style>
 <table border="1">
     <thead>
@@ -29,42 +28,42 @@
                     <td class="str"><?php echo strtoupper($v_data['nama_gudang_tujuan']); ?></td>
                     <td class="str">
                         <?php
-                            // if ( !empty($v_data['list_coa']) ) {
-                            //     $idx = 0;
-                            //     foreach ($v_data['list_coa'] as $key => $value) {
-                            //         if ( $idx == 0 ) {
-                            //             echo $value['coa'];
-                            //         } else {
-                            //             echo '<br>'.$value['coa'];
-                            //         }
+                            if ( !empty($v_data['list_coa']) ) {
+                                $idx = 0;
+                                foreach ($v_data['list_coa'] as $key => $value) {
+                                    if ( $idx == 0 ) {
+                                        echo $value['coa'];
+                                    } else {
+                                        echo '<br>'.$value['coa'];
+                                    }
 
-                            //         $idx++;
-                            //     }
-                            // } else {
-                            //     echo '-';
-                            // }
+                                    $idx++;
+                                }
+                            } else {
+                                echo '-';
+                            }
                         ?>
                     </td>
                     <td class="str">
                         <?php
-                            // if ( !empty($v_data['list_coa']) ) {
-                            //     $idx = 0;
-                            //     foreach ($v_data['list_coa'] as $key => $value) {
-                            //         if ( $idx == 0 ) {
-                            //             echo $value['ket_coa'];
-                            //         } else {
-                            //             echo '<br>'.$value['ket_coa'];
-                            //         }
+                            if ( !empty($v_data['list_coa']) ) {
+                                $idx = 0;
+                                foreach ($v_data['list_coa'] as $key => $value) {
+                                    if ( $idx == 0 ) {
+                                        echo $value['ket_coa'];
+                                    } else {
+                                        echo '<br>'.$value['ket_coa'];
+                                    }
 
-                            //         $idx++;
-                            //     }
-                            // } else {
-                            //     echo '-';
-                            // }
+                                    $idx++;
+                                }
+                            } else {
+                                echo '-';
+                            }
                         ?>
                     </td>
-                    <td class="str"><?php // echo ($v_data['g_status'] == getStatus('submit')) ? 'BELUM' : 'SUDAH'; ?></td>
-                    <td class="thousands-separator"><?php echo ((float)$v_data['total']); ?></td>
+                    <td class="str"><?php echo ($v_data['g_status'] == getStatus('submit')) ? 'BELUM' : 'SUDAH'; ?></td>
+                    <td class="decimal_number_format"><?php echo ((float)$v_data['total']); ?></td>
                 </tr>
             <?php endforeach ?>
         <?php else: ?>
