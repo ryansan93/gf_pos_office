@@ -492,7 +492,8 @@ class PenerimaanBarangMutasi extends Public_Controller {
 
         $filename = 'export-riwayat-penerimaan-barang-mutasi-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
 
-        header("Content-type: application/xls");
+        // header("Content-type: application/xls");
+        header("Content-type:   application/ms-excel; charset=utf-8");
         header("Content-Disposition: attachment; filename=".$filename."");
         echo $res_view_html;
     }
