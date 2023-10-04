@@ -103,19 +103,19 @@ class Penerimaan extends Public_Controller {
                 ti.satuan,
                 gi.coa
             from terima_item ti
-            right join
+            left join
                 item i
                 on
                     ti.item_kode = i.kode
-            right join
+            left join
                 group_item gi
                 on
                     i.group_kode = gi.kode
-            right join
+            left join
                 terima t
                 on
                     ti.terima_kode = t.kode_terima
-            right join
+            left join
                 gudang g
                 on
                     t.gudang_kode = g.kode_gudang
