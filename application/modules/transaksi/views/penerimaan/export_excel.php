@@ -1,6 +1,6 @@
 <style type="text/css">
 	.str { mso-number-format:\@; }
-	.decimal_number_format { mso-number-format: "\#\,\#\#0\.##"; }
+	.decimal_number_format { mso-number-format: "\#\,\#\#0\.00"; }
 	/* .decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
 	.decimal_number_format4 { mso-number-format: "\#\,\#\#0.0000"; } */
 	.number_format { mso-number-format: "\#\,\#\#0"; }
@@ -65,10 +65,7 @@
                             }
                         ?>
                     </td>
-                    <td class="decimal_number_format">
-                        <?php // echo ($v_data['total']); ?>
-                        <?php echo (float) $v_data['total']; ?>
-                    </td>
+                    <td class="decimal_number_format"><?php echo number_format((float) $v_data['total'], 2, ',', ''); ?></td>
                 </tr>
             <?php endforeach ?>
         <?php else: ?>
