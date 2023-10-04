@@ -212,7 +212,7 @@ class PenerimaanBarangMutasi extends Public_Controller {
                         'nama_gudang_asal' => $value['nama_gudang_asal'],
                         'nama_gudang_tujuan' => $value['nama_gudang_tujuan'],
                         'g_status' => $value['g_status'],
-                        'total' => (float)$value['total'],
+                        'total' => $value['total'],
                         'list_coa' => null
                     );
                     $data[ $value['kode_mutasi'] ]['list_coa'][ $value['coa'] ] = array(
@@ -220,7 +220,7 @@ class PenerimaanBarangMutasi extends Public_Controller {
                         'ket_coa' => $value['ket_coa']
                     );
                 } else {
-                    $data[ $value['kode_mutasi'] ]['total'] += (float)$value['total'];
+                    $data[ $value['kode_mutasi'] ]['total'] += $value['total'];
                     $data[ $value['kode_mutasi'] ]['list_coa'][ $value['coa'] ] = array(
                         'coa' => $value['coa'],
                         'ket_coa' => $value['ket_coa']

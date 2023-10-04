@@ -1,7 +1,8 @@
 <style type="text/css">
 	.str { mso-number-format:\@; }
-	.decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
-	.decimal_number_format4 { mso-number-format: "\#\,\#\#0.0000"; }
+	.decimal_number_format { mso-number-format:"0.00"; }
+	/* .decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
+	.decimal_number_format4 { mso-number-format: "\#\,\#\#0.0000"; } */
 	.number_format { mso-number-format: "\#\,\#\#0"; }
 </style>
 <table border="1">
@@ -64,7 +65,7 @@
                         ?>
                     </td>
                     <td class="str"><?php // echo ($v_data['g_status'] == getStatus('submit')) ? 'BELUM' : 'SUDAH'; ?></td>
-                    <td class="decimal_number_format4"><?php echo $v_data['total']; ?></td>
+                    <td class="decimal_number_format"><?php echo (float)$v_data['total']; ?></td>
                 </tr>
             <?php endforeach ?>
         <?php else: ?>
