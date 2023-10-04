@@ -72,7 +72,7 @@
                                 ?>
                             </td>
                             <td><?php echo ($v_data['g_status'] == getStatus('submit')) ? 'BELUM' : 'SUDAH'; ?></td>
-                            <td class="decimal_number_format"><?php echo $v_data['total']; ?></td>
+                            <td><?php echo $v_data['total']; ?></td>
                         </tr>
                     <?php endforeach ?>
                 <?php else: ?>
