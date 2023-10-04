@@ -1,6 +1,7 @@
 <style type="text/css">
 	.str { mso-number-format:\@; }
 	.decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
+	.decimal_number_format4 { mso-number-format: "\#\,\#\#0.0000"; }
 	.number_format { mso-number-format: "\#\,\#\#0"; }
 </style>
 <div style="width: 100%;">
@@ -58,7 +59,7 @@
 							<td><?php echo $v_det['coa']; ?></td>
 							<td><?php echo $v_det['satuan']; ?></td>
 							<td class="decimal_number_format" align="right"><?php echo ($v_det['jumlah']); ?></td>
-							<td class="decimal_number_format" align="right"><?php echo ($v_det['harga']); ?></td>
+							<td class="decimal_number_format4" align="right"><?php echo ($v_det['harga']); ?></td>
 							<td class="decimal_number_format" align="right"><?php echo ($total); ?></td>
 						</tr>
 					<?php endforeach ?>
