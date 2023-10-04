@@ -60,7 +60,7 @@
 							<td><?php echo $v_det['satuan']; ?></td>
 							<td class="decimal_number_format" align="right"><?php echo ($v_det['jumlah']); ?></td>
 							<!-- <td class="decimal_number_format4" align="right"><?php echo ($v_det['harga']); ?></td> -->
-							<td class="decimal_number_format" align="right"><?php echo number_format((float)$v_det['harga'], 2, '.', ''); ?></td>
+							<td class="decimal_number_format" align="right"><?php echo (float)$v_det['harga']; ?></td>
 							<td class="decimal_number_format" align="right"><?php echo ($total); ?></td>
 						</tr>
 					<?php endforeach ?>
