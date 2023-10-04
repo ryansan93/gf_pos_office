@@ -220,7 +220,7 @@ class PenerimaanBarangMutasi extends Public_Controller {
                         'ket_coa' => $value['ket_coa']
                     );
                 } else {
-                    $data[ $value['kode_mutasi'] ]['total'] += $value['total'];
+                    $data[ $value['kode_mutasi'] ]['total'] += (float)$value['total'];
                     $data[ $value['kode_mutasi'] ]['list_coa'][ $value['coa'] ] = array(
                         'coa' => $value['coa'],
                         'ket_coa' => $value['ket_coa']
