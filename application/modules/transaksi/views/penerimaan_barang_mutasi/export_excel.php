@@ -2,8 +2,8 @@
     <head>
         <style type="text/css">
             .str { mso-number-format:\@; }
-            /* .decimal_number_format { mso-number-format: "\#\,\#\#0\.00"; } */
-            .decimal_number_format { mso-number-format: "\#\,\#\#0.#0"; }
+            .decimal_number_format { mso-number-format: "\#\,\#\#0\.00"; }
+            /* .decimal_number_format { mso-number-format: "\#\,\#\#0.#0"; } */
             /* .decimal_number_format { mso-number-format: "#,###.##"; } */
             .number_format { mso-number-format: "\#\,\#\#0"; }
         </style>
