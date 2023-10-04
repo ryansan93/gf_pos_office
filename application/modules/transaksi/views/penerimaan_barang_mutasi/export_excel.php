@@ -2,8 +2,8 @@
     <head>
         <style type="text/css">
             .str { mso-number-format:\@; }
-            .decimal_number_format { mso-number-format: "\#\,\#\##\.##"; }
-            /* .decimal_number_format { mso-number-format: "\#\,\#\#0.#0"; } */
+            /* .decimal_number_format { mso-number-format: "\#\,\#\##\.00"; } */
+            .decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
             /* .decimal_number_format { mso-number-format: "#,###.##"; } */
             .number_format { mso-number-format: "\#\,\#\#0"; }
         </style>
@@ -73,11 +73,7 @@
                             </td>
                             <td><?php echo ($v_data['g_status'] == getStatus('submit')) ? 'BELUM' : 'SUDAH'; ?></td>
                             <!-- <td class="decimal_number_format"><?php echo $v_data['total']; ?></td> -->
-                            <?php if ( is_float($v_data['total']) ) { ?>
-                                <td class="decimal_number_format"><?php echo number_format((float) $v_data['total'], 2, ',', ''); ?></td>
-                            <?php } else { ?>
-                                <td class="number_format"><?php echo (int) $v_data['total']; ?></td>
-                            <?php } ?>
+                            <td class="decimal_number_format"><?php echo number_format((float) $v_data['total'], 2, ',', ''); ?></td>
                         </tr>
                     <?php endforeach ?>
                 <?php else: ?>
