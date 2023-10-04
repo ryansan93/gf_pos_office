@@ -3,6 +3,9 @@
 	.decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
 	.number_format { mso-number-format: "\#\,\#\#0"; }
 </style>
+<div style="width: 100%;">
+	<h3>Riwayat Penerimaan Barang Mutasi</h3>
+</div>
 <table border="1">
     <thead>
         <tr>
@@ -21,12 +24,12 @@
         <?php if ( !empty($data) && count($data) > 0 ): ?>
             <?php foreach ($data as $k_data => $v_data): ?>
                 <tr>
-                    <td class="str"><?php echo $v_data['tgl_mutasi']; ?></td>
-                    <td class="str"><?php echo $v_data['kode_mutasi']; ?></td>
-                    <td class="str"><?php echo strtoupper($v_data['nama_pic']); ?></td>
-                    <td class="str"><?php echo strtoupper($v_data['nama_gudang_asal']); ?></td>
-                    <td class="str"><?php echo strtoupper($v_data['nama_gudang_tujuan']); ?></td>
-                    <td class="str">
+                    <td><?php echo $v_data['tgl_mutasi']; ?></td>
+                    <td><?php echo $v_data['kode_mutasi']; ?></td>
+                    <td><?php echo strtoupper($v_data['nama_pic']); ?></td>
+                    <td><?php echo strtoupper($v_data['nama_gudang_asal']); ?></td>
+                    <td><?php echo strtoupper($v_data['nama_gudang_tujuan']); ?></td>
+                    <td>
                         <?php
                             if ( !empty($v_data['list_coa']) ) {
                                 $idx = 0;
@@ -44,7 +47,7 @@
                             }
                         ?>
                     </td>
-                    <td class="str">
+                    <td>
                         <?php
                             if ( !empty($v_data['list_coa']) ) {
                                 $idx = 0;
@@ -62,7 +65,7 @@
                             }
                         ?>
                     </td>
-                    <td class="str"><?php echo ($v_data['g_status'] == getStatus('submit')) ? 'BELUM' : 'SUDAH'; ?></td>
+                    <td><?php echo ($v_data['g_status'] == getStatus('submit')) ? 'BELUM' : 'SUDAH'; ?></td>
                     <td class="decimal_number_format"><?php echo ((float)$v_data['total']); ?></td>
                 </tr>
             <?php endforeach ?>
