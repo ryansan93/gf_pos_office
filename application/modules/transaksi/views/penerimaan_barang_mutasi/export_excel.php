@@ -2,9 +2,9 @@
     <head>
         <style type="text/css">
             .str { mso-number-format:\@; }
-            /* .decimal_number_format { mso-number-format: "\#\,\#\#0\.##"; } */
+            .decimal_number_format { mso-number-format: "\#\,\#\#0\.##"; }
             /* .decimal_number_format { mso-number-format: "\#\,\#\##.##"; } */
-            .decimal_number_format { mso-number-format: "#,###.##"; }
+            /* .decimal_number_format { mso-number-format: "#,###.##"; } */
             .number_format { mso-number-format: "\#\,\#\#0"; }
         </style>
     </head>
@@ -72,7 +72,7 @@
                                 ?>
                             </td>
                             <td><?php echo ($v_data['g_status'] == getStatus('submit')) ? 'BELUM' : 'SUDAH'; ?></td>
-                            <td class="decimal_number_format"><?php echo (float)$v_data['total']; ?></td>
+                            <td class="decimal_number_format"><?php echo (float) $v_data['total']; ?></td>
                         </tr>
                     <?php endforeach ?>
                 <?php else: ?>

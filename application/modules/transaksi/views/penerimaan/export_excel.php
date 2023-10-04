@@ -67,7 +67,7 @@
                     </td>
                     <td class="decimal_number_format">
                         <?php // echo ($v_data['total']); ?>
-                        <?php echo (float)$v_data['total']; ?>
+                        <?php echo (float) $v_data['total']; ?>
                     </td>
                 </tr>
             <?php endforeach ?>
