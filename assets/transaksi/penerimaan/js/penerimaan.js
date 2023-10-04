@@ -433,17 +433,59 @@ var terima = {
         $('tfoot td.total').find('b').html( numeral.formatDec(grand_total) );
     }, // end - hitGrandTotal
 
-    exportExcel : function () {
-        var _data = '<table border="1">'+$('table.tbl_riwayat').html()+'</table>';
+    // exportExcel : function () {
+    //     var _data = '<table border="1">'+$('table.tbl_riwayat').html()+'</table>';
 
-        var blob = new Blob([_data], { type: 'application/vnd.ms-excel' });
-        var downloadUrl = URL.createObjectURL(blob);
-        var a = document.createElement("a");
-        a.href = downloadUrl;
-        a.download = "export-penerimaan-barang.xls";
-        document.body.appendChild(a);
-        a.click();
-    }, // end - exportExcel
+    //     var blob = new Blob([_data], { type: 'application/vnd.ms-excel' });
+    //     var downloadUrl = URL.createObjectURL(blob);
+    //     var a = document.createElement("a");
+    //     a.href = downloadUrl;
+    //     a.download = "export-penerimaan-barang.xls";
+    //     document.body.appendChild(a);
+    //     a.click();
+    // }, // end - exportExcel
+
+    exportExcel: function(elm) {
+		var dcontent = $('div#riwayat');
+		
+        var err = 0
+
+        $.map( $(dcontent).find('[data-required=1]'), function(ipt) {
+            if ( empty( $(ipt).val() ) ) {
+                $(ipt).parent().addClass('has-error');
+                err++;
+            } else {
+                $(ipt).parent().removeClass('has-error');
+            }
+        });
+
+		if ( err > 0 ) {
+			bootbox.alert('Harap lengkapi data terlebih dahulu.');
+		} else {
+			var params = {
+                'start_date': dateSQL( $(dcontent).find('#StartDate').data('DateTimePicker').date() ),
+                'end_date': dateSQL( $(dcontent).find('#EndDate').data('DateTimePicker').date() )
+            };
+
+			$.ajax({
+	            url: 'transaksi/Penerimaan/excryptParamsExportExcel',
+	            data: {
+	                'params': params
+	            },
+	            type: 'POST',
+	            dataType: 'JSON',
+	            beforeSend: function() { showLoading(); },
+	            success: function(data) {
+	                hideLoading();
+	                if ( data.status == 1 ) {
+	                	window.open('transaksi/Penerimaan/exportExcel/'+data.content.data, 'blank');
+	                } else {
+	                    bootbox.alert(data.message);
+	                }
+	            }
+	        });
+		}
+	}, // end - exportExcel
 };
 
 terima.start_up();

@@ -112,8 +112,19 @@ class Penerimaan extends Public_Controller {
 
         $tgl_stok_opname = $this->config->item('tgl_stok_opname');
 
+        $data = $this->getDataLists($start_date, $end_date);
+
+        $content['data'] = $data;
+        $html = $this->load->view($this->pathView . 'list', $content, true);
+
+        echo $html;
+    }
+
+    public function getDataLists($start_date, $end_date) {
         // $m_terima = new \Model\Storage\Terima_model();
         // $d_terima = $m_terima->where('tgl_terima', '>', $tgl_stok_opname)->with(['gudang'])->orderBy('tgl_terima', 'desc')->get();
+
+        $data = null;
 
         $m_conf = new \Model\Storage\Conf();
         $sql = "
@@ -168,7 +179,6 @@ class Penerimaan extends Public_Controller {
         ";
         $d_terima = $m_conf->hydrateRaw( $sql );
 
-        $data = null;
         if ( $d_terima->count() > 0 ) {
             $d_terima = $d_terima->toArray();
 
@@ -201,10 +211,7 @@ class Penerimaan extends Public_Controller {
             }
         }
 
-        $content['data'] = $data;
-        $html = $this->load->view($this->pathView . 'list', $content, true);
-
-        echo $html;
+        return $data;
     }
 
     public function getPo()
@@ -551,5 +558,40 @@ class Penerimaan extends Public_Controller {
                 array('done' => 0)
             );
         }
+    }
+
+    public function excryptParamsExportExcel()
+    {
+        $params = $this->input->post('params');
+
+        try {
+            $paramsEncrypt = exEncrypt( json_encode($params) );
+
+            $this->result['status'] = 1;
+            $this->result['content'] = array('data' => $paramsEncrypt);
+        } catch (Exception $e) {
+            $this->result['message'] = $e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function exportExcel($_params)
+    {
+        $_data_params = json_decode( exDecrypt( $_params ), true );
+
+        $start_date = $_data_params['start_date'];
+        $end_date = $_data_params['end_date'];
+
+        $data = $this->getDataLists($start_date, $end_date);
+
+        $content['data'] = $data;
+        $res_view_html = $this->load->view('transaksi/penerimaan/export_excel', $content, true);
+
+        $filename = 'export-riwayat-penerimaan-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
+
+        header("Content-type: application/xls");
+        header("Content-Disposition: attachment; filename=".$filename."");
+        echo $res_view_html;
     }
 }
