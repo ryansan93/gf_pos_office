@@ -125,7 +125,7 @@ class PenerimaanBarangMutasi extends Public_Controller {
                 gi.coa,
                 cast(gi.ket_coa as varchar(max)) as ket_coa,
                 (isnull(sh.harga, 0) / mi.pengali) as harga,
-                sum(((mi.jumlah * mi.pengali) * isnull(sh.harga, 0))) as total
+                cast(sum(((mi.jumlah * mi.pengali) * isnull(sh.harga, 0))) as decimal(15, 2)) as total
             from mutasi_item mi
             right join
                 mutasi m
