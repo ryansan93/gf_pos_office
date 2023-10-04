@@ -73,7 +73,11 @@
                             </td>
                             <td><?php echo ($v_data['g_status'] == getStatus('submit')) ? 'BELUM' : 'SUDAH'; ?></td>
                             <!-- <td class="decimal_number_format"><?php echo $v_data['total']; ?></td> -->
-                            <td class="decimal_number_format"><?php echo number_format((float) $v_data['total'], 2, ',', ''); ?></td>
+                            <?php if ( is_float($v_data['total']) ) { ?>
+                                <td class="decimal_number_format"><?php echo number_format((float) $v_data['total'], 2, ',', ''); ?></td>
+                            <?php } else { ?>
+                                <td class="number_format"><?php echo (int) $v_data['total']; ?></td>
+                            <?php } ?>
                         </tr>
                     <?php endforeach ?>
                 <?php else: ?>
