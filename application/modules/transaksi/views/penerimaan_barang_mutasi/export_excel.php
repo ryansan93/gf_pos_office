@@ -2,7 +2,7 @@
     <head>
         <style type="text/css">
             .str { mso-number-format:\@; }
-            .decimal_number_format { mso-number-format: "0\.000"; }
+            .decimal_number_format { mso-number-format: "\#\,\#\#0\.##"; }
             /* .decimal_number_format { mso-number-format: "\#\,\#\#0.#0"; } */
             /* .decimal_number_format { mso-number-format: "#,###.##"; } */
             .number_format { mso-number-format: "\#\,\#\#0"; }
