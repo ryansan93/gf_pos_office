@@ -58,25 +58,25 @@
 							<td><?php echo $v_det['nama_item']; ?></td>
 							<td><?php echo $v_det['coa']; ?></td>
 							<td><?php echo $v_det['satuan']; ?></td>
-							<td class="decimal_number_format" align="right"><?php echo ($v_det['jumlah']); ?></td>
+							<td class="decimal_number_format" align="right"><?php echo number_format((float)$v_det['jumlah'], 2, ',', ''); ?></td>
 							<!-- <td class="decimal_number_format4" align="right"><?php echo ($v_det['harga']); ?></td> -->
 							<td class="decimal_number_format" align="right"><?php echo number_format((float)$v_det['harga'], 2, ',', ''); ?></td>
-							<td class="decimal_number_format" align="right"><?php echo ($total); ?></td>
+							<td class="decimal_number_format" align="right"><?php echo number_format((float)$total, 2, ',', ''); ?></td>
 						</tr>
 					<?php endforeach ?>
 					<tr>
 						<td align="right" colspan="9"><b>TOTAL</b></td>
-						<td class="decimal_number_format" align="right"><b><?php echo ($total_per_kode); ?></b></td>
+						<td class="decimal_number_format" align="right"><b><?php echo number_format((float)$total_per_kode, 2, ',', ''); ?></b></td>
 					</tr>
 				<?php endforeach ?>
 				<tr>
 					<td align="right" colspan="9"><b>TOTAL PER TANGGAL - <?php echo tglIndonesia($v_det['tgl_mutasi'], '-', ' '); ?></b></td>
-					<td class="decimal_number_format" align="right"><b><?php echo ($total_per_tanggal); ?></b></td>
+					<td class="decimal_number_format" align="right"><b><?php echo number_format((float)$total_per_tanggal, 2, ',', ''); ?></b></td>
 				</tr>
 			<?php endforeach ?>
 			<tr>
 				<td align="right" colspan="9"><b>TOTAL</b></td>
-				<td class="decimal_number_format" align="right"><b><?php echo ($grand_total); ?></b></td>
+				<td class="decimal_number_format" align="right"><b><?php echo number_format((float)$grand_total, 2, ',', ''); ?></b></td>
 			</tr>
 		<?php else: ?>
 			<tr>
