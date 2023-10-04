@@ -58,7 +58,7 @@
 							<td><?php echo $v_det['coa']; ?></td>
 							<td><?php echo $v_det['satuan']; ?></td>
 							<td class="decimal_number_format" align="right"><?php echo ($v_det['jumlah']); ?></td>
-							<td align="right"><?php echo ($v_det['harga']); ?></td>
+							<td class="decimal_number_format" align="right"><?php echo ($v_det['harga']); ?></td>
 							<td class="decimal_number_format" align="right"><?php echo ($total); ?></td>
 						</tr>
 					<?php endforeach ?>

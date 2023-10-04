@@ -220,6 +220,8 @@ class Mutasi extends Public_Controller {
 
         $detail = $this->getData($gudang_asal, $gudang_tujuan, $start_date, $end_date);
 
+        cetak_r( $detail, 1 );
+
         $data = array(
             'gudang_asal' => $gudang_asal,
             'gudang_tujuan' => $gudang_tujuan,
