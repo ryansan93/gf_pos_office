@@ -131,19 +131,19 @@ class PenerimaanBarangMutasi extends Public_Controller {
                 mutasi m
                 on
                     mi.mutasi_kode = m.kode_mutasi
-            right join
+            left join
                 gudang g_asal
                 on
                     m.asal = g_asal.kode_gudang
-            right join
+            left join
                 gudang g_tujuan
                 on
                     m.tujuan = g_tujuan.kode_gudang
-            right join
+            left join
                 item i
                 on
                     i.kode = mi.item_kode
-            right join
+            left join
                 group_item gi
                 on
                     gi.kode = i.group_kode
@@ -196,7 +196,6 @@ class PenerimaanBarangMutasi extends Public_Controller {
                 cast(gi.ket_coa as varchar(max)),
                 sh.harga,
                 mi.pengali
-
         ";
         $d_mutasi = $m_conf->hydrateRaw( $sql );
 
