@@ -1,7 +1,8 @@
 <style type="text/css">
 	.str { mso-number-format:\@; }
-	.decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
-	.decimal_number_format4 { mso-number-format: "\#\,\#\#0.0000"; }
+	.decimal_number_format { mso-number-format: "\#\,\#\#0\.##"; }
+	/* .decimal_number_format { mso-number-format: "\#\,\#\#0.00"; }
+	.decimal_number_format4 { mso-number-format: "\#\,\#\#0.0000"; } */
 	.number_format { mso-number-format: "\#\,\#\#0"; }
 </style>
 <table border="1">
