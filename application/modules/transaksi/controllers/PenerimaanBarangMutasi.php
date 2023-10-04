@@ -487,6 +487,8 @@ class PenerimaanBarangMutasi extends Public_Controller {
 
         $data = $this->getDataLists($start_date, $end_date);
 
+        cetak_r($data, 1);
+
         $content['data'] = $data;
         $res_view_html = $this->load->view('transaksi/penerimaan_barang_mutasi/export_excel', $content, true);
 
