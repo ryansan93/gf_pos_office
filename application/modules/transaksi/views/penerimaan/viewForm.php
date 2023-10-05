@@ -1,5 +1,14 @@
 <div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
 	<div class="col-xs-3 no-padding">
+		<label class="control-label">Kode</label>
+	</div>
+	<div class="col-xs-9 no-padding">
+		<label class="control-label">: <?php echo strtoupper($data['kode_terima']); ?></label>
+	</div>
+</div>
+
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+	<div class="col-xs-3 no-padding">
 		<label class="control-label">Tanggal Terima</label>
 	</div>
 	<div class="col-xs-9 no-padding">

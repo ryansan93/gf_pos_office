@@ -14,6 +14,15 @@
 
 <div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
 	<div class="col-xs-3 no-padding">
+		<label class="control-label">Kode</label>
+	</div>
+	<div class="col-xs-9 no-padding">
+		<label class="control-label">: <?php echo $data['kode_beli']; ?></label>
+	</div>
+</div>
+
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+	<div class="col-xs-3 no-padding">
 		<label class="control-label">Nama PiC</label>
 	</div>
 	<div class="col-xs-9 no-padding">

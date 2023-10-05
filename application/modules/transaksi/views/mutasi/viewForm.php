@@ -1,5 +1,14 @@
 <div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
 	<div class="col-xs-2 no-padding">
+		<label class="control-label">Kode</label>
+	</div>
+	<div class="col-xs-10 no-padding">
+		<label class="control-label">: <?php echo $data['kode_mutasi']; ?></label>
+	</div>
+</div>
+
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+	<div class="col-xs-2 no-padding">
 		<label class="control-label">Nama PiC</label>
 	</div>
 	<div class="col-xs-10 no-padding">
