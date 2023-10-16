@@ -57,7 +57,7 @@
 							<td><?php echo $v_det['nama_item']; ?></td>
 							<td><?php echo $v_det['coa']; ?></td>
 							<td><?php echo $v_det['satuan']; ?></td>
-							<td class="decimal_number_format" align="right"><?php echo ($v_det['jumlah_terima']); ?></td>
+							<td class="decimal_number_format" align="right"><?php echo number_format((float)$v_det['jumlah_terima'], 2, ',', ''); ?></td>
 							<td class="decimal_number_format" align="right"><?php echo ($v_det['harga']); ?></td>
 							<?php $total = $v_det['jumlah_terima'] * $v_det['harga']; ?>
 							<?php $grand_total += $total; ?>
