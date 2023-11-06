@@ -378,6 +378,8 @@ class MutasiStok extends Public_Controller {
             }
         }
 
+        cetak_r( $data, 1 );
+
         return $data;
     }
 
