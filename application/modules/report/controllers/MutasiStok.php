@@ -281,7 +281,27 @@ class MutasiStok extends Public_Controller {
                                 $column_name = null;
                                 $kode_trans_nama = null;
 
-                                if ( $tbl_name == 'jual' ) { 
+                                if ( $tbl_name == 'closing_order' ) { 
+                                    if ( is_numeric($v_detd['kode_trans']) ) {
+                                        $column_name = 'id';
+
+                                        $sql = "
+                                            select pesanan_kode from waste_menu_item where id_header = ".$v_detd['kode_trans']." group by pesanan_kode
+                                        ";
+
+                                        $d_conf = $m_conf->hydrateRaw($sql);
+                                        if ( $d_conf->count() > 0 ) {
+                                            $d_conf = $d_conf->toArray();
+
+                                            $kode_trans_nama = 'WM ('.$d_conf[0]['pesanan_kode'].')';
+                                        } else {
+                                            $kode_trans_nama = 'WM';
+                                        }
+                                    } else {
+                                        $column_name = 'kode_faktur'; 
+                                        $kode_trans_nama = $v_detd['kode_trans'];
+                                    }
+                                } else if ( $tbl_name == 'jual' ) { 
                                     $column_name = 'kode_faktur'; 
                                     $kode_trans_nama = $v_detd['kode_trans'];
                                 } else if ( $tbl_name == 'waste_menu' ) {
