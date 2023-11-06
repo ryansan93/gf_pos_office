@@ -339,7 +339,13 @@ class MutasiStok extends Public_Controller {
                                     foreach ($d_trans as $k_trans => $v_trans) {
                                         $column_name = null;
 
-                                        if ( $tbl_name == 'jual' ) { 
+                                        if ( $tbl_name == 'closing_order' ) { 
+                                            if ( is_numeric($v_detd['kode_trans']) ) {
+                                                $column_name = 'tanggal';
+                                            } else {
+                                                $column_name = 'tgl_trans'; 
+                                            }
+                                        } else if ( $tbl_name == 'jual' ) { 
                                             $column_name = 'tgl_trans'; 
                                         } else if ( $tbl_name == 'waste_menu' ) {
                                             $column_name = 'tanggal';
