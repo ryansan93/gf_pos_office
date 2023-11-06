@@ -283,6 +283,7 @@ class MutasiStok extends Public_Controller {
 
                                 if ( $tbl_name == 'closing_order' ) { 
                                     if ( is_numeric($v_detd['kode_trans']) ) {
+                                        $tbl_name == 'waste_menu'
                                         $column_name = 'id';
 
                                         $sql = "
@@ -298,6 +299,7 @@ class MutasiStok extends Public_Controller {
                                             $kode_trans_nama = 'WM';
                                         }
                                     } else {
+                                        $tbl_name == 'jual'
                                         $column_name = 'kode_faktur'; 
                                         $kode_trans_nama = $v_detd['kode_trans'];
                                     }
