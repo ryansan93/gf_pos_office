@@ -490,7 +490,7 @@ class Penjualan extends Public_Controller {
                         j.grand_total
                     else
                         byr.nominal
-                end as as nominal
+                end as nominal
             from
             (
                 select
