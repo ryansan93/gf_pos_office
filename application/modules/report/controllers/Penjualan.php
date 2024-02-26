@@ -127,7 +127,7 @@ class Penjualan extends Public_Controller {
             $mappingDataReportHarian = $this->mappingDataReportHarian( $data, $shift );
             $mappingDataReportHarianProduk = $this->mappingDataReportHarianProduk( $data, $shift );
             // $mappingDataReportByIndukMenu = $this->mappingDataReportByIndukMenu( $data );
-            $mappingDataReportDetailPembayaran = $this->mappingDataReportDetailPembayaran( $data, $shift );
+            // $mappingDataReportDetailPembayaran = $this->mappingDataReportDetailPembayaran( $data, $shift );
 
             $content_report_harian['data'] = $mappingDataReportHarian;
             $html_report_harian = $this->load->view($this->pathView . 'list_report_harian', $content_report_harian, TRUE);
@@ -135,13 +135,13 @@ class Penjualan extends Public_Controller {
             $content_report_harian_produk['data'] = $mappingDataReportHarianProduk;
             $html_report_harian_produk = $this->load->view($this->pathView . 'list_report_harian_produk', $content_report_harian_produk, TRUE);
 
-            $content_report_detail_pembayaran['data'] = $mappingDataReportDetailPembayaran;
-            $html_report_detail_pembayaran = $this->load->view($this->pathView . 'list_report_detail_pembayaran', $content_report_detail_pembayaran, TRUE);
+            // $content_report_detail_pembayaran['data'] = $mappingDataReportDetailPembayaran;
+            // $html_report_detail_pembayaran = $this->load->view($this->pathView . 'list_report_detail_pembayaran', $content_report_detail_pembayaran, TRUE);
 
             $list_html = array(
                 'list_report_harian' => $html_report_harian,
                 'list_report_harian_produk' => $html_report_harian_produk,
-                'list_report_detail_pembayaran' => $html_report_detail_pembayaran
+                // 'list_report_detail_pembayaran' => $html_report_detail_pembayaran
             );
 
             $this->result['status'] = 1;
