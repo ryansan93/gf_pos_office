@@ -120,6 +120,7 @@ class Penjualan extends Public_Controller {
             $sql = "
                 select 
                     jl.tgl_trans,
+                    jl.kode_faktur,
                     j.kasir,
                     j.nama_kasir,
                     j.member,
