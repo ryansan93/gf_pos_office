@@ -532,7 +532,7 @@ class Penjualan extends Public_Controller {
                         end as total,
                         sum(ji.ppn) as total_ppn,
                         sum(ji.service_charge) as total_service_charge,
-                        sum(ji.total) + sum(jg.jml_tagihan) as grand_total
+                        sum(ji.total) + isnull(sum(jg.jml_tagihan), 0) as grand_total
                     from jual_item ji
                     right join
                         jenis_pesanan jp
