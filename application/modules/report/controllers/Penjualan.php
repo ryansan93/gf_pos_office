@@ -477,7 +477,7 @@ class Penjualan extends Public_Controller {
         $data = null;
 
         $sql = "
-            select data.jenis_bayar, sum(data.nominal)
+            select data.tgl_trans, data.jenis_bayar, sum(data.nominal)
             from
             (
                 select 
@@ -702,7 +702,7 @@ class Penjualan extends Public_Controller {
                         sh.id in ('".implode("', '", $shift)."')
             ) data
             group by
-                data.jenis_bayar
+            data.tgl_trans, data.jenis_bayar
         ";
 
         $m_conf = new \Model\Storage\Conf();
