@@ -551,7 +551,7 @@ class Penjualan extends Public_Controller {
                         ji.faktur_kode
                 ) j
                 on
-                    j.kode_faktur = jl.kode_faktur
+                    j.faktur_kode = jl.kode_faktur
             left join
                 (
                     select 
