@@ -157,154 +157,156 @@ class Penjualan extends Public_Controller {
     {
         $data = null;
         if ( !empty($_data) ) {
-            foreach ($_shift as $k_shift => $v_shift) {
+            foreach ($_data as $k_data => $v_data) {
+                $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
+
+                $jam_transaksi = substr($v_data['tgl_trans'], 11, 5);
+
+                // foreach ($_shift as $k_shift => $v_shift) {
+                //     $m_shift = new \Model\Storage\Shift_model();
+                //     $d_shift = $m_shift->where('id', $v_shift)->first()->toArray();
+    
+                //     $nama_shift = $d_shift['nama'];
+                //     $jam_awal = substr($d_shift['start_time'], 0, 5);
+                //     $jam_akhir = substr($d_shift['end_time'], 0, 5);
+                // }
+
                 $m_shift = new \Model\Storage\Shift_model();
-                $d_shift = $m_shift->where('id', $v_shift)->first()->toArray();
+                $d_shift = $m_shift->select('id', 'nama')->where('start_time', '<=', $jam_transaksi)->where('end_time', '>=', $jam_transaksi)->first()->toArray()[0];
 
-                $nama_shift = $d_shift['nama'];
-                $jam_awal = substr($d_shift['start_time'], 0, 5);
-                $jam_akhir = substr($d_shift['end_time'], 0, 5);
+                // if ( $jam_transaksi >= $jam_awal && $jam_transaksi < $jam_akhir ) {}
+                $key_shift = $d_shift['id'];
 
-                foreach ($_data as $k_data => $v_data) {
-                    $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
+                $data[ $key_shift ]['id'] = $d_shift['id'];
+                $data[ $key_shift ]['nama'] = $d_shift['nama'];
 
-                    $jam_transaksi = substr($v_data['tgl_trans'], 11, 5);
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select 
+                        j.kasir,
+                        j.nama_kasir,
+                        j.member,
+                        case
+                            when jp.exclude = 1 then
+                                ji.total
+                            when jp.include = 1 then
+                                ji.total - ji.service_charge - ji.ppn
+                        end as total,
+                        ji.service_charge,
+                        ji.ppn,
+                        ji.harga,
+                        ji.menu_kode,
+                        m.nama as nama_menu,
+                        ji.jumlah,
+                        j.mstatus
+                    from jual_item ji
+                    right join
+                        jenis_pesanan jp
+                        on
+                            ji.kode_jenis_pesanan = jp.kode
+                    right join
+                        menu m
+                        on
+                            ji.menu_kode = m.kode_menu
+                    right join
+                        jual j
+                        on
+                            ji.faktur_kode = j.kode_faktur
+                    where
+                        j.kode_faktur = '".$v_data['kode_faktur']."'
+                ";
+                $d_ji = $m_conf->hydrateRaw( $sql );
 
-                    if ( $jam_transaksi >= $jam_awal && $jam_transaksi < $jam_akhir ) {
-                        $key_shift = $v_shift;
+                if ( $d_ji->count() > 0 ) {
+                    $d_ji = $d_ji->toArray();
 
-                        $data[ $key_shift ]['id'] = $v_shift;
-                        $data[ $key_shift ]['nama'] = $nama_shift;
+                    foreach ($d_ji as $k_ji => $v_ji) {
+                        $key_faktur = $v_data['kode_faktur'];
+                        $key_kasir = $v_ji['kasir'];
+                        $key_menu = $v_ji['menu_kode'];
 
-                        $m_conf = new \Model\Storage\Conf();
-                        $sql = "
-                            select 
-                                j.kasir,
-                                j.nama_kasir,
-                                j.member,
-                                case
-                                    when jp.exclude = 1 then
-                                        ji.total
-                                    when jp.include = 1 then
-                                        ji.total - ji.service_charge - ji.ppn
-                                end as total,
-                                ji.service_charge,
-                                ji.ppn,
-                                ji.harga,
-                                ji.menu_kode,
-                                m.nama as nama_menu,
-                                ji.jumlah,
-                                j.mstatus
-                            from jual_item ji
-                            right join
-                                jenis_pesanan jp
-                                on
-                                    ji.kode_jenis_pesanan = jp.kode
-                            right join
-                                menu m
-                                on
-                                    ji.menu_kode = m.kode_menu
-                            right join
-                                jual j
-                                on
-                                    ji.faktur_kode = j.kode_faktur
-                            where
-                                j.kode_faktur = '".$v_data['kode_faktur']."'
-                        ";
-                        $d_ji = $m_conf->hydrateRaw( $sql );
+                        $data[ $key_shift ]['detail'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
+                        $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['nama_kasir'] = $v_ji['nama_kasir'];
+                        $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['kode_faktur'] = $key_faktur;
+                        $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['member'] = $v_ji['member'];
 
-                        if ( $d_ji->count() > 0 ) {
-                            $d_ji = $d_ji->toArray();
-
-                            foreach ($d_ji as $k_ji => $v_ji) {
-                                $key_faktur = $v_data['kode_faktur'];
-                                $key_kasir = $v_ji['kasir'];
-                                $key_menu = $v_ji['menu_kode'];
-
-                                $data[ $key_shift ]['detail'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
-                                $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['nama_kasir'] = $v_ji['nama_kasir'];
-                                $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['kode_faktur'] = $key_faktur;
-                                $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['member'] = $v_ji['member'];
-
-                                if ( isset($data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total']) ) {
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total'] += $v_ji['total'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['service_charge'] += $v_ji['service_charge'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['ppn'] += $v_ji['ppn'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['grand_total'] += ($v_ji['total'] + $v_ji['service_charge'] + $v_ji['ppn']);
-                                } else {
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total'] = $v_ji['total'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['service_charge'] = $v_ji['service_charge'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['ppn'] = $v_ji['ppn'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['grand_total'] = ($v_ji['total'] + $v_ji['service_charge'] + $v_ji['ppn']);
-                                }
-
-                                if ( !isset($data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]) ) {
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['kode'] = $v_ji['menu_kode'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['nama'] = $v_ji['nama_menu'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['harga'] = $v_ji['harga'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah'] = $v_ji['jumlah'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['total'] = $v_ji['total'];
-                                } else {
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah'] += $v_ji['jumlah'];
-                                    $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['total'] += $v_ji['total'];
-                                }
-                            }
+                        if ( isset($data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total']) ) {
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total'] += $v_ji['total'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['service_charge'] += $v_ji['service_charge'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['ppn'] += $v_ji['ppn'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['grand_total'] += ($v_ji['total'] + $v_ji['service_charge'] + $v_ji['ppn']);
+                        } else {
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total'] = $v_ji['total'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['service_charge'] = $v_ji['service_charge'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['ppn'] = $v_ji['ppn'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['grand_total'] = ($v_ji['total'] + $v_ji['service_charge'] + $v_ji['ppn']);
                         }
 
-                        // $d_cek_faktur = 0;
-                        // if ( $v_data['mstatus'] == 0 ) {
-                        //     $m_conf = new \Model\Storage\Conf();
-                        //     $sql = "
-                        //         select * from jual_gabungan jg 
-                        //         where
-                        //             jg.faktur_kode_gabungan = '".$v_data['kode_faktur']."'
-                        //     ";
-                        //     $d_cek_faktur = $m_conf->hydrateRaw( $sql )->count(); 
-                        // } else {
-                        //     $d_cek_faktur = 1;
-                        // }
-
-                        // if ( $d_cek_faktur > 0 ) {
-                        //     $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
-                        //     $key_faktur = $v_data['kode_faktur'];
-                        //     $key_kasir = $v_data['kasir'];
-                        //     $data[ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
-                        //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['nama_kasir'] = $v_data['nama_kasir'];
-                        //     if ( !isset($data[ $key_tanggal ]['kasir'][ $key_kasir ]['total_kasir']) ) {
-                        //         $data[ $key_tanggal ]['kasir'][ $key_kasir ]['total_kasir'] = $v_data['total'];
-                        //     } else {
-                        //         $data[ $key_tanggal ]['kasir'][ $key_kasir ]['total_kasir'] += $v_data['total'];
-                        //     }
-                        //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['kode_faktur'] = $key_faktur;
-                        //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['member'] = $v_data['member'];
-                        //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total'] = $v_data['total'];
-                        //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['ppn'] = $v_data['ppn'];
-                        //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['service_charge'] = $v_data['service_charge'];
-                        //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['grand_total'] = $v_data['grand_total'];
-
-                        //     foreach ($v_data['detail'] as $k_det => $v_det) {
-                        //         $key_menu = $v_det['menu_kode'];
-                        //         $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['kode'] = $v_det['menu_kode'];
-                        //         $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['nama'] = $v_det['menu']['nama'];
-                        //         $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['harga'] = $v_det['harga'];
-                        //         if ( isset($data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah']) ) {
-                        //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah'] += $v_det['jumlah'];
-                        //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['total'] += $v_det['total'];
-                        //         } else {
-                        //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah'] = $v_det['jumlah'];
-                        //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['total'] = $v_det['total'];
-                        //         }
-
-                        //         foreach ($v_det['detail'] as $k_di => $v_di) {
-                        //             $key_detail_menu = $v_di['menu_kode'];
-                        //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['detail'][ $key_detail_menu ]['kode'] = $v_di['menu_kode'];
-                        //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['detail'][ $key_detail_menu ]['nama'] = $v_di['menu']['nama'];
-                        //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['detail'][ $key_detail_menu ]['jumlah'] = $v_di['jumlah'];
-                        //         }
-                        //     }
-                        // }
+                        if ( !isset($data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]) ) {
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['kode'] = $v_ji['menu_kode'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['nama'] = $v_ji['nama_menu'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['harga'] = $v_ji['harga'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah'] = $v_ji['jumlah'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['total'] = $v_ji['total'];
+                        } else {
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah'] += $v_ji['jumlah'];
+                            $data[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['total'] += $v_ji['total'];
+                        }
                     }
                 }
+
+                // $d_cek_faktur = 0;
+                // if ( $v_data['mstatus'] == 0 ) {
+                //     $m_conf = new \Model\Storage\Conf();
+                //     $sql = "
+                //         select * from jual_gabungan jg 
+                //         where
+                //             jg.faktur_kode_gabungan = '".$v_data['kode_faktur']."'
+                //     ";
+                //     $d_cek_faktur = $m_conf->hydrateRaw( $sql )->count(); 
+                // } else {
+                //     $d_cek_faktur = 1;
+                // }
+
+                // if ( $d_cek_faktur > 0 ) {
+                //     $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
+                //     $key_faktur = $v_data['kode_faktur'];
+                //     $key_kasir = $v_data['kasir'];
+                //     $data[ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
+                //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['nama_kasir'] = $v_data['nama_kasir'];
+                //     if ( !isset($data[ $key_tanggal ]['kasir'][ $key_kasir ]['total_kasir']) ) {
+                //         $data[ $key_tanggal ]['kasir'][ $key_kasir ]['total_kasir'] = $v_data['total'];
+                //     } else {
+                //         $data[ $key_tanggal ]['kasir'][ $key_kasir ]['total_kasir'] += $v_data['total'];
+                //     }
+                //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['kode_faktur'] = $key_faktur;
+                //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['member'] = $v_data['member'];
+                //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total'] = $v_data['total'];
+                //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['ppn'] = $v_data['ppn'];
+                //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['service_charge'] = $v_data['service_charge'];
+                //     $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['grand_total'] = $v_data['grand_total'];
+
+                //     foreach ($v_data['detail'] as $k_det => $v_det) {
+                //         $key_menu = $v_det['menu_kode'];
+                //         $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['kode'] = $v_det['menu_kode'];
+                //         $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['nama'] = $v_det['menu']['nama'];
+                //         $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['harga'] = $v_det['harga'];
+                //         if ( isset($data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah']) ) {
+                //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah'] += $v_det['jumlah'];
+                //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['total'] += $v_det['total'];
+                //         } else {
+                //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah'] = $v_det['jumlah'];
+                //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['total'] = $v_det['total'];
+                //         }
+
+                //         foreach ($v_det['detail'] as $k_di => $v_di) {
+                //             $key_detail_menu = $v_di['menu_kode'];
+                //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['detail'][ $key_detail_menu ]['kode'] = $v_di['menu_kode'];
+                //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['detail'][ $key_detail_menu ]['nama'] = $v_di['menu']['nama'];
+                //             $data[ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['detail'][ $key_detail_menu ]['jumlah'] = $v_di['jumlah'];
+                //         }
+                //     }
+                // }
             }
         }
 
@@ -315,158 +317,160 @@ class Penjualan extends Public_Controller {
     {
         $data = null;
         if ( !empty($_data) ) {
-            foreach ($_shift as $k_shift => $v_shift) {
+            // foreach ($_shift as $k_shift => $v_shift) {
+            //     $m_shift = new \Model\Storage\Shift_model();
+            //     $d_shift = $m_shift->where('id', $v_shift)->first()->toArray();
+
+            //     $nama_shift = $d_shift['nama'];
+            //     $jam_awal = substr($d_shift['start_time'], 0, 5);
+            //     $jam_akhir = substr($d_shift['end_time'], 0, 5);
+            // }
+
+            foreach ($_data as $k_data => $v_data) {
+                $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
+
+                $jam_transaksi = substr($v_data['tgl_trans'], 11, 5);
+
                 $m_shift = new \Model\Storage\Shift_model();
-                $d_shift = $m_shift->where('id', $v_shift)->first()->toArray();
+                $d_shift = $m_shift->select('id', 'nama')->where('start_time', '<=', $jam_transaksi)->where('end_time', '>=', $jam_transaksi)->first()->toArray()[0];
 
-                $nama_shift = $d_shift['nama'];
-                $jam_awal = substr($d_shift['start_time'], 0, 5);
-                $jam_akhir = substr($d_shift['end_time'], 0, 5);
+                // if ( $jam_transaksi >= $jam_awal && $jam_transaksi < $jam_akhir ) {}
+                $key_shift = $d_shift['id'];
 
-                foreach ($_data as $k_data => $v_data) {
-                    $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
+                $data[ $key_shift ]['id'] = $d_shift['id'];
+                $data[ $key_shift ]['nama'] = $d_shift['nama'];
 
-                    $jam_transaksi = substr($v_data['tgl_trans'], 11, 5);
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select 
+                        j.kasir,
+                        j.nama_kasir,
+                        j.member,
+                        case
+                            when jp.exclude = 1 then
+                                ji.total
+                            when jp.include = 1 then
+                                ji.total - ji.service_charge - ji.ppn
+                        end as total,
+                        ji.service_charge,
+                        ji.ppn,
+                        ji.harga,
+                        ji.menu_kode,
+                        m.nama as nama_menu,
+                        jm.nama as nama_jenis_menu,
+                        jm.id as id_jenis_menu,
+                        ji.jumlah,
+                        j.mstatus
+                    from jual_item ji
+                    right join
+                        jenis_pesanan jp
+                        on
+                            ji.kode_jenis_pesanan = jp.kode
+                    right join
+                        menu m
+                        on
+                            ji.menu_kode = m.kode_menu
+                    right join
+                        jenis_menu jm
+                        on
+                            m.jenis_menu_id = jm.id
+                    right join
+                        jual j
+                        on
+                            ji.faktur_kode = j.kode_faktur
+                    where
+                        j.kode_faktur = '".$v_data['kode_faktur']."'
+                ";
+                $d_ji = $m_conf->hydrateRaw( $sql );
 
-                    if ( $jam_transaksi >= $jam_awal && $jam_transaksi < $jam_akhir ) {
-                        $key_shift = $v_shift;
+                if ( $d_ji->count() > 0 ) {
+                    $d_ji = $d_ji->toArray();
 
-                        $data[ $key_shift ]['id'] = $v_shift;
-                        $data[ $key_shift ]['nama'] = $nama_shift;
+                    foreach ($d_ji as $k_ji => $v_ji) {
+                        $key_jenis = $v_ji['id_jenis_menu'];
+                        $key_menu = $v_ji['menu_kode'];
+                        $data[ $key_shift ]['detail'][ $key_jenis ]['id'] = $key_jenis;
+                        $data[ $key_shift ]['detail'][ $key_jenis ]['nama'] = $v_ji['nama_jenis_menu'];
 
-                        $m_conf = new \Model\Storage\Conf();
-                        $sql = "
-                            select 
-                                j.kasir,
-                                j.nama_kasir,
-                                j.member,
-                                case
-                                    when jp.exclude = 1 then
-                                        ji.total
-                                    when jp.include = 1 then
-                                        ji.total - ji.service_charge - ji.ppn
-                                end as total,
-                                ji.service_charge,
-                                ji.ppn,
-                                ji.harga,
-                                ji.menu_kode,
-                                m.nama as nama_menu,
-                                jm.nama as nama_jenis_menu,
-                                jm.id as id_jenis_menu,
-                                ji.jumlah,
-                                j.mstatus
-                            from jual_item ji
-                            right join
-                                jenis_pesanan jp
-                                on
-                                    ji.kode_jenis_pesanan = jp.kode
-                            right join
-                                menu m
-                                on
-                                    ji.menu_kode = m.kode_menu
-                            right join
-                                jenis_menu jm
-                                on
-                                    m.jenis_menu_id = jm.id
-                            right join
-                                jual j
-                                on
-                                    ji.faktur_kode = j.kode_faktur
-                            where
-                                j.kode_faktur = '".$v_data['kode_faktur']."'
-                        ";
-                        $d_ji = $m_conf->hydrateRaw( $sql );
+                        $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
+                        $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['kode'] = $key_menu;
+                        $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['member'] = $v_ji['member'];
+                        $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['nama'] = $v_ji['nama_menu'];
+                        $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['harga'] = $v_ji['harga'];
 
-                        if ( $d_ji->count() > 0 ) {
-                            $d_ji = $d_ji->toArray();
-
-                            foreach ($d_ji as $k_ji => $v_ji) {
-                                $key_jenis = $v_ji['id_jenis_menu'];
-                                $key_menu = $v_ji['menu_kode'];
-                                $data[ $key_shift ]['detail'][ $key_jenis ]['id'] = $key_jenis;
-                                $data[ $key_shift ]['detail'][ $key_jenis ]['nama'] = $v_ji['nama_jenis_menu'];
-
-                                $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
-                                $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['kode'] = $key_menu;
-                                $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['member'] = $v_ji['member'];
-                                $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['nama'] = $v_ji['nama_menu'];
-                                $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['harga'] = $v_ji['harga'];
-
-                                if ( isset($data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah']) ) {
-                                    $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] += $v_ji['jumlah'];
-                                    $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] += $v_ji['total'];
-                                    $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] += $v_ji['ppn'];
-                                    $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] += $v_ji['service_charge'];
-                                    $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] += ($v_ji['total'] + $v_ji['service_charge'] + $v_ji['ppn']);
-                                } else {
-                                    $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] = $v_ji['jumlah'];
-                                    $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] = $v_ji['total'];
-                                    $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] = $v_ji['ppn'];
-                                    $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] = $v_ji['service_charge'];
-                                    $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] = ($v_ji['total'] + $v_ji['service_charge'] + $v_ji['ppn']);
-                                }
-                                // $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['detail'] = $v_det['detail'];
-                            }
+                        if ( isset($data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah']) ) {
+                            $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] += $v_ji['jumlah'];
+                            $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] += $v_ji['total'];
+                            $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] += $v_ji['ppn'];
+                            $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] += $v_ji['service_charge'];
+                            $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] += ($v_ji['total'] + $v_ji['service_charge'] + $v_ji['ppn']);
+                        } else {
+                            $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] = $v_ji['jumlah'];
+                            $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] = $v_ji['total'];
+                            $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] = $v_ji['ppn'];
+                            $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] = $v_ji['service_charge'];
+                            $data[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] = ($v_ji['total'] + $v_ji['service_charge'] + $v_ji['ppn']);
                         }
-
-                        // $d_cek_faktur = 0;
-                        // if ( $v_data['mstatus'] == 0 ) {
-                        //     $m_conf = new \Model\Storage\Conf();
-                        //     $sql = "
-                        //         select * from jual_gabungan jg 
-                        //         where
-                        //             jg.faktur_kode_gabungan = '".$v_data['kode_faktur']."'
-                        //     ";
-                        //     $d_cek_faktur = $m_conf->hydrateRaw( $sql )->count();
-                        // } else {
-                        //     $d_cek_faktur = 1;
-                        // }
-
-                        // if ( $d_cek_faktur > 0 ) {
-                        //     $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
-
-                        //     $ppn_persen = ($v_data['ppn'] > 0) ? ($v_data['ppn'] / $v_data['total']) * 100 : 0;
-                        //     $service_charge_persen = ($v_data['service_charge'] > 0) ? ($v_data['service_charge'] / $v_data['total']) * 100 : 0;
-
-                        //     foreach ($v_data['detail'] as $k_det => $v_det) {
-                        //         $key_jenis = $v_det['menu']['jenis']['id'];
-                        //         $key_menu = $v_det['menu_kode'];
-                        //         $data[ $key_jenis ]['id'] = $key_jenis;
-                        //         $data[ $key_jenis ]['nama'] = $v_det['menu']['jenis']['nama'];
-
-                        //         if ( !empty($v_det['detail']) ) {
-                        //             foreach ($v_det['detail'] as $k_di => $v_di) {
-                        //                 $key_menu .= ' | '.$v_di['menu_kode'];
-                        //             }
-                        //         }
-
-                        //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
-                        //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['kode'] = $key_menu;
-                        //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['member'] = $v_data['member'];
-                        //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['nama'] = $v_det['menu']['nama'];
-                        //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['harga'] = $v_det['harga'];
-
-                        //         $ppn_nilai = ($ppn_persen > 0) ? $v_det['total'] * ($ppn_persen / 100) : 0;
-                        //         $service_charge_nilai = ($service_charge_persen > 0) ? $v_det['total'] * ($service_charge_persen / 100) : 0;
-                        //         $grand_total = $ppn_nilai + $service_charge_nilai + $v_det['total'];
-                        //         if ( isset($data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah']) ) {
-                        //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] += $v_det['jumlah'];
-                        //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] += $v_det['total'];
-                        //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] += $ppn_nilai;
-                        //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] += $service_charge_nilai;
-                        //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] += $grand_total;
-                        //         } else {
-                        //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] = $v_det['jumlah'];
-                        //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] = $v_det['total'];
-                        //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] = $ppn_nilai;
-                        //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] = $service_charge_nilai;
-                        //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] = $grand_total;
-                        //         }
-                        //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['detail'] = $v_det['detail'];
-                        //     }
-                        // }
+                        // $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['detail'] = $v_det['detail'];
                     }
                 }
+
+                // $d_cek_faktur = 0;
+                // if ( $v_data['mstatus'] == 0 ) {
+                //     $m_conf = new \Model\Storage\Conf();
+                //     $sql = "
+                //         select * from jual_gabungan jg 
+                //         where
+                //             jg.faktur_kode_gabungan = '".$v_data['kode_faktur']."'
+                //     ";
+                //     $d_cek_faktur = $m_conf->hydrateRaw( $sql )->count();
+                // } else {
+                //     $d_cek_faktur = 1;
+                // }
+
+                // if ( $d_cek_faktur > 0 ) {
+                //     $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
+
+                //     $ppn_persen = ($v_data['ppn'] > 0) ? ($v_data['ppn'] / $v_data['total']) * 100 : 0;
+                //     $service_charge_persen = ($v_data['service_charge'] > 0) ? ($v_data['service_charge'] / $v_data['total']) * 100 : 0;
+
+                //     foreach ($v_data['detail'] as $k_det => $v_det) {
+                //         $key_jenis = $v_det['menu']['jenis']['id'];
+                //         $key_menu = $v_det['menu_kode'];
+                //         $data[ $key_jenis ]['id'] = $key_jenis;
+                //         $data[ $key_jenis ]['nama'] = $v_det['menu']['jenis']['nama'];
+
+                //         if ( !empty($v_det['detail']) ) {
+                //             foreach ($v_det['detail'] as $k_di => $v_di) {
+                //                 $key_menu .= ' | '.$v_di['menu_kode'];
+                //             }
+                //         }
+
+                //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
+                //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['kode'] = $key_menu;
+                //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['member'] = $v_data['member'];
+                //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['nama'] = $v_det['menu']['nama'];
+                //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['harga'] = $v_det['harga'];
+
+                //         $ppn_nilai = ($ppn_persen > 0) ? $v_det['total'] * ($ppn_persen / 100) : 0;
+                //         $service_charge_nilai = ($service_charge_persen > 0) ? $v_det['total'] * ($service_charge_persen / 100) : 0;
+                //         $grand_total = $ppn_nilai + $service_charge_nilai + $v_det['total'];
+                //         if ( isset($data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah']) ) {
+                //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] += $v_det['jumlah'];
+                //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] += $v_det['total'];
+                //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] += $ppn_nilai;
+                //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] += $service_charge_nilai;
+                //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] += $grand_total;
+                //         } else {
+                //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] = $v_det['jumlah'];
+                //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] = $v_det['total'];
+                //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] = $ppn_nilai;
+                //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] = $service_charge_nilai;
+                //             $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] = $grand_total;
+                //         }
+                //         $data[ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['detail'] = $v_det['detail'];
+                //     }
+                // }
             }
         }
 
