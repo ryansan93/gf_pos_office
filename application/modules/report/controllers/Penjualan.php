@@ -532,7 +532,7 @@ class Penjualan extends Public_Controller {
                         end as total,
                         sum(ji.ppn) as total_ppn,
                         sum(ji.service_charge) as total_service_charge,
-                        sum(ji.total) as grand_total
+                        sum(ji.total) + sum(jg.jml_tagihan) as grand_total
                     from jual_item ji
                     right join
                         jenis_pesanan jp
@@ -542,6 +542,10 @@ class Penjualan extends Public_Controller {
                         jual j
                         on
                             ji.faktur_kode = j.kode_faktur
+                    left join
+                        jual_gabungan jg
+                        on
+                            jg.faktur_kode = j.kode_faktur
                     where
                         j.mstatus = 1 and
                         NOT EXISTS (select * from jual_gabungan where faktur_kode_gabungan = j.kode_faktur)
