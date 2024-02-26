@@ -485,7 +485,12 @@ class Penjualan extends Public_Controller {
                     else
                         byr.jenis_bayar
                 end as jenis_bayar,
-                isnull(byr.nominal, 0) as nominal
+                case
+                    when isnull(byr.nominal, 0) = 0 then
+                        j.grand_total
+                    else
+                        byr.nominal
+                end as as nominal
             from
             (
                 select
@@ -515,6 +520,38 @@ class Penjualan extends Public_Controller {
                     _data.kode_branch,
                     _data.kode_faktur
             ) jl
+            left join
+                (
+                    select 
+                        ji.faktur_kode,
+                        case
+                            when jp.exclude = 1 then
+                                sum(ji.total)
+                            when jp.include = 1 then
+                                sum(ji.total - ji.service_charge - ji.ppn)
+                        end as total,
+                        sum(ji.ppn) as total_ppn,
+                        sum(ji.service_charge) as total_service_charge,
+                        sum(ji.total) as grand_total
+                    from jual_item ji
+                    right join
+                        jenis_pesanan jp
+                        on
+                            ji.kode_jenis_pesanan = jp.kode
+                    right join
+                        jual j
+                        on
+                            ji.faktur_kode = j.kode_faktur
+                    where
+                        j.mstatus = 1 and
+                        NOT EXISTS (select * from jual_gabungan where faktur_kode_gabungan = j.kode_faktur)
+                    group by
+                        jp.exclude,
+                        jp.include,
+                        ji.faktur_kode
+                ) j
+                on
+                    j.kode_faktur = jl.kode_faktur
             left join
                 (
                     select 
