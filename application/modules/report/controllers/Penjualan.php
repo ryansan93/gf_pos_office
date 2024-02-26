@@ -476,195 +476,233 @@ class Penjualan extends Public_Controller {
     {
         $data = null;
 
-        $sql = "                
-            select 
-                jl.*,
-                case
-                    when isnull(byr.nominal, 0) = 0 then
-                        'PENDING'
-                    else
-                        byr.jenis_bayar
-                end as jenis_bayar,
-                case
-                    when isnull(byr.nominal, 0) = 0 then
-                        j.grand_total
-                    else
-                        byr.nominal
-                end as nominal
+        $sql = "
+            select data.jenis_bayar, sum(data.nominal)
             from
             (
-                select
-                    _data.kode_branch,
-                    max(_data.tgl_trans) as tgl_trans,
-                    _data.kode_faktur,
-                    max(_data.mstatus) as mstatus
-                from 
+                select 
+                    jl.*,
+                    case
+                        when isnull(byr.nominal, 0) = 0 then
+                            'PENDING'
+                        else
+                            byr.jenis_bayar
+                    end as jenis_bayar,
+                    case
+                        when isnull(byr.nominal, 0) = 0 then
+                            jl.grand_total
+                        else
+                            byr.nominal
+                    end as nominal,
+                    byr.cl,
+                    case
+                        when isnull(byr.nominal, 0) = 0 then
+                            0
+                        else
+                            jl.grand_total - byr.nominal
+                    end as diskon
+                from
                 (
-                    select j.branch as kode_branch, j.tgl_trans as tgl_trans, j.kode_faktur as kode_faktur, j.mstatus from jual j where mstatus = 1
-                    
-                    union all
-                    
-                    select j.branch as kode_branch, j.tgl_trans as tgl_trans, jg.faktur_kode_gabungan as kode_faktur, j.mstatus from jual_gabungan jg
-                    right join
-                        jual j
-                        on
-                            jg.faktur_kode = j.kode_faktur
+                    select
+                        _data.kode_branch,
+                        max(_data.tgl_trans) as tgl_trans,
+                        _data.kode_faktur,
+                        max(_data.mstatus) as mstatus,
+                        sum(_data.grand_total) as grand_total
+                    from 
+                    (
+                        select 
+                            j.branch as kode_branch,
+                            j.tgl_trans,
+                            ji.faktur_kode as kode_faktur,
+                            j.mstatus,
+                            case
+                                when jp.exclude = 1 then
+                                    sum(ji.total)
+                                when jp.include = 1 then
+                                    sum(ji.total - ji.service_charge - ji.ppn)
+                            end as total,
+                            sum(ji.ppn) as total_ppn,
+                            sum(ji.service_charge) as total_service_charge,
+                            sum(ji.total) as grand_total
+                        from jual_item ji
+                        right join
+                            jual j
+                            on
+                                j.kode_faktur = ji.faktur_kode
+                        left join
+                            jenis_pesanan jp
+                            on
+                                ji.kode_jenis_pesanan = jp.kode
+                        where
+                            j.mstatus = 1
+                        group by
+                            j.branch,
+                            j.tgl_trans,
+                            ji.faktur_kode,
+                            j.mstatus,
+                            jp.exclude,
+                            jp.include
+            
+                        union all
+            
+                        select 
+                            j.branch as kode_branch,
+                            j.tgl_trans,
+                            jg.faktur_kode as kode_faktur,
+                            j.mstatus,
+                            case
+                                when jp.exclude = 1 then
+                                    sum(ji.total)
+                                when jp.include = 1 then
+                                    sum(ji.total - ji.service_charge - ji.ppn)
+                            end as total,
+                            sum(ji.ppn) as total_ppn,
+                            sum(ji.service_charge) as total_service_charge,
+                            sum(ji.total) as grand_total
+                        from jual_item ji
+                        right join
+                            jual_gabungan jg
+                            on
+                                jg.faktur_kode_gabungan = ji.faktur_kode
+                        right join
+                            jual j
+                            on
+                                j.kode_faktur = jg.faktur_kode
+                        left join
+                            jenis_pesanan jp
+                            on
+                                ji.kode_jenis_pesanan = jp.kode
+                        where
+                            j.mstatus = 1
+                        group by
+                            j.branch,
+                            j.tgl_trans,
+                            jg.faktur_kode,
+                            j.mstatus,
+                            jp.exclude,
+                            jp.include
+                    ) _data
                     where
-                        j.mstatus = 1
-                ) _data
-                where
-                    _data.tgl_trans between '".$start_date."' and '".$end_date."' and
-                    _data.kode_branch = '".$branch."' and
-                    _data.kode_faktur is not null
-                group by
-                    _data.kode_branch,
-                    _data.kode_faktur
-            ) jl
-            left join
-                (
-                    select 
-                        ji.faktur_kode,
-                        case
-                            when jp.exclude = 1 then
-                                sum(ji.total)
-                            when jp.include = 1 then
-                                sum(ji.total - ji.service_charge - ji.ppn)
-                        end as total,
-                        sum(ji.ppn) as total_ppn,
-                        sum(ji.service_charge) as total_service_charge,
-                        sum(ji.total) + isnull(sum(jg.jml_tagihan), 0) as grand_total
-                    from jual_item ji
-                    right join
-                        jenis_pesanan jp
-                        on
-                            ji.kode_jenis_pesanan = jp.kode
-                    right join
-                        jual j
-                        on
-                            ji.faktur_kode = j.kode_faktur
-                    left join
-                        jual_gabungan jg
-                        on
-                            jg.faktur_kode = ji.faktur_kode
-                    where
-                        j.mstatus = 1 and
-                        NOT EXISTS (select * from jual_gabungan where faktur_kode_gabungan = j.kode_faktur)
+                        _data.tgl_trans between '".$start_date."' and '".$end_date."' and
+                        _data.kode_branch = '".$branch."' and
+                        _data.kode_faktur is not null
                     group by
-                        jp.exclude,
-                        jp.include,
-                        ji.faktur_kode
-                ) j
-                on
-                    j.faktur_kode = jl.kode_faktur
-            left join
-                (
-                    select 
-                        bd.id_header,
-                        j.kode_faktur,
-                        bd.jenis_bayar,
-                        bd.kode_jenis_kartu,
-                        case
-                            when ISNULL(jk.cl, 0) = 0 then
-                                bd.nominal
-                            when ISNULL(jk.cl, 0) = 1 then
-                                tagihan.grand_total
-                        end as nominal,
-                        ISNULL(jk.cl, 0) as cl,
-                        j.lunas,
-                        tagihan.grand_total as jml_tagihan
-                    from bayar_det bd
-                    right join
-                        jenis_kartu jk
-                        on
-                            bd.kode_jenis_kartu = jk.kode_jenis_kartu
-                    right join
-                        (
-                            select 
-                                *
-                            from (
+                        _data.kode_branch,
+                        _data.kode_faktur
+                ) jl
+                left join
+                    (
+                        select 
+                            bd.id_header,
+                            j.kode_faktur,
+                            bd.jenis_bayar,
+                            bd.kode_jenis_kartu,
+                            case
+                                when ISNULL(jk.cl, 0) = 0 then
+                                    bd.nominal
+                                when ISNULL(jk.cl, 0) = 1 then
+                                    tagihan.grand_total
+                            end as nominal,
+                            ISNULL(jk.cl, 0) as cl,
+                            j.lunas,
+                            tagihan.grand_total as jml_tagihan
+                        from bayar_det bd
+                        right join
+                            jenis_kartu jk
+                            on
+                                bd.kode_jenis_kartu = jk.kode_jenis_kartu
+                        right join
+                            (
                                 select 
-                                    b.id,
-                                    b.faktur_kode, 
-                                    b.jml_bayar as jml_bayar,
-                                    (b.total - b.diskon) as jml_tagihan
-                                from bayar b 
-                                where 
-                                    b.faktur_kode is not null and 
-                                    mstatus = 1
+                                    *
+                                from (
+                                    select 
+                                        b.id,
+                                        b.faktur_kode, 
+                                        b.jml_bayar as jml_bayar,
+                                        (b.total - b.diskon) as jml_tagihan
+                                    from bayar b 
+                                    where 
+                                        b.faktur_kode is not null and 
+                                        mstatus = 1
             
-                                union all
+                                    union all
             
-                                select
-                                    b.id,
-                                    bh.faktur_kode,
-                                    bh.bayar as jml_bayar,
-                                    bh.hutang as jml_tagihan
-                                from bayar_hutang bh
-                                right join
-                                    bayar b
-                                    on
-                                        bh.id_header = b.id
+                                    select
+                                        b.id,
+                                        bh.faktur_kode,
+                                        bh.bayar as jml_bayar,
+                                        bh.hutang as jml_tagihan
+                                    from bayar_hutang bh
+                                    right join
+                                        bayar b
+                                        on
+                                            bh.id_header = b.id
+                                    where
+                                        b.mstatus = 1
+                                ) _data
                                 where
-                                    b.mstatus = 1
-                            ) _data
-                            where
-                                _data.faktur_kode is not null
-                        ) b
+                                    _data.faktur_kode is not null
+                            ) b
+                            on
+                                b.id = bd.id_header
+                        right join
+                            jual j
+                            on
+                                b.faktur_kode = j.kode_faktur
+                        right join
+                            (
+                                select 
+                                    j.kode_faktur as faktur_kode,
+                                    case
+                                        when jp.exclude = 1 then
+                                            sum(ji.total)
+                                        when jp.include = 1 then
+                                            sum(ji.total - ji.service_charge - ji.ppn)
+                                    end as total,
+                                    sum(ji.ppn) as total_ppn,
+                                    sum(ji.service_charge) as total_service_charge,
+                                    sum(ji.total) + ISNULL(jg.total, 0) as grand_total
+                                from jual_item ji
+                                right join
+                                    jenis_pesanan jp
+                                    on
+                                        ji.kode_jenis_pesanan = jp.kode
+                                right join
+                                    jual j
+                                    on
+                                        ji.faktur_kode = j.kode_faktur
+                                left join
+                                    (
+                                        select sum(jml_tagihan) as total, faktur_kode from jual_gabungan group by faktur_kode
+                                    ) jg
+                                    on
+                                        j.kode_faktur = jg.faktur_kode
+                                where
+                                    j.kode_faktur is not null
+                                group by
+                                    jp.exclude,
+                                    jp.include,
+                                    j.kode_faktur,
+                                    jg.total
+                            ) tagihan
+                            on
+                                tagihan.faktur_kode = j.kode_faktur
+                        where
+                            bd.jenis_bayar is not null
+                    ) byr
+                    on
+                        byr.kode_faktur = jl.kode_faktur
+                    left join
+                        shift sh
                         on
-                            b.id = bd.id_header
-                    right join
-                        jual j
-                        on
-                            b.faktur_kode = j.kode_faktur
-                    right join
-                        (
-                            select 
-                                j.kode_faktur as faktur_kode,
-                                case
-                                    when jp.exclude = 1 then
-                                        sum(ji.total)
-                                    when jp.include = 1 then
-                                        sum(ji.total - ji.service_charge - ji.ppn)
-                                end as total,
-                                sum(ji.ppn) as total_ppn,
-                                sum(ji.service_charge) as total_service_charge,
-                                sum(ji.total) + ISNULL(jg.total, 0) as grand_total
-                            from jual_item ji
-                            right join
-                                jenis_pesanan jp
-                                on
-                                    ji.kode_jenis_pesanan = jp.kode
-                            right join
-                                jual j
-                                on
-                                    ji.faktur_kode = j.kode_faktur
-                            left join
-                                (
-                                    select sum(jml_tagihan) as total, faktur_kode from jual_gabungan group by faktur_kode
-                                ) jg
-                                on
-                                    j.kode_faktur = jg.faktur_kode
-                            where
-                                j.kode_faktur is not null
-                            group by
-                                jp.exclude,
-                                jp.include,
-                                j.kode_faktur,
-                                jg.total
-                        ) tagihan
-                        on
-                            tagihan.faktur_kode = j.kode_faktur
+                            sh.start_time <= SUBSTRING(CONVERT(varchar(max), jl.tgl_trans, 120), 12, 5) and sh.end_time >= SUBSTRING(CONVERT(varchar(max), jl.tgl_trans, 120), 12, 5)
                     where
-                        bd.jenis_bayar is not null
-                ) byr
-                on
-                    byr.kode_faktur = jl.kode_faktur
-            left join
-                shift sh
-                on
-                    sh.start_time <= SUBSTRING(CONVERT(varchar(max), jl.tgl_trans, 120), 12, 5) and sh.end_time >= SUBSTRING(CONVERT(varchar(max), jl.tgl_trans, 120), 12, 5)
-            where
-                sh.id in ('".implode("', '", $shift)."')
+                        sh.id in ('".implode("', '", $shift)."')
+            ) data
+            group by
+                data.jenis_bayar
         ";
 
         $m_conf = new \Model\Storage\Conf();
