@@ -206,7 +206,7 @@ class Penjualan extends Public_Controller {
             $mappingDataReportHarian = $this->mappingDataReportHarian( $data, $shift );
             $mappingDataReportHarianProduk = $this->mappingDataReportHarianProduk( $data, $shift );
             // $mappingDataReportByIndukMenu = $this->mappingDataReportByIndukMenu( $data );
-            $mappingDataReportDetailPembayaran = $this->mappingDataReportDetailPembayaran( $data, $shift );
+            $mappingDataReportDetailPembayaran = $this->mappingDataReportDetailPembayaran( $start_date, $end_date, $branch, $shift );
 
             $content_report_harian['data'] = $mappingDataReportHarian;
             $html_report_harian = $this->load->view($this->pathView . 'list_report_harian', $content_report_harian, TRUE);
@@ -472,17 +472,51 @@ class Penjualan extends Public_Controller {
         return $data;
     }
 
-    public function mappingDataReportDetailPembayaran($_data, $_shift)
+    public function mappingDataReportDetailPembayaran($start_date, $end_date, $branch, $shift)
     {
         $data = null;
-        if ( !empty($_data) ) {
-            foreach ($_data as $k_data => $v_data) {
-                $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
 
-                $data[ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
-
-                $m_conf = new \Model\Storage\Conf();
-                $sql = "
+        $sql = "                
+            select 
+                jl.*,
+                case
+                    when isnull(byr.nominal, 0) = 0 then
+                        'PENDING'
+                    else
+                        byr.jenis_bayar
+                end as jenis_bayar,
+                isnull(byr.nominal, 0) as nominal
+            from
+            (
+                select
+                    _data.kode_branch,
+                    max(_data.tgl_trans) as tgl_trans,
+                    _data.kode_faktur,
+                    max(_data.mstatus) as mstatus
+                from 
+                (
+                    select j.branch as kode_branch, j.tgl_trans as tgl_trans, j.kode_faktur as kode_faktur, j.mstatus from jual j where mstatus = 1
+                    
+                    union all
+                    
+                    select j.branch as kode_branch, j.tgl_trans as tgl_trans, jg.faktur_kode_gabungan as kode_faktur, j.mstatus from jual_gabungan jg
+                    right join
+                        jual j
+                        on
+                            jg.faktur_kode = j.kode_faktur
+                    where
+                        j.mstatus = 1
+                ) _data
+                where
+                    _data.tgl_trans between '".$start_date."' and '".$end_date."' and
+                    _data.kode_branch = '".$branch."' and
+                    _data.kode_faktur is not null
+                group by
+                    _data.kode_branch,
+                    _data.kode_faktur
+            ) jl
+            left join
+                (
                     select 
                         bd.id_header,
                         j.kode_faktur,
@@ -516,9 +550,9 @@ class Penjualan extends Public_Controller {
                                 where 
                                     b.faktur_kode is not null and 
                                     mstatus = 1
-
+            
                                 union all
-
+            
                                 select
                                     b.id,
                                     bh.faktur_kode,
@@ -580,136 +614,189 @@ class Penjualan extends Public_Controller {
                         on
                             tagihan.faktur_kode = j.kode_faktur
                     where
-                        j.kode_faktur = '".$v_data['kode_faktur']."' and
                         bd.jenis_bayar is not null
-                ";
-                $d_bayar = $m_conf->hydrateRaw( $sql );
+                ) byr
+                on
+                    byr.kode_faktur = jl.kode_faktur
+        ";
 
-                if ( $d_bayar->count() > 0 ) {
-                    $d_bayar = $d_bayar->toArray();
+        $m_conf = new \Model\Storage\Conf();
+        $_data = $m_conf->hydrateRaw( $sql );
 
-                    foreach ($d_bayar as $k_bayar => $v_bayar) {
-                        // if ( $v_bayar['cl'] == 1 ) {
-                        //     cetak_r( $v_data['kode_faktur'] );
-                        //     cetak_r( $v_bayar['nominal'] );
-                        // }
+        if ( $_data->count() > 0 ) {
+            $_data = $_data->toArray();
+            foreach ($_data as $k_data => $v_data) {
+                $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
 
-                        if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]) ) {
-                            $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['nama'] = $v_bayar['jenis_bayar'];
-                            $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['total'] = $v_bayar['nominal'];
-                        } else {
-                            $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['total'] += $v_bayar['nominal'];
-                        }
-                    }
+                $data[ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
+
+                if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $v_data['jenis_bayar'] ]) ) {
+                    $data[ $key_tanggal ]['jenis_pembayaran'][ $v_data['jenis_bayar'] ]['nama'] = $v_data['jenis_bayar'];
+                    $data[ $key_tanggal ]['jenis_pembayaran'][ $v_data['jenis_bayar'] ]['total'] = $v_data['nominal'];
                 } else {
-                    $m_conf = new \Model\Storage\Conf();
-                    $sql = "
-                        select 
-                            ji.faktur_kode,
-                            case
-                                when jp.exclude = 1 then
-                                    sum(ji.total)
-                                when jp.include = 1 then
-                                    sum(ji.total - ji.service_charge - ji.ppn)
-                            end as total,
-                            sum(ji.ppn) as total_ppn,
-                            sum(ji.service_charge) as total_service_charge,
-                            sum(ji.total) as grand_total
-                        from jual_item ji
-                        right join
-                            jenis_pesanan jp
-                            on
-                                ji.kode_jenis_pesanan = jp.kode
-                        right join
-                            jual j
-                            on
-                                ji.faktur_kode = j.kode_faktur
-                        where
-                            j.kode_faktur = '".$v_data['kode_faktur']."' and
-                            j.mstatus = 1 and
-                            NOT EXISTS (select * from jual_gabungan where faktur_kode_gabungan = '".$v_data['kode_faktur']."')
-                        group by
-                            jp.exclude,
-                            jp.include,
-                            ji.faktur_kode
-                    ";
-                    $d_pending = $m_conf->hydrateRaw( $sql );
-
-                    if ( $d_pending->count() > 0 ) {
-                        $d_pending = $d_pending->toArray()[0];
-
-                        // cetak_r( $d_pending );
-
-                        $key_jb = 'pending';
-                        $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['nama'] = 'PENDING';
-                        $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] = $d_pending['grand_total'];
-                    }
+                    $data[ $key_tanggal ]['jenis_pembayaran'][ $v_data['jenis_bayar'] ]['total'] += $v_data['nominal'];
                 }
 
-                if ( isset($data[ $key_tanggal ]['jenis_pembayaran']) && !empty($data[ $key_tanggal ]['jenis_pembayaran']) ) {
-                    ksort( $data[ $key_tanggal ]['jenis_pembayaran'] );
-                }
+                // $m_conf = new \Model\Storage\Conf();
+                // $sql = "
+                //     select 
+                //         bd.id_header,
+                //         j.kode_faktur,
+                //         bd.jenis_bayar,
+                //         bd.kode_jenis_kartu,
+                //         case
+                //             when ISNULL(jk.cl, 0) = 0 then
+                //                 bd.nominal
+                //             when ISNULL(jk.cl, 0) = 1 then
+                //                 tagihan.grand_total
+                //         end as nominal,
+                //         ISNULL(jk.cl, 0) as cl,
+                //         j.lunas,
+                //         tagihan.grand_total as jml_tagihan
+                //     from bayar_det bd
+                //     right join
+                //         jenis_kartu jk
+                //         on
+                //             bd.kode_jenis_kartu = jk.kode_jenis_kartu
+                //     right join
+                //         (
+                //             select 
+                //                 *
+                //             from (
+                //                 select 
+                //                     b.id,
+                //                     b.faktur_kode, 
+                //                     b.jml_bayar as jml_bayar,
+                //                     (b.total - b.diskon) as jml_tagihan
+                //                 from bayar b 
+                //                 where 
+                //                     b.faktur_kode is not null and 
+                //                     mstatus = 1
 
-                // $d_cek_faktur = 0;
-                // if ( $v_data['mstatus'] == 0 ) {
+                //                 union all
+
+                //                 select
+                //                     b.id,
+                //                     bh.faktur_kode,
+                //                     bh.bayar as jml_bayar,
+                //                     bh.hutang as jml_tagihan
+                //                 from bayar_hutang bh
+                //                 right join
+                //                     bayar b
+                //                     on
+                //                         bh.id_header = b.id
+                //                 where
+                //                     b.mstatus = 1
+                //             ) _data
+                //             where
+                //                 _data.faktur_kode is not null
+                //         ) b
+                //         on
+                //             b.id = bd.id_header
+                //     right join
+                //         jual j
+                //         on
+                //             b.faktur_kode = j.kode_faktur
+                //     right join
+                //         (
+                //             select 
+                //                 j.kode_faktur as faktur_kode,
+                //                 case
+                //                     when jp.exclude = 1 then
+                //                         sum(ji.total)
+                //                     when jp.include = 1 then
+                //                         sum(ji.total - ji.service_charge - ji.ppn)
+                //                 end as total,
+                //                 sum(ji.ppn) as total_ppn,
+                //                 sum(ji.service_charge) as total_service_charge,
+                //                 sum(ji.total) + ISNULL(jg.total, 0) as grand_total
+                //             from jual_item ji
+                //             right join
+                //                 jenis_pesanan jp
+                //                 on
+                //                     ji.kode_jenis_pesanan = jp.kode
+                //             right join
+                //                 jual j
+                //                 on
+                //                     ji.faktur_kode = j.kode_faktur
+                //             left join
+                //                 (
+                //                     select sum(jml_tagihan) as total, faktur_kode from jual_gabungan group by faktur_kode
+                //                 ) jg
+                //                 on
+                //                     j.kode_faktur = jg.faktur_kode
+                //             where
+                //                 j.kode_faktur is not null
+                //             group by
+                //                 jp.exclude,
+                //                 jp.include,
+                //                 j.kode_faktur,
+                //                 jg.total
+                //         ) tagihan
+                //         on
+                //             tagihan.faktur_kode = j.kode_faktur
+                //     where
+                //         j.kode_faktur = '".$v_data['kode_faktur']."' and
+                //         bd.jenis_bayar is not null
+                // ";
+                // $d_bayar = $m_conf->hydrateRaw( $sql );
+
+                // if ( $d_bayar->count() > 0 ) {
+                //     $d_bayar = $d_bayar->toArray();
+
+                //     foreach ($d_bayar as $k_bayar => $v_bayar) {
+                //         if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]) ) {
+                //             $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['nama'] = $v_bayar['jenis_bayar'];
+                //             $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['total'] = $v_bayar['nominal'];
+                //         } else {
+                //             $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['total'] += $v_bayar['nominal'];
+                //         }
+                //     }
+                // } else {
                 //     $m_conf = new \Model\Storage\Conf();
                 //     $sql = "
-                //         select * from jual_gabungan jg 
+                //         select 
+                //             ji.faktur_kode,
+                //             case
+                //                 when jp.exclude = 1 then
+                //                     sum(ji.total)
+                //                 when jp.include = 1 then
+                //                     sum(ji.total - ji.service_charge - ji.ppn)
+                //             end as total,
+                //             sum(ji.ppn) as total_ppn,
+                //             sum(ji.service_charge) as total_service_charge,
+                //             sum(ji.total) as grand_total
+                //         from jual_item ji
+                //         right join
+                //             jenis_pesanan jp
+                //             on
+                //                 ji.kode_jenis_pesanan = jp.kode
+                //         right join
+                //             jual j
+                //             on
+                //                 ji.faktur_kode = j.kode_faktur
                 //         where
-                //             jg.faktur_kode_gabungan = '".$v_data['kode_faktur']."'
+                //             j.kode_faktur = '".$v_data['kode_faktur']."' and
+                //             j.mstatus = 1 and
+                //             NOT EXISTS (select * from jual_gabungan where faktur_kode_gabungan = '".$v_data['kode_faktur']."')
+                //         group by
+                //             jp.exclude,
+                //             jp.include,
+                //             ji.faktur_kode
                 //     ";
-                //     $d_cek_faktur = $m_conf->hydrateRaw( $sql )->count();
-                // } else {
-                //     $d_cek_faktur = 1;
+                //     $d_pending = $m_conf->hydrateRaw( $sql );
+
+                //     if ( $d_pending->count() > 0 ) {
+                //         $d_pending = $d_pending->toArray()[0];
+
+                //         $key_jb = 'pending';
+                //         $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['nama'] = 'PENDING';
+                //         $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] = $d_pending['grand_total'];
+                //     }
                 // }
 
-                // if ( $d_cek_faktur > 0 ) {
-                //     if ( !isset($data[ $key_tanggal ]) ) {
-                //         $data[ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
-                //     }
-
-                //     if ( $v_data['lunas'] == 1 ) {
-                //         foreach ($v_data['bayar'] as $k_byr => $v_byr) {
-                //             if ( $v_byr['mstatus'] == 1 && $v_data['lunas'] == 1 ) {
-                //                 if ( $v_byr['jml_tagihan'] <= $v_byr['jml_bayar'] ) {
-
-                //                     foreach ($v_byr['bayar_det'] as $k_bayar => $v_bayar) {
-                //                         if ( stristr($v_bayar['jenis_bayar'], 'tunai') !== false || stristr($v_bayar['jenis_bayar'], 'saldo member') !== false ) {
-                //                             if ( $v_byr['jml_tagihan'] > 0 ) {
-                //                                 if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]) ) {
-                //                                     $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['nama'] = $v_bayar['jenis_bayar'];
-                //                                     $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['total'] = $v_byr['jml_tagihan'];
-                //                                 } else {
-                //                                     $data[ $key_tanggal ]['jenis_pembayaran'][ $v_bayar['jenis_bayar'] ]['total'] += $v_byr['jml_tagihan'];
-                //                                 }
-                //                             }
-                //                         } else {
-                //                             $key_jb = strtolower($v_bayar['jenis_bayar']);
-
-                //                             if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]) ) {
-                //                                 $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['nama'] = $v_bayar['jenis_bayar'];
-                //                                 $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] = $v_byr['jml_tagihan'];
-                //                             } else {
-                //                                 $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] += $v_byr['jml_tagihan'];
-                //                             }
-                //                         }
-                //                     }
-                //                 }
-                //             }
-                //         }
-                //     } else {
-                //         $key_jb = 'belum bayar';
-                //         if ( !isset($data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]) ) {
-                //             $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['nama'] = 'BELUM BAYAR';
-                //             $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] = $v_data['grand_total'];
-                //         } else {
-                //             $data[ $key_tanggal ]['jenis_pembayaran'][ $key_jb ]['total'] += $v_data['grand_total'];
-                //         }
-                //     }
-
-                //     if ( isset($data[ $key_tanggal ]['jenis_pembayaran']) && !empty($data[ $key_tanggal ]['jenis_pembayaran']) ) {
-                //         ksort( $data[ $key_tanggal ]['jenis_pembayaran'] );
-                //     }
+                // if ( isset($data[ $key_tanggal ]['jenis_pembayaran']) && !empty($data[ $key_tanggal ]['jenis_pembayaran']) ) {
+                //     ksort( $data[ $key_tanggal ]['jenis_pembayaran'] );
                 // }
             }
 
