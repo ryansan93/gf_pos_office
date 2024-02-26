@@ -545,7 +545,7 @@ class Penjualan extends Public_Controller {
                     left join
                         jual_gabungan jg
                         on
-                            jg.faktur_kode = j.kode_faktur
+                            jg.faktur_kode = ji.faktur_kode
                     where
                         j.mstatus = 1 and
                         NOT EXISTS (select * from jual_gabungan where faktur_kode_gabungan = j.kode_faktur)
