@@ -618,6 +618,12 @@ class Penjualan extends Public_Controller {
                 ) byr
                 on
                     byr.kode_faktur = jl.kode_faktur
+            left join
+                shift sh
+                on
+                    sh.start_time <= SUBSTRING(CONVERT(varchar(max), jl.tgl_trans, 120), 12, 5) and sh.end_time >= SUBSTRING(CONVERT(varchar(max), jl.tgl_trans, 120), 12, 5)
+            where
+                sh.id in ('".implode("', '", $shift)."')
         ";
 
         $m_conf = new \Model\Storage\Conf();
