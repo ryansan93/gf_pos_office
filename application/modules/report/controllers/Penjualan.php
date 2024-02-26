@@ -175,9 +175,13 @@ class Penjualan extends Public_Controller {
                 $data = $d_jual->toArray();
             }
 
-            $mappingDataReportHarian = $this->mappingDataReportHarian( $data, $shift );
-            $mappingDataReportHarianProduk = $this->mappingDataReportHarianProduk( $data, $shift );
+            // $mappingDataReportHarian = $this->mappingDataReportHarian( $data, $shift );
+            // $mappingDataReportHarianProduk = $this->mappingDataReportHarianProduk( $data, $shift );
             // $mappingDataReportByIndukMenu = $this->mappingDataReportByIndukMenu( $data );
+            $mapping = $this->mappingData( $data, $shift );
+
+            $mappingDataReportHarian = $mapping['report_harian'];
+            $mappingDataReportHarianProduk = $mapping['report_harian_produk'];
             $mappingDataReportDetailPembayaran = $this->mappingDataReportDetailPembayaran( $start_date, $end_date, $branch, $shift );
 
             $content_report_harian['data'] = $mappingDataReportHarian;
@@ -202,6 +206,94 @@ class Penjualan extends Public_Controller {
         }
 
         display_json( $this->result );
+    }
+
+    function mappingData($_data) {
+        $data = null;
+        $data_report_harian = null;
+        $data_report_harian_produk = null;
+
+        if ( !empty($_data) ) {
+            foreach ($_data as $k_data => $v_data) {
+                $key_tanggal = str_replace('-', '', substr($v_data['tgl_trans'], 0, 10));
+
+                $key_shift = $v_data['id_shift'];
+
+                /* HARIAN */
+                $data_report_harian[ $key_shift ]['id'] = $v_data['id_shift'];
+                $data_report_harian[ $key_shift ]['nama'] = $v_data['nama_shift'];
+
+                $key_faktur = $v_data['kode_faktur'];
+                $key_kasir = $v_data['kasir'];
+                $key_menu = $v_data['menu_kode'];
+
+                $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
+                $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['nama_kasir'] = $v_data['nama_kasir'];
+                $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['kode_faktur'] = $key_faktur;
+                $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['member'] = $v_data['member'];
+
+                if ( isset($data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total']) ) {
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total'] += $v_data['total'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['service_charge'] += $v_data['service_charge'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['ppn'] += $v_data['ppn'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['grand_total'] += ($v_data['total'] + $v_data['service_charge'] + $v_data['ppn']);
+                } else {
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['total'] = $v_data['total'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['service_charge'] = $v_data['service_charge'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['ppn'] = $v_data['ppn'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['grand_total'] = ($v_data['total'] + $v_data['service_charge'] + $v_data['ppn']);
+                }
+
+                if ( !isset($data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]) ) {
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['kode'] = $v_data['menu_kode'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['nama'] = $v_data['nama_menu'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['harga'] = $v_data['harga'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah'] = $v_data['jumlah'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['total'] = $v_data['total'];
+                } else {
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['jumlah'] += $v_data['jumlah'];
+                    $data_report_harian[ $key_shift ]['detail'][ $key_tanggal ]['kasir'][ $key_kasir ]['faktur'][ $key_faktur ]['menu'][ $key_menu ]['total'] += $v_data['total'];
+                }
+                /* END - HARIAN */
+
+                /* HARIAN PRODUK */
+                $data_report_harian_produk[ $key_shift ]['id'] = $v_data['id_shift'];
+                $data_report_harian_produk[ $key_shift ]['nama'] = $v_data['nama_shift'];
+
+                $key_jenis = $v_data['id_jenis_menu'];
+                $key_menu = $v_data['menu_kode'];
+                $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['id'] = $key_jenis;
+                $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['nama'] = $v_data['nama_jenis_menu'];
+
+                $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['tanggal'] = substr($v_data['tgl_trans'], 0, 10);
+                $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['kode'] = $key_menu;
+                $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['member'] = $v_data['member'];
+                $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['nama'] = $v_data['nama_menu'];
+                $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['harga'] = $v_data['harga'];
+
+                if ( isset($data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah']) ) {
+                    $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] += $v_data['jumlah'];
+                    $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] += $v_data['total'];
+                    $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] += $v_data['ppn'];
+                    $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] += $v_data['service_charge'];
+                    $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] += ($v_data['total'] + $v_data['service_charge'] + $v_data['ppn']);
+                } else {
+                    $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['jumlah'] = $v_data['jumlah'];
+                    $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['total'] = $v_data['total'];
+                    $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['ppn'] = $v_data['ppn'];
+                    $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['service_charge'] = $v_data['service_charge'];
+                    $data_report_harian_produk[ $key_shift ]['detail'][ $key_jenis ]['list_tanggal'][ $key_tanggal ]['menu'][ $key_menu ]['grand_total'] = ($v_data['total'] + $v_data['service_charge'] + $v_data['ppn']);
+                }
+                /* END - HARIAN PRODUK */
+            }
+        }
+
+        $data = array(
+            'report_harian' => $data_report_harian,
+            'report_harian_produk' => $data_report_harian_produk,
+        );
+
+        return $data;
     }
 
     public function mappingDataReportHarian($_data, $_shift)
