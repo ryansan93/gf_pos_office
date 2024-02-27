@@ -674,51 +674,110 @@ class Penjualan extends Public_Controller {
 
         $m_conf = new \Model\Storage\Conf();
         $sql = "
-            select
-                _data.kode_branch,
-                max(_data.tgl_trans) as tgl_trans,
-                _data.kode_faktur,
-                max(_data.mstatus) as mstatus
-            from 
-            (
-                select j.branch as kode_branch, j.tgl_trans as tgl_trans, j.kode_faktur as kode_faktur, j.mstatus from jual j where mstatus = 1
-
-                union all
-
-                select j.branch as kode_branch, j.tgl_trans as tgl_trans, jg.faktur_kode_gabungan as kode_faktur, j.mstatus from jual_gabungan jg
-                right join
-                    jual j
-                    on
-                        jg.faktur_kode = j.kode_faktur
-                where
-                    j.mstatus = 1
-            ) _data
+            select 
+                jl.tgl_trans,
+                jl.kode_faktur,
+                j.kasir,
+                j.nama_kasir,
+                j.member,
+                case
+                    when jp.exclude = 1 then
+                        ji.total
+                    when jp.include = 1 then
+                        ji.total - ji.service_charge - ji.ppn
+                end as total,
+                ji.service_charge,
+                ji.ppn,
+                ji.harga,
+                ji.menu_kode,
+                m.nama as nama_menu,
+                jm.nama as nama_jenis_menu,
+                jm.id as id_jenis_menu,
+                ji.jumlah,
+                j.mstatus,
+                sh.id as id_shift,
+                sh.nama as nama_shift
+            from jual_item ji
+            right join
+                (
+                    select
+                        _data.kode_branch,
+                        max(_data.tgl_trans) as tgl_trans,
+                        _data.kode_faktur,
+                        max(_data.mstatus) as mstatus
+                    from 
+                    (
+                        select j.branch as kode_branch, j.tgl_trans as tgl_trans, j.kode_faktur as kode_faktur, j.mstatus from jual j where mstatus = 1
+            
+                        union all
+            
+                        select j.branch as kode_branch, j.tgl_trans as tgl_trans, jg.faktur_kode_gabungan as kode_faktur, j.mstatus from jual_gabungan jg
+                        right join
+                            jual j
+                            on
+                                jg.faktur_kode = j.kode_faktur
+                        where
+                            j.mstatus = 1
+                    ) _data
+                    where
+                        _data.tgl_trans between '".$start_date."' and '".$end_date."' and
+                        _data.kode_branch = '".$branch."' and
+                        _data.kode_faktur is not null
+                    group by
+                        _data.kode_branch,
+                        _data.kode_faktur
+                ) jl
+                on
+                    jl.kode_faktur = ji.faktur_kode
+            left join
+                jenis_pesanan jp
+                on
+                    ji.kode_jenis_pesanan = jp.kode
+            left join
+                menu m
+                on
+                    ji.menu_kode = m.kode_menu
+            left join
+                jenis_menu jm
+                on
+                    m.jenis_menu_id = jm.id
+            left join
+                jual j
+                on
+                    jl.kode_faktur = j.kode_faktur
+            left join
+                shift sh
+                on
+                    sh.start_time <= SUBSTRING(CONVERT(varchar(max), jl.tgl_trans, 120), 12, 5) and sh.end_time >= SUBSTRING(CONVERT(varchar(max), jl.tgl_trans, 120), 12, 5)
             where
-                _data.tgl_trans between '".$start_date."' and '".$end_date."' and
-                _data.kode_branch = '".$branch."' and
-                _data.kode_faktur is not null
-            group by
-                _data.kode_branch,
-                _data.kode_faktur
+                sh.id in ('".implode("', '", $shift)."')
         ";
         $d_jual = $m_conf->hydrateRaw( $sql );
 
-        $_data = null;
+        $data = null;
         if ( $d_jual->count() > 0 ) {
-            $_data = $d_jual->toArray();
+            $data = $d_jual->toArray();
         }
 
-        $data_pembayaran = $this->mappingDataReportDetailPembayaran( $_data, $shift );
+        // $mappingDataReportHarian = $this->mappingDataReportHarian( $data, $shift );
+        // $mappingDataReportHarianProduk = $this->mappingDataReportHarianProduk( $data, $shift );
+        // $mappingDataReportByIndukMenu = $this->mappingDataReportByIndukMenu( $data );
+        $mapping = $this->mappingData( $data, $shift );
+
+        $mappingDataReportHarian = $mapping['report_harian'];
+        $ = $mapping['report_harian_produk'];
+
+        $data_pembayaran = $this->mappingDataReportDetailPembayaran( $start_date, $end_date, $branch, $shift );
 
         $detail = null;
         $nama_view = null;
         $filename = null;
         if ( $tipe == 'harian' ) {
-            $detail = $this->mappingDataReportHarian( $_data, $shift );
+            $detail = $mappingDataReportHarian;
             $nama_view = 'export_excel_harian';
             $filename = 'export-penjualan-harian-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
         } else {
-            $detail = $this->mappingDataReportHarianProduk( $_data, $shift );
+            $detail = $mappingDataReportHarianProduk;
             $nama_view = 'export_excel_produk';
             $filename = 'export-penjualan-produk-'.str_replace('-', '', $_data_params['start_date']).str_replace('-', '', $_data_params['end_date']).'.xls';
         }
