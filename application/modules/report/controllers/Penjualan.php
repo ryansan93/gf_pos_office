@@ -765,7 +765,7 @@ class Penjualan extends Public_Controller {
         $mapping = $this->mappingData( $data, $shift );
 
         $mappingDataReportHarian = $mapping['report_harian'];
-        $ = $mapping['report_harian_produk'];
+        $mappingDataReportHarianProduk = $mapping['report_harian_produk'];
 
         $data_pembayaran = $this->mappingDataReportDetailPembayaran( $start_date, $end_date, $branch, $shift );
 
