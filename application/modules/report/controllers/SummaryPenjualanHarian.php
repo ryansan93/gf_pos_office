@@ -1220,8 +1220,8 @@ class SummaryPenjualanHarian extends Public_Controller {
 
         $html = $this->load->view('report/summary_penjualan_harian/export_pdf', $content, true);
 
-        echo $html;
+        // echo $html;
 
-        // $this->pdfgenerator->generate($html, "SUMMARY_PENJUALAN_HARIAN", 'a4', 'landscape');
+        $this->pdfgenerator->generate($html, "SUMMARY_PENJUALAN_HARIAN", 'a4', 'landscape');
     }
 }

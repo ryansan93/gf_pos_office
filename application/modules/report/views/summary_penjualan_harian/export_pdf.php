@@ -39,18 +39,18 @@
 				<tr>
 					<th align="center" style="min-width: 10%;">Date</th>
 					<th align="center" style="min-width: 10%;">Bill No</th>
-					<th align="center" style="min-width: 7.77%;">Food</th>
-					<th align="center" style="min-width: 7.77%;">Baverage</th>
-					<th align="center" style="min-width: 7.77%;">Tobacco</th>
-					<th align="center" style="min-width: 7.77%;">Miscellaneous</th>
-					<th align="center" style="min-width: 7.77%;">Other Income</th>
-					<th align="center" style="min-width: 7.77%;">Food Promo</th>
-					<th align="center" style="min-width: 7.77%;">Discount</th>
-					<th align="center" style="min-width: 7.77%;">Total</th>
-					<th align="center" style="min-width: 7.77%;">Cash</th>
-					<th align="center" style="min-width: 7.77%;">Credit</th>
-					<th align="center" style="min-width: 7.77%;">Voucher</th>
-					<th align="center" style="min-width: 7.77%;">CL</th>
+					<th align="center" style="min-width: 6.66%;">Food</th>
+					<th align="center" style="min-width: 6.66%;">Baverage</th>
+					<th align="center" style="min-width: 6.66%;">Tobacco</th>
+					<th align="center" style="min-width: 6.66%;">Miscellaneous</th>
+					<th align="center" style="min-width: 6.66%;">Other Income</th>
+					<th align="center" style="min-width: 6.66%;">Food Promo</th>
+					<th align="center" style="min-width: 6.66%;">Discount</th>
+					<th align="center" style="min-width: 6.66%;">Total</th>
+					<th align="center" style="min-width: 6.66%;">Cash</th>
+					<th align="center" style="min-width: 6.66%;">Credit</th>
+					<th align="center" style="min-width: 6.66%;">Voucher</th>
+					<th align="center" style="min-width: 6.66%;">CL</th>
 					<!-- <th align="center" style="min-width: 10%;">OC</th>
 					<th align="center" style="min-width: 10%;">Entertain</th> -->
 				</tr>
