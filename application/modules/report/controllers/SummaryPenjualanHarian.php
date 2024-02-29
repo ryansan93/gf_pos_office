@@ -1216,12 +1216,12 @@ class SummaryPenjualanHarian extends Public_Controller {
         $content['data'] = $data;
         $content['data_oc_compliment'] = $data_oc_compliment;
 
-        cetak_r( $content, 1 );
+        // cetak_r( $content, 1 );
 
         $html = $this->load->view('report/summary_penjualan_harian/export_pdf', $content, true);
 
-        // echo $html;
+        echo $html;
 
-        $this->pdfgenerator->generate($html, "SUMMARY_PENJUALAN_HARIAN", 'a4', 'landscape');
+        // $this->pdfgenerator->generate($html, "SUMMARY_PENJUALAN_HARIAN", 'a4', 'landscape');
     }
 }
