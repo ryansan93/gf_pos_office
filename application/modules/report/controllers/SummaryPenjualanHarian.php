@@ -1188,8 +1188,6 @@ class SummaryPenjualanHarian extends Public_Controller {
 
     public function exportPdf($_params)
     {
-        $this->load->library('PDFGenerator');
-
         $_data_params = json_decode( exDecrypt( $_params ), true );
 
         $params = array(
@@ -1222,6 +1220,9 @@ class SummaryPenjualanHarian extends Public_Controller {
 
         // echo $html;
 
-        $this->pdfgenerator->generate($html, "SUMMARY_PENJUALAN_HARIAN", 'a4', 'landscape');
+        // $this->pdfgenerator->generate($html, "SUMMARY_PENJUALAN_HARIAN", 'a4', 'landscape');
+
+        $this->load->library('PDFGenerator');
+        $this->pdfgenerator->generate($html, 'SUMMARY_PENJUALAN_HARIAN', "letter", "portrait");
     }
 }
