@@ -1215,6 +1215,9 @@ class SummaryPenjualanHarian extends Public_Controller {
         $content['nama_kasir'] = $nama_kasir;
         $content['data'] = $data;
         $content['data_oc_compliment'] = $data_oc_compliment;
+
+        cetak_r( $content, 1 );
+
         $html = $this->load->view('report/summary_penjualan_harian/export_pdf', $content, true);
 
         // echo $html;
