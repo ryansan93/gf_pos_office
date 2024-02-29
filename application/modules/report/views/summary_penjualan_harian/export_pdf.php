@@ -5,6 +5,7 @@
 	}
 
 	@page{
+		page: a4 landscape;
 		margin: 0.5em 1em;
 	}
 </style>
@@ -38,18 +39,18 @@
 				<tr>
 					<th align="center" style="min-width: 10%;">Date</th>
 					<th align="center" style="min-width: 10%;">Bill No</th>
-					<th align="center" style="min-width: 10%;">Food</th>
-					<th align="center" style="min-width: 10%;">Baverage</th>
-					<th align="center" style="min-width: 10%;">Tobacco</th>
-					<th align="center" style="min-width: 10%;">Miscellaneous</th>
-					<th align="center" style="min-width: 10%;">Other Income</th>
-					<th align="center" style="min-width: 10%;">Food Promo</th>
-					<th align="center" style="min-width: 10%;">Discount</th>
-					<th align="center" style="min-width: 10%;">Total</th>
-					<th align="center" style="min-width: 10%;">Cash</th>
-					<th align="center" style="min-width: 10%;">Credit</th>
-					<th align="center" style="min-width: 10%;">Voucher</th>
-					<th align="center" style="min-width: 10%;">CL</th>
+					<th align="center" style="min-width: 7.77%;">Food</th>
+					<th align="center" style="min-width: 7.77%;">Baverage</th>
+					<th align="center" style="min-width: 7.77%;">Tobacco</th>
+					<th align="center" style="min-width: 7.77%;">Miscellaneous</th>
+					<th align="center" style="min-width: 7.77%;">Other Income</th>
+					<th align="center" style="min-width: 7.77%;">Food Promo</th>
+					<th align="center" style="min-width: 7.77%;">Discount</th>
+					<th align="center" style="min-width: 7.77%;">Total</th>
+					<th align="center" style="min-width: 7.77%;">Cash</th>
+					<th align="center" style="min-width: 7.77%;">Credit</th>
+					<th align="center" style="min-width: 7.77%;">Voucher</th>
+					<th align="center" style="min-width: 7.77%;">CL</th>
 					<!-- <th align="center" style="min-width: 10%;">OC</th>
 					<th align="center" style="min-width: 10%;">Entertain</th> -->
 				</tr>
