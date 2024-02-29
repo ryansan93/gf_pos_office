@@ -43,7 +43,7 @@
 	@page { 
 		/* size: 8.5in 5.5in landscape; */
 		size: a4 landscape;
-		margin: 1em 3em 1em 2em; 
+		margin: 1em 2em 1em 2em; 
 	}
 
 	body {
