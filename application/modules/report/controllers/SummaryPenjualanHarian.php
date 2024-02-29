@@ -1223,6 +1223,6 @@ class SummaryPenjualanHarian extends Public_Controller {
         // $this->pdfgenerator->generate($html, "SUMMARY_PENJUALAN_HARIAN", 'a4', 'landscape');
 
         $this->load->library('PDFGenerator');
-        $this->pdfgenerator->generate($html, 'SUMMARY_PENJUALAN_HARIAN', "letter", "portrait");
+        $this->pdfgenerator->generate($html, 'SUMMARY_PENJUALAN_HARIAN', "letter", "landscape");
     }
 }
