@@ -85,7 +85,7 @@
 		</table>
 	</div>
 	<div style="width: 99%;">
-		<div style="width: 99%;">
+		<div style="width: 100%;">
 			<table class="border-field" style="margin-bottom: 0px; min-width: 100%; border: 1px solid; border-collapse: collapse; font-size: 9pt;">
 				<thead>
 					<tr>
@@ -191,7 +191,7 @@
 				</tbody>
 			</table>
 		</div>
-		<div style="width: 100%;"><br></div>
+		<div style="width: 99%;"><br></div>
 		<div style="width: 100%;">
 			<table class="border-field" style="margin-bottom: 0px; min-width: 100%; border: 1px solid; border-collapse: collapse; font-size: 9pt;">
 				<thead>
