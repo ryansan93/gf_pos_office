@@ -34,7 +34,7 @@
 </div>
 <div style="width: 100%;">
 	<div style="width: 100%;">
-		<table class="border-field" style="margin-bottom: 0px; min-width: 100%; border: 1px solid; border-collapse: collapse; font-size: 10pt;">
+		<table class="border-field" style="margin-bottom: 0px; min-width: 100%; border: 1px solid; border-collapse: collapse; font-size: 9pt;">
 			<thead>
 				<tr>
 					<th align="center" style="min-width: 10%;">Date</th>
@@ -141,7 +141,7 @@
 	</div>
 	<div style="width: 100%;"><br></div>
 	<div style="width: 100%;">
-		<table class="border-field" style="margin-bottom: 0px; min-width: 100%; border: 1px solid; border-collapse: collapse; font-size: 10pt;">
+		<table class="border-field" style="margin-bottom: 0px; min-width: 100%; border: 1px solid; border-collapse: collapse; font-size: 9pt;">
 			<thead>
 				<tr>
 					<th style="min-width: 10%; width: 10%;">Date</th>
