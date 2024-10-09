@@ -426,6 +426,10 @@ var po = {
             success: function(data) {
                 hideLoading();
                 if ( data.status == 1 ) {
+                    if ( $('iframe').length > 0 ) {
+                        $('iframe').remove();
+                    }
+
                     var ifr = document.createElement("iframe");
                     ifr.src = data.content.url;
                     ifr.id = "PDF";
