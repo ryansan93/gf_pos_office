@@ -30,7 +30,16 @@
 	</div>
 </div>
 
-<div class="col-xs-6 no-padding" style="margin-bottom: 5px; padding-right: 5px;">
+<div class="col-xs-2 no-padding" style="margin-bottom: 5px; padding-right: 5px;">
+	<div class="col-xs-12 no-padding">
+		<label class="control-label">Bagian</label>
+	</div>
+	<div class="col-xs-12 no-padding">
+	<input type="text" class="col-xs-12 form-control bagian uppercase" placeholder="BAGIAN (MAX:25)" maxlength="25" data-required="1">
+	</div>
+</div>
+
+<div class="col-xs-4 no-padding" style="margin-bottom: 5px; padding-left: 5px; padding-right: 5px;">
 	<div class="col-xs-12 no-padding">
 		<label class="control-label">Gudang</label>
 	</div>

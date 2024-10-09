@@ -62,3 +62,7 @@ tr.removed > td {
 tr.removed > td.status {
 	color: red;
 }
+
+i.fa-file-image-o:hover {
+	background-color: gainsboro;
+}

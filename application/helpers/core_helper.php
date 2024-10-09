@@ -839,6 +839,7 @@ if (! function_exists ( 'uploadFile' )) {
     $path_name = ubahNama($file_name, $upload_path);
     $file_path = $upload_path . $path_name;
     $moved = FALSE;
+    
     if(!file_exists($file_path)){
       $moved = move_uploaded_file($file['tmp_name'], $file_path );
     }else{
@@ -1025,17 +1026,31 @@ if (! function_exists ( 'mappingFiles' )) {
   function mappingFiles($files)
   {
     $mappingFiles = [];
-    foreach ($files['tmp_name'] as $key => $file) {
-      $sha1 = sha1_file($file);
+    if ( count((array)$files['tmp_name']) > 1 ) {
+      foreach ($files['tmp_name'] as $key => $file) {
+        $sha1 = sha1_file($file);
 
-      $index = $sha1 . '_' . $files['name'][$key];
+        $index = $sha1 . '_' . $files['name'][$key];
 
-      $mappingFiles[$index] = [
-        'name' => $files['name'][$key],
-        'tmp_name' => $file,
-        'type' => $files['type'][$key],
-        'size' => $files['size'][$key],
-        'error' => $files['error'][$key]
+        $mappingFiles[$index] = [
+          'name' => $files['name'][$key],
+          'tmp_name' => $file,
+          'type' => $files['type'][$key],
+          'size' => $files['size'][$key],
+          'error' => $files['error'][$key]
+        ];
+      }
+    } else {
+      $sha1 = sha1_file($files['tmp_name']);
+
+      $index = $sha1 . '_' . $files['name'];
+
+      $mappingFiles = [
+        'name' => $files['name'],
+        'tmp_name' => $files['tmp_name'],
+        'type' => $files['type'],
+        'size' => $files['size'],
+        'error' => $files['error']
       ];
     }
     return $mappingFiles;

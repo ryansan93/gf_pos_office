@@ -1,3 +1,5 @@
+var formData = new FormData();
+
 var menu = {
 	start_up: function () {
 	}, // end - start_up
@@ -119,11 +121,14 @@ var menu = {
 						'list_jenis_pesanan': list_jenis_pesanan
 					};
 
+					var __file = $(div).find('input:file').get(0).files[0];
+
+					formData.append('file', __file);
+					formData.append('data', JSON.stringify(data));
+
 			        $.ajax({
 			            url: 'parameter/Menu/save',
-			            data: {
-			                'params': data
-			            },
+			            data: formData,
 			            type: 'POST',
 			            dataType: 'JSON',
 			            beforeSend: function() { showLoading(); },
@@ -138,7 +143,9 @@ var menu = {
 			                    	menu.modalAddForm();
 			                    });
 			                }
-			            }
+			            },
+						contentType : false,
+						processData : false,
 			        });
 				}
 			});
@@ -198,14 +205,19 @@ var menu = {
 						'additional': additional,
 						'ppn': ppn,
 						'service_charge': service_charge,
-						'list_jenis_pesanan': list_jenis_pesanan
+						'list_jenis_pesanan': list_jenis_pesanan,
+						'filename_old': $(div).find('input:file').attr('data-filename'),
+						'pathname_old': $(div).find('input:file').attr('data-pathname')
 					};
+
+					var __file = $(div).find('input:file').get(0).files[0];
+
+					formData.append('file', __file);
+					formData.append('data', JSON.stringify(data));
 
 			        $.ajax({
 			            url: 'parameter/Menu/edit',
-			            data: {
-			                'params': data
-			            },
+			            data: formData,
 			            type: 'POST',
 			            dataType: 'JSON',
 			            beforeSend: function() { showLoading(); },
@@ -220,7 +232,9 @@ var menu = {
 			                    	menu.modalEditForm();
 			                    });
 			                }
-			            }
+			            },
+						contentType : false,
+						processData : false,
 			        });
 				}
 			});
@@ -256,6 +270,40 @@ var menu = {
 			}
 		});
     }, // end - delete
+
+	showNameFile: function(elm, isLable = 1) {
+		var _label = $(elm).closest('label');
+		var _spanfile = _label.next('span');
+		var _allowtypes = $(elm).data('allowtypes').split('|');
+		var _type = $(elm).get(0).files[0]['name'].split('.').pop();
+		var _namafile = $(elm).val();
+		_namafile = _namafile.substring(_namafile.lastIndexOf("\\") + 1, _namafile.length);
+		var temp_url = URL.createObjectURL($(elm).get(0).files[0]);
+	
+		if (in_array(_type, _allowtypes)) {
+		  var _nameHtml = '<u>' + _namafile + '</u> ';
+
+		  if (isLable == 1) {
+			if (_spanfile.length) {
+			  _spanfile.html(_nameHtml);
+			} else {
+			  if ( $(_label).next('a').length > 0 ) {
+				$(_label).next('a').remove();
+			  }
+			  $('<a href='+temp_url+' target="_blank">' + _nameHtml + '</a>').insertAfter(_label);
+			}
+		  }else if (isLable == 0) {
+			$(elm).closest('label').attr('title', _namafile);
+		  }
+		  $(elm).attr('data-filename', _namafile);
+		} else {
+			$(elm).val('');
+			$(elm).closest('label').attr('title', '');
+			$(elm).attr('data-filename', '');
+			_spanfile.html('');
+			bootbox.alert('Format file tidak sesuai. Mohon attach ulang.');
+		}
+	}
 };
 
 menu.start_up();

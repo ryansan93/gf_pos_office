@@ -254,6 +254,7 @@ class PurchaseOrder extends Public_Controller {
             $m_po->done = 0;
             $m_po->tax = (isset($params['tax']) && !empty($params['tax'])) ? $params['tax'] : null;
             $m_po->tax_pembelian_id = (isset($params['tax_id']) && !empty($params['tax_id'])) ? $params['tax_id'] : null;
+            $m_po->bagian = $params['bagian'];
             $m_po->save();
 
             foreach ($params['detail'] as $k_det => $v_det) {
@@ -298,7 +299,8 @@ class PurchaseOrder extends Public_Controller {
                     'pic' => !empty($params['nama_pic']) ? $params['nama_pic'] : null,
                     'gudang_kode' => $params['gudang'],
                     'tax' => (isset($params['tax']) && !empty($params['tax'])) ? $params['tax'] : null,
-                    'tax_pembelian_id' => (isset($params['tax_id']) && !empty($params['tax_id'])) ? $params['tax_id'] : null
+                    'tax_pembelian_id' => (isset($params['tax_id']) && !empty($params['tax_id'])) ? $params['tax_id'] : null,
+                    'bagian' => $params['bagian']
                 )
             );
 

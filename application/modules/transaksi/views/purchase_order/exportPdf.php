@@ -154,9 +154,9 @@
 	<div class="contain <?php echo $cls_page_break; ?>" style="width: 100%; padding-top: 1em;">
 		<div style="display: inline; margin: 0px; padding: 0px;">
 			<div style="display: inline-block; text-align: left; width: 65.5%;">
-				<label class="col-xs-12" style="font-size: 18px; display: inline-block; margin-bottom: 10px;"><b><?php echo $data['gudang']['branch']['nama']; ?></b></label>
+				<label class="col-xs-12" style="font-size: 18px; display: inline-block; margin-bottom: 10px;"><b><?php echo $data['bagian']; ?></b></label>
 				<br>
-				<label class="col-xs-12" style="display: inline-block; border: 1px solid black; padding: 5px; height: 50px;"><?php echo strtoupper($data['supplier']); ?></label>
+				<label class="col-xs-12" style="display: inline-block; border: 1px solid black; padding: 5px; height: 30px;"><?php echo strtoupper($data['supplier']); ?></label>
 			</div>
 			<div class="col-xs-1" style="display: inline-block; text-align: left; margin: 0px; padding: 0px;">&nbsp;</div>
 			<div class="col-xs-3" style="display: inline-block; text-align: left;">

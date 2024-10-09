@@ -272,6 +272,7 @@ var po = {
                         'supplier_kode': $(dcontent).find('.supplier').select2('val'),
                         'tax_id': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-id') : null,
 						'tax': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-nilai') : null,
+                        'bagian': $(dcontent).find('.bagian').val(),
 						'detail': detail
 					};
 
@@ -339,6 +340,7 @@ var po = {
                         'supplier_kode': $(dcontent).find('.supplier').select2('val'),
                         'tax_id': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-id') : null,
                         'tax': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-nilai') : null,
+                        'bagian': $(dcontent).find('.bagian').val(),
                         'detail': detail
                     };
 

@@ -143,9 +143,27 @@ class Menu extends Public_Controller {
 
     public function save()
     {
-        $params = $this->input->post('params');
+        // $params = $this->input->post('params');
+
+        $params = json_decode($this->input->post('data'),TRUE);
+        $files = isset($_FILES['file']) ? $_FILES['file'] : [];
+        $mappingFiles = mappingFiles($files);
 
         try {
+            // cetak_r( $mappingFiles, 1 );
+
+            $file_name = null;
+            $path_name = null;
+            if (!empty($mappingFiles)) {
+                $moved = uploadFile($mappingFiles);
+                $isMoved = $moved['status'];
+
+                if ( $isMoved ) {
+                    $file_name = $moved['name'];
+                    $path_name = $moved['path'];
+                }
+            }
+
             foreach ($params['branch'] as $k_branch => $v_branch) {
                 $m_menu = new \Model\Storage\Menu_model();
                 $now = $m_menu->getDate();
@@ -162,6 +180,8 @@ class Menu extends Public_Controller {
                 $m_menu->ppn = $params['ppn'];
                 $m_menu->service_charge = $params['service_charge'];
                 $m_menu->status = 1;
+                $m_menu->file_name = $file_name;
+                $m_menu->path_name = $path_name;
                 $m_menu->save();
 
                 $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
@@ -225,9 +245,25 @@ class Menu extends Public_Controller {
 
     public function edit()
     {
-        $params = $this->input->post('params');
+        // $params = $this->input->post('params');
+
+        $params = json_decode($this->input->post('data'),TRUE);
+        $files = isset($_FILES['file']) ? $_FILES['file'] : [];
+        $mappingFiles = !empty($files) ? mappingFiles($files) : null;
 
         try {
+            $file_name = $params['filename_old'];
+            $path_name = $params['pathname_old'];
+            if (!empty($mappingFiles)) {
+                $moved = uploadFile($mappingFiles);
+                $isMoved = $moved['status'];
+
+                if ( $isMoved ) {
+                    $file_name = $moved['name'];
+                    $path_name = $moved['path'];
+                }
+            }
+
             $m_menu = new \Model\Storage\Menu_model();
             $now = $m_menu->getDate();
 
@@ -240,7 +276,9 @@ class Menu extends Public_Controller {
                     'additional' => $params['additional'],
                     'ppn' => $params['ppn'],
                     'service_charge' => $params['service_charge'],
-                    'status' => 1
+                    'status' => 1,
+                    'file_name' => $file_name,
+                    'path_name' => $path_name
                 )
             );
 

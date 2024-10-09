@@ -55,6 +55,15 @@
 					</div>
 				</div>
 			</div>
+			<div class="col-xs-12 no-padding">
+				<div class="col-xs-12 no-padding"><label class="control-label">Image</label></div>
+				<div class="col-xs-12 no-padding">
+					<label class="" style="padding-right: 10px;">
+						<input type="file" onchange="menu.showNameFile(this)" class="file_lampiran" name="" data-allowtypes="jpg|jpeg|png" style="display: none;">
+						<i class="fa fa-file-image-o cursor-p" style="border: solid #aaa 1px; padding: 5px 10px; border-radius: 3px;"></i>
+					</label>
+				</div>
+			</div>
 			<div class="col-xs-12 no-padding"><hr style="margin-top: 10px; margin-bottom: 10px;"></div>
 			<div class="col-xs-12 no-padding">
 				<div class="col-xs-12 no-padding"><label class="control-label">Additional</label></div>

@@ -20,11 +20,12 @@
 					<tr>
 						<th class="col-sm-1 text-center">Kode</th>
 						<th class="col-sm-2 text-center">Nama</th>
-						<th class="col-sm-3 text-center">Deskripsi</th>
+						<th class="col-sm-2 text-center">Deskripsi</th>
 						<th class="col-sm-1 text-center">Jenis</th>
 						<th class="col-sm-1 text-center">Kategori</th>
 						<th class="col-sm-1 text-center">Branch</th>
 						<th class="col-sm-1 text-center">Additional</th>
+						<th class="col-sm-1 text-center">Gambar</th>
 						<th class="col-sm-1 text-center">Status</th>
 						<th class="col-sm-1 text-center">Action</th>
 					</tr>
@@ -46,6 +47,13 @@
 								<td><?php echo empty($v_data['kategori']) ? '-' : strtoupper($v_data['kategori']['nama']); ?></td>
 								<td><?php echo $v_data['branch']['nama']; ?></td>
 								<td class="text-center"><?php echo ($v_data['additional'] == 0) ? 'NO' : 'YES'; ?></td>
+								<td>
+									<?php if ( !empty( $v_data['path_name'] ) ) { ?>
+										<a href="uploads/<?php echo $v_data['path_name'] ?>" target="_blank"><?php echo $v_data['file_name'] ?></a>
+									<?php } else { ?>
+										-
+									<?php } ?>
+								</td>
 								<td class="text-center status"><b><?php echo strtoupper($status); ?></b></td>
 								<td>
 									<div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
