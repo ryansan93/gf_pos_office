@@ -147,7 +147,7 @@ class Menu extends Public_Controller {
 
         $params = json_decode($this->input->post('data'),TRUE);
         $files = isset($_FILES['file']) ? $_FILES['file'] : [];
-        $mappingFiles = mappingFiles($files);
+        $mappingFiles = (!empty($files) && count($files) > 0) ? mappingFiles($files) : null;
 
         try {
             // cetak_r( $mappingFiles, 1 );
@@ -180,8 +180,8 @@ class Menu extends Public_Controller {
                 $m_menu->ppn = $params['ppn'];
                 $m_menu->service_charge = $params['service_charge'];
                 $m_menu->status = 1;
-                $m_menu->file_name = $file_name;
-                $m_menu->path_name = $path_name;
+                // $m_menu->file_name = $file_name;
+                // $m_menu->path_name = $path_name;
                 $m_menu->save();
 
                 $deskripsi_log = 'di-submit oleh ' . $this->userdata['detail_user']['nama_detuser'];
@@ -249,7 +249,7 @@ class Menu extends Public_Controller {
 
         $params = json_decode($this->input->post('data'),TRUE);
         $files = isset($_FILES['file']) ? $_FILES['file'] : [];
-        $mappingFiles = !empty($files) ? mappingFiles($files) : null;
+        $mappingFiles = (!empty($files) && count($files) > 0) ? mappingFiles($files) : null;
 
         try {
             $file_name = $params['filename_old'];
@@ -277,8 +277,8 @@ class Menu extends Public_Controller {
                     'ppn' => $params['ppn'],
                     'service_charge' => $params['service_charge'],
                     'status' => 1,
-                    'file_name' => $file_name,
-                    'path_name' => $path_name
+                    // 'file_name' => $file_name,
+                    // 'path_name' => $path_name
                 )
             );
 
