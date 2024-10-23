@@ -4,16 +4,72 @@
  *
  */
 
+// function priceFormat(elm) {
+//     var _angka = $(elm);
+//     _angka.on('keyup', function(e) {
+//         _angka.val( formatRupiah($(this).val()) );
+//     });
+    
+//     /* Fungsi */
+//     function formatRupiah(angka, prefix)
+//     {
+//         var number_string = angka.replace(',', '').toString(),
+//             split       = number_string.split('.'),
+//             sisa        = split[0].length % 3,
+//             rupiah      = split[0].substr(0, sisa),
+//             ribuan      = split[0].substr(sisa).match(/\d{3}/gi);
+
+//         console.log( number_string );
+//         console.log( split );
+//         console.log( sisa );
+//         console.log( rupiah );
+//         console.log( ribuan );
+            
+//         if (ribuan) {
+//             separator = sisa ? ',' : '';
+//             rupiah += separator + ribuan.join(',');
+//         }
+        
+//         rupiah = split[1] != undefined ? rupiah + '.' + split[1] : rupiah;
+//         return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+//     }
+// }
+
 function priceFormat(elm) {
-    var _angka = $(elm);
-    _angka.on('keyup', function(e) {
-        _angka.val( formatRupiah($(this).val()) );
+    var typingTimer;
+    var nilai;
+    var ipt = $(elm);
+    ipt.on('keyup', function() {
+        nilai = $(this).val();
+
+        if ( nilai.toString() === '-' ) {
+            ipt.val( 0 );
+        } else {
+            var _nilai = nilai.replaceAll(',', '').toString();
+
+            if ( _nilai > 0 ) {
+                ipt.val( formatRupiah(_nilai) );
+            }
+
+            // clearTimeout(typingTimer);
+            // timer();
+        }
     });
     
     /* Fungsi */
+    function timer () {
+        typingTimer = setTimeout(function() {
+            var _nilai = nilai.replaceAll(',', '').toString();
+
+            if ( _nilai > 0 ) {
+                ipt.val( formatRupiah(_nilai) );
+            }
+        }, 250);
+    }
+
     function formatRupiah(angka, prefix)
     {
-        var number_string = angka.replace(',', '').toString(),
+        var number_string = angka,
             split       = number_string.split('.'),
             sisa        = split[0].length % 3,
             rupiah      = split[0].substr(0, sisa),
@@ -21,7 +77,7 @@ function priceFormat(elm) {
             
         if (ribuan) {
             separator = sisa ? ',' : '';
-            rupiah += separator + ribuan.join(',');
+            rupiah = rupiah + separator + ribuan.join(',');
         }
         
         rupiah = split[1] != undefined ? rupiah + '.' + split[1] : rupiah;
