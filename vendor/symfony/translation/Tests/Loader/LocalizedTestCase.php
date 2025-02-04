@@ -11,12 +11,14 @@
 
 namespace Symfony\Component\Translation\Tests\Loader;
 
-abstract class LocalizedTestCase extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+abstract class LocalizedTestCase extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
-        if (!extension_loaded('intl')) {
-            $this->markTestSkipped('The "intl" extension is not available');
+        if (!\extension_loaded('intl')) {
+            $this->markTestSkipped('Extension intl is required.');
         }
     }
 }

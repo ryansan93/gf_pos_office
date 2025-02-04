@@ -6,9 +6,14 @@
 		<div class="col-xs-12 no-padding">
 			<?php if ( $akses['a_submit'] == 1 ) { ?>
 				<div class="col-xs-12 no-padding">
-					<button id="btn-add" type="button" data-href="action" class="col-xs-12 btn btn-primary cursor-p pull-right" title="ADD" onclick="hm.modalAddForm(this)"> 
-						<i class="fa fa-plus" aria-hidden="true"></i> ADD
-					</button>
+					<div class="col-lg-6 no-padding" style="padding-right: 5px;">
+						<button id="btn-add" type="button" data-href="action" class="col-xs-12 btn btn-primary cursor-p pull-right" title="ADD" onclick="hm.modalAddForm(this)"> 
+							<i class="fa fa-plus" aria-hidden="true"></i> ADD
+						</button>
+					</div>
+					<div class="col-lg-6 no-padding" style="padding-left: 5px;">
+						<button type="button" class="col-lg-12 btn btn-default pull-right" onclick="hm.importForm(this)" data-href="action" data-edit=""><i class="fa fa-upload"></i> Import Data</button>
+					</div>
 				</div>
 				<div class="col-xs-12 no-padding">
 					<hr style="margin-top: 10px; margin-bottom: 10px;">

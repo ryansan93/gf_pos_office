@@ -8,6 +8,13 @@ class Menu_model extends Conf{
 	protected $kodeTable = 'MNU';
 	public $timestamps = false;
 
+	// public function getNextKodeMenu(){
+	// 	$id = $this->whereRaw("SUBSTRING(kode_menu,4,4) = cast(right(year(current_timestamp),2) as char(2))+replace(str(month(getdate()),2),' ',0)")
+	// 							->selectRaw("'".$this->kodeTable."'+right(year(current_timestamp),2)+replace(str(month(getdate()),2),' ',0)+replace(str(substring(coalesce(max(kode_menu),'000'),8,3)+1,3), ' ', '0') as nextId")
+	// 							->first();
+	// 	return $id->nextId;
+	// }
+
 	public function kategori()
 	{
 		return $this->hasOne('\Model\Storage\KategoriMenu_model', 'id', 'kategori_menu_id');

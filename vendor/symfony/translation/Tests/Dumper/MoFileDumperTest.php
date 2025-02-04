@@ -11,21 +11,19 @@
 
 namespace Symfony\Component\Translation\Tests\Dumper;
 
-use Symfony\Component\Translation\MessageCatalogue;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Translation\Dumper\MoFileDumper;
+use Symfony\Component\Translation\MessageCatalogue;
 
-class MoFileDumperTest extends \PHPUnit_Framework_TestCase
+class MoFileDumperTest extends TestCase
 {
-    public function testDump()
+    public function testFormatCatalogue()
     {
         $catalogue = new MessageCatalogue('en');
-        $catalogue->add(array('foo' => 'bar'));
+        $catalogue->add(['foo' => 'bar']);
 
-        $tempDir = sys_get_temp_dir();
         $dumper = new MoFileDumper();
-        $dumper->dump($catalogue, array('path' => $tempDir));
-        $this->assertEquals(file_get_contents(__DIR__.'/../fixtures/resources.mo'), file_get_contents($tempDir.'/messages.en.mo'));
 
-        unlink($tempDir.'/messages.en.mo');
+        $this->assertStringEqualsFile(__DIR__.'/../fixtures/resources.mo', $dumper->formatCatalogue($catalogue, 'messages'));
     }
 }

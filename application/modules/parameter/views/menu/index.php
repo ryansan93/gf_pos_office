@@ -5,9 +5,14 @@
 		</div>
 		<div class="col-lg-4 action no-padding">
 			<?php if ( $akses['a_submit'] == 1 ) { ?>
-				<button id="btn-add" type="button" data-href="action" class="btn btn-primary cursor-p pull-right" title="ADD" onclick="menu.modalAddForm(this)"> 
-					<i class="fa fa-plus" aria-hidden="true"></i> ADD
-				</button>
+				<div class="col-lg-6 no-padding" style="padding-right: 5px;">
+					<button id="btn-add" type="button" data-href="action" class="btn btn-primary cursor-p pull-right" title="ADD" onclick="menu.modalAddForm(this)"> 
+						<i class="fa fa-plus" aria-hidden="true"></i> ADD
+					</button>
+				</div>
+				<div class="col-lg-6 no-padding" style="padding-left: 5px;">
+                    <button type="button" class="col-lg-12 btn btn-default pull-right" onclick="menu.importForm(this)" data-href="action" data-edit=""><i class="fa fa-upload"></i> Import Data</button>
+                </div>
 			<?php } else { ?>
 				<div class="col-lg-2 action no-padding pull-right">
 					&nbsp

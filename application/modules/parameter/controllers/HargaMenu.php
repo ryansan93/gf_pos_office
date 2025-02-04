@@ -97,7 +97,7 @@ class HargaMenu extends Public_Controller {
 
         $m_conf = new \Model\Storage\Conf();
         $sql = "
-            select jm.nama as nama_jenis, m.kode_menu, m.nama as nama_menu, m.branch_kode from menu m
+            select jm.nama as nama_jenis, m.kode_menu, m.nama as nama_menu, m.tanggal from menu m
             right join
                 jenis_menu jm
                 on
@@ -200,5 +200,158 @@ class HargaMenu extends Public_Controller {
         }
 
         display_json( $this->result );
+    }
+
+    public function importForm()
+    {
+        $d_content['akses'] = $this->hakAkses;
+		$html = $this->load->view($this->pathView.'/importForm', $d_content, true);
+
+		echo $html;
+    }
+
+    public function import() {
+        $file = isset($_FILES['file']) ? $_FILES['file'] : null;
+
+        try {
+            if ( !empty($file) ) {
+                $upload_path = FCPATH . "//uploads/import_file/";
+                $moved = uploadFile($file, $upload_path);
+                if ( $moved ) {
+                    $path_name = $moved['path'];
+
+                    $data = $this->getDataExcelUsingSpreadSheet( $path_name );
+
+                    if ( !empty($data) && count($data) > 0 ) {                        
+                        foreach ($data as $key => $value) {
+                            if ( stristr($value['tanggal'], '/') !== false ) {
+                                $_tanggal = explode('/',trim(preg_replace('/\s/u', ' ', $value['tanggal'])));
+                                
+                                $tahun = null;
+                                $bulan = null;
+                                $hari = null;
+                                if ( count($_tanggal) < 3 ) {
+                                    $tahun = date("Y");
+                                    $bulan = ( strlen(preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-1])) > 1 ) ? preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-1]) : '0'.preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-1]);
+                                    $hari = ( strlen(preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2])) > 0 ) ? preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2]) : '0'.preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2]);
+                                } else {
+                                    $tahun = preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-1]);
+                                    $bulan = ( strlen(preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2])) > 1 ) ? preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2]) : '0'.preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2]);
+                                    $hari = ( strlen(preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-3])) > 0 ) ? preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-3]) : '0'.preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-3]);
+                                }
+
+                                if ( $bulan > 12 ) {
+                                    $tanggal = $tahun.'-'.$hari.'-'.$bulan;
+                                } else {
+                                    $tanggal = $tahun.'-'.$bulan.'-'.$hari;
+                                }
+                            } else {
+                                $tanggal = $value['tanggal'];
+                            }
+
+                            if ( isset($value['jenis_pesanan_kode']) && !empty($value['jenis_pesanan_kode']) ) {
+                                $m_hm = new \Model\Storage\HargaMenu_model();
+                                $m_hm->jenis_pesanan_kode = $value['jenis_pesanan_kode'];
+                                $m_hm->menu_kode = $value['menu_kode'];
+                                $m_hm->harga = $value['harga'];
+                                $m_hm->tgl_mulai = $tanggal;
+                                $m_hm->save();
+
+                                $deskripsi_log = 'di-import oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                                Modules::run( 'base/event/save', $m_hm, $deskripsi_log );
+                            } else {
+                                $jp = $this->getJenisPesanan();
+
+                                foreach ($jp as $k_jp => $v_jp) {
+                                    if ( stristr( $v_jp['nama'], 'dine in' ) !== false || stristr( $v_jp['nama'], 'take away' ) !== false ) {
+                                        $m_hm = new \Model\Storage\HargaMenu_model();
+                                        $m_hm->jenis_pesanan_kode = $v_jp['kode'];
+                                        $m_hm->menu_kode = $value['menu_kode'];
+                                        $m_hm->harga = $value['harga'];
+                                        $m_hm->tgl_mulai = $tanggal;
+                                        $m_hm->save();
+                                        
+                                        $deskripsi_log = 'di-import oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                                        Modules::run( 'base/event/save', $m_hm, $deskripsi_log );
+                                    }
+                                }
+                            }
+
+                        }
+
+                        $this->result['status'] = 1;
+                        $this->result['message'] = 'Data berhasil di import.';
+                    } else {
+                        $this->result['message'] = 'Data yang anda upload kosong.';
+                    }
+                } else {
+                    $this->result['message'] = 'File gagal terupload, segera hubungi tim IT.';
+                }
+            }
+        } catch (Exception $e) {
+            $this->result['message'] = 'GAGAL : '.$e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function downloadTemplate() {
+        $fileName = 'template_import_harga_menu';
+        $arr_header = array('Jenis Pesanan', 'Kode Menu', 'Harga', 'Tgl Berlaku');
+        $arr_column[0] = array(
+            'Jenis Pesanan' => array('value' => 'DINE IN', 'data_type' => 'string'),
+            'Kode Menu' => array('value' => 'MNU2501012', 'data_type' => 'string'),
+            'Harga' => array('value' => 10000, 'data_type' => 'integer'),
+            'Tgl Berlaku' => array('value' => '2025-02-04', 'data_type' => 'date', 'data_format' => 'yyyy-mm-dd'),
+        );
+
+        Modules::run( 'base/ExportExcel/exportExcelUsingSpreadSheet', $fileName, $arr_header, $arr_column );
+
+        $this->load->helper('download');
+        force_download('export_excel/'.$fileName.'.xlsx', NULL);
+    }
+
+    public function getDataExcelUsingSpreadSheet( $path_name ) {
+        $path = 'uploads/import_file/'.$path_name;
+
+        $data = null;
+
+        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+        $spreadsheet = $reader->load($path, \PhpOffice\PhpSpreadsheet\Reader\IReader::LOAD_WITH_CHARTS); // Load file yang tadi diupload ke folder tmp
+        // $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path, \PhpOffice\PhpSpreadsheet\Reader\IReader::LOAD_WITH_CHARTS);
+        $sheet = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+        $numrow = 1;
+        $key = null;
+
+        foreach($sheet as $row){
+            // Ambil data pada excel sesuai Kolom
+            $jenis_pesanan = $row['A'];
+            $kode_menu = $row['B'];
+            $harga = preg_replace('/\s/u', '', str_replace(',', '', $row['C']));
+            $tgl_berlaku = $row['D'];
+            // Cek jika semua data tidak diisi
+            if($kode_menu == "" && $harga == "" && $tgl_berlaku == "")
+            continue; // Lewat data pada baris ini (masuk ke looping selanjutnya / baris selanjutnya)
+            // Cek $numrow apakah lebih dari 1
+            // Artinya karena baris pertama adalah nama-nama kolom
+            // Jadi dilewat saja, tidak usah diimport
+            if($numrow > 1){
+                $key = trim($kode_menu).'-'.$jenis_pesanan;
+
+                $m_jp = new \Model\Storage\JenisPesanan_model();
+                $data_jp = $m_jp->getData(array($jenis_pesanan));
+                $jenis_pesanan_kode = $data_jp[0]['kode'];
+
+                $data[ $key ] = array(
+                    'jenis_pesanan_kode' => $jenis_pesanan_kode,
+                    'menu_kode' => $kode_menu,
+                    'harga' => $harga,
+                    'tanggal' => $tgl_berlaku,
+                );
+            }
+            $numrow++; // Tambah 1 setiap kali looping
+        }
+
+        return $data;
     }
 }

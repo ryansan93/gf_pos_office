@@ -168,8 +168,10 @@ class Menu extends Public_Controller {
                 $m_menu = new \Model\Storage\Menu_model();
                 $now = $m_menu->getDate();
 
+                // $id = $m_menu->getNextIdentity();
                 $kode = $m_menu->getNextId();
 
+                // $m_menu->id = $id;
                 $m_menu->kode_menu = $kode;
                 $m_menu->nama = $params['nama'];
                 $m_menu->deskripsi = isset($params['deskripsi']) ? $params['deskripsi'] : null;
@@ -334,5 +336,140 @@ class Menu extends Public_Controller {
         }
 
         display_json( $this->result );
+    }
+
+    public function importForm()
+    {
+        $d_content['akses'] = $this->hakAkses;
+		$html = $this->load->view($this->pathView.'/importForm', $d_content, true);
+
+		echo $html;
+    }
+
+    public function import() {
+        $file = isset($_FILES['file']) ? $_FILES['file'] : null;
+
+        try {
+            if ( !empty($file) ) {
+                $upload_path = FCPATH . "//uploads/import_file/";
+                $moved = uploadFile($file, $upload_path);
+                if ( $moved ) {
+                    $path_name = $moved['path'];
+
+                    $data = $this->getDataExcelUsingSpreadSheet( $path_name );
+
+                    if ( !empty($data) && count($data) > 0 ) {
+                        foreach ($data as $key => $value) {
+                            $m_menu = new \Model\Storage\Menu_model();
+
+                            $m_menu->kode_menu = $value['kode_menu'];
+                            $m_menu->nama = $value['nama'];
+                            $m_menu->deskripsi = $value['deskripsi'];
+                            $m_menu->jenis_menu_id = $value['jenis_menu_id'];
+                            $m_menu->kategori_menu_id = $value['kategori_menu_id'];
+                            $m_menu->branch_kode = $value['branch_kode'];
+                            $m_menu->additional = $value['additional'];
+                            $m_menu->ppn = $value['ppn'];
+                            $m_menu->service_charge = $value['service_charge'];
+                            $m_menu->status = 1;
+                            $m_menu->save();
+
+                            $deskripsi_log = 'di-import oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                            Modules::run( 'base/event/save', $m_menu, $deskripsi_log );
+                        }
+
+                        $this->result['status'] = 1;
+                        $this->result['message'] = 'Data berhasil di import.';
+                    } else {
+                        $this->result['message'] = 'Data yang anda upload kosong.';
+                    }
+                } else {
+                    $this->result['message'] = 'File gagal terupload, segera hubungi tim IT.';
+                }
+            }
+        } catch (Exception $e) {
+            $this->result['message'] = 'GAGAL : '.$e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function downloadTemplate() {
+        $fileName = 'template_import_menu';
+        $arr_header = array('Kode', 'Nama', 'Deskripsi', 'Kode Branch', 'Kategori', 'Jenis', 'Additional (Ya=1/Tidak=0)', 'PB1 (Ya=1/Tidak=0)', 'Service Charge (Ya=1/Tidak=0)');
+        $arr_column[0] = array(
+            'Kode' => array('value' => 'MNU2501012', 'data_type' => 'string'),
+            'Nama' => array('value' => 'BIHUN HOT PLATE BEEF', 'data_type' => 'string'),
+            'Deskripsi' => array('value' => '', 'data_type' => 'string'),
+            'Kode Branch' => array('value' => 'GTR', 'data_type' => 'string'),
+            'Kategori' => array('value' => 'BAVERAGE', 'data_type' => 'string'),
+            'Jenis' => array('value' => 'ADDITIONAL BEVERAGE', 'data_type' => 'string'),
+            'Additional (Ya=1/Tidak=0)' => array('value' => '0', 'data_type' => 'string'),
+            'PB1 (Ya=1/Tidak=0)' => array('value' => '1', 'data_type' => 'string'),
+            'Service Charge (Ya=1/Tidak=0)' => array('value' => '1', 'data_type' => 'string'),
+        );
+
+        Modules::run( 'base/ExportExcel/exportExcelUsingSpreadSheet', $fileName, $arr_header, $arr_column );
+
+        $this->load->helper('download');
+        force_download('export_excel/'.$fileName.'.xlsx', NULL);
+    }
+
+    public function getDataExcelUsingSpreadSheet( $path_name ) {
+        $path = 'uploads/import_file/'.$path_name;
+
+        $data = null;
+
+        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+        $spreadsheet = $reader->load($path, \PhpOffice\PhpSpreadsheet\Reader\IReader::LOAD_WITH_CHARTS); // Load file yang tadi diupload ke folder tmp
+        // $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path, \PhpOffice\PhpSpreadsheet\Reader\IReader::LOAD_WITH_CHARTS);
+        $sheet = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+        $numrow = 1;
+        $key = null;
+
+        foreach($sheet as $row){
+            // Ambil data pada excel sesuai Kolom
+            $kode = $row['A'];
+            $nama = $row['B'];
+            $deskripsi = $row['C'];
+            $kode_branch = $row['D'];
+            $kategori = $row['E'];
+            $jenis = $row['F'];
+            $additional = $row['G'];
+            $pb1 = $row['H'];
+            $service_charge = $row['I'];
+            // Cek jika semua data tidak diisi
+            if($kode == "" && $nama == "" && $kode_branch == "" && $kategori == "" && $jenis == "" && $additional == "" && $pb1 == "" && $service_charge == "")
+            continue; // Lewat data pada baris ini (masuk ke looping selanjutnya / baris selanjutnya)
+            // Cek $numrow apakah lebih dari 1
+            // Artinya karena baris pertama adalah nama-nama kolom
+            // Jadi dilewat saja, tidak usah diimport
+            if($numrow > 1){
+                $key = trim($kode);
+
+                $m_km = new \Model\Storage\KategoriMenu_model();
+                $data_km = $m_km->getData(array($kategori));
+                $kategori_menu_id = $data_km[0]['id'];
+                
+                $m_jm = new \Model\Storage\JenisMenu_model();
+                $data_jm = $m_jm->getData(array($jenis));
+                $jenis_menu_id = $data_jm[0]['id'];
+
+                $data[ $key ] = array(
+                    'kode_menu' => $kode,
+                    'nama' => $nama,
+                    'deskripsi' => $deskripsi,
+                    'branch_kode' => $kode_branch,
+                    'kategori_menu_id' => $kategori_menu_id,
+                    'jenis_menu_id' => $jenis_menu_id,
+                    'additional' => $additional,
+                    'ppn' => $pb1,
+                    'service_charge' => $service_charge,
+                );
+            }
+            $numrow++; // Tambah 1 setiap kali looping
+        }
+
+        return $data;
     }
 }

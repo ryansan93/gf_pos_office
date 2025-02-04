@@ -303,7 +303,116 @@ var menu = {
 			_spanfile.html('');
 			bootbox.alert('Format file tidak sesuai. Mohon attach ulang.');
 		}
-	}
+	}, // end - showNameFile
+
+	setBindSHA1 : function(){
+        $('input:file').off('change.sha1');
+        $('input:file').on('change.sha1',function(){
+            var elm = $(this);
+            var file = elm.get(0).files[0];
+            elm.attr('data-sha1', '');
+            sha1_file(file).then(function (sha1) {
+                elm.attr('data-sha1', sha1);
+            });
+        });
+    }, // end - setBindSHA1
+
+    showNameFile : function(elm, isLable = 1) {
+        var _label = $(elm).closest('label');
+        var _a = _label.prev('a[name=dokumen]');
+        _a.removeClass('hide');
+        // var _allowtypes = $(elm).data('allowtypes').split('|');
+        var _dataName = $(elm).data('name');
+        var _allowtypes = ['xlsx'];
+        var _type = $(elm).get(0).files[0]['name'].split('.').pop();
+        var _namafile = $(elm).val();
+        var _temp_url = URL.createObjectURL($(elm).get(0).files[0]);
+        _namafile = _namafile.substring(_namafile.lastIndexOf("\\") + 1, _namafile.length);
+
+        if (in_array(_type, _allowtypes)) {
+            if (isLable == 1) {
+                if (_a.length) {
+                    _a.attr('title', _namafile);
+                    _a.attr('href', _temp_url);
+                    if ( _dataName == 'name' ) {
+                        $(_a).text( _namafile );  
+                    }
+                }
+            } else if (isLable == 0) {
+                $(elm).closest('label').attr('title', _namafile);
+            }
+            $(elm).attr('data-filename', _namafile);
+        } else {
+            $(elm).val('');
+            $(elm).closest('label').attr('title', '');
+            $(elm).attr('data-filename', '');
+            _a.addClass('hide');
+            bootbox.alert('Format file tidak sesuai. Mohon attach ulang.');
+        }
+    }, // end - showNameFile
+
+    importForm: function() {
+        $.get('parameter/Menu/importForm',{
+        },function(data){
+            var _options = {
+                className : 'veryWidth',
+                message : data,
+                size : 'large',
+            };
+            bootbox.dialog(_options).bind('shown.bs.modal', function(){
+                var modal_dialog = $(this).find('.modal-dialog');
+                var modal_body = $(this).find('.modal-body');
+
+                $(modal_dialog).css({'max-width' : '40%'});
+                $(modal_dialog).css({'width' : '40%'});
+
+                var modal_header = $(this).find('.modal-header');
+                $(modal_header).css({'padding-top' : '0px'});
+
+                menu.setBindSHA1();
+                
+                $('.modal').removeAttr('tabindex');
+            });
+        },'html');
+    }, // end - importForm
+
+    import: function() {
+		var file_tmp = $('.file_lampiran').get(0).files[0];
+
+		if ( !empty($('.file_lampiran').val()) ) {
+            $('.modal').modal('hide');
+            
+			var formData = new FormData();
+	        formData.append('file', file_tmp);
+            
+            showLoading('Proses import data menu . . .');
+			$.ajax({
+                url: 'parameter/Menu/import',
+				dataType: 'json',
+	            type: 'post',
+	            async:false,
+	            processData: false,
+	            contentType: false,
+	            data: formData,
+				beforeSend: function() {
+                    showLoading('Proses import data menu . . .');
+				},
+				success: function(data) {
+					hideLoading();
+					if ( data.status == 1 ) {
+						bootbox.alert(data.message, function() {
+							location.reload();
+                            // $('.modal').modal('hide');
+						});
+					} else {
+						bootbox.alert(data.message);
+					};
+				},
+		    });
+		} else {
+			bootbox.alert('Harap isi lampiran terlebih dahulu.');
+		}
+	}, // end - import
 };
 
 menu.start_up();
