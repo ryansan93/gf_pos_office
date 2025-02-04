@@ -222,7 +222,9 @@ class HargaMenu extends Public_Controller {
 
                     $data = $this->getDataExcelUsingSpreadSheet( $path_name );
 
-                    if ( !empty($data) && count($data) > 0 ) {                        
+                    if ( !empty($data) && count($data) > 0 ) {
+                        cetak_r( $data, 1 );
+                        
                         foreach ($data as $key => $value) {
                             if ( stristr($value['tanggal'], '/') !== false ) {
                                 $_tanggal = explode('/',trim(preg_replace('/\s/u', ' ', $value['tanggal'])));
