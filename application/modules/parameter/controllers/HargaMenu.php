@@ -223,7 +223,7 @@ class HargaMenu extends Public_Controller {
                     $data = $this->getDataExcelUsingSpreadSheet( $path_name );
 
                     if ( !empty($data) && count($data) > 0 ) {      
-                        $jp = $this->getJenisPesanan();                  
+                        $jp = $this->getJenisPesanan();
                         foreach ($data as $key => $value) {
                             if ( stristr($value['tanggal'], '/') !== false ) {
                                 $_tanggal = explode('/',trim(preg_replace('/\s/u', ' ', $value['tanggal'])));
@@ -262,11 +262,14 @@ class HargaMenu extends Public_Controller {
                                 Modules::run( 'base/event/save', $m_hm, $deskripsi_log );
                             } else {
                                 foreach ($jp as $k_jp => $v_jp) {
+                                    // cetak_r( $v_jp['kode'] );
+                                    // cetak_r( $value );
+                                    // cetak_r( $tanggal, 1 );
                                     if ( stristr( $v_jp['nama'], 'dine in' ) !== false || stristr( $v_jp['nama'], 'take away' ) !== false ) {
                                         $m_hm = new \Model\Storage\HargaMenu_model();
                                         $m_hm->jenis_pesanan_kode = $v_jp['kode'];
                                         $m_hm->menu_kode = $value['menu_kode'];
-                                        $m_hm->harga = $value['harga'];
+                                        $m_hm->harga = (int) $value['harga'];
                                         $m_hm->tgl_mulai = $tanggal;
                                         $m_hm->save();
                                         
