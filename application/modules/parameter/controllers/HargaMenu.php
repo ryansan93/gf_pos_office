@@ -345,7 +345,7 @@ class HargaMenu extends Public_Controller {
                 $data[ $key ] = array(
                     'jenis_pesanan_kode' => $jenis_pesanan_kode,
                     'menu_kode' => $kode_menu,
-                    'harga' => $harga,
+                    'harga' => !empty($harga) ? $harga : 0,
                     'tanggal' => $tgl_berlaku,
                 );
             }
