@@ -1,7 +1,0 @@
-{
-  "extra": {
-    "update-helper": [
-      "Foo\\Bar",
-    ]
-  }
-}
