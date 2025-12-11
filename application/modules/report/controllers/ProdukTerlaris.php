@@ -181,7 +181,7 @@ class ProdukTerlaris extends Public_Controller {
             $sql = "
                 select 
                     data.*,
-                    count(jl.kode_faktur) as jml_transaksi
+                    jl.jumlah as jml_transaksi
                 from
                 (
                     select
@@ -228,10 +228,6 @@ class ProdukTerlaris extends Public_Controller {
                                         j.tgl_trans
                                     from jual_gabungan jg
                                     right join
-                                        jual j1
-                                        on
-                                            j1.kode_faktur = jg.faktur_kode_gabungan
-                                    right join
                                         (
                                             select 
                                                 j.kode_faktur as kode_faktur,
@@ -247,6 +243,10 @@ class ProdukTerlaris extends Public_Controller {
                                         ) j
                                         on
                                             j.kode_faktur = jg.faktur_kode
+                                    left join
+                                        jual j1
+                                        on
+                                            j1.kode_faktur = jg.faktur_kode_gabungan
                                     group by
                                         jg.faktur_kode_gabungan,
                                         jg.faktur_kode,
@@ -289,7 +289,9 @@ class ProdukTerlaris extends Public_Controller {
                 left join
                 (
                     select 
-                        j.* 
+                        j.kode_member,
+                        j.member,
+                        count(j.kode_faktur) as jumlah
                     from jual j
                     right join
                     (
@@ -319,10 +321,6 @@ class ProdukTerlaris extends Public_Controller {
                                 j.tgl_trans
                             from jual_gabungan jg
                             right join
-                                jual j1
-                                on
-                                    j1.kode_faktur = jg.faktur_kode_gabungan
-                            right join
                                 (
                                     select 
                                         j.kode_faktur as kode_faktur,
@@ -338,6 +336,10 @@ class ProdukTerlaris extends Public_Controller {
                                 ) j
                                 on
                                     j.kode_faktur = jg.faktur_kode
+                            left join
+                                jual j1
+                                on
+                                    j1.kode_faktur = jg.faktur_kode_gabungan
                             group by
                                 jg.faktur_kode_gabungan,
                                 jg.faktur_kode,
@@ -351,6 +353,9 @@ class ProdukTerlaris extends Public_Controller {
                         jl.kode_faktur_utama = j.kode_faktur
                     where
                         j.mstatus = 1
+                    group by
+                        j.kode_member,
+                        j.member
                 ) jl
                 on
                     rtrim(ltrim(REPLACE(REPLACE(jl.member, CHAR(13), ''), CHAR(10), ''))) = rtrim(ltrim(REPLACE(REPLACE(data.member, CHAR(13), ''), CHAR(10), ''))) and
@@ -365,9 +370,10 @@ class ProdukTerlaris extends Public_Controller {
                     data.kategori,
                     data.jenis,
                     data.qty,
-                    data.total
+                    data.total,
+                    jl.jumlah
                 order by
-                    count(jl.kode_faktur) desc,
+                    jl.jumlah desc,
                     data.member asc,
                     data.qty desc
             ";
