@@ -1,6 +1,6 @@
 var home = {
 	startUp: function () {
-		// home.getDataPenjualan();
+		home.getDataPenjualan();
 	},  // end - startUp
 
 	getDataPenjualan: function () {
