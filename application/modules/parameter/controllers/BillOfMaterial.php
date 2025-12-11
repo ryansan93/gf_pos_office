@@ -1663,14 +1663,26 @@ class BillOfMaterial extends Public_Controller {
                     $bom_id = $d_bom->id;
                 }
     
-                $m_bd = new \Model\Storage\BomDet_model();
-                $m_bd->id_header = $bom_id;
-                $m_bd->item_kode = $value[4];
-                $m_bd->satuan = $value[5];
-                $m_bd->pengali = $value[7];
-                $m_bd->jumlah = $value[6];
-                $m_bd->jenis = $value[8];
-                $m_bd->save();
+                $m_bomd = new \Model\Storage\BomDet_model();
+                $d_bomd = $m_bomd->where('id_header', $bom_id)->where('item_kode', $value[4])->first();
+
+                if ( !$d_bomd ) {
+                    $m_bd = new \Model\Storage\BomDet_model();
+                    $m_bd->id_header = $bom_id;
+                    $m_bd->item_kode = $value[4];
+                    $m_bd->satuan = $value[5];
+                    $m_bd->pengali = $value[7];
+                    $m_bd->jumlah = $value[6];
+                    $m_bd->jenis = $value[8];
+                    $m_bd->save();
+                } else {
+                    $m_bd = new \Model\Storage\BomDet_model();
+                    $m_bd->where('id', $d_bomd->id)->update(
+                        array(
+                            'jumlah' => ($d_bomd->jumlah + $value[6])
+                        )
+                    );
+                }
             }
         }
     }
@@ -3776,14 +3788,26 @@ class BillOfMaterial extends Public_Controller {
                     $bom_id = $d_bom->id;
                 }
     
-                $m_bd = new \Model\Storage\BomDet_model();
-                $m_bd->id_header = $bom_id;
-                $m_bd->item_kode = $value[4];
-                $m_bd->satuan = $value[5];
-                $m_bd->pengali = $value[7];
-                $m_bd->jumlah = $value[6];
-                $m_bd->jenis = $value[8];
-                $m_bd->save();
+                $m_bomd = new \Model\Storage\BomDet_model();
+                $d_bomd = $m_bomd->where('id_header', $bom_id)->where('item_kode', $value[4])->first();
+
+                if ( !$d_bomd ) {
+                    $m_bd = new \Model\Storage\BomDet_model();
+                    $m_bd->id_header = $bom_id;
+                    $m_bd->item_kode = $value[4];
+                    $m_bd->satuan = $value[5];
+                    $m_bd->pengali = $value[7];
+                    $m_bd->jumlah = $value[6];
+                    $m_bd->jenis = $value[8];
+                    $m_bd->save();
+                } else {
+                    $m_bd = new \Model\Storage\BomDet_model();
+                    $m_bd->where('id', $d_bomd->id)->update(
+                        array(
+                            'jumlah' => ($d_bomd->jumlah + $value[6])
+                        )
+                    );
+                }
             }
         }
     }
