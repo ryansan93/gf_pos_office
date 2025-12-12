@@ -156,7 +156,7 @@
 			<table class="col-xs-12">
 				<tbody>
 					<tr>
-						<td class="col-xs-8" style="font-size: 18px; padding-bottom: 10px;"><b><?php echo $data['bagian']; ?></b></td>
+						<td class="col-xs-8" style="font-size: 18px; padding-bottom: 10px;"><b><?php echo strtoupper($data['bagian']); ?></b></td>
 						<td class="col-xs-1" style="font-size: 18px;">&nbsp;</td>
 						<td class="col-xs-3" style="font-size: 18px; padding-bottom: 10px; text-decoration: underline"><b>PURCHACE ORDER</b></td>
 					</tr>
