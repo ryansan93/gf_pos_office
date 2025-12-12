@@ -25,7 +25,9 @@ class ComposerStaticInit0957f0560d3fd2ce2e02c64e17611548
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Contracts\\Translation\\' => 30,
             'Symfony\\Component\\Translation\\' => 30,
+            'Svg\\' => 4,
             'Stringy\\' => 8,
+            'Sabberworm\\CSS\\' => 15,
         ),
         'P' => 
         array (
@@ -39,6 +41,7 @@ class ComposerStaticInit0957f0560d3fd2ce2e02c64e17611548
             'MyCLabs\\Enum\\' => 13,
             'Model\\Storage\\' => 14,
             'Matrix\\' => 7,
+            'Masterminds\\' => 12,
         ),
         'I' => 
         array (
@@ -48,8 +51,13 @@ class ComposerStaticInit0957f0560d3fd2ce2e02c64e17611548
             'Illuminate\\Contracts\\' => 21,
             'Illuminate\\Container\\' => 21,
         ),
+        'F' => 
+        array (
+            'FontLib\\' => 8,
+        ),
         'D' => 
         array (
+            'Dompdf\\' => 7,
             'Doctrine\\Inflector\\' => 19,
             'Doctrine\\Common\\Inflector\\' => 26,
         ),
@@ -80,9 +88,17 @@ class ComposerStaticInit0957f0560d3fd2ce2e02c64e17611548
         array (
             0 => __DIR__ . '/..' . '/symfony/translation',
         ),
+        'Svg\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/dompdf/php-svg-lib/src/Svg',
+        ),
         'Stringy\\' => 
         array (
             0 => __DIR__ . '/..' . '/danielstjules/stringy/src',
+        ),
+        'Sabberworm\\CSS\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sabberworm/php-css-parser/src',
         ),
         'Psr\\SimpleCache\\' => 
         array (
@@ -90,8 +106,8 @@ class ComposerStaticInit0957f0560d3fd2ce2e02c64e17611548
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -113,6 +129,10 @@ class ComposerStaticInit0957f0560d3fd2ce2e02c64e17611548
         array (
             0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
         ),
+        'Masterminds\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/masterminds/html5/src',
+        ),
         'Illuminate\\Support\\' => 
         array (
             0 => __DIR__ . '/..' . '/illuminate/support',
@@ -132,6 +152,14 @@ class ComposerStaticInit0957f0560d3fd2ce2e02c64e17611548
         'Illuminate\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/illuminate/container',
+        ),
+        'FontLib\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/dompdf/php-font-lib/src/FontLib',
+        ),
+        'Dompdf\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/dompdf/dompdf/src',
         ),
         'Doctrine\\Inflector\\' => 
         array (
@@ -178,6 +206,7 @@ class ComposerStaticInit0957f0560d3fd2ce2e02c64e17611548
     public static $classMap = array (
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'Dompdf\\Cpdf' => __DIR__ . '/..' . '/dompdf/dompdf/lib/Cpdf.php',
         'PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
         'Stringable' => __DIR__ . '/..' . '/myclabs/php-enum/stubs/Stringable.php',
         'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',

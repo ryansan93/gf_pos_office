@@ -1,17 +1,23 @@
 <?php
 
+use Dompdf\Dompdf as Dompdf;
 class PDFGenerator
 {
     public function generate($html,$filename, $kertas = 'a4', $type = 'portrait')
     {
-        // include autoloader
-        define('DOMPDF_ENABLE_AUTOLOAD', true);
-        require_once("./vendor/dompdf/dompdf_config.inc.php");
+        // // include autoloader
+        // define('DOMPDF_ENABLE_AUTOLOAD', true);
+        // require_once("./vendor/dompdf/dompdf_config.inc.php");
 
-        $dompdf = new DOMPDF();
+        // $dompdf = new DOMPDF();
 
-        $dompdf->load_html($html);
-        $dompdf->set_paper($kertas, $type);
+        // $dompdf->load_html($html);
+        // $dompdf->set_paper($kertas, $type);
+
+        $dompdf = new Dompdf();
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper($kertas, $type);
         $dompdf->render();
 
         ob_end_clean();
@@ -31,14 +37,20 @@ class PDFGenerator
             $path = $location.$filename.".pdf";
         }
 
-        // include autoloader
-        if (!defined('DOMPDF_ENABLE_AUTOLOAD')) define('DOMPDF_ENABLE_AUTOLOAD', true);
-        require_once("./vendor/dompdf/dompdf_config.inc.php");
+        // // include autoloader
+        // if (!defined('DOMPDF_ENABLE_AUTOLOAD')) define('DOMPDF_ENABLE_AUTOLOAD', true);
+        // require_once("./vendor/dompdf/dompdf_config.inc.php");
 
-        $dompdf = new DOMPDF();
+        // $dompdf = new DOMPDF();
 
-        $dompdf->load_html($html, 'UTF-8');
-        $dompdf->set_paper($kertas, $type);
+        // $dompdf->load_html($html);
+        // $dompdf->set_paper($kertas, $type);
+
+        $dompdf = new Dompdf();
+
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper($kertas, $type);
+
         $dompdf->render();
 
         $output = $dompdf->output();

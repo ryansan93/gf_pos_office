@@ -151,31 +151,42 @@
 			$cls_page_break = "page-break-avoid";
 		}
 	?>
-	<div class="contain <?php echo $cls_page_break; ?>" style="width: 100%; padding-top: 1em;">
+	<div class="contain <?php echo $cls_page_break; ?>" style="width: 99%; padding-top: 1em;">
 		<div style="display: inline; margin: 0px; padding: 0px;">
-			<div style="display: inline-block; text-align: left; width: 65.5%;">
-				<label class="col-xs-12" style="font-size: 18px; display: inline-block; margin-bottom: 10px;"><b><?php echo $data['bagian']; ?></b></label>
-				<br>
-				<label class="col-xs-12" style="display: inline-block; border: 1px solid black; padding: 5px; height: 30px;"><?php echo strtoupper($data['supplier']); ?></label>
-			</div>
-			<div class="col-xs-1" style="display: inline-block; text-align: left; margin: 0px; padding: 0px;">&nbsp;</div>
-			<div class="col-xs-3" style="display: inline-block; text-align: left;">
-				<label class="col-xs-12" style="font-size: 18px; display: inline-block; margin-bottom: 10px; text-decoration: underline"><b>PURCHACE ORDER</b></label>
-				<br>
-				<label class="col-xs-12" style="display: inline;">
-					<label class="col-xs-3" style="display: inline-block;">NO. PO</label>
-					<label class="col-xs-9" style="display: inline-block;"><?php echo ' : '.strtoupper($data['no_po']); ?></label>
-					<?php
-						$tanggal = substr($data['tgl_po'], 8, 2);
-						$bulan = substr($data['tgl_po'], 5, 2);
-						$tahun = substr($data['tgl_po'], 0, 4);
+			<table class="col-xs-12">
+				<tbody>
+					<tr>
+						<td class="col-xs-8" style="font-size: 18px; padding-bottom: 10px;"><b><?php echo $data['bagian']; ?></b></td>
+						<td class="col-xs-1" style="font-size: 18px;">&nbsp;</td>
+						<td class="col-xs-3" style="font-size: 18px; padding-bottom: 10px; text-decoration: underline"><b>PURCHACE ORDER</b></td>
+					</tr>
+					<tr>
+						<td class="col-xs-8" style="border: 1px solid black; height: 30px; vertical-align: top; padding: 0px 5px 10px 5px;"><?php echo strtoupper($data['supplier']); ?></td>
+						<td class="col-xs-1" style="font-size: 18px;">&nbsp;</td>
+						<td class="col-xs-3" style="vertical-align: top;">
+							<table class="col-xs-12">
+								<tbody>
+									<tr>
+										<td class="col-xs-4">NO. PO</td>
+										<td class="col-xs-8"><?php echo ' : '.strtoupper($data['no_po']); ?></td>
+									</tr>
+									<tr>
+										<td class="col-xs-4">DATE</td>
+										<?php
+											$tanggal = substr($data['tgl_po'], 8, 2);
+											$bulan = substr($data['tgl_po'], 5, 2);
+											$tahun = substr($data['tgl_po'], 0, 4);
 
-						$tgl_po = $tanggal.'-'.$bulan.'-'.$tahun;
-					?>
-					<label class="col-xs-3" style="display: inline-block;">DATE</label>
-					<label class="col-xs-9" style="display: inline-block;"><?php echo ' : '.strtoupper($tgl_po); ?></label>
-				</label>
-			</div>
+											$tgl_po = $tanggal.'-'.$bulan.'-'.$tahun;
+										?>
+										<td class="col-xs-8"><?php echo ' : '.strtoupper($tgl_po); ?></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+				</tbody>
+			</table>
 			<div class="col-xs-12" style="display: inline-block; text-align: left;">&nbsp;</div>
 			<br>
 			<div class="col-xs-12" style="display: inline-block; text-align: left;">
@@ -255,35 +266,38 @@
 				</table>
 			</div>
 			<br>
-			<div style="display: inline-block; text-align: left; margin-top: 5px;">
-				<label style="display: inline-block; font-size: 8px; width: 50%;">
-					<label class="col-xs-12" style="display: inline-block;"><b>Important Instruction :</b></label><br>
-					<label class="col-xs-12" style="display: inline-block;">
-						<ol style="padding-left: 0px;">
-							<li><label style="display: inline-block; width: 97%;">Goods should be delivered to the above mentioned address between 8.30 a.m and 3.30 p.m<br>along with 2 (two) copies of invoice and 2 (two) copies of delivery note.</label></li>
-							<li><label style="display: inline-block; width: 97%;">The red copy of this order must be returned to us with your signature for order acceptance.</label></li>
-							<li><label style="display: inline-block; width: 97%;">Please show the purchase order number on all packages, invoice and delivery notes referring<br>to this order.</label></li>
-						</ol>
-					</label>
-				</label>
-				<label style="display: inline-block; width: 49%;">
-					<label style="display: inline-block; width: 40%; text-align: center;">
-						<label class="col-xs-12" style="display: inline-block;">&nbsp;</label>
-						<br>
-						<br>
-						<br>
-						<br>
-						<label class="col-xs-12" style="display: inline-block;">PURCHASING DEPT.</label>
-					</label>
-					<label style="display: inline-block; width: 60%; text-align: center;">
-						<label class="col-xs-12" style="display: inline-block;"><?php echo $data['gudang']['branch']['nama']; ?></label>
-						<br>
-						<br>
-						<br>
-						<br>
-						<label class="col-xs-12" style="display: inline-block;">GENERAL MANAGER</label>
-					</label>
-				</label>
+			<br>
+			<div class="col-xs-12" style="display: inline-block; text-align: left; margin-top: 5px;">
+				<table class="col-xs-12">
+					<tbody>
+						<tr>
+							<td style="font-size: 8px; width: 50%; vertical-align: top;">
+								<b>Important Instruction :</b><br>
+								<ol style="padding-left: 0px;">
+									<li><label style="display: inline-block; vertical-align: top;">Goods should be delivered to the above mentioned address between 8.30 a.m and 3.30 p.m<br>along with 2 (two) copies of invoice and 2 (two) copies of delivery note.</label></li>
+									<li><label style="display: inline-block; vertical-align: top;">The red copy of this order must be returned to us with your signature for order acceptance.</label></li>
+									<li><label style="display: inline-block; vertical-align: top;">Please show the purchase order number on all packages, invoice and delivery notes referring<br>to this order.</label></li>
+								</ol>
+							</td>
+							<td style="text-align: center; width: 25%;">
+								&nbsp;
+								<br>
+								<br>
+								<br>
+								<br>
+								PURCHASING DEPT.
+							</td>
+							<td style="text-align: center; width: 25%;">
+								<?php echo $data['gudang']['branch']['nama']; ?>
+								<br>
+								<br>
+								<br>
+								<br>
+								GENERAL MANAGER
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 	</div>
