@@ -977,47 +977,48 @@ class StokOpname extends Public_Controller {
         $err = 0;
         $ket = null;
         foreach ($arr as $key => $value) {
-            $m_conf = new \Model\Storage\Conf();
-            $sql = "
-                select i.* from item i
-                where
-                    i.kode = '".$value['2']."'
-            ";
-            $d_brg = $m_conf->hydrateRaw( $sql );
+            cetak_r( $value );
+        //     $m_conf = new \Model\Storage\Conf();
+        //     $sql = "
+        //         select i.* from item i
+        //         where
+        //             i.kode = '".$value['2']."'
+        //     ";
+        //     $d_brg = $m_conf->hydrateRaw( $sql );
 
-            if ( $d_brg->count() > 0 ) {
-                $m_conf = new \Model\Storage\Conf();
-                $sql = "
-                    select is.* from item_satuan is
-                    where
-                        is.item_kode = '".$value['2']."' and
-                        is.satuan like '".$value['3']."'
-                ";
-                $d_is = $m_conf->hydrateRaw( $sql );
+        //     if ( $d_brg->count() > 0 ) {
+        //         $m_conf = new \Model\Storage\Conf();
+        //         $sql = "
+        //             select is.* from item_satuan is
+        //             where
+        //                 is.item_kode = '".$value['2']."' and
+        //                 is.satuan like '".$value['3']."'
+        //         ";
+        //         $d_is = $m_conf->hydrateRaw( $sql );
 
-                if ( $d_brg->count() > 0 ) {
-                } else {
-                    $err = 1;
-                    if ( empty($ket) ) {
-                        $ket = 'SATUAN '.$value['3'].' PADA KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
-                    } else {
-                        $ket .= 'SATUAN '.$value['3'].' PADA KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
-                    }
-                }
-            } else {
-                $err = 1;
-                if ( empty($ket) ) {
-                    $ket = 'KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
-                } else {
-                    $ket .= 'KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
-                }
-            }
-        }
+        //         if ( $d_brg->count() > 0 ) {
+        //         } else {
+        //             $err = 1;
+        //             if ( empty($ket) ) {
+        //                 $ket = 'SATUAN '.$value['3'].' PADA KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
+        //             } else {
+        //                 $ket .= 'SATUAN '.$value['3'].' PADA KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
+        //             }
+        //         }
+        //     } else {
+        //         $err = 1;
+        //         if ( empty($ket) ) {
+        //             $ket = 'KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
+        //         } else {
+        //             $ket .= 'KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
+        //         }
+        //     }
+        // }
 
-        if ( $err == 1 ) {
-            cetak_r( $ket );
-        } else {
-            cetak_r( 'DATA LENGKAP' );
-        }
+        // if ( $err == 1 ) {
+        //     cetak_r( $ket );
+        // } else {
+        //     cetak_r( 'DATA LENGKAP' );
+        // }
     }
 }
