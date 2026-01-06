@@ -76,6 +76,7 @@ class HitungStok extends Public_Controller {
         try {
             $m_conf = new \Model\Storage\Conf();
             $sql = "EXEC sp_hitung_stok_by_barang @barang = '".$params['item']."', @tgl_transaksi = '".$params['tanggal']."', @gudang = '".$params['gudang']."'";
+            cetak_r( $sql, 1 );
 
             $d_conf = $m_conf->hydrateRaw($sql);
 
