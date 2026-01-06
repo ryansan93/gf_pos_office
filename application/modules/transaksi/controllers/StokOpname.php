@@ -971,54 +971,54 @@ class StokOpname extends Public_Controller {
             array('2026-01-01', 'GDG.GTR', 'BRG2309001', 'PCS', 313, 285),
             array('2026-01-01', 'GDG.GTR', 'BRG2302570', 'BTL', 2.5, 182340),
             array('2026-01-01', 'GDG.GTR', 'BRG2302352', 'PCS', 0, 6500),
-            array('2026-01-01', 'GDG.GTR', 'BRG2402001', 'BARREL', 2, 1733000),
+            array('2026-01-01', 'GDG.GTR', 'BRG2402001', 'BARREL', 2, 1733000)
         );
 
         $err = 0;
         $ket = null;
         foreach ($arr as $key => $value) {
-            cetak_r( $value );
-        //     $m_conf = new \Model\Storage\Conf();
-        //     $sql = "
-        //         select i.* from item i
-        //         where
-        //             i.kode = '".$value['2']."'
-        //     ";
-        //     $d_brg = $m_conf->hydrateRaw( $sql );
+            // cetak_r( $value );
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select i.* from item i
+                where
+                    i.kode = '".$value['2']."'
+            ";
+            $d_brg = $m_conf->hydrateRaw( $sql );
 
-        //     if ( $d_brg->count() > 0 ) {
-        //         $m_conf = new \Model\Storage\Conf();
-        //         $sql = "
-        //             select is.* from item_satuan is
-        //             where
-        //                 is.item_kode = '".$value['2']."' and
-        //                 is.satuan like '".$value['3']."'
-        //         ";
-        //         $d_is = $m_conf->hydrateRaw( $sql );
+            if ( $d_brg->count() > 0 ) {
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select _is.* from item_satuan _is
+                    where
+                        _is.item_kode = '".$value['2']."' and
+                        _is.satuan like '".$value['3']."'
+                ";
+                $d_is = $m_conf->hydrateRaw( $sql );
 
-        //         if ( $d_brg->count() > 0 ) {
-        //         } else {
-        //             $err = 1;
-        //             if ( empty($ket) ) {
-        //                 $ket = 'SATUAN '.$value['3'].' PADA KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
-        //             } else {
-        //                 $ket .= 'SATUAN '.$value['3'].' PADA KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
-        //             }
-        //         }
-        //     } else {
-        //         $err = 1;
-        //         if ( empty($ket) ) {
-        //             $ket = 'KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
-        //         } else {
-        //             $ket .= 'KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
-        //         }
-        //     }
-        // }
+                if ( $d_is->count() > 0 ) {
+                } else {
+                    $err = 1;
+                    if ( empty($ket) ) {
+                        $ket = 'SATUAN '.$value['3'].' PADA KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
+                    } else {
+                        $ket .= '<br>SATUAN '.$value['3'].' PADA KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
+                    }
+                }
+            } else {
+                $err = 1;
+                if ( empty($ket) ) {
+                    $ket = 'KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
+                } else {
+                    $ket .= '<br>KODE BRG '.$value['2'].' TIDAK DITEMUKAN';
+                }
+            }
+        }
 
-        // if ( $err == 1 ) {
-        //     cetak_r( $ket );
-        // } else {
-        //     cetak_r( 'DATA LENGKAP' );
-        // }
+        if ( $err == 1 ) {
+            cetak_r( $ket );
+        } else {
+            cetak_r( 'DATA LENGKAP' );
+        }
     }
 }
