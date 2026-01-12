@@ -104,15 +104,19 @@ class PosisiStok extends Public_Controller {
             $item = $params['item'];
             $group_item = $params['group_item'];
 
-            $m_stokt = new \Model\Storage\StokTanggal_model();
-            $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
+            // $m_stokt = new \Model\Storage\StokTanggal_model();
+            // $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
 
-            $data = null;
-            if ( $d_stokt->count() > 0 ) {
-                $data = $d_stokt->toArray();
-            }
+            // $data = null;
+            // if ( $d_stokt->count() > 0 ) {
+            //     $data = $d_stokt->toArray();
+            // }
 
-            $mappingDataReport = $this->mappingDataReport( $data, $item, $gudang, $group_item );
+            // $mappingDataReport = $this->mappingDataReport( $data, $item, $gudang, $group_item );
+
+            $mappingDataReport = $this->mappingDataReportNew($start_date, $end_date, $gudang, $item, $group_item);
+            
+            cetak_r( $mappingDataReport, 1 );
 
             $content_report['data'] = $mappingDataReport;
             $html_report = $this->load->view($this->pathView . 'list', $content_report, TRUE);
@@ -128,6 +132,138 @@ class PosisiStok extends Public_Controller {
         }
 
         display_json( $this->result );
+    }
+
+    public function mappingDataReportNew($start_date, $end_date, $gudang, $item, $group_item) {
+        $sql_item = null;
+        if ( !in_array('all', $item) ) {
+            if ( empty($sql_item) ) {
+                $sql_item = "where i.item_kode in ('".implode("', '", $item)."')";
+            } else {
+                $sql_item .= "and i.item_kode in ('".implode("', '", $item)."')";
+            }
+        }
+
+        if ( !in_array('all', $group_item) ) {
+            if ( empty($sql_item) ) {
+                $sql_item = "where gi.kode in ('".implode("', '", $group_item)."')";
+            } else {
+                $sql_item .= "and gi.kode in ('".implode("', '", $group_item)."')";
+            }
+        }
+
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select 
+                s.tgl_stok as tanggal,
+                i.kode as item_kode,
+                i.nama,
+                i.group_kode,
+                i.nama_group,
+                i.satuan,
+                sum(s.sisa_stok) as sisa_stok
+            from
+            (
+                select 
+                    i.kode,
+                    i.nama,
+                    i.group_kode,
+                    gi.nama as nama_group,
+                    isatuan.satuan
+                from item i
+                left join
+                    group_item gi
+                    on
+                        i.group_kode = gi.kode
+                left join
+                    (
+                        select is1.* from item_satuan is1
+                        right join
+                            (
+                                select max(id) as id, item_kode from item_satuan where pengali = 1 group by item_kode
+                            ) is2
+                            on
+                                is1.id = is2.id
+
+                    ) isatuan
+                    on
+                        i.kode = isatuan.item_kode
+                ".$sql_item."
+            ) i
+            left join
+                (
+                    select s.*, st.tanggal as tgl_stok from stok s
+                    left join
+                        stok_tanggal st
+                        on
+                            s.id_header = st.id
+                    where
+                        st.tanggal between '".$start_date."' and '".$end_date."' and
+                        st.gudang_kode = '".$gudang."'
+                ) s
+                on
+                    i.kode = s.item_kode
+            order by
+                st.tgl_stok asc,
+                i.nama asc
+        ";
+        $d_conf = $m_conf->hydrateRaw( $sql );
+
+        $data = null;
+        if ( $d_conf->count() ) {
+            foreach ($d_conf as $key => $v_data) {
+                $harga_beli = 0;
+
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select sh.* from stok_harga sh
+                    left join
+                        stok_tanggal st
+                        on
+                            sh.id_header = st.id
+                    where
+                        st.tanggal <= '".$v_data['tgl_stok']."' and
+                        sh.harga > 0 and
+                        st.gudang_kode = '".$v_data['gudang_kode']."' and
+                        sh.item_kode = '".$v_data['item_kode']."' and
+                    order by
+                        st.tanggal desc
+                ";
+                $d_hrg = $m_conf->hydrateRaw( $sql );
+
+                if ( $d_hrg->count() > 0 ) {
+                    $harga_beli = $d_hrg->toArray()[0]['harga'];
+                }
+
+                if ( !isset($data[ $v_data['gudang_kode'] ]) ) {
+                    $data[ $v_data['gudang_kode'] ]['kode'] = $v_data['gudang_kode'];
+                    $data[ $v_data['gudang_kode'] ]['nama'] = $v_data['gudang']['nama'];
+                }
+
+                if ( !isset($data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]) ) {
+                    $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['kode'] = $v_data['group_kode'];
+                    $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['nama'] = $v_data['nama_group'];
+                }
+
+                $key_item = $v_data['nama'].' | '.$v_data['item_kode'];
+                if ( !isset($data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]) ) {
+                    $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['kode'] = $v_data['item_kode'];
+                    $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['nama'] = $v_data['nama'];
+                    $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['satuan'] = $v_data['satuan'];
+                }
+
+                $key_tanggal = str_replace('-', '', substr($v_data['tanggal'], 0, 10));
+                if ( !isset($data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]) ) {
+                    $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['tanggal'] = $v_data['tanggal'];
+                    $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['jumlah'] = $v_data['sisa_stok'];
+                    $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['harga'] = $harga_beli;
+                    $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['nilai_stok'] = $v_data['sisa_stok'] * $harga_beli;
+                }
+
+            }
+        }
+
+        return $data;
     }
 
     public function mappingDataReport($_data, $_item, $_gudang, $_group_item)
