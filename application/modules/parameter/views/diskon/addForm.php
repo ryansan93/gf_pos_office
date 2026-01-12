@@ -216,6 +216,12 @@
 										<input type="text" class="col-xs-12 form-control text-right jml_min" placeholder="Jumlah Min" maxlength="3" data-tipe="integer">
 									</div>
 								</div>
+								<div class="col-xs-12 no-padding" style="padding-bottom: 10px;">
+									<div class="col-xs-12"><label class="control-label">Min Beli</label></div>
+									<div class="col-xs-12">
+										<input type="text" class="col-xs-12 form-control text-right min_beli" placeholder="Min Beli" maxlength="10" data-tipe="integer">
+									</div>
+								</div>
 								<div class="col-xs-10 no-padding" style="padding-bottom: 10px;">
 									<div class="col-xs-12"><label class="control-label">Diskon</label></div>
 									<div class="col-xs-12">
@@ -243,9 +249,10 @@
 											<table class="table table-bordered" style="margin-bottom: 0px;">
 												<thead>
 													<tr>
-														<th class="col-xs-3" style="padding: 3px;">Jenis</th>
-														<th class="col-xs-4" style="padding: 3px;">Produk</th>
+														<th class="col-xs-2" style="padding: 3px;">Jenis</th>
+														<th class="col-xs-3" style="padding: 3px;">Produk</th>
 														<th class="col-xs-2" style="padding: 3px;">Jml Min</th>
+														<th class="col-xs-2" style="padding: 3px;">Min Beli</th>
 														<th class="col-xs-2" style="padding: 3px;">Diskon</th>
 														<th class="col-xs-1" style="padding: 3px;"></th>
 													</tr>

@@ -391,6 +391,7 @@ class Diskon extends Public_Controller {
                             $m_dm->jenis_menu_id = $v_dm['jenis_menu_id'];
                             $m_dm->menu_kode = $v_dm['menu_kode'];
                             $m_dm->jml_min = $v_dm['jml_min'];
+                            $m_dm->min_beli = $v_dm['min_beli'];
                             $m_dm->diskon = $v_dm['diskon'];
                             $m_dm->diskon_jenis = $v_dm['diskon_jenis'];
                             $m_dm->save();

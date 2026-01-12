@@ -50,6 +50,7 @@ var diskon = {
 		var kode_branch = $(div).find('select.menu option:selected').attr('data-branch');
 		var text_menu = $(div).find('select.menu option:selected').text();
 		var jml_min = numeral.unformat($(div).find('input.jml_min').val());
+		var min_beli = numeral.unformat($(div).find('input.min_beli').val());
 		var diskon = numeral.unformat($(div).find('input.diskon').val());
 		var diskon_jenis = $(div).find('select.diskon_jenis').val();
 		var text_diskon_jenis = $(div).find('select.diskon_jenis option:selected').text();
@@ -59,7 +60,8 @@ var diskon = {
 		var tr = '<tr class="data">'
 			tr += '<td class="jenis_menu" data-val="'+jenis_menu+'" style="padding: 3px;">'+text_jenis_menu+'</td>';
 			tr += '<td class="menu" data-val="'+menu+'" data-branch="'+kode_branch+'" style="padding: 3px;">'+text_menu+'</td>';
-			tr += '<td class="jml_min text-right" data-val="'+jml_min+'" data-branch="'+kode_branch+'" style="padding: 3px;">'+jml_min+'</td>';
+			tr += '<td class="jml_min text-right" data-val="'+jml_min+'" data-branch="'+kode_branch+'" style="padding: 3px;">'+numeral.formatInt(jml_min)+'</td>';
+			tr += '<td class="min_beli text-right" data-val="'+min_beli+'" data-branch="'+kode_branch+'" style="padding: 3px;">'+numeral.formatInt(min_beli)+'</td>';
 			tr += '<td class="diskon text-right" data-val="'+diskon+'" data-jenis="'+diskon_jenis+'" style="padding: 3px;">'+text_diskon+'</td>';
 			tr += '<td style="padding: 3px;"><button type="button" class="col-xs-12 btn btn-default" onclick="diskon.removeRowTable(this)"><i class="fa fa-trash"></i></button></td>';
 		tr += '</tr>'
@@ -457,7 +459,8 @@ var diskon = {
 						'menu_kode': $(tr).find('td.menu').attr('data-val'),
 						'diskon': $(tr).find('td.diskon').attr('data-val'),
 						'diskon_jenis': $(tr).find('td.diskon').attr('data-jenis'),
-						'jml_min': $(tr).find('td.jml_min').attr('data-val')
+						'jml_min': $(tr).find('td.jml_min').attr('data-val'),
+						'min_beli': $(tr).find('td.min_beli').attr('data-val')
 					};
 
 					return _data;

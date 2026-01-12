@@ -189,9 +189,10 @@
 												<thead>
 													<tr>
 														<th class="col-xs-3" style="padding: 3px;">Jenis</th>
-														<th class="col-xs-4" style="padding: 3px;">Produk</th>
+														<th class="col-xs-3" style="padding: 3px;">Produk</th>
 														<th class="col-xs-2" style="padding: 3px;">Jml Min</th>
-														<th class="col-xs-3" style="padding: 3px;">Diskon</th>
+														<th class="col-xs-2" style="padding: 3px;">Min Beli</th>
+														<th class="col-xs-2" style="padding: 3px;">Diskon</th>
 													</tr>
 												</thead>
 												<tbody>
@@ -200,6 +201,7 @@
 															<td><?php echo strtoupper($v_det['nama_jenis_menu']); ?></td>
 															<td><?php echo $v_det['nama_menu']; ?></td>
 															<td class="text-right"><?php echo angkaRibuan($v_det['jml_min']); ?></td>
+															<td class="text-right"><?php echo angkaRibuan($v_det['min_beli']); ?></td>
 															<td class="text-right"><?php echo ($v_det['diskon_jenis'] == 'persen') ? angkaDecimal($v_det['diskon']).' %' : 'Rp. '.angkaDecimal($v_det['diskon']); ?></td>
 														</tr>
 													<?php endforeach ?>
