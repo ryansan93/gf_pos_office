@@ -167,15 +167,15 @@ class PosisiStok extends Public_Controller {
                         stok_tanggal st
                         on
                             s.id_header = st.id
-                    left join
+                    right join
                         item i
                         on
                             s.item_kode = i.kode
-                    left join
+                    right join
                         group_item gi
                         on
                             i.group_kode = gi.kode
-                    left join
+                    right join
                         (
                             select is1.* from item_satuan is1
                             right join
@@ -218,8 +218,7 @@ class PosisiStok extends Public_Controller {
                             select * from stok_harga sh
                             where
                                 sh.id_header = $id_header and
-                                sh.item_kode = '$item_kode' and
-                                sh.harga > 0
+                                sh.item_kode = '$item_kode'
                         ";
                         $d_harga = $conf->hydrateRaw($sql);
 
@@ -228,27 +227,6 @@ class PosisiStok extends Public_Controller {
                             $d_harga = $d_harga->toArray();
 
                             $harga_beli = $d_harga[0]['harga'];
-                        } else {
-                            $conf = new \Model\Storage\Conf();
-                            $sql = "
-                                select sh.* from stok_harga sh
-                                left join
-                                    stok_tanggal st
-                                    on
-                                        sh.id_header = st.id
-                                where
-                                    st.gudang_kode = '".$kode_gudang."' and
-                                    st.tanggal <= '".$tanggal."' and
-                                    sh.item_kode = '$item_kode' and
-                                    sh.harga > 0
-                                order by
-                                    sh.tanggal desc
-                            ";
-                            $d_hrg_akhir = $conf->hydrateRaw( $sql );
-
-                            if ( $d_hrg_akhir->count() > 0 ) {
-                                $harga_beli = $d_hrg_akhir->toArray()[0]['harga'];
-                            }
                         }
 
                         $key_item = $v_det['nama'].' | '.$v_det['item_kode'];
@@ -281,7 +259,7 @@ class PosisiStok extends Public_Controller {
                         gi.nama as group_nama,
                         st.satuan
                     from item i
-                    left join
+                    right join
                         group_item gi
                         on
                             i.group_kode = gi.kode
@@ -311,35 +289,13 @@ class PosisiStok extends Public_Controller {
                             from stok_harga sh
                             where
                                 sh.id_header = ".$id_stok_tanggal." and
-                                sh.item_kode = '".$v_item['kode']."' and
-                                sh.harga > 0
+                                sh.item_kode = '".$v_item['kode']."'
                         ";
                         $d_harga = $conf->hydrateRaw($sql);
 
                         $harga = 0;
                         if ( $d_harga->count() > 0 ) {
                             $harga = $d_harga->toArray()[0]['harga'];
-                        } else {
-                            $conf = new \Model\Storage\Conf();
-                            $sql = "
-                                select sh.* from stok_harga sh
-                                left join
-                                    stok_tanggal st
-                                    on
-                                        sh.id_header = st.id
-                                where
-                                    st.gudang_kode = '".$kode_gudang."' and
-                                    st.tanggal <= '".$tanggal."' and
-                                    sh.item_kode = '$item_kode' and
-                                    sh.harga > 0
-                                order by
-                                    sh.tanggal desc
-                            ";
-                            $d_hrg_akhir = $conf->hydrateRaw( $sql );
-
-                            if ( $d_hrg_akhir->count() > 0 ) {
-                                $harga_beli = $d_hrg_akhir->toArray()[0]['harga'];
-                            }
                         }
 
                         $key_item = $nama_item.' | '.$v_item['kode'];
