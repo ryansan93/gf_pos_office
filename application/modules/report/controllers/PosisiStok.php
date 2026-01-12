@@ -207,6 +207,7 @@ class PosisiStok extends Public_Controller {
                 st.tgl_stok asc,
                 i.nama asc
         ";
+        cetak_r( $sql, 1 );
         $d_conf = $m_conf->hydrateRaw( $sql );
 
         $data = null;
