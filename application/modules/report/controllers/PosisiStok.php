@@ -289,8 +289,12 @@ class PosisiStok extends Public_Controller {
                     $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]['nilai_stok'] = $v_data['sisa_stok'] * $harga_beli;
                 }
 
+                ksort( $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'] );
+                ksort( $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'] );
             }
         }
+
+
 
         return $data;
     }
