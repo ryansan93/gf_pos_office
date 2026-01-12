@@ -138,9 +138,9 @@ class PosisiStok extends Public_Controller {
         $sql_item = null;
         if ( !in_array('all', $item) ) {
             if ( empty($sql_item) ) {
-                $sql_item = "where i.item_kode in ('".implode("', '", $item)."')";
+                $sql_item = "where i.kode in ('".implode("', '", $item)."')";
             } else {
-                $sql_item .= "and i.item_kode in ('".implode("', '", $item)."')";
+                $sql_item .= "and i.kode in ('".implode("', '", $item)."')";
             }
         }
 
@@ -204,10 +204,10 @@ class PosisiStok extends Public_Controller {
                 on
                     i.kode = s.item_kode
             order by
-                st.tgl_stok asc,
+                s.tgl_stok asc,
                 i.nama asc
         ";
-        cetak_r( $sql, 1 );
+        // cetak_r( $sql, 1 );
         $d_conf = $m_conf->hydrateRaw( $sql );
 
         $data = null;
