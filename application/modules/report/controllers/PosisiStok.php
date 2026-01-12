@@ -203,6 +203,13 @@ class PosisiStok extends Public_Controller {
                 ) s
                 on
                     i.kode = s.item_kode
+            group by
+				s.tgl_stok,
+                i.kode,
+                i.nama,
+                i.group_kode,
+                i.nama_group,
+                i.satuan
             order by
                 s.tgl_stok asc,
                 i.nama asc
