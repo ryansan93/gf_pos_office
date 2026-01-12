@@ -279,7 +279,7 @@ class PosisiStok extends Public_Controller {
                     $data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['satuan'] = $v_data['satuan'];
                 }
 
-                $tanggal = !empty($tgl_stok) ? $v_data['tanggal'] : $start_date;
+                $tanggal = !empty($v_data['tanggal']) ? $v_data['tanggal'] : $start_date;
 
                 $key_tanggal = str_replace('-', '', $tanggal);
                 if ( !isset($data[ $v_data['gudang_kode'] ]['group_item'][ $v_data['group_kode'] ]['detail'][ $key_item ]['detail_tanggal'][ $key_tanggal ]) ) {
