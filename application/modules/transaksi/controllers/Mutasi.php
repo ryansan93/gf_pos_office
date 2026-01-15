@@ -64,105 +64,216 @@ class Mutasi extends Public_Controller {
         return $data;
     }
 
-    public function getItem($kode_gudang, $tanggal)
-    {
-        // $m_item = new \Model\Storage\Item_model();
-        // $d_item = $m_item->with(['satuan', 'group'])->orderBy('nama', 'asc')->get();
+    // public function getItem($kode_gudang, $tanggal)
+    // {
+    //     // $m_item = new \Model\Storage\Item_model();
+    //     // $d_item = $m_item->with(['satuan', 'group'])->orderBy('nama', 'asc')->get();
+
+    //     $m_conf = new \Model\Storage\Conf();
+    //     $sql = "
+    //         select 
+    //             i.kode,
+    //             i.nama,
+    //             gi.kode as kode_group,
+    //             gi.nama as nama_group,
+    //             gi.coa,
+    //             gi.ket_coa,
+    //             _is.satuan, 
+    //             _is.pengali
+    //         from item i
+    //         right join
+    //             item_satuan _is
+    //             on
+    //                 _is.item_kode = i.kode
+    //         right join
+    //             group_item gi
+    //             on
+    //                 i.group_kode = gi.kode
+    //         group by
+    //             i.kode,
+    //             i.nama,
+    //             gi.kode,
+    //             gi.nama,
+    //             gi.coa,
+    //             gi.ket_coa,
+    //             _is.satuan, 
+    //             _is.pengali
+    //     ";
+    //     $d_item = $m_conf->hydrateRaw( $sql );
+
+    //     $data_item = null;
+    //     if ( $d_item->count() > 0 ) {
+    //         $d_item = $d_item->toArray();
+
+    //         foreach ($d_item as $key => $value) {
+    //             $m_conf = new \Model\Storage\Conf();
+    //             $sql = "
+    //                 select sh.* from stok_harga sh
+    //                 left join
+    //                     stok_tanggal st
+    //                     on
+    //                         sh.id_header = st.id
+    //                 where
+    //                     st.tanggal <= '".$tanggal."' and
+    //                     sh.harga > 0 and
+    //                     st.gudang_kode = '".$kode_gudang."' and
+    //                     sh.item_kode = '".$value['kode']."'
+    //                 order by
+    //                     st.tanggal desc
+    //             ";
+    //             $d_hrg = $m_conf->hydrateRaw( $sql );
+    //             $harga_beli = 0;
+    //             if ( $d_hrg->count() > 0 ) {
+    //                 $harga_beli = $d_hrg->toArray()[0]['harga'];
+    //             }
+
+    //             if ( !isset($data_item[ $value['kode'] ]) ) {
+    //                 $data_item[ $value['kode'] ] = array(
+    //                     'kode' => $value['kode'],
+    //                     'nama' => $value['nama'],
+    //                     'kode_group' => $value['kode_group'],
+    //                     'nama_group' => $value['nama_group'],
+    //                     'coa' => $value['coa'],
+    //                     'ket_coa' => $value['ket_coa'],
+    //                     'harga' => $harga_beli
+    //                 );
+    //             }
+
+    //             $data_item[ $value['kode'] ]['satuan'][] = array(
+    //                 'satuan' => $value['satuan'],
+    //                 'pengali' => $value['pengali'],
+    //                 'harga' => $harga_beli
+    //             );
+    //         }
+    //     }
+
+    //     return $data_item;
+    // }
+
+    // public function getHargaItem()
+    // {
+    //     $params = $this->input->get('params');
+
+    //     $kode_gudang = $params['asal'];
+    //     $tanggal = $params['tgl_mutasi'];
+
+    //     $data = $this->getItem($kode_gudang, $tanggal);
+
+    //     $opt = "<option value=''>-- Pilih Item --</option>";
+    //     if ( !empty($data) ) {
+    //         foreach ($data as $key => $value) {
+    //             $opt .= "<option value='".$value['kode']."' data-satuan='".json_encode($value['satuan'])."' data-coa='".$value['coa']."' data-ketcoa='".$value['ket_coa']."'>".strtoupper($value['nama'])."</option>";
+    //         }
+    //     }
+
+    //     $html = $opt;
+
+    //     echo $html;
+    // }
+
+    public function getItem() {
+        $search = $this->input->get('search');
+        $type = $this->input->get('type');
+        
+        $sql_tambahan = "";
+        if ( !empty($search) && !empty($type) ) {
+            $sql_tambahan = "where UPPER(i.nama) like '%".$search."%'";
+        }
 
         $m_conf = new \Model\Storage\Conf();
         $sql = "
             select 
-                i.kode,
-                i.nama,
+                i.kode as id,
+                LTRIM(i.nama) as text,
+                LTRIM(i.nama) as nama,
                 gi.kode as kode_group,
                 gi.nama as nama_group,
                 gi.coa,
-                gi.ket_coa,
-                _is.satuan, 
-                _is.pengali,
-                (isnull(sh.harga, 0) * _is.pengali) as harga
+                gi.ket_coa as ketcoa
             from item i
-            right join
-                item_satuan _is
-                on
-                    _is.item_kode = i.kode
-            right join
+            left join
                 group_item gi
                 on
                     i.group_kode = gi.kode
-            left join
-                (
-                    select sh.* from stok_harga sh
-                    right join
-                        stok_tanggal st
-                        on
-                            sh.id_header = st.id
-                    where 
-                        st.gudang_kode = '".$kode_gudang."' and 
-                        st.tanggal = '".$tanggal."'
-                ) sh
-                on
-                    sh.item_kode = i.kode
+            ".$sql_tambahan."
             group by
                 i.kode,
                 i.nama,
                 gi.kode,
                 gi.nama,
                 gi.coa,
-                gi.ket_coa,
-                _is.satuan, 
-                _is.pengali,
-                sh.harga
+                gi.ket_coa
+            order by
+                LTRIM(i.nama) asc
         ";
-        $d_item = $m_conf->hydrateRaw( $sql );
+        $d_barang = $m_conf->hydrateRaw($sql);
 
-        $data_item = null;
-        if ( $d_item->count() > 0 ) {
-            $d_item = $d_item->toArray();
-
-            foreach ($d_item as $key => $value) {
-                if ( !isset($data_item[ $value['kode'] ]) ) {
-                    $data_item[ $value['kode'] ] = array(
-                        'kode' => $value['kode'],
-                        'nama' => $value['nama'],
-                        'kode_group' => $value['kode_group'],
-                        'nama_group' => $value['nama_group'],
-                        'coa' => $value['coa'],
-                        'ket_coa' => $value['ket_coa'],
-                        'harga' => $value['harga']
-                    );
-                }
-
-                $data_item[ $value['kode'] ]['satuan'][] = array(
-                    'satuan' => $value['satuan'],
-                    'pengali' => $value['pengali'],
-                    'harga' => $value['harga']
-                );
-            }
+        $data = null;
+        if ( $d_barang->count() > 0 ) {
+            $data = $d_barang->toArray();
         }
-
-        return $data_item;
+        
+        echo json_encode($data);
     }
 
-    public function getHargaItem()
-    {
-        $params = $this->input->get('params');
-
-        $kode_gudang = $params['asal'];
-        $tanggal = $params['tgl_mutasi'];
-
-        $data = $this->getItem($kode_gudang, $tanggal);
-
-        $opt = "<option value=''>-- Pilih Item --</option>";
-        if ( !empty($data) ) {
-            foreach ($data as $key => $value) {
-                $opt .= "<option value='".$value['kode']."' data-satuan='".json_encode($value['satuan'])."' data-coa='".$value['coa']."' data-ketcoa='".$value['ket_coa']."'>".strtoupper($value['nama'])."</option>";
-            }
+    public function getSatuanHarga() {
+        $search = $this->input->get('search');
+        $type = $this->input->get('type');
+        $item = $this->input->get('item');
+        $asal = $this->input->get('asal');
+        $tgl_mutasi = $this->input->get('tgl_mutasi');
+        
+        $sql_tambahan = "";
+        if ( !empty($search) && !empty($type) ) {
+            $sql_tambahan = "and UPPER(_is.satuan) like '%".$search."%'";
         }
 
-        $html = $opt;
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select
+                sh.* 
+            from stok_harga sh
+            left join
+                stok_tanggal st
+                on
+                    sh.id_header = st.id
+            where
+                st.tanggal <= '".$tgl_mutasi."' and
+                sh.harga > 0 and
+                st.gudang_kode = '".$asal."' and
+                sh.item_kode = '".$item."'
+            order by
+                st.tanggal desc
+        ";
+        $d_hrg = $m_conf->hydrateRaw( $sql );
+        $harga_beli = 0;
+        if ( $d_hrg->count() > 0 ) {
+            $harga_beli = $d_hrg->toArray()[0]['harga'];
+        }
 
-        echo $html;
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select
+                _is.satuan as id,
+                _is.satuan as text,
+                _is.satuan,
+                _is.pengali,
+                ".$harga_beli." as harga
+            from item_satuan _is
+            where
+                _is.item_kode = '".$item."'
+                ".$sql_tambahan."
+            order by
+                _is.satuan asc
+        ";
+        $d_satuan = $m_conf->hydrateRaw( $sql );
+
+        $data = null;
+        if ( $d_satuan->count() > 0 ) {
+            $data = $d_satuan->toArray();
+        }
+        
+        echo json_encode($data);
     }
 
     public function loadForm()
@@ -207,75 +318,30 @@ class Mutasi extends Public_Controller {
                 m.no_sj,
                 m.g_status,
                 gi.coa,
-                cast(gi.ket_coa as varchar(max)) as ket_coa,
-                (isnull(sh.harga, 0) / mi.pengali) as harga,
-                sum(((mi.jumlah * mi.pengali) * isnull(sh.harga, 0))) as total
+                cast(gi.ket_coa as varchar(max)) as ket_coa
             from mutasi_item mi
             right join
                 mutasi m
                 on
                     mi.mutasi_kode = m.kode_mutasi
-            right join
+            left join
                 gudang g_asal
                 on
                     m.asal = g_asal.kode_gudang
-            right join
+            left join
                 gudang g_tujuan
                 on
                     m.tujuan = g_tujuan.kode_gudang
-            right join
+            left join
                 item i
                 on
                     i.kode = mi.item_kode
-            right join
+            left join
                 group_item gi
                 on
                     gi.kode = i.group_kode
-            left join
-                (
-                    select 
-                        s.id, 
-                        s.id_header, 
-                        s.item_kode, 
-                        st.kode_trans,
-                        st.jumlah,
-                        st.tbl_name
-                    from stok_trans st
-                    right join
-                        stok s
-                        on
-                            st.id_header = s.id
-                ) st
-                on
-                    st.kode_trans = m.kode_mutasi and
-                    st.item_kode = mi.item_kode
-            left join
-                (
-                    select sh1.* from stok_harga sh1
-                    right join
-                        (select max(id) as id, id_header, item_kode from stok_harga group by id_header, item_kode) sh2
-                        on
-                            sh1.id = sh2.id
-                ) sh
-                on
-                    sh.id_header = st.id_header and
-                    sh.item_kode = mi.item_kode
             where
                 m.tgl_mutasi between '".$start_date."' and '".$end_date."'
-            group by
-                m.kode_mutasi,
-                m.nama_pic,
-                m.tgl_mutasi,
-                m.asal,
-                g_asal.nama,
-                m.tujuan,
-                g_tujuan.nama,
-                m.no_sj,
-                m.g_status,
-                gi.coa,
-                cast(gi.ket_coa as varchar(max)),
-                sh.harga,
-                mi.pengali
 
         ";
         $d_mutasi = $m_conf->hydrateRaw( $sql );
@@ -286,6 +352,54 @@ class Mutasi extends Public_Controller {
 
             foreach ($d_mutasi as $key => $value) {
                 if ( !isset($data[ $value['kode_mutasi'] ]) ) {
+                    $m_conf = new \Model\Storage\Conf();
+                    $sql = "
+                        select
+                            --	mi.*,
+                            sum((mi.jumlah * mi.pengali) * sh.harga) as total
+                        from mutasi_item mi 
+                        left join
+                        (
+                            select
+                                sh.*
+                            from
+                            (
+                                select sh.*, st.tanggal, st.gudang_kode from stok_harga sh 
+                                left join
+                                    stok_tanggal st 
+                                    on
+                                        sh.id_header = st.id
+                            ) sh
+                            right join
+                                (
+                                    select max(st.tanggal) as tanggal, st.gudang_kode, sh.item_kode from stok_harga sh
+                                    left join
+                                        stok_tanggal st
+                                        on
+                                            sh.id_header = st.id
+                                    where
+                                        st.tanggal <= '".$value['tgl_mutasi']."' and
+                                        st.gudang_kode = '".$value['asal']."' and
+                                        sh.harga > 0
+                                    group by
+                                        st.gudang_kode, sh.item_kode
+                                ) _sh
+                                on
+                                    sh.tanggal = _sh.tanggal and
+                                    sh.gudang_kode = _sh.gudang_kode and
+                                    sh.item_kode = _sh.item_kode
+                        ) sh
+                        on
+                            mi.item_kode = sh.item_kode
+                        where 
+                            mi.mutasi_kode = '".$value['kode_mutasi']."'
+                    ";
+                    $d_mi = $m_conf->hydrateRaw( $sql );
+                    $total = 0;
+                    if ( $d_mi->count() > 0 ) {
+                        $total = $d_mi->toArray()[0]['total'];
+                    }
+
                     $data[ $value['kode_mutasi'] ] = array(
                         'kode_mutasi' => $value['kode_mutasi'],
                         'tgl_mutasi' => $value['tgl_mutasi'],
@@ -293,7 +407,7 @@ class Mutasi extends Public_Controller {
                         'nama_gudang_asal' => $value['nama_gudang_asal'],
                         'nama_gudang_tujuan' => $value['nama_gudang_tujuan'],
                         'g_status' => $value['g_status'],
-                        'total' => $value['total'],
+                        'total' => $total,
                         'list_coa' => null
                     );
                     $data[ $value['kode_mutasi'] ]['list_coa'][ $value['coa'] ] = array(
@@ -301,7 +415,7 @@ class Mutasi extends Public_Controller {
                         'ket_coa' => $value['ket_coa']
                     );
                 } else {
-                    $data[ $value['kode_mutasi'] ]['total'] += $value['total'];
+                    // $data[ $value['kode_mutasi'] ]['total'] += $total;
                     $data[ $value['kode_mutasi'] ]['list_coa'][ $value['coa'] ] = array(
                         'coa' => $value['coa'],
                         'ket_coa' => $value['ket_coa']
@@ -339,9 +453,7 @@ class Mutasi extends Public_Controller {
             mi.pengali,
             gi.nama as nama_group_item,
             gi.coa,
-            gi.ket_coa,
-            (isnull(sh.harga, 0) / mi.pengali) as harga,
-            ((mi.jumlah * mi.pengali) * isnull(sh.harga, 0)) as total
+            gi.ket_coa
         from mutasi_item mi
         right join
             mutasi m
@@ -363,39 +475,6 @@ class Mutasi extends Public_Controller {
             group_item gi
             on
                 gi.kode = i.group_kode
-        left join
-            (
-                select 
-                    s.id_header, 
-                    s.item_kode, 
-                    st.kode_trans,
-                    sum(st.jumlah) as jumlah,
-                    cast(st.tbl_name as varchar(100)) as tbl_name
-                from stok_trans st
-                right join
-                    stok s
-                    on
-                        st.id_header = s.id
-                group by
-                    s.id_header, 
-                    s.item_kode, 
-                    st.kode_trans,
-                    cast(st.tbl_name as varchar(100))
-            ) st
-            on
-                st.kode_trans = m.kode_mutasi and
-                st.item_kode = mi.item_kode
-        left join
-            (
-                select sh1.* from stok_harga sh1
-                right join
-                    (select max(id) as id, id_header, item_kode from stok_harga group by id_header, item_kode) sh2
-                    on
-                        sh1.id = sh2.id
-            ) sh
-            on
-                sh.id_header = st.id_header and
-                sh.item_kode = mi.item_kode
         where
             m.kode_mutasi = '".$kode."'
         ";
@@ -420,6 +499,29 @@ class Mutasi extends Public_Controller {
             );
 
             foreach ($d_mutasi as $key => $value) {
+                $m_conf = new \Model\Storage\Conf();
+                $sql = "
+                    select
+                        sh.* 
+                    from stok_harga sh
+                    left join
+                        stok_tanggal st
+                        on
+                            sh.id_header = st.id
+                    where
+                        st.tanggal <= '".$d_mutasi[0]['tgl_mutasi']."' and
+                        sh.harga > 0 and
+                        st.gudang_kode = '".$d_mutasi[0]['asal']."' and
+                        sh.item_kode = '".$value['item_kode']."'
+                    order by
+                        st.tanggal desc
+                ";
+                $d_hrg = $m_conf->hydrateRaw( $sql );
+                $harga_beli = 0;
+                if ( $d_hrg->count() > 0 ) {
+                    $harga_beli = $d_hrg->toArray()[0]['harga'];
+                }
+
                 $data['detail'][] = array(
                     'item_kode' => $value['item_kode'],
                     'nama_item' => $value['nama_item'],
@@ -429,8 +531,8 @@ class Mutasi extends Public_Controller {
                     'nama_group_item' => $value['nama_group_item'],
                     'coa' => $value['coa'],
                     'ket_coa' => $value['ket_coa'],
-                    'harga' => $value['harga'],
-                    'total' => $value['total']
+                    'harga' => $harga_beli,
+                    'total' => ($value['jumlah'] * $value['pengali']) * $harga_beli
                 );
             }
         }
@@ -472,7 +574,7 @@ class Mutasi extends Public_Controller {
 
         $content['akses'] = $this->hakAkses;
         $content['data'] = $data;
-        $content['item'] = $this->getItem( $data['asal'], $data['tgl_mutasi'] );
+        // $content['item'] = $this->getItem( $data['asal'], $data['tgl_mutasi'] );
         $content['gudang'] = $this->getGudang();
 
         // cetak_r( $data );

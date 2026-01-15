@@ -111,7 +111,8 @@
 					<tr>
 						<td>
 							<select class="form-control item" data-required="1">
-								<option value="">-- Pilih Item --</option>
+							<option value="<?php echo $v_det['item_kode']; ?>" data-coa="<?php echo $v_det['coa']; ?>" data-ketcoa="<?php echo $v_det['ket_coa']; ?>" selected><?php echo $v_det['nama_item']; ?></option>
+								<!-- <option value="">-- Pilih Item --</option>
 								<?php if ( !empty($item) ): ?>
 									<?php foreach ($item as $k_item => $v_item): ?>
 										<?php
@@ -122,15 +123,16 @@
 										?>
 										<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' data-coa='<?php echo $v_item['coa']; ?>' data-ketcoa='<?php echo $v_item['ket_coa']; ?>' <?php echo $selected; ?> ><?php echo strtoupper($v_item['nama']); ?></option>
 									<?php endforeach ?>
-								<?php endif ?>
+								<?php endif ?> -->
 							</select>
 						</td>
 						<td class="coa">
 							-
 						</td>
 						<td>
-							<select class="form-control satuan" data-required="1" data-val="<?php echo $v_det['satuan']; ?>" disabled>
-								<option value="">Pilih Satuan</option>
+							<select class="form-control satuan" data-required="1">
+								<option value="<?php echo $v_det['satuan']; ?>" data-pengali="<?php echo $v_det['pengali']; ?>" data-harga="<?php echo $v_det['harga']; ?>" selected><?php echo $v_det['satuan']; ?></option>
+								<!-- <option value="">Pilih Satuan</option> -->
 							</select>
 						</td>
 						<td>

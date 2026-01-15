@@ -97,20 +97,13 @@
 				<tr>
 					<td>
 						<select class="form-control item" data-required="1" disabled="disabled">
-							<option value="">-- Pilih Item --</option>
-							<?php if ( !empty($item) ): ?>
-								<?php foreach ($item as $k_item => $v_item): ?>
-									<option value="<?php echo $v_item['kode']; ?>" data-satuan='<?php echo json_encode($v_item['satuan']); ?>' data-coa='<?php echo $v_item['group']['coa']; ?>' data-ketcoa='<?php echo $v_item['group']['ket_coa']; ?>'><?php echo strtoupper($v_item['nama']); ?></option>
-								<?php endforeach ?>
-							<?php endif ?>
 						</select>
 					</td>
 					<td class="coa">
 						-
 					</td>
 					<td>
-						<select class="form-control satuan" data-required="1" disabled>
-							<option value="">Pilih Satuan</option>
+						<select class="form-control satuan" data-required="1" disabled="disabled">
 						</select>
 					</td>
 					<td>

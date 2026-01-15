@@ -47,46 +47,234 @@ var mutasi = {
             mutasi.getHargaItem();
         });
         $('select.tujuan').select2();
-        $('select.item').select2().on('select2:select', function (e) {
-            var _tr = $(this).closest('tr');
-            var select_satuan = $(_tr).find('select.satuan');
+        // $('select.item').select2().on('select2:select', function (e) {
+        //     var _tr = $(this).closest('tr');
+        //     var select_satuan = $(_tr).find('select.satuan');
 
-            var val_satuan = $(select_satuan).attr('data-val');
+        //     var val_satuan = $(select_satuan).attr('data-val');
 
-            var data = e.params.data.element.dataset;
+        //     var data = e.params.data.element.dataset;
 
-            var coa = data.coa;
-            var ket_coa = data.ketcoa;
+        //     var coa = data.coa;
+        //     var ket_coa = data.ketcoa;
 
-            $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
+        //     $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
 
-            var satuan = JSON.parse( data.satuan );
+        //     var satuan = JSON.parse( data.satuan );
 
-            var opt = '<option value="">Pilih Satuan</option>';
-            for (var i = 0; i < satuan.length; i++) {
-                var selected = null;
-                if ( !empty(select_satuan) ) {
-                    if ( satuan[i].satuan == val_satuan ) {
-                        selected = 'selected';
+        //     var opt = '<option value="">Pilih Satuan</option>';
+        //     for (var i = 0; i < satuan.length; i++) {
+        //         var selected = null;
+        //         if ( !empty(select_satuan) ) {
+        //             if ( satuan[i].satuan == val_satuan ) {
+        //                 selected = 'selected';
+        //             }
+        //         }
+
+        //         opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" data-harga="'+satuan[i].harga+'" '+selected+' >'+satuan[i].satuan+'</option>';
+        //     }
+
+        //     $(select_satuan).html( opt );
+        //     $(select_satuan).removeAttr('disabled');
+        //     $(_tr).find('.jumlah').removeAttr('disabled');
+
+        //     $(select_satuan).on('change', function() {
+        //         var harga = parseFloat($(this).find('option:selected').attr('data-harga'));
+
+        //         $(_tr).find('td.harga').html( numeral.formatDec(harga) );
+
+        //         mutasi.hitTotal( $(this) );
+        //     });
+        // });
+    }, // end - setting_up
+
+    getHargaItem: function() {
+        var dcontent = $('div#action');
+
+        var asal = $(dcontent).find('select.asal').select2().val();
+        var tgl_mutasi = $(dcontent).find('#TglMutasi input').val();
+
+        if ( !empty(asal) && !empty(tgl_mutasi) ) {
+            $.map( $('table tbody').find('tr'), function(tr) {
+                $(tr).find('select.item').removeAttr('disabled', 'disabled');
+                mutasi.setSelect2Item( $(tr).find('select.item') );
+
+                $(tr).find('select.satuan').removeAttr('disabled', 'disabled');
+                mutasi.setSelect2SatuanHarga( $(tr).find('select.satuan') );
+            });
+
+            // var tbody = $(dcontent).find('table.tbl_riwayat tbody');
+
+            // var params = {
+            //     'asal': asal,
+            //     'tgl_mutasi': dateSQL( $(dcontent).find('#TglMutasi').data('DateTimePicker').date() )
+            // };
+
+            // $.ajax({
+            //     url : 'transaksi/Mutasi/getHargaItem',
+            //     data : {
+            //         'params' : params
+            //     },
+            //     type : 'GET',
+            //     dataType : 'HTML',
+            //     beforeSend : function(){ showLoading('Ambil Harga Mutasi . . .'); },
+            //     success : function(html){
+            //         $.map( $('table tbody').find('tr select.item'), function(select) {
+            //             $(select).html( html );
+            //             $(select).select2();
+            //         });
+
+            //         hideLoading();
+            //         // $(tbody).html(html);
+            //     },
+            // });
+        } else {
+            $('select.item').attr('disabled', 'disabled');
+            $('select.item').val('');
+            $('select.satuan').attr('disabled', 'disabled');
+            $('select.satuan').val('');
+            // $('select.item').select2();
+        }
+    }, // end - getHargaItem
+
+    setSelect2Item: function(elm) {
+        $(elm).select2({
+            ajax: {
+                // delay: 500,
+                // quietMillis: 150,
+                url: 'transaksi/Mutasi/getItem',
+                dataType: 'json',
+                type: 'GET',
+                data: function (params) {
+                    var query = {
+                        search: params.term,
+                        type: 'item_search'
+                    }
+    
+                    // Query parameters will be ?search=[term]&type=user_search
+                    return query;
+                },
+                processResults: function (data) {
+                    return {
+                        results: !empty(data) ? data : []
+                    };
+                },
+                error: function (jqXHR, status, error) {
+                    // console.log(error + ": " + jqXHR.responseText);
+                    return { results: [] }; // Return dataset to load after error
+                }
+            },
+            cache: true,
+            placeholder: 'Search for a item...',
+            // minimumInputLength: 2,
+            escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+            templateResult: function (data) {
+                var markup = "<option value='"+data.id+"' data-coa='"+data.coa+"' data-ketcoa='"+data.ketcoa+"'>"+data.nama+"</option>";
+                return markup;
+            },
+            templateSelection: function (data, container) {
+                var _tr = $(data.element).closest('tr');
+                    
+                var dataset = null;
+                if ( typeof data.element !== 'undefined' ) {
+                    if ( typeof data.element.dataset !== 'undefined' ) {
+                        dataset = data.element.dataset;
                     }
                 }
 
-                opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" data-harga="'+satuan[i].harga+'" '+selected+' >'+satuan[i].satuan+'</option>';
-            }
+                var coa = !empty(data.coa) ? data.coa : (!empty(dataset) ? dataset.coa : null);
+                var ket_coa = !empty(data.ketcoa) ? data.ketcoa : (!empty(dataset) ? dataset.ketcoa : null);
+                var nama = !empty(data.nama) ? data.nama : (!empty(dataset) ? dataset.nama : null);
 
-            $(select_satuan).html( opt );
-            $(select_satuan).removeAttr('disabled');
-            $(_tr).find('.jumlah').removeAttr('disabled');
+                // Add custom attributes to the <option> tag for the selected option
+                $(data.element).attr('data-coa', coa);
+                $(data.element).attr('data-ketcoa', ket_coa);
+                $(data.element).attr('data-nama', nama);
 
-            $(select_satuan).on('change', function() {
-                var harga = parseFloat($(this).find('option:selected').attr('data-harga'));
+                $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
+
+                // $(_tr).find('select.satuan').val(null).trigger('change');
+
+                return data.text;
+            },
+        }).on('change', function() {
+            var tr = $(elm).closest('tr');
+            $(tr).find('select.satuan').val(null).trigger('change');
+        });
+    }, // end - setSelect2Item
+
+    setSelect2SatuanHarga: function(elm) {
+        $(elm).select2({
+            ajax: {
+                // delay: 500,
+                // quietMillis: 150,
+                url: 'transaksi/Mutasi/getSatuanHarga',
+                dataType: 'json',
+                type: 'GET',
+                data: function (params, jenis) {
+                    var dcontent = $('#action');
+                    var tr = $(elm).closest('tr');
+
+                    var item = $(tr).find('select.item').val();
+                    var asal = $(dcontent).find('select.asal').select2().val();
+                    var tgl_mutasi = dateSQL( $(dcontent).find('#TglMutasi').data('DateTimePicker').date() );
+
+                    var query = {
+                        item: item,
+                        asal: asal,
+                        tgl_mutasi: tgl_mutasi,
+                        search: params.term,
+                        type: 'item_search'
+                    }
+    
+                    // Query parameters will be ?search=[term]&type=user_search
+                    return query;
+                },
+                processResults: function (data) {
+                    return {
+                        results: !empty(data) ? data : []
+                    };
+                },
+                error: function (jqXHR, status, error) {
+                    // console.log(error + ": " + jqXHR.responseText);
+                    return { results: [] }; // Return dataset to load after error
+                }
+            },
+            cache: true,
+            placeholder: 'Search for a satuan...',
+            // minimumInputLength: 2,
+            escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+            templateResult: function (data) {
+                var markup = "<option value='"+data.id+"' data-pengali='"+data.pengali+"' data-harga='"+data.harga+"'>"+data.satuan+"</option>";
+                return markup;
+            },
+            templateSelection: function (data, container) {
+                var _tr = $(data.element).closest('tr');
+                    
+                var dataset = null;
+                if ( typeof data.element !== 'undefined' ) {
+                    if ( typeof data.element.dataset !== 'undefined' ) {
+                        dataset = data.element.dataset;
+                    }
+                }
+
+                var pengali = !empty(data.pengali) ? data.pengali : (!empty(dataset) ? dataset.pengali : null);
+                var harga = !empty(data.harga) ? data.harga : (!empty(dataset) ? dataset.harga : null);
+                var satuan = !empty(data.satuan) ? data.satuan : (!empty(dataset) ? dataset.satuan : null);
+
+                // Add custom attributes to the <option> tag for the selected option
+                $(data.element).attr('data-pengali', pengali);
+                $(data.element).attr('data-harga', harga);
+                $(data.element).attr('data-satuan', satuan);
 
                 $(_tr).find('td.harga').html( numeral.formatDec(harga) );
 
-                mutasi.hitTotal( $(this) );
-            });
+                mutasi.hitTotal( $(elm) );
+
+                return data.text;
+            },
         });
-    }, // end - setting_up
+    }, // end - setSelect2SatuanHarga
 
     showNameFile : function(elm, isLable = 1) {
         var _label = $(elm).closest('label');
@@ -126,16 +314,18 @@ var mutasi = {
         var tr = $(elm).closest('tr');
         var tbody = $(tr).closest('tbody');
 
-        $(tr).find('select.item').select2('destroy')
+        $(tr).find('select.item, select.satuan').select2('destroy')
                                    .removeAttr('data-live-search')
                                    .removeAttr('data-select2-id')
                                    .removeAttr('aria-hidden')
                                    .removeAttr('tabindex');
-        $(tr).find('select.item option').removeAttr('data-select2-id');
+        $(tr).find('select.item option, select.satuan option').removeAttr('data-select2-id');
 
         var tr_clone = $(tr).clone();
 
         $(tr_clone).find('input, select').val('');
+        $(tr_clone).find('td.coa').text('');
+        $(tr_clone).find('td.harga').text(0);
 
         $(tr_clone).find('[data-tipe=integer],[data-tipe=angka],[data-tipe=decimal], [data-tipe=decimal3],[data-tipe=decimal4], [data-tipe=number]').each(function(){
             // $(this).priceFormat(Config[$(this).data('tipe')]);
@@ -144,55 +334,63 @@ var mutasi = {
 
         $(tbody).append( $(tr_clone) );
 
-        $.each($(tbody).find('select.item'), function(a) {
-            $(this).select2();
-            $(this).on('select2:select', function (e) {
-                // var data = e.params.data.element.dataset;
-
-                // var _tr = $(this).closest('tr');
-
-                // $(_tr).find('.satuan').val( data.satuan );
-                // $(_tr).find('.group').val( data.namagroup );
-
-                var _tr = $(this).closest('tr');
-                var select_satuan = $(_tr).find('select.satuan');
-
-                var val_satuan = $(select_satuan).attr('data-val');
-
-                var data = e.params.data.element.dataset;
-
-                var coa = data.coa;
-                var ket_coa = data.ketcoa;
-
-                $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
-
-                var satuan = JSON.parse( data.satuan );
-
-                var opt = '<option value="">Pilih Satuan</option>';
-                for (var i = 0; i < satuan.length; i++) {
-                    var selected = null;
-                    if ( !empty(select_satuan) ) {
-                        if ( satuan[i].satuan == val_satuan ) {
-                            selected = 'selected';
-                        }
-                    }
-
-                    opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" data-harga="'+satuan[i].harga+'" '+selected+' >'+satuan[i].satuan+'</option>';
-                }
-
-                $(select_satuan).html( opt );
-                $(select_satuan).removeAttr('disabled');
-                $(_tr).find('.jumlah').removeAttr('disabled');
-
-                $(select_satuan).on('change', function() {
-                    var harga = parseFloat($(this).find('option:selected').attr('data-harga'));
-
-                    $(_tr).find('td.harga').html( numeral.formatDec(harga) );
-
-                    mutasi.hitTotal( $(this) );
-                });
-            });
+        $.map( $(tbody).find('tr'), function(tr) {
+            mutasi.setSelect2Item( $(tr).find('select.item') );
+            mutasi.setSelect2SatuanHarga( $(tr).find('select.satuan') );
         });
+
+        // $.each($(tbody).find('select.item'), function(a) {
+        // )};
+
+        // $.each($(tbody).find('select.item'), function(a) {
+        //     $(this).select2();
+        //     $(this).on('select2:select', function (e) {
+        //         // var data = e.params.data.element.dataset;
+
+        //         // var _tr = $(this).closest('tr');
+
+        //         // $(_tr).find('.satuan').val( data.satuan );
+        //         // $(_tr).find('.group').val( data.namagroup );
+
+        //         var _tr = $(this).closest('tr');
+        //         var select_satuan = $(_tr).find('select.satuan');
+
+        //         var val_satuan = $(select_satuan).attr('data-val');
+
+        //         var data = e.params.data.element.dataset;
+
+        //         var coa = data.coa;
+        //         var ket_coa = data.ketcoa;
+
+        //         $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
+
+        //         var satuan = JSON.parse( data.satuan );
+
+        //         var opt = '<option value="">Pilih Satuan</option>';
+        //         for (var i = 0; i < satuan.length; i++) {
+        //             var selected = null;
+        //             if ( !empty(select_satuan) ) {
+        //                 if ( satuan[i].satuan == val_satuan ) {
+        //                     selected = 'selected';
+        //                 }
+        //             }
+
+        //             opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" data-harga="'+satuan[i].harga+'" '+selected+' >'+satuan[i].satuan+'</option>';
+        //         }
+
+        //         $(select_satuan).html( opt );
+        //         $(select_satuan).removeAttr('disabled');
+        //         $(_tr).find('.jumlah').removeAttr('disabled');
+
+        //         $(select_satuan).on('change', function() {
+        //             var harga = parseFloat($(this).find('option:selected').attr('data-harga'));
+
+        //             $(_tr).find('td.harga').html( numeral.formatDec(harga) );
+
+        //             mutasi.hitTotal( $(this) );
+        //         });
+        //     });
+        // });
     }, // end - addRow
 
     removeRow: function(elm) {
@@ -226,47 +424,6 @@ var mutasi = {
         };
     }, // end - changeTabActive
 
-    getHargaItem: function() {
-        var dcontent = $('div#action');
-
-        var asal = $(dcontent).find('select.asal').select2().val();
-        var tgl_mutasi = $(dcontent).find('#TglMutasi input').val();
-
-        if ( !empty(asal) && !empty(tgl_mutasi) ) {
-            $('select.item').removeAttr('disabled', 'disabled');
-
-            var tbody = $(dcontent).find('table.tbl_riwayat tbody');
-
-            var params = {
-                'asal': asal,
-                'tgl_mutasi': dateSQL( $(dcontent).find('#TglMutasi').data('DateTimePicker').date() )
-            };
-
-            $.ajax({
-                url : 'transaksi/Mutasi/getHargaItem',
-                data : {
-                    'params' : params
-                },
-                type : 'GET',
-                dataType : 'HTML',
-                beforeSend : function(){ showLoading('Ambil Harga Mutasi . . .'); },
-                success : function(html){
-                    $.map( $('table tbody').find('tr select.item'), function(select) {
-                        $(select).html( html );
-                        $(select).select2();
-                    });
-
-                    hideLoading();
-                    // $(tbody).html(html);
-                },
-            });
-        } else {
-            $('select.item').attr('disabled', 'disabled');
-            $('select.item').val('');
-            $('select.item').select2();
-        }
-    }, // end - getHargaItem
-
     loadForm: function(v_id = null, resubmit = null) {
         var dcontent = $('div#action');
 
@@ -285,48 +442,53 @@ var mutasi = {
                 mutasi.setting_up();
 
                 if ( !empty(v_id) && !empty(resubmit) ) {
-                    $.map( $(dcontent).find('select.item'), function (select) {
-                        var _tr = $(select).closest('tr');
-                        var select_satuan = $(_tr).find('select.satuan');
-
-                        var val_satuan = $(select_satuan).attr('data-val');
-
-                        var data_coa = $(select).find('option:selected').attr('data-coa');
-                        var data_ketcoa = $(select).find('option:selected').attr('data-ketcoa');
-
-                        var coa = data_coa;
-                        var ket_coa = data_ketcoa;
-
-                        $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
-
-                        var data_satuan = $(select).find('option:selected').attr('data-satuan');
-
-                        var satuan = JSON.parse( data_satuan );
-
-                        var opt = '<option value="">Pilih Satuan</option>';
-                        for (var i = 0; i < satuan.length; i++) {
-                            var selected = null;
-                            if ( !empty(select_satuan) ) {
-                                if ( satuan[i].satuan == val_satuan ) {
-                                    selected = 'selected';
-                                }
-                            }
-
-                            opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" data-harga="'+satuan[i].harga+'" '+selected+' >'+satuan[i].satuan+'</option>';
-                        }
-
-                        $(select_satuan).html( opt );
-                        $(select_satuan).removeAttr('disabled');
-                        $(_tr).find('.jumlah').removeAttr('disabled');
-
-                        $(select_satuan).on('change', function() {
-                            var harga = parseFloat($(this).find('option:selected').attr('data-harga'));
-
-                            $(_tr).find('td.harga').html( numeral.formatDec(harga) );
-
-                            mutasi.hitTotal( $(this) );
-                        });
+                    $.map( $(dcontent).find('table tbody tr'), function(tr) {
+                        mutasi.setSelect2Item( $(tr).find('select.item') );
+                        mutasi.setSelect2SatuanHarga( $(tr).find('select.satuan') );
                     });
+
+                    // $.map( $(dcontent).find('select.item'), function (select) {
+                    //     var _tr = $(select).closest('tr');
+                    //     var select_satuan = $(_tr).find('select.satuan');
+
+                    //     var val_satuan = $(select_satuan).attr('data-val');
+
+                    //     var data_coa = $(select).find('option:selected').attr('data-coa');
+                    //     var data_ketcoa = $(select).find('option:selected').attr('data-ketcoa');
+
+                    //     var coa = data_coa;
+                    //     var ket_coa = data_ketcoa;
+
+                    //     $(_tr).find('td.coa').html( coa+'<br>'+ket_coa );
+
+                    //     var data_satuan = $(select).find('option:selected').attr('data-satuan');
+
+                    //     var satuan = JSON.parse( data_satuan );
+
+                    //     var opt = '<option value="">Pilih Satuan</option>';
+                    //     for (var i = 0; i < satuan.length; i++) {
+                    //         var selected = null;
+                    //         if ( !empty(select_satuan) ) {
+                    //             if ( satuan[i].satuan == val_satuan ) {
+                    //                 selected = 'selected';
+                    //             }
+                    //         }
+
+                    //         opt += '<option value="'+satuan[i].satuan+'" data-pengali="'+satuan[i].pengali+'" data-harga="'+satuan[i].harga+'" '+selected+' >'+satuan[i].satuan+'</option>';
+                    //     }
+
+                    //     $(select_satuan).html( opt );
+                    //     $(select_satuan).removeAttr('disabled');
+                    //     $(_tr).find('.jumlah').removeAttr('disabled');
+
+                    //     $(select_satuan).on('change', function() {
+                    //         var harga = parseFloat($(this).find('option:selected').attr('data-harga'));
+
+                    //         $(_tr).find('td.harga').html( numeral.formatDec(harga) );
+
+                    //         mutasi.hitTotal( $(this) );
+                    //     });
+                    // });
                 }
             },
         });
@@ -585,9 +747,10 @@ var mutasi = {
         var tr = $(elm).closest('tr');
 
         var jumlah = numeral.unformat( $(tr).find('.jumlah').val() );
+        var pengali = $(tr).find('select.satuan option:selected').attr('data-pengali');
         var harga = numeral.unformat( $(tr).find('.harga').text() );
 
-        var total = jumlah * harga;
+        var total = (jumlah*pengali) * harga;
 
         $(tr).find('.total').text( numeral.formatDec(total) );
 
