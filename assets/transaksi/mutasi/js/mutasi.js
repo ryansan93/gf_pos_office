@@ -319,12 +319,12 @@ var mutasi = {
         var tr = $(elm).closest('tr');
         var tbody = $(tr).closest('tbody');
 
-        $(tr).find('select.item, select.satuan').select2('destroy')
+        $(tbody).find('select.item, select.satuan').select2('destroy')
                                    .removeAttr('data-live-search')
                                    .removeAttr('data-select2-id')
                                    .removeAttr('aria-hidden')
                                    .removeAttr('tabindex');
-        $(tr).find('select.item option, select.satuan option').removeAttr('data-select2-id');
+        $(tbody).find('select.item option, select.satuan option').removeAttr('data-select2-id');
 
         var tr_clone = $(tr).clone();
 
