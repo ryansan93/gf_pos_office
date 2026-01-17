@@ -217,7 +217,7 @@ var mutasi = {
                 type: 'GET',
                 data: function (params, jenis) {
                     var dcontent = $('#action');
-                    var tr = $(this).closest('tr');
+                    var tr = $(elm).closest('tr');
 
                     var item = $(tr).find('select.item').val();
                     var asal = $(dcontent).find('select.asal').val();
@@ -244,7 +244,7 @@ var mutasi = {
                     return { results: [] }; // Return dataset to load after error
                 }
             },
-            cache: true,
+            // cache: true,
             placeholder: 'Search for a satuan...',
             // minimumInputLength: 2,
             escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
