@@ -178,7 +178,7 @@ var mutasi = {
                 return markup;
             },
             templateSelection: function (data, container) {
-                var _tr = $(data.element).closest('tr');
+                var _tr = $(elm).closest('tr');
                     
                 var dataset = null;
                 if ( typeof data.element !== 'undefined' ) {
