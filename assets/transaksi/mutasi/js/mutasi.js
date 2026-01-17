@@ -245,13 +245,11 @@ var mutasi = {
             // minimumInputLength: 2,
             escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
             templateResult: function (data) {
-                console.log( data.harga );
-
                 var markup = "<option value='"+data.id+"' data-pengali='"+data.pengali+"' data-harga='"+data.harga+"'>"+data.satuan+"</option>";
                 return markup;
             },
             templateSelection: function (data, container) {
-                var _tr = $(data.element).closest('tr');
+                var _tr = $(elm).closest('tr');
                     
                 var dataset = null;
                 if ( typeof data.element !== 'undefined' ) {
