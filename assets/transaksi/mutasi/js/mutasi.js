@@ -43,9 +43,10 @@ var mutasi = {
             priceFormat( $(this) );
         });
 
-        $('select.asal').select2().on('select2:select', function (e) {
-            // mutasi.getHargaItem();
-        });
+        // $('select.asal').select2().on('select2:select', function (e) {
+        //     // mutasi.getHargaItem();
+        // });
+        $('select.asal').select2();
         $('select.tujuan').select2();
 
         mutasi.setSelect2Item( $('select.item') );
@@ -254,8 +255,6 @@ var mutasi = {
             },
             templateSelection: function (data, container) {
                 var _tr = $(elm).closest('tr');
-
-                console.log( data );
                     
                 var dataset = null;
                 if ( typeof data.element !== 'undefined' ) {
@@ -448,10 +447,10 @@ var mutasi = {
                 mutasi.setting_up();
 
                 if ( !empty(v_id) && !empty(resubmit) ) {
-                    $.map( $(dcontent).find('table tbody tr'), function(tr) {
-                        mutasi.setSelect2Item( $(tr).find('select.item') );
-                        mutasi.setSelect2SatuanHarga( $(tr).find('select.satuan') );
-                    });
+                    // $.map( $(dcontent).find('table tbody tr'), function(tr) {
+                    //     mutasi.setSelect2Item( $(tr).find('select.item') );
+                    //     mutasi.setSelect2SatuanHarga( $(tr).find('select.satuan') );
+                    // });
 
                     // $.map( $(dcontent).find('select.item'), function (select) {
                     //     var _tr = $(select).closest('tr');
