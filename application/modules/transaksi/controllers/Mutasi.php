@@ -256,7 +256,7 @@ class Mutasi extends Public_Controller {
             $m_conf = new \Model\Storage\Conf();
             $sql = "
                 select
-                    _is.satuan as id,
+                    _is.satuan+' | '+_is.item_kode as id,
                     _is.satuan as text,
                     _is.satuan,
                     _is.pengali,
