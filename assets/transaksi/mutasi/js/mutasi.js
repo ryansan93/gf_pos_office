@@ -250,6 +250,8 @@ var mutasi = {
             },
             templateSelection: function (data, container) {
                 var _tr = $(elm).closest('tr');
+
+                console.log( data );
                     
                 var dataset = null;
                 if ( typeof data.element !== 'undefined' ) {
