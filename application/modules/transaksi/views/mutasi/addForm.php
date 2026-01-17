@@ -96,14 +96,14 @@
 			<tbody>
 				<tr>
 					<td>
-						<select class="form-control item" data-required="1" disabled="disabled">
+						<select class="form-control item" data-required="1">
 						</select>
 					</td>
 					<td class="coa">
 						-
 					</td>
 					<td>
-						<select class="form-control satuan" data-required="1" disabled="disabled">
+						<select class="form-control satuan" data-required="1">
 						</select>
 					</td>
 					<td>

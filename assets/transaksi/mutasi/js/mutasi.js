@@ -30,7 +30,7 @@ var mutasi = {
             // minDate: moment(new Date((today+' 00:00:00'))).subtract(7, 'days'),
             useCurrent: false
         }).on('dp.hide', function(e) {
-            mutasi.getHargaItem();
+            // mutasi.getHargaItem();
         });
 
         if ( !empty($("#TglMutasi").find('input').data('tgl')) ) {
@@ -44,9 +44,13 @@ var mutasi = {
         });
 
         $('select.asal').select2().on('select2:select', function (e) {
-            mutasi.getHargaItem();
+            // mutasi.getHargaItem();
         });
         $('select.tujuan').select2();
+
+        mutasi.setSelect2Item( $(tr).find('select.item') );
+        mutasi.setSelect2SatuanHarga( $(tr).find('select.satuan') );
+
         // $('select.item').select2().on('select2:select', function (e) {
         //     var _tr = $(this).closest('tr');
         //     var select_satuan = $(_tr).find('select.satuan');
@@ -216,7 +220,7 @@ var mutasi = {
                     var tr = $(elm).closest('tr');
 
                     var item = $(tr).find('select.item').val();
-                    var asal = $(dcontent).find('select.asal').select2().val();
+                    var asal = $(dcontent).find('select.asal').val();
                     var tgl_mutasi = dateSQL( $(dcontent).find('#TglMutasi').data('DateTimePicker').date() );
 
                     var query = {
@@ -250,8 +254,6 @@ var mutasi = {
             },
             templateSelection: function (data, container) {
                 var _tr = $(elm).closest('tr');
-
-                console.log( data );
                     
                 var dataset = null;
                 if ( typeof data.element !== 'undefined' ) {

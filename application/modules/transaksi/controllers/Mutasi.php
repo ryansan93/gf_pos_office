@@ -223,54 +223,56 @@ class Mutasi extends Public_Controller {
         $asal = $this->input->get('asal');
         $tgl_mutasi = $this->input->get('tgl_mutasi');
         
-        $sql_tambahan = "";
-        if ( !empty($search) && !empty($type) ) {
-            $sql_tambahan = "and UPPER(_is.satuan) like '%".$search."%'";
-        }
-
-        $m_conf = new \Model\Storage\Conf();
-        $sql = "
-            select
-                sh.* 
-            from stok_harga sh
-            left join
-                stok_tanggal st
-                on
-                    sh.id_header = st.id
-            where
-                st.tanggal <= '".$tgl_mutasi."' and
-                sh.harga > 0 and
-                st.gudang_kode = '".$asal."' and
-                sh.item_kode = '".$item."'
-            order by
-                st.tanggal desc
-        ";
-        $d_hrg = $m_conf->hydrateRaw( $sql );
-        $harga_beli = 0;
-        if ( $d_hrg->count() > 0 ) {
-            $harga_beli = $d_hrg->toArray()[0]['harga'];
-        }
-
-        $m_conf = new \Model\Storage\Conf();
-        $sql = "
-            select
-                _is.satuan as id,
-                _is.satuan as text,
-                _is.satuan,
-                _is.pengali,
-                ".$harga_beli." as harga
-            from item_satuan _is
-            where
-                _is.item_kode = '".$item."'
-                ".$sql_tambahan."
-            order by
-                _is.satuan asc
-        ";
-        $d_satuan = $m_conf->hydrateRaw( $sql );
-
         $data = null;
-        if ( $d_satuan->count() > 0 ) {
-            $data = $d_satuan->toArray();
+        if ( !empty($asal) && !empty($tgl_mutasi) && !empty($item) ) {
+            $sql_tambahan = "";
+            if ( !empty($search) && !empty($type) ) {
+                $sql_tambahan = "and UPPER(_is.satuan) like '%".$search."%'";
+            }
+    
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select
+                    sh.* 
+                from stok_harga sh
+                left join
+                    stok_tanggal st
+                    on
+                        sh.id_header = st.id
+                where
+                    st.tanggal <= '".$tgl_mutasi."' and
+                    sh.harga > 0 and
+                    st.gudang_kode = '".$asal."' and
+                    sh.item_kode = '".$item."'
+                order by
+                    st.tanggal desc
+            ";
+            $d_hrg = $m_conf->hydrateRaw( $sql );
+            $harga_beli = 0;
+            if ( $d_hrg->count() > 0 ) {
+                $harga_beli = $d_hrg->toArray()[0]['harga'];
+            }
+    
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select
+                    _is.satuan as id,
+                    _is.satuan as text,
+                    _is.satuan,
+                    _is.pengali,
+                    ".$harga_beli." as harga
+                from item_satuan _is
+                where
+                    _is.item_kode = '".$item."'
+                    ".$sql_tambahan."
+                order by
+                    _is.satuan asc
+            ";
+            $d_satuan = $m_conf->hydrateRaw( $sql );
+    
+            if ( $d_satuan->count() > 0 ) {
+                $data = $d_satuan->toArray();
+            }
         }
         
         echo json_encode($data);
