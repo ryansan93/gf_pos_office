@@ -600,6 +600,8 @@ class Mutasi extends Public_Controller {
                 }
             }
 
+            cetak_r( $params, 1 );
+
             $m_mutasi = new \Model\Storage\Mutasi_model();
             $now = $m_mutasi->getDate();
 
