@@ -48,8 +48,8 @@ var mutasi = {
         });
         $('select.tujuan').select2();
 
-        mutasi.setSelect2Item( $(tr).find('select.item') );
-        mutasi.setSelect2SatuanHarga( $(tr).find('select.satuan') );
+        mutasi.setSelect2Item( $('select.item') );
+        mutasi.setSelect2SatuanHarga( $('select.satuan') );
 
         // $('select.item').select2().on('select2:select', function (e) {
         //     var _tr = $(this).closest('tr');
