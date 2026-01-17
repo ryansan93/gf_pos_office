@@ -131,7 +131,7 @@
 						</td>
 						<td>
 							<select class="form-control satuan" data-required="1">
-								<option value="<?php echo $v_det['satuan']; ?>" data-pengali="<?php echo $v_det['pengali']; ?>" data-harga="<?php echo $v_det['harga']; ?>" selected><?php echo $v_det['satuan']; ?></option>
+								<option value="<?php echo $v_det['satuan'].' | '.$v_det['item_kode']; ?>" data-pengali="<?php echo $v_det['pengali']; ?>" data-harga="<?php echo $v_det['harga']; ?>" data-satuan="<?php echo $v_det['satuan']; ?>" selected><?php echo $v_det['satuan']; ?></option>
 								<!-- <option value="">Pilih Satuan</option> -->
 							</select>
 						</td>

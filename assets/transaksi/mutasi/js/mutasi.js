@@ -248,7 +248,7 @@ var mutasi = {
             // minimumInputLength: 2,
             escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
             templateResult: function (data) {
-                var markup = "<option value='"+data.satuan+"' data-pengali='"+data.pengali+"' data-harga='"+data.harga+"'>"+data.satuan+"</option>";
+                var markup = "<option value='"+data.satuan+"' data-pengali='"+data.pengali+"' data-harga='"+data.harga+"' data-satuan='"+data.satuan+"'>"+data.satuan+"</option>";
                 return markup;
             },
             templateSelection: function (data, container) {
@@ -558,7 +558,8 @@ var mutasi = {
                         var _detail = {
                             'item_kode': $(_tr).find('.item').val(),
                             'jumlah': numeral.unformat( $(_tr).find('.jumlah').val() ),
-                            'satuan': $(_tr).find('.satuan').val(),
+                            // 'satuan': $(_tr).find('.satuan').val(),
+                            'satuan': $(_tr).find('.satuan option:selected').attr('data-satuan'),
                             'pengali': $(_tr).find('.satuan option:selected').attr('data-pengali')
                         };
 
@@ -631,7 +632,8 @@ var mutasi = {
                         var _detail = {
                             'item_kode': $(_tr).find('.item').val(),
                             'jumlah': numeral.unformat( $(_tr).find('.jumlah').val() ),
-                            'satuan': $(_tr).find('.satuan').val(),
+                            // 'satuan': $(_tr).find('.satuan').val(),
+                            'satuan': $(_tr).find('.satuan option:selected').attr('data-satuan'),
                             'pengali': $(_tr).find('.satuan option:selected').attr('data-pengali')
                         };
 
