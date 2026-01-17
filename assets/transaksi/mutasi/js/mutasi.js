@@ -29,8 +29,6 @@ var mutasi = {
             format: 'DD MMM Y',
             // minDate: moment(new Date((today+' 00:00:00'))).subtract(7, 'days'),
             useCurrent: false
-        }).on('dp.hide', function(e) {
-            // mutasi.getHargaItem();
         });
 
         if ( !empty($("#TglMutasi").find('input').data('tgl')) ) {
