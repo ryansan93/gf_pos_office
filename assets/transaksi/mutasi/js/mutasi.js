@@ -248,13 +248,11 @@ var mutasi = {
             // minimumInputLength: 2,
             escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
             templateResult: function (data) {
-                var markup = "<option value='"+data.id+"' data-pengali='"+data.pengali+"' data-harga='"+data.harga+"'>"+data.satuan+"</option>";
+                var markup = "<option value='"+data.satuan+"' data-pengali='"+data.pengali+"' data-harga='"+data.harga+"'>"+data.satuan+"</option>";
                 return markup;
             },
             templateSelection: function (data, container) {
                 var _tr = $(elm).closest('tr');
-
-                console.log( data );
                     
                 var dataset = null;
                 if ( typeof data.element !== 'undefined' ) {
