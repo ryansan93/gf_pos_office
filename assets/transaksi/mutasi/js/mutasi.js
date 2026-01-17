@@ -217,7 +217,7 @@ var mutasi = {
                 type: 'GET',
                 data: function (params, jenis) {
                     var dcontent = $('#action');
-                    var tr = $(elm).closest('tr');
+                    var tr = $(this).closest('tr');
 
                     var item = $(tr).find('select.item').val();
                     var asal = $(dcontent).find('select.asal').val();
@@ -253,7 +253,7 @@ var mutasi = {
                 return markup;
             },
             templateSelection: function (data, container) {
-                var _tr = $(elm).closest('tr');
+                var _tr = $(this).closest('tr');
                     
                 var dataset = null;
                 if ( typeof data.element !== 'undefined' ) {
