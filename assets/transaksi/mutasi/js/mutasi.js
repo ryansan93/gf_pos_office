@@ -338,10 +338,10 @@ var mutasi = {
 
         $(tbody).append( $(tr_clone) );
 
-        mutasi.setSelect2Item( $(tbody).find('select.item') );
-        mutasi.setSelect2SatuanHarga( $(tbody).find('select.satuan') );
-        // $.map( $(tbody).find('tr'), function(tr) {
-        // });
+        $.map( $(tbody).find('tr'), function(_tr) {
+            mutasi.setSelect2Item( $(_tr).find('select.item') );
+            mutasi.setSelect2SatuanHarga( $(_tr).find('select.satuan') );
+        });
 
         // $.each($(tbody).find('select.item'), function(a) {
         // )};
