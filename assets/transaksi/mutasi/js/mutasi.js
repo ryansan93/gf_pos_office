@@ -168,7 +168,7 @@ var mutasi = {
                 }
             },
             cache: true,
-            placeholder: 'Search for a item...',
+            placeholder: 'Search for a Item...',
             // minimumInputLength: 2,
             escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
             templateResult: function (data) {
@@ -243,7 +243,7 @@ var mutasi = {
                     return { results: [] }; // Return dataset to load after error
                 }
             },
-            // cache: true,
+            cache: true,
             placeholder: 'Search for a satuan...',
             // minimumInputLength: 2,
             escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
