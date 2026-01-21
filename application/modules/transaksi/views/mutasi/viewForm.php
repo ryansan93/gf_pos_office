@@ -83,7 +83,7 @@
 						<td><?php echo $v_det['coa'].'<br>'.$v_det['ket_coa']; ?></td>
 						<td class="text-center"><?php echo $v_det['satuan']; ?></td>
 						<td class="text-right"><?php echo angkaDecimal($v_det['jumlah']); ?></td>
-						<td class="text-right"><?php echo angkaDecimal($v_det['harga']); ?></td>
+						<td class="text-right"><?php echo angkaDecimal($v_det['harga'] * $v_det['pengali']); ?></td>
 						<td class="text-right"><?php echo angkaDecimal($v_det['total']); ?></td>
 						<?php $grand_total += $v_det['total']; ?>
 					</tr>

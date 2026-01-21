@@ -275,7 +275,7 @@ var mutasi = {
                 $(data.element).attr('data-harga', harga);
                 $(data.element).attr('data-satuan', satuan);
 
-                $(_tr).find('td.harga').html( numeral.formatDec(harga) );
+                $(_tr).find('td.harga').html( numeral.formatDec((harga * pengali)) );
 
                 mutasi.hitTotal( $(elm) );
 
@@ -760,7 +760,7 @@ var mutasi = {
         var pengali = $(tr).find('select.satuan option:selected').attr('data-pengali');
         var harga = numeral.unformat( $(tr).find('.harga').text() );
 
-        var total = (jumlah*pengali) * harga;
+        var total = jumlah * harga;
 
         $(tr).find('.total').text( numeral.formatDec(total) );
 

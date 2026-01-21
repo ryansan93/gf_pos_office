@@ -138,7 +138,7 @@
 						<td>
 							<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-tipe="decimal" data-required="1" maxlength="10" value="<?php echo angkaDecimal($v_det['jumlah']); ?>" onblur="mutasi.hitTotal(this)">
 						</td>
-						<td class="harga text-right"><?php echo angkaDecimal($v_det['harga']); ?></td>
+						<td class="harga text-right"><?php echo angkaDecimal($v_det['harga'] * $v_det['pengali']); ?></td>
 						<td class="total text-right"><?php echo angkaDecimal($v_det['total']); ?></td>
 						<td>
 							<div class="col-sm-6 no-padding" style="display: flex; justify-content: center; align-items: center;">
