@@ -252,7 +252,8 @@ class MutasiStok extends Public_Controller {
                         $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['nama'] = $v_det['nama'];
                         $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['satuan'] = $v_det['satuan'];
 
-                        $key_masuk = str_replace('-', '', substr($v_det['tanggal'], 0, 10)).'-'.$v_det['kode_trans'].'-'.$harga_beli; 
+                        // $key_masuk = str_replace('-', '', substr($v_det['tanggal'], 0, 10)).'-'.$v_det['kode_trans'].'-'.$harga_beli; 
+                        $key_masuk = str_replace('-', '', substr($v_det['tanggal'], 0, 10)).'-'.$v_det['kode_trans']; 
 
                         if ( !isset($data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]) ) {
                             $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['kode'] = $v_det['kode_trans'];
