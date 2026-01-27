@@ -147,27 +147,42 @@ class MutasiStok extends Public_Controller {
                 from
                 (
                     select
-                        max(st.id) as id,
-                        st.gudang_kode,
-                        s.tanggal,
-                        s.kode_trans,
-                        s.item_kode,
-                        min(s.sisa_stok) as sisa_stok
-                        -- ,isnull(sum(strans.jumlah), 0) as jml_pakai
-                    from stok_tanggal st
+                        stid.id,
+                        d_masuk.gudang_kode,
+                        d_masuk.tanggal,
+                        d_masuk.kode_trans,
+                        d_masuk.item_kode,
+                        d_masuk.sisa_stok
+                    from
+                    (
+                        select
+                            min(st.tanggal) as tgl_st,
+                            st.gudang_kode,
+                            s.tanggal,
+                            s.kode_trans,
+                            s.item_kode,
+                            min(s.sisa_stok) as sisa_stok
+                            -- ,isnull(sum(strans.jumlah), 0) as jml_pakai
+                        from stok_tanggal st
+                        left join
+                            stok s
+                            on
+                                st.id = s.id_header
+                        where
+                            st.tanggal between '".$start_date."' and '".$end_date."' and
+                            st.gudang_kode = '".$_gudang."'
+                            ".$sql_item."
+                        group by
+                            st.gudang_kode,
+                            s.tanggal,
+                            s.kode_trans,
+                            s.item_kode
+                    ) d_masuk
                     left join
-                        stok s
+                        stok_tanggal stid
                         on
-                            st.id = s.id_header
-                    where
-                        st.tanggal between '".$start_date."' and '".$end_date."' and
-                        st.gudang_kode = '".$_gudang."'
-                        ".$sql_item."
-                    group by
-                        st.gudang_kode,
-                        s.tanggal,
-                        s.kode_trans,
-                        s.item_kode
+                            d_masuk.tgl_st = stid.tanggal and
+                            d_masuk.gudang_kode = stid.gudang_kode
                 ) d_masuk
                 left join
                     (
