@@ -264,13 +264,13 @@ class MutasiStok extends Public_Controller {
                             $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['harga'] = $harga_rata;
                             $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] = ($v_det['sisa_stok'] * $harga_rata);
 
-                            if ( !empty($data_stokt) ) {
-                                foreach ($data_stokt as $k => $v) {
-                                    $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] += $v['jumlah'];
-                                    $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['stok_akhir'] += $v['jumlah'];
-                                    $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] += ($v['jumlah'] * $harga_rata);
-                                }
-                            }
+                            // if ( !empty($data_stokt) ) {
+                            //     foreach ($data_stokt as $k => $v) {
+                            //         $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] += $v['jumlah'];
+                            //         $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['stok_akhir'] += $v['jumlah'];
+                            //         $data[ $v_data['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($v_det['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] += ($v['jumlah'] * $harga_rata);
+                            //     }
+                            // }
                         }
 
                         if ( !empty($data_stokt) ) {
