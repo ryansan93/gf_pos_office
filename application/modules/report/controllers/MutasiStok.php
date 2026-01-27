@@ -410,7 +410,7 @@ class MutasiStok extends Public_Controller {
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['satuan'] = $value['satuan'];
                 }
 
-                if ( $value['jenis'] == '0' ) {
+                if ( $value['jenis'] == '1' ) {
                     $key_masuk = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
                     if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]) ) {
                         $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['kode'] = $value['kode_trans'];
@@ -422,7 +422,7 @@ class MutasiStok extends Public_Controller {
                     }
                 }
 
-                if ( $value['jenis'] == '1' ) {
+                if ( $value['jenis'] == '2' ) {
                     $key_keluar = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['kode'] = $value['kode_trans'];
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['tgl_trans'] = substr($value['tanggal'], 0, 10);
