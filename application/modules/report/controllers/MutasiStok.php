@@ -139,12 +139,7 @@ class MutasiStok extends Public_Controller {
             (
                 /* Saldo Awal */
                 select
-                    d_masuk.id,
-                    d_masuk.gudang_kode,
-                    d_masuk.tanggal as tanggal,
-                    'Saldo Awal' as kode_trans,
-                    d_masuk.item_kode,
-                    d_masuk.sisa_stok
+                    d_masuk.*
                     ,sh.harga
                     ,isnull(strans.jumlah, 0) as jml_pakai
                     ,d_masuk.sisa_stok + isnull(strans.jumlah, 0) as debet
@@ -174,7 +169,7 @@ class MutasiStok extends Public_Controller {
                                 min(st.tanggal) as tgl_st,
                                 st.gudang_kode,
                                 '".$start_date."' as tanggal,
-                                s.kode_trans as kode_trans,
+                                'Saldo Awal' as kode_trans,
                                 s.item_kode,
                                 min(s.sisa_stok) as sisa_stok
                             from stok_tanggal st
@@ -190,7 +185,6 @@ class MutasiStok extends Public_Controller {
                             group by
                                 st.gudang_kode,
                                 s.tanggal,
-                                s.kode_trans,
                                 s.item_kode
                         ) d_masuk
                         group by
@@ -228,7 +222,7 @@ class MutasiStok extends Public_Controller {
                             s.kode_trans, s.item_kode, s.gudang_kode
                     ) strans
                     on
-                        d_masuk.kode_trans = strans.kode_trans and
+                        -- d_masuk.kode_trans = strans.kode_trans and
                         d_masuk.item_kode = strans.item_kode and
                         d_masuk.gudang_kode = strans.gudang_kode
                 left join
