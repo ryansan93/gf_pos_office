@@ -202,7 +202,7 @@ class MutasiStok extends Public_Controller {
                 left join
                     (
                         select 
-                            s.kode_trans, s.item_kode, s.gudang_kode, sum(strans.jumlah) as jumlah
+                            s.item_kode, s.gudang_kode, sum(strans.jumlah) as jumlah
                             -- strans.*
                         from stok_tanggal st
                         left join
@@ -218,7 +218,7 @@ class MutasiStok extends Public_Controller {
                             st.gudang_kode = '".$_gudang."'
                             ".$sql_item."
                         group by
-                            s.kode_trans, s.item_kode, s.gudang_kode
+                            s.item_kode, s.gudang_kode
                     ) strans
                     on
                         -- d_masuk.kode_trans = strans.kode_trans and
