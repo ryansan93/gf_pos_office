@@ -460,10 +460,8 @@ class Penerimaan extends Public_Controller {
         display_json( $this->result );
     }
 
-    public function tes()
+    public function tes($kode)
     {
-        $kode = 'TR23060002';
-
         $m_conf = new \Model\Storage\Conf();
 
         $tgl_transaksi = null;
@@ -504,11 +502,16 @@ class Penerimaan extends Public_Controller {
         }
 
         $sql = "EXEC sp_hitung_stok_by_barang @barang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($barang))))."', @tgl_transaksi = '".$tgl_transaksi."', @gudang = '".str_replace('"', '', str_replace(']', '', str_replace('[', '', json_encode($gudang))))."'";
+        cetak_r( $sql, 1 );
 
-        $d_conf = $m_conf->hydrateRaw($sql);
-        if ( $d_conf->count() > 0 ) {
-            cetak_r( $d_conf->toArray() );
-        }
+        // $conf = new \Model\Storage\Conf();
+        // $sql = "EXEC sp_tambah_stok @kode = '".$kode."', @table = 'terima'";
+
+        // $d_conf = $m_conf->hydrateRaw($sql);
+
+        // if ( $d_conf->count() > 0 ) {
+        //     cetak_r( $d_conf->toArray() );
+        // }
     }
 
     public function updatePo($no_po)
