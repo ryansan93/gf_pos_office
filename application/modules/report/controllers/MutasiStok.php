@@ -190,6 +190,7 @@ class MutasiStok extends Public_Controller {
                             group by
                                 st.gudang_kode,
                                 s.tanggal,
+                                s.kode_trans,
                                 s.item_kode
                         ) d_masuk
                         group by
