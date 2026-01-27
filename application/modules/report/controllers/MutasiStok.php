@@ -392,6 +392,7 @@ class MutasiStok extends Public_Controller {
                 on
                     i.kode = isatuan.item_kode
         ";
+        cetak_r( $sql, 1 );
         $d_conf = $m_conf->hydrateRaw( $sql );
         if ( $d_conf->count() > 0 ) {
             $d_conf = $d_conf->toArray();
