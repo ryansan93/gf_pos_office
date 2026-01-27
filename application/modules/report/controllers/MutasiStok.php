@@ -410,6 +410,18 @@ class MutasiStok extends Public_Controller {
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['satuan'] = $value['satuan'];
                 }
 
+                if ( $value['jenis'] == '0' ) {
+                    $key_masuk = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
+                    if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]) ) {
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['kode'] = $value['kode_trans'];
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['tgl_trans'] = substr($value['tanggal'], 0, 10);
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] = $value['debet'];
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['keluar'] = $value['kredit'];
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['harga'] = $value['harga'];
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] = ($value['debet'] * $value['harga']);
+                    }
+                }
+
                 if ( $value['jenis'] == '1' ) {
                     $key_masuk = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
                     if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]) ) {
@@ -443,7 +455,7 @@ class MutasiStok extends Public_Controller {
                 if ( isset($data[ $value['gudang_kode'] ]['detail']) ) {
                     ksort( $data[ $value['gudang_kode'] ]['detail'] );
                 }
-                
+
                 if ( isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail']) ) {
                     ksort( $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'] );
                 }
