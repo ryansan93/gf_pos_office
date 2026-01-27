@@ -432,13 +432,13 @@ class MutasiStok extends Public_Controller {
                 }
 
                 if ( !isset($data[ $key+1 ]) || $value['gudang_kode'] <> $data[ $key+1 ]['gudang_kode'] || $value['item_kode'] <> $data[ $key+1 ]['item_kode'] ) {
-                    if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]) ) {
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['kode'] = 'Saldo Awal';
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['tgl_trans'] = substr($start_date, 0, 10);
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['masuk'] = 0;
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['keluar'] = 0;
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['harga'] = 0;
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['nilai'] = 0;
+                    if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]) ) {
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['kode'] = 'Saldo Awal';
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['tgl_trans'] = substr($start_date, 0, 10);
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['masuk'] = 0;
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['keluar'] = 0;
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['harga'] = 0;
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['nilai'] = 0;
                     }
                 }
 
