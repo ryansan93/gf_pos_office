@@ -398,7 +398,7 @@ class MutasiStok extends Public_Controller {
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['satuan'] = $value['satuan'];
                 }
 
-                $key_masuk_sa = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-0'; 
+                $key_masuk_sa = str_replace('-', '', substr($start_date, 0, 10)).'-0'; 
                 $key_masuk = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
                 $key_keluar = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
 
