@@ -97,7 +97,7 @@ class MutasiStok extends Public_Controller {
                 $data = $d_stokt->toArray();
             }
 
-            $this->_mappingDataReport = $this->mappingDataReport( $data, $item, $gudang );
+            $this->_mappingDataReport = $this->mappingDataReport( null, $item, $gudang, $start_date, $end_date );
 
             $content_report['data'] = $this->_mappingDataReport;
             $html_report = $this->load->view($this->pathView . 'list', $content_report, TRUE);
@@ -115,8 +115,205 @@ class MutasiStok extends Public_Controller {
         display_json( $this->result );
     }
 
-    public function mappingDataReport($_data, $_item, $_gudang)
+    public function mappingDataReport($_data, $_item, $_gudang, $start_date, $end_date)
     {
+        $sql_item = null;
+        if ( !in_array('all', $_item) ) {
+            $sql_item = "and s.item_kode in ('".implode("', '", $_item)."')";
+        }
+
+        $sql_item_sh = null;
+        if ( !in_array('all', $_item) ) {
+            $sql_item_sh = "where item_kode in ('".implode("', '", $_item)."')";
+        }
+
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select
+                data.*,
+                g.nama as nama_gudang,
+                i.nama as nama_barang,
+                isatuan.satuan,
+                sh.harga
+            from
+            (
+                /* Data Masuk */
+                select
+                    d_masuk.*
+                    ,isnull(strans.jumlah, 0) as jml_pakai
+                    ,d_masuk.sisa_stok + isnull(strans.jumlah, 0) as debet
+                    ,0 as kredit
+                    ,'0' as jenis
+                from
+                (
+                    select
+                        st.id,
+                        st.gudang_kode,
+                        s.tanggal,
+                        s.kode_trans,
+                        s.item_kode,
+                        min(s.sisa_stok) as sisa_stok
+                        -- ,isnull(sum(strans.jumlah), 0) as jml_pakai
+                    from stok_tanggal st
+                    left join
+                        stok s
+                        on
+                            st.id = s.id_header
+                    where
+                        st.tanggal between '".$start_date."' and '".$end_date."' and
+                        st.gudang_kode = '".$_gudang."'
+                        ".$sql_item."
+                    group by
+                        st.gudang_kode,
+                        s.tanggal,
+                        s.kode_trans,
+                        s.item_kode
+                ) d_masuk
+                left join
+                    (
+                        select 
+                            s.kode_trans, s.item_kode, s.gudang_kode, sum(strans.jumlah) as jumlah
+                            -- strans.*
+                        from stok_tanggal st
+                        left join
+                            stok s
+                            on
+                                st.id = s.id_header
+                        left join
+                            stok_trans strans
+                            on
+                                s.id = strans.id_header
+                        where
+                            st.tanggal between '".$start_date."' and '".$end_date."' and
+                            st.gudang_kode = '".$_gudang."'
+                            ".$sql_item."
+                        group by
+                            s.kode_trans, s.item_kode, s.gudang_kode
+                    ) strans
+                    on
+                        d_masuk.kode_trans = strans.kode_trans and
+                        d_masuk.item_kode = strans.item_kode and
+                        d_masuk.gudang_kode = strans.gudang_kode
+                /* END - Data Masuk */
+
+                union all
+
+                /* Data Keluar */
+                select 
+                    st.id,
+                    s.gudang_kode, 
+                    st.tanggal, 
+                    strans.kode_trans, 
+                    s.item_kode,
+                    0 as sisa_stok,
+                    0 as jml_pakai,
+                    0 as debet,
+                    strans.jumlah as kredit,
+                    '1' as jenis
+                    -- strans.*
+                from stok_tanggal st
+                left join
+                    stok s
+                    on
+                        st.id = s.id_header
+                left join
+                    stok_trans strans
+                    on
+                        s.id = strans.id_header
+                where
+                    st.tanggal between '".$start_date."' and '".$end_date."' and
+                    st.gudang_kode = '".$_gudang."'
+                    and strans.jumlah > 0
+                    ".$sql_item."
+                /* END - Data Keluar */
+            ) data
+            left join
+                (
+                    select
+                    *
+                    from stok_harga
+                    ".$sql_item_sh."
+                ) sh
+                on
+                    sh.id_header = data.id and
+                    sh.item_kode = data.item_kode
+            left join
+                gudang g
+                on
+                    g.kode_gudang = data.gudang_kode
+            left join
+                item i
+                on
+                    i.kode = data.item_kode
+            left join
+                (
+                    select is1.* from item_satuan is1
+                    right join
+                        (
+                            select max(id) as id, item_kode from item_satuan where pengali = 1 group by item_kode
+                        ) is2
+                        on
+                            is1.id = is2.id
+
+                ) isatuan
+                on
+                    i.kode = isatuan.item_kode
+        ";
+        $d_conf = $m_conf->hydrateRaw( $sql );
+        if ( $d_conf->count() > 0 ) {
+            $d_conf = $d_conf->toArray();
+
+            foreach ($d_conf as $key => $value) {
+                if ( !isset($data[ $value['gudang_kode'] ]) ) {
+                    $data[ $value['gudang_kode'] ]['kode'] = $value['gudang_kode'];
+                    $data[ $value['gudang_kode'] ]['nama'] = $value['nama_gudang'];
+                }
+
+                $key_item = $value['nama_barang'].' | '.$value['item_kode'];
+                if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]) ) {
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['kode'] = $value['item_kode'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['nama'] = $value['nama_barang'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['satuan'] = $value['satuan'];
+                }
+
+                if ( $value['jenis'] == '0' ) {
+                    $key_masuk = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
+                    if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]) ) {
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['kode'] = $value['kode_trans'];
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['tgl_trans'] = substr($value['tanggal'], 0, 10);
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] = $value['debet'];
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['keluar'] = $value['kredit'];
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['harga'] = $value['harga'];
+                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] = ($value['debet'] * $value['harga']);
+                    }
+                }
+
+                if ( $value['jenis'] == '1' ) {
+                    $key_keluar = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['kode'] = $value['kode_trans'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['tgl_trans'] = substr($value['tanggal'], 0, 10);
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['masuk'] = $value['debet'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['keluar'] = $value['kredit'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['harga'] = $value['harga'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['nilai'] = ($value['kredit'] * $value['harga']);
+                }
+
+                if ( isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk']) && !empty($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk']) ) {
+                    ksort( $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk']);
+                }
+
+                if ( isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar']) && !empty($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar']) ) {
+                    ksort( $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar']);
+                }
+
+                ksort( $data[ $value['gudang_kode'] ]['detail'] );
+                ksort( $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'] );
+            }
+        }
+
+        /*
+        cetak_r($d_conf, 1);
+
         $kode_item = array();
         if ( !empty( $_item ) ) {
             foreach ($_item as $k_item => $v_item) {
@@ -384,6 +581,7 @@ class MutasiStok extends Public_Controller {
                 }
             }
         }
+        */
 
         return $data;
     }
