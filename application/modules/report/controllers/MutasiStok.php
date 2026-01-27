@@ -147,7 +147,7 @@ class MutasiStok extends Public_Controller {
                 from
                 (
                     select
-                        st.id,
+                        min(st.id) as id,
                         st.gudang_kode,
                         s.tanggal,
                         s.kode_trans,
