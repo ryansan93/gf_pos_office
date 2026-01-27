@@ -133,8 +133,7 @@ class MutasiStok extends Public_Controller {
                 data.*,
                 g.nama as nama_gudang,
                 i.nama as nama_barang,
-                isatuan.satuan,
-                sh.harga
+                isatuan.satuan
             from
             (
                 /* Saldo Awal */
@@ -361,16 +360,6 @@ class MutasiStok extends Public_Controller {
                 /* END - Data Keluar */
             ) data
             left join
-                (
-                    select
-                    *
-                    from stok_harga
-                    ".$sql_item_sh."
-                ) sh
-                on
-                    sh.id_header = data.id and
-                    sh.item_kode = data.item_kode
-            left join
                 gudang g
                 on
                     g.kode_gudang = data.gudang_kode
@@ -392,11 +381,11 @@ class MutasiStok extends Public_Controller {
                 on
                     i.kode = isatuan.item_kode
         ";
-        // cetak_r( $sql, 1 );
         $d_conf = $m_conf->hydrateRaw( $sql );
         if ( $d_conf->count() > 0 ) {
             $d_conf = $d_conf->toArray();
 
+            $jenis_nol = 0;
             foreach ($d_conf as $key => $value) {
                 if ( !isset($data[ $value['gudang_kode'] ]) ) {
                     $data[ $value['gudang_kode'] ]['kode'] = $value['gudang_kode'];
@@ -411,6 +400,7 @@ class MutasiStok extends Public_Controller {
                 }
 
                 if ( $value['jenis'] == '0' ) {
+                    $jenis_nol++;
                     $key_masuk = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
                     if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]) ) {
                         $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['kode'] = $value['kode_trans'];
