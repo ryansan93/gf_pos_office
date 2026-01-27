@@ -385,7 +385,6 @@ class MutasiStok extends Public_Controller {
         if ( $d_conf->count() > 0 ) {
             $d_conf = $d_conf->toArray();
 
-            $jenis_nol = 0;
             foreach ($d_conf as $key => $value) {
                 if ( !isset($data[ $value['gudang_kode'] ]) ) {
                     $data[ $value['gudang_kode'] ]['kode'] = $value['gudang_kode'];
@@ -399,21 +398,20 @@ class MutasiStok extends Public_Controller {
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['satuan'] = $value['satuan'];
                 }
 
+                $key_masuk_sa = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['jenis']; 
+                $key_masuk = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
+                $key_keluar = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
+
                 if ( $value['jenis'] == '0' ) {
-                    $jenis_nol++;
-                    $key_masuk = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
-                    if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]) ) {
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['kode'] = $value['kode_trans'];
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['tgl_trans'] = substr($value['tanggal'], 0, 10);
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['masuk'] = $value['debet'];
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['keluar'] = $value['kredit'];
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['harga'] = $value['harga'];
-                        $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['nilai'] = ($value['debet'] * $value['harga']);
-                    }
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['kode'] = $value['kode_trans'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['tgl_trans'] = substr($value['tanggal'], 0, 10);
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['masuk'] = $value['debet'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['keluar'] = $value['kredit'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['harga'] = $value['harga'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['nilai'] = ($value['debet'] * $value['harga']);
                 }
 
                 if ( $value['jenis'] == '1' ) {
-                    $key_masuk = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
                     if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]) ) {
                         $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['kode'] = $value['kode_trans'];
                         $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk ]['tgl_trans'] = substr($value['tanggal'], 0, 10);
@@ -425,13 +423,25 @@ class MutasiStok extends Public_Controller {
                 }
 
                 if ( $value['jenis'] == '2' ) {
-                    $key_keluar = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['kode'] = $value['kode_trans'];
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['tgl_trans'] = substr($value['tanggal'], 0, 10);
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['masuk'] = $value['debet'];
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['keluar'] = $value['kredit'];
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['harga'] = $value['harga'];
                     $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar'][ $key_keluar ]['nilai'] = ($value['kredit'] * $value['harga']);
+                }
+
+                if ( isset($data[ $key+1 ]) ) {
+                    if ( $value['gudang_kode'] <> $data[ $key+1 ]['gudang_kode'] || $value['item_kode'] <> $data[ $key+1 ]['item_kode'] ) {
+                        if ( !isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]) ) {
+                            $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['kode'] = 'Saldo Awal';
+                            $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['tgl_trans'] = substr($start_date, 0, 10);
+                            $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['masuk'] = 0;
+                            $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['keluar'] = 0;
+                            $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['harga'] = 0;
+                            $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['nilai'] = 0;
+                        }
+                    }
                 }
 
                 if ( isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk']) && !empty($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk']) ) {
