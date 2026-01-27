@@ -440,8 +440,13 @@ class MutasiStok extends Public_Controller {
                     ksort( $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['keluar']);
                 }
 
-                ksort( $data[ $value['gudang_kode'] ]['detail'] );
-                ksort( $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'] );
+                if ( isset($data[ $value['gudang_kode'] ]['detail']) ) {
+                    ksort( $data[ $value['gudang_kode'] ]['detail'] );
+                }
+                
+                if ( isset($data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail']) ) {
+                    ksort( $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'] );
+                }
             }
         }
 
