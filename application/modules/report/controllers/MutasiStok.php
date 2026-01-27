@@ -332,7 +332,7 @@ class MutasiStok extends Public_Controller {
                     0 as jml_pakai,
                     0 as debet,
                     strans.jumlah as kredit,
-                    '1' as jenis
+                    '2' as jenis
                     -- strans.*
                 from stok_tanggal st
                 left join
