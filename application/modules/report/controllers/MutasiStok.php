@@ -403,12 +403,12 @@ class MutasiStok extends Public_Controller {
                 $key_keluar = str_replace('-', '', substr($value['tanggal'], 0, 10)).'-'.$value['kode_trans']; 
 
                 if ( $value['jenis'] == '0' ) {
-                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['kode'] = $value['kode_trans'];
-                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['tgl_trans'] = substr($value['tanggal'], 0, 10);
-                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['masuk'] = $value['debet'];
-                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['keluar'] = $value['kredit'];
-                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['harga'] = $value['harga'];
-                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($value['tanggal'], 0, 10) ]['masuk'][ $key_masuk_sa ]['nilai'] = ($value['debet'] * $value['harga']);
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['kode'] = $value['kode_trans'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['tgl_trans'] = substr($start_date, 0, 10);
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['masuk'] = $value['debet'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['keluar'] = $value['kredit'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['harga'] = $value['harga'];
+                    $data[ $value['gudang_kode'] ]['detail'][ $key_item ]['detail'][ substr($start_date, 0, 10) ]['masuk'][ $key_masuk_sa ]['nilai'] = ($value['debet'] * $value['harga']);
                 }
 
                 if ( $value['jenis'] == '1' ) {
