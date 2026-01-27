@@ -150,35 +150,49 @@ class MutasiStok extends Public_Controller {
                     select
                         stid.id,
                         d_masuk.gudang_kode,
-                        '".$start_date."' as tanggal,
-                        'Saldo Awal' as kode_trans,
+                        d_masuk.tanggal as tanggal,
+                        d_masuk.kode_trans as kode_trans,
                         d_masuk.item_kode,
                         d_masuk.sisa_stok
                     from
                     (
                         select
-                            min(st.tanggal) as tgl_st,
-                            st.gudang_kode,
-                            s.tanggal,
-                            s.kode_trans,
-                            s.item_kode,
-                            min(s.sisa_stok) as sisa_stok
-                        from stok_tanggal st
-                        left join
-                            stok s
-                            on
-                                st.id = s.id_header
-                        where
-                            st.tanggal between '".$start_date."' and '".$end_date."' and
-                            s.tanggal <= '".$start_date."' and
-                            st.gudang_kode = '".$_gudang."'
-                            ".$sql_item."
+                            d_masuk.tgl_st,
+                            d_masuk.gudang_kode,
+                            d_masuk.tanggal,
+                            d_masuk.kode_trans,
+                            d_masuk.item_kode,
+                            sum(d_masuk.sisa_stok) as sisa_stok
+                        from
+                        (
+                            select
+                                min(st.tanggal) as tgl_st,
+                                st.gudang_kode,
+                                '".$start_date."' as tanggal,
+                                'Saldo Awal' as kode_trans,
+                                s.item_kode,
+                                min(s.sisa_stok) as sisa_stok
+                            from stok_tanggal st
+                            left join
+                                stok s
+                                on
+                                    st.id = s.id_header
+                            where
+                                st.tanggal between '".$start_date."' and '".$end_date."' and
+                                s.tanggal <= '".$start_date."' and
+                                st.gudang_kode = '".$_gudang."'
+                                ".$sql_item."
+                            group by
+                                st.gudang_kode,
+                                s.tanggal,
+                                s.item_kode
+                        ) d_masuk
                         group by
-                            st.gudang_kode,
-                            s.tanggal,
-                            s.kode_trans,
-                            s.item_kode,
-                            s.hrg_beli
+                            d_masuk.tgl_st,
+                            d_masuk.gudang_kode,
+                            d_masuk.tanggal,
+                            d_masuk.kode_trans,
+                            d_masuk.item_kode
                     ) d_masuk
                     left join
                         stok_tanggal stid
@@ -219,8 +233,8 @@ class MutasiStok extends Public_Controller {
                         ".$sql_item_sh."
                     ) sh
                     on
-                        d_masuk.id_header = data.id and
-                        d_masuk.item_kode = data.item_kode
+                        sh.id_header = d_masuk.id and
+                        sh.item_kode = d_masuk.item_kode
 
                 /* End - Saldo Awal */
 
@@ -232,18 +246,17 @@ class MutasiStok extends Public_Controller {
                     ,isnull(strans.jumlah, 0) as jml_pakai
                     ,d_masuk.sisa_stok + isnull(strans.jumlah, 0) as debet
                     ,0 as kredit
-                    ,'0' as jenis
+                    ,'1' as jenis
                 from
                 (
                     select
-                        -- stid.id,
-                        null as id,
+                        stid.id,
                         d_masuk.gudang_kode,
                         d_masuk.tanggal,
                         d_masuk.kode_trans,
                         d_masuk.item_kode,
                         d_masuk.sisa_stok,
-                        d_masuk.harga_beli as harga
+                        d_masuk.harga
                     from
                     (
                         select
@@ -253,14 +266,15 @@ class MutasiStok extends Public_Controller {
                             s.kode_trans,
                             s.item_kode,
                             min(s.sisa_stok) as sisa_stok,
-                            s.hrg_beli
+                            s.harga_beli as harga
                             -- ,isnull(sum(strans.jumlah), 0) as jml_pakai
                         from stok_tanggal st
                         left join
                             stok s
                             on
                                 st.id = s.id_header
-                        where
+                        where                        
+                            s.tanggal between '".$start_date."' and '".$end_date."' and
                             st.tanggal between '".$start_date."' and '".$end_date."' and
                             st.gudang_kode = '".$_gudang."'
                             ".$sql_item."
@@ -269,7 +283,7 @@ class MutasiStok extends Public_Controller {
                             s.tanggal,
                             s.kode_trans,
                             s.item_kode,
-                            s.hrg_beli
+                            s.harga_beli
                     ) d_masuk
                     left join
                         stok_tanggal stid
@@ -378,7 +392,6 @@ class MutasiStok extends Public_Controller {
                 on
                     i.kode = isatuan.item_kode
         ";
-        cetak_r( $sql, 1);
         $d_conf = $m_conf->hydrateRaw( $sql );
         if ( $d_conf->count() > 0 ) {
             $d_conf = $d_conf->toArray();
