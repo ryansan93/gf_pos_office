@@ -89,13 +89,13 @@ class MutasiStok extends Public_Controller {
             $gudang = $params['gudang'];
             $item = $params['item'];
 
-            $m_stokt = new \Model\Storage\StokTanggal_model();
-            $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
+            // $m_stokt = new \Model\Storage\StokTanggal_model();
+            // $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
 
-            $data = null;
-            if ( $d_stokt->count() > 0 ) {
-                $data = $d_stokt->toArray();
-            }
+            // $data = null;
+            // if ( $d_stokt->count() > 0 ) {
+            //     $data = $d_stokt->toArray();
+            // }
 
             $this->_mappingDataReport = $this->mappingDataReport( null, $item, $gudang, $start_date, $end_date );
 
@@ -764,15 +764,15 @@ class MutasiStok extends Public_Controller {
         $gudang = $_data_params['gudang'];
         $item = $_data_params['item'];
 
-        $m_stokt = new \Model\Storage\StokTanggal_model();
-        $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
+        // $m_stokt = new \Model\Storage\StokTanggal_model();
+        // $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
 
-        $data = null;
-        if ( $d_stokt->count() > 0 ) {
-            $data = $d_stokt->toArray();
-        }
+        // $data = null;
+        // if ( $d_stokt->count() > 0 ) {
+        //     $data = $d_stokt->toArray();
+        // }
 
-        $this->_mappingDataReport = $this->mappingDataReport( $data, $item, $gudang );
+        $this->_mappingDataReport = $this->mappingDataReport( null, $item, $gudang, $start_date, $end_date );
 
         $gudang_nama = $this->_mappingDataReport[ $gudang ]['nama'];
 
