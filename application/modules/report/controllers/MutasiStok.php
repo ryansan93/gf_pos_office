@@ -330,7 +330,7 @@ class MutasiStok extends Public_Controller {
                     sh.harga,
                     0 as jml_pakai,
                     0 as debet,
-                    strans.jumlah as kredit,
+                    sum(strans.jumlah) as kredit,
                     '2' as jenis
                     -- strans.*
                 from stok_tanggal st
@@ -357,6 +357,13 @@ class MutasiStok extends Public_Controller {
                     st.gudang_kode = '".$_gudang."'
                     and strans.jumlah > 0
                     ".$sql_item."
+                group by
+                    st.id,
+                    s.gudang_kode, 
+                    st.tanggal, 
+                    strans.kode_trans, 
+                    s.item_kode,
+                    sh.harga
                 /* END - Data Keluar */
             ) data
             left join
