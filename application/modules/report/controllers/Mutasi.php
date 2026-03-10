@@ -209,7 +209,131 @@ class Mutasi extends Public_Controller {
         display_json( $this->result );
     }
 
-    public function exportExcel($_params)
+    public function exportExcel($_params) {
+        $_data_params = json_decode( exDecrypt( $_params ), true );
+
+        $start_date = $_data_params['start_date'].' 00:00:00';
+        $end_date = $_data_params['end_date'].' 23:59:59';
+        $gudang_asal = $_data_params['gudang_asal'];
+        $gudang_tujuan = $_data_params['gudang_tujuan'];
+
+        $detail = $this->getData($gudang_asal, $gudang_tujuan, $start_date, $end_date);
+
+        // cetak_r( $detail, 1 );
+
+        $data = array(
+            'gudang_asal' => $gudang_asal,
+            'gudang_tujuan' => $gudang_tujuan,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'detail' => $detail
+        );
+
+        $filename = 'export-mutasi-barang-';
+        $filename = $filename.str_replace('-', '', substr($start_date, 0, 10)).'_'.str_replace('-', '', substr($end_date, 0, 10));
+
+        $arr_column = null;
+
+        $idx = 0;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'LAPORAN MUTASI BARANG', 'data_type' => 'string', 'colspan' => array('A','F'), 'align' => 'left', 'text_style' => 'bold', 'border' => 'none')
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => '', 'data_type' => 'string', 'colspan' => array('A','F'), 'align' => 'left', 'text_style' => 'bold', 'border' => 'none'),
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'Gudang Asal', 'data_type' => 'string', 'align' => 'left', 'text_style' => 'bold', 'border' => 'none'),
+            'F' => array('value' => ': '.implode(", ", $data['gudang_asal']), 'data_type' => 'string', 'align' => 'left', 'text_style' => 'bold', 'border' => 'none', 'colspan' => array('B','F')),
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'Gudang Tujuan', 'data_type' => 'string', 'align' => 'left', 'text_style' => 'bold', 'border' => 'none'),
+            'F' => array('value' => ': '.implode(", ", $data['gudang_tujuan']), 'data_type' => 'string', 'align' => 'left', 'text_style' => 'bold', 'border' => 'none', 'colspan' => array('B','F')),
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'PERIODE', 'data_type' => 'string', 'align' => 'left', 'text_style' => 'bold', 'border' => 'none'),
+            'F' => array('value' => ': '.str_replace('-', '/', substr($start_date, 0, 10)).' - '.str_replace('-', '/', substr($end_date, 0, 10)), 'data_type' => 'string', 'colspan' => array('A','F'), 'align' => 'left', 'text_style' => 'bold', 'border' => 'none', 'colspan' => array('B','F')),
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'Tanggal', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'B' => array('value' => 'Kode Mutasi', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'C' => array('value' => 'Asal', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'D' => array('value' => 'Tujuan', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'E' => array('value' => 'Nama Item', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'F' => array('value' => 'COA SAP', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'G' => array('value' => 'Satuan', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'H' => array('value' => 'Jumlah', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'I' => array('value' => 'Harga (Rp.)', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'J' => array('value' => 'Nilai', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+        );
+        $idx++;
+
+        $start_row_header = $idx;
+
+        $arr_header = array('A','B','C','D','E','F','G','H','I','J');
+        if ( !empty($data['detail']) && count($data['detail']) > 0 ) {
+            $grand_total = 0;
+            foreach ($data['detail'] as $k_tanggal => $v_tanggal) {
+                $total_per_tanggal = 0;
+                foreach ($v_tanggal['detail'] as $k_kode => $v_kode) {
+                    $total_per_kode = 0;
+                    foreach ($v_kode['detail'] as $k_det => $v_det) {
+                        $total = $v_det['jumlah'] * $v_det['harga'];
+                        $grand_total += $total;
+                        $total_per_tanggal += $total;
+                        $total_per_kode += $total;
+
+                        $arr_column[ $idx ] = array(
+                            'A' => array('value' => $v_det['tgl_mutasi'], 'data_type' => 'date', 'align' => 'left', 'border' => 'border'),
+                            'B' => array('value' => $v_det['kode_mutasi'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'C' => array('value' => $v_det['nama_gudang_asal'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'D' => array('value' => $v_det['nama_gudang_tujuan'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'E' => array('value' => $v_det['nama_item'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'F' => array('value' => $v_det['coa'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'G' => array('value' => $v_det['satuan'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'H' => array('value' => $v_det['jumlah'], 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border'),
+                            'I' => array('value' => $v_det['harga'], 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border'),
+                            'J' => array('value' => $total, 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border'),
+                        );
+                        $idx++;
+                    }
+
+                    $arr_column[ $idx ] = array(
+                        'I' => array('value' => 'TOTAL', 'data_type' => 'string', 'align' => 'left', 'border' => 'border', 'text_style' => 'bold', 'colspan' => array('A','I')),
+                        'J' => array('value' => $total_per_kode, 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border', 'text_style' => 'bold'),
+                    );
+                    $idx++;
+                }
+
+                $arr_column[ $idx ] = array(
+                    'I' => array('value' => 'TOTAL PER TANGGAL - '.tglIndonesia($v_det['tgl_mutasi'], '-', ' '), 'data_type' => 'string', 'align' => 'left', 'border' => 'border', 'text_style' => 'bold', 'colspan' => array('A','I')),
+                    'J' => array('value' => $total_per_tanggal, 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border', 'text_style' => 'bold'),
+                );
+                $idx++;
+            }
+
+            $arr_column[ $idx ] = array(
+                'I' => array('value' => 'TOTAL', 'data_type' => 'string', 'align' => 'left', 'border' => 'border', 'text_style' => 'bold', 'colspan' => array('A','I')),
+                'J' => array('value' => $grand_total, 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border', 'text_style' => 'bold'),
+            );
+            $idx++;
+        } else {
+            $arr_column[ $idx ] = array(
+                'J' => array('value' => 'Data tidak ditemukan.', 'data_type' => 'string', 'align' => 'left', 'border' => 'border', 'colspan' => array('A','J'), 'text_style' => 'bold')
+            );
+        }
+
+        Modules::run( 'base/ExportExcel/exportExcelUsingSpreadSheet', $filename, $arr_header, $arr_column, $start_row_header, 0 );
+
+        $this->load->helper('download');
+        force_download('export_excel/'.$filename.'.xlsx', NULL);
+    }
+
+    public function exportExcelOld($_params)
     {
         $_data_params = json_decode( exDecrypt( $_params ), true );
 

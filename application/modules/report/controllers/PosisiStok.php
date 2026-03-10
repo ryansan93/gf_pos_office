@@ -511,7 +511,137 @@ class PosisiStok extends Public_Controller {
         display_json( $this->result );
     }
 
-    public function exportExcel($_params)
+    public function exportExcel($_params) {
+        $_data_params = json_decode( exDecrypt( $_params ), true );
+
+        $tgl_stok_opname = $this->config->item('tgl_stok_opname');
+
+        $start_date = $_data_params['start_date'];
+        $end_date = $_data_params['end_date'];
+        $gudang = $_data_params['gudang'];
+        $item = $_data_params['item'];
+        $group_item = $_data_params['group_item'];
+
+        $m_stokt = new \Model\Storage\StokTanggal_model();
+        $d_stokt = $m_stokt->whereBetween('tanggal', [$start_date, $end_date])->where('gudang_kode', $gudang)->with(['gudang'])->orderBy('tanggal', 'asc')->get();
+
+        $_data = null;
+        if ( $d_stokt->count() > 0 ) {
+            $_data = $d_stokt->toArray();
+        }
+
+        $data = $this->mappingDataReport( $_data, $item, $gudang, $group_item );
+
+        $filename = 'export-posisi-stok-';
+        $filename = $filename.str_replace('-', '', substr($start_date, 0, 10)).'_'.str_replace('-', '', substr($end_date, 0, 10));
+
+        $arr_column = null;
+
+        $idx = 0;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'LAPORAN POSISI STOK', 'data_type' => 'string', 'colspan' => array('A','F'), 'align' => 'left', 'text_style' => 'bold', 'border' => 'none')
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => '', 'data_type' => 'string', 'colspan' => array('A','F'), 'align' => 'left', 'text_style' => 'bold', 'border' => 'none'),
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'Gudang', 'data_type' => 'string', 'align' => 'left', 'text_style' => 'bold', 'border' => 'none'),
+            'F' => array('value' => ': '.$data[$gudang]['nama'], 'data_type' => 'string', 'align' => 'left', 'text_style' => 'bold', 'border' => 'none', 'colspan' => array('B','F')),
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'PERIODE', 'data_type' => 'string', 'align' => 'left', 'text_style' => 'bold', 'border' => 'none'),
+            'F' => array('value' => ': '.str_replace('-', '/', substr($start_date, 0, 10)).' - '.str_replace('-', '/', substr($end_date, 0, 10)), 'data_type' => 'string', 'colspan' => array('A','F'), 'align' => 'left', 'text_style' => 'bold', 'border' => 'none', 'colspan' => array('B','F')),
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'Tanggal', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'B' => array('value' => 'Kode Terima', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'C' => array('value' => 'Kode PO', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'D' => array('value' => 'Supplier', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'E' => array('value' => 'NPWP', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'F' => array('value' => 'Gudang', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'G' => array('value' => 'Nama Item', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'H' => array('value' => 'COA SAP', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+        );
+        $idx++;
+
+        $start_row_header = $idx;
+
+        $arr_header = array('A','B','C','D','E','F','G','H');
+        if ( !empty($data) && count($data) > 0 ) {
+            $grand_total_jumlah = 0;
+            $grand_total_nilai = 0;
+
+            foreach ($data as $k_gudang => $v_gudang) {
+                $arr_column[ $idx ] = array(
+                    'H' => array('value' => $v_gudang['nama'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border', 'colspan' => array('A','H'), 'text_style' => 'bold'),
+                );
+                $idx++;
+
+                foreach ($v_gudang['group_item'] as $k_gi => $v_gi) {
+                    $idx_gi = 0;
+                    $total_jumlah_gi = 0;
+                    $total_nilai_gi = 0;
+
+                    $rowspan_gi = 0;
+                    foreach ($v_gi['detail'] as $k_item => $v_item) {
+                        $rowspan_gi += count($v_item['detail_tanggal']);
+                    }
+
+                    foreach ($v_gi['detail'] as $k_item => $v_item) {
+                        $idx_tgl = 0; 
+                        $key_tgl = null;
+
+                        foreach ($v_item['detail_tanggal'] as $k_tgl => $v_tgl) {
+                            $arr_column[ $idx ] = array(
+                                'A' => array('value' => $v_gi['nama'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                                'B' => array('value' => $v_item['kode'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                                'C' => array('value' => $v_item['nama'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                                'D' => array('value' => $v_tgl['tanggal'], 'data_type' => 'date', 'align' => 'left', 'border' => 'border'),
+                                'E' => array('value' => $v_tgl['jumlah'], 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border'),
+                                'F' => array('value' => $v_item['satuan'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                                'G' => array('value' => $v_tgl['harga'], 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border'),
+                                'H' => array('value' => $v_tgl['nilai_stok'], 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border'),
+                            );
+                            $idx++;
+
+                            $grand_total_jumlah += $v_tgl['jumlah'];
+                            $grand_total_nilai += $v_tgl['nilai_stok'];
+
+                            if ( (count($v_item['detail_tanggal'])-1) == $idx_tgl ) {
+                                $total_jumlah_gi += $v_tgl['jumlah'];
+                                $total_nilai_gi += $v_tgl['nilai_stok'];
+                            }
+
+                            $idx_gi++;
+                            $idx_tgl++;
+                        }
+                    }
+                    $arr_column[ $idx ] = array(
+                        'D' => array('value' => 'TOTAL', 'data_type' => 'string', 'align' => 'right', 'border' => 'border', 'colspan' => array('A','D'), 'text_style' => 'bold'),
+                        'E' => array('value' => $total_jumlah_gi, 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border', 'text_style' => 'bold'),
+                        'G' => array('value' => '', 'data_type' => 'string', 'align' => 'right', 'border' => 'border', 'colspan' => array('F','G'), 'text_style' => 'bold'),
+                        'H' => array('value' => $total_nilai_gi, 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border', 'text_style' => 'bold'),
+                    );
+                    $idx++;
+                }
+            }
+        } else {
+            $arr_column[ $idx ] = array(
+                'H' => array('value' => 'Data tidak ditemukan.', 'data_type' => 'string', 'align' => 'left', 'border' => 'border', 'colspan' => array('A','H'), 'text_style' => 'bold')
+            );
+        }
+
+        Modules::run( 'base/ExportExcel/exportExcelUsingSpreadSheet', $filename, $arr_header, $arr_column, $start_row_header, 0 );
+
+        $this->load->helper('download');
+        force_download('export_excel/'.$filename.'.xlsx', NULL);
+    }
+
+    public function exportExcelOld($_params)
     {
         $_data_params = json_decode( exDecrypt( $_params ), true );
 

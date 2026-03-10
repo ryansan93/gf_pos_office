@@ -351,7 +351,113 @@ class Hutang extends Public_Controller {
         display_json( $this->result );
     }
 
-    public function exportExcel($_params)
+    public function exportExcel($_params) {
+        $_data_params = json_decode( exDecrypt( $_params ), true );
+
+        $start_date = $_data_params['start_date'].' 00:00:00';
+        $end_date = $_data_params['end_date'].' 23:59:59';
+        $branch = $_data_params['branch'];
+
+        $data = $this->getDataHutang( $start_date, $end_date, $branch );
+
+        $filename = 'export-hutang-pelanggan-';
+        $filename = $filename.str_replace('-', '', substr($start_date, 0, 10)).'_'.str_replace('-', '', substr($end_date, 0, 10));
+
+        $arr_column = null;
+
+        $idx = 0;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'LAPORAN HUTANG PELANGGAN', 'data_type' => 'string', 'colspan' => array('A','F'), 'align' => 'left', 'text_style' => 'bold', 'border' => 'none')
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => '', 'data_type' => 'string', 'colspan' => array('A','F'), 'align' => 'left', 'text_style' => 'bold', 'border' => 'none'),
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'PERIODE '.str_replace('-', '/', substr($start_date, 0, 10)).' - '.str_replace('-', '/', substr($end_date, 0, 10)), 'data_type' => 'string', 'colspan' => array('A','F'), 'align' => 'left', 'text_style' => 'bold', 'border' => 'none'),
+        );
+        $idx++;
+        $arr_column[ $idx ] = array(
+            'A' => array('value' => 'Tgl Faktur', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'B' => array('value' => 'Kasir', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'C' => array('value' => 'Kode Faktur', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'D' => array('value' => 'Group Member', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'E' => array('value' => 'Member', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'F' => array('value' => 'Hutang', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'G' => array('value' => 'Bayar', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'H' => array('value' => 'Remark', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'I' => array('value' => 'Jenis Bayar', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'J' => array('value' => 'Tanggal Bayar', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+            'K' => array('value' => 'Bayar', 'data_type' => 'string', 'align' => 'center', 'text_style' => 'bold', 'border' => 'border'),
+        );
+        $idx++;
+
+        $start_row_header = $idx;
+
+        $arr_header = array('A','B','C','D','E','F','G','H','I','J','K');
+        if ( !empty($data) && count($data) > 0 ) {
+            $total_hutang = 0; $total_bayar = 0;
+            foreach ($data as $k_data => $v_data) {
+                if ( !empty($v_data['jenis_bayar']) ) {
+                    foreach ($v_data['jenis_bayar'] as $k_jb => $v_jb) {
+                        $arr_column[ $idx ] = array(
+                            'A' => array('value' => $v_data['tgl_pesan'], 'data_type' => 'date', 'align' => 'left', 'border' => 'border'),
+                            'B' => array('value' => $v_data['nama_kasir'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'C' => array('value' => $v_data['faktur_kode'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'D' => array('value' => !empty($v_data['member_group']) ? $v_data['member_group'] : '-', 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'E' => array('value' => $v_data['member'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'F' => array('value' => $v_data['hutang'], 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border'),
+                            'G' => array('value' => $v_data['bayar'], 'data_type' => 'decimal2', 'align' => 'lerightft', 'border' => 'border'),
+                            'H' => array('value' => !empty($v_data['remark']) ? $v_data['remark'] : '-', 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'I' => array('value' => !empty($v_jb['jenis_bayar']) ? $v_jb['jenis_bayar'] : '-', 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                            'J' => array('value' => !empty($v_jb['tgl_bayar']) ? substr($v_jb['tgl_bayar'], 0, 10) : '-', 'data_type' => 'date', 'align' => 'left', 'border' => 'border'),
+                            'K' => array('value' => $v_jb['nominal'], 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border'),
+                        );
+                        $idx++;
+                    }
+                } else {
+                    $arr_column[ $idx ] = array(
+                        'A' => array('value' => $v_data['tgl_pesan'], 'data_type' => 'date', 'align' => 'left', 'border' => 'border'),
+                        'B' => array('value' => $v_data['nama_kasir'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                        'C' => array('value' => $v_data['faktur_kode'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                        'D' => array('value' => !empty($v_data['member_group']) ? $v_data['member_group'] : '-', 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                        'E' => array('value' => $v_data['member'], 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                        'F' => array('value' => $v_data['hutang'], 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border'),
+                        'G' => array('value' => $v_data['bayar'], 'data_type' => 'decimal2', 'align' => 'lerightft', 'border' => 'border'),
+                        'H' => array('value' => !empty($v_data['remark']) ? $v_data['remark'] : '-', 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                        'I' => array('value' => '-', 'data_type' => 'string', 'align' => 'left', 'border' => 'border'),
+                        'J' => array('value' => '-', 'data_type' => 'date', 'align' => 'left', 'border' => 'border'),
+                        'K' => array('value' => 0, 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border'),
+                    );
+                    $idx++;
+                }
+
+                $total_hutang += $v_data['hutang']; 
+				$total_bayar += $v_data['bayar']; 
+            }
+            $arr_column[ $idx ] = array(
+                'E' => array('value' => 'TOTAL', 'data_type' => 'string', 'align' => 'left', 'border' => 'border', 'colspan' => array('A','E'), 'text_style' => 'bold'),
+                'F' => array('value' => $total_hutang, 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border', 'text_style' => 'bold'),
+                'G' => array('value' => $total_bayar, 'data_type' => 'decimal2', 'align' => 'lerightft', 'border' => 'border', 'text_style' => 'bold'),
+                'H' => array('value' => '', 'data_type' => 'string', 'align' => 'left', 'border' => 'border', 'text_style' => 'bold'),
+                'I' => array('value' => '', 'data_type' => 'string', 'align' => 'left', 'border' => 'border', 'text_style' => 'bold'),
+                'J' => array('value' => '', 'data_type' => 'date', 'align' => 'left', 'border' => 'border', 'text_style' => 'bold'),
+                'K' => array('value' => $total_bayar, 'data_type' => 'decimal2', 'align' => 'right', 'border' => 'border', 'text_style' => 'bold'),
+            );
+        } else {
+            $arr_column[ $idx ] = array(
+                'K' => array('value' => 'Data tidak ditemukan.', 'data_type' => 'string', 'align' => 'left', 'border' => 'border', 'colspan' => array('A','K'), 'text_style' => 'bold')
+            );
+        }
+
+        Modules::run( 'base/ExportExcel/exportExcelUsingSpreadSheet', $filename, $arr_header, $arr_column, $start_row_header, 0 );
+
+        $this->load->helper('download');
+        force_download('export_excel/'.$filename.'.xlsx', NULL);
+    }
+
+    public function exportExcelOld($_params)
     {
         $_data_params = json_decode( exDecrypt( $_params ), true );
 
