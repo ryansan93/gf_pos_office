@@ -676,6 +676,8 @@ class BillOfMaterial extends Public_Controller {
             $this->result['message'] = 'GAGAL : '.$e->getMessage();
         }
 
+        cetak_r($this->result);
+
         display_json( $this->result );
     }
 
