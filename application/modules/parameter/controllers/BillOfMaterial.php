@@ -663,6 +663,7 @@ class BillOfMaterial extends Public_Controller {
                             $this->result['status'] = 1;
                             $this->result['message'] = 'Data berhasil di import.';
                         } else {
+                            $this->result['status'] = 1;
                             $this->result['content'] = '<span><b>Data belum lengkap, harap cek kembali.</b><br><br>'.$ket_belum_siap.'</span>';
                         }
                     } else {

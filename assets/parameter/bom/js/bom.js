@@ -563,15 +563,16 @@ var bom = {
     import: function(elm) {
 		var file_tmp = $('.file_lampiran').get(0).files[0];
 
+        var modal = $(elm).closest('.modal');
+        var modal_body = $(elm).closest('.modal-body');
+
+        App.showLoaderInContent( $(modal_body) );
+
 		if ( !empty($('.file_lampiran').val()) ) {
-            var modal = $(elm).closest('.modal');
-            var modal_body = $(elm).closest('.modal-body');
             // $(modal).modal('hide');
             
 			var formData = new FormData();
 	        formData.append('file', file_tmp);
-            
-            App.showLoaderInContent( $(modal_body) );
             
             $.ajax({
                 url: 'parameter/BillOfMaterial/import',
@@ -590,9 +591,10 @@ var bom = {
                             // location.reload();
                             $(modal).modal('hide');
                         });
-                    } else {
+                    } else if ( data.status == 2 ) {
                         App.hideLoaderInContent( $(modal_body), data.content );
-                        // bootbox.alert(data.message);
+                    } else {
+                        bootbox.alert(data.message);
                     };
                 },
             });
