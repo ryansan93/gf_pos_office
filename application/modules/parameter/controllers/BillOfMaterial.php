@@ -663,7 +663,7 @@ class BillOfMaterial extends Public_Controller {
                             $this->result['status'] = 1;
                             $this->result['message'] = 'Data berhasil di import.';
                         } else {
-                            $this->result['message'] = 'Data belum lengkap, harap cek kembali.<br>'.$ket_belum_siap;
+                            $this->result['content'] = '<span><b>Data belum lengkap, harap cek kembali.</b><br><br>'.$ket_belum_siap.'</span>';
                         }
                     } else {
                         $this->result['message'] = 'Data yang anda upload kosong.';
@@ -675,8 +675,6 @@ class BillOfMaterial extends Public_Controller {
         } catch (Exception $e) {
             $this->result['message'] = 'GAGAL : '.$e->getMessage();
         }
-
-        cetak_r($this->result);
 
         display_json( $this->result );
     }

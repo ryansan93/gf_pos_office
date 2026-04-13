@@ -591,7 +591,7 @@ var bom = {
                             $(modal).modal('hide');
                         });
                     } else {
-                        App.hideLoaderInContent( $(modal_body), data.message );
+                        App.hideLoaderInContent( $(modal_body), data.content );
                         // bootbox.alert(data.message);
                     };
                 },
