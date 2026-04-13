@@ -560,39 +560,42 @@ var bom = {
         },'html');
     }, // end - importForm
 
-    import: function() {
+    import: function(elm) {
 		var file_tmp = $('.file_lampiran').get(0).files[0];
 
 		if ( !empty($('.file_lampiran').val()) ) {
-            $('.modal').modal('hide');
-
-            showLoading('Proses import data bill of material . . .');
+            var modal = $(elm).closest('.modal');
+            var modal_body = $(elm).closest('.modal-body');
+            // $(modal).modal('hide');
             
 			var formData = new FormData();
 	        formData.append('file', file_tmp);
-
-			$.ajax({
+            
+            App.showLoaderInContent( $(modal_body) );
+            
+            $.ajax({
                 url: 'parameter/BillOfMaterial/import',
-				dataType: 'json',
-	            type: 'post',
-	            async:false,
-	            processData: false,
-	            contentType: false,
-	            data: formData,
-				beforeSend: function() {
-				},
-				success: function(data) {
-					hideLoading();
-					if ( data.status == 1 ) {
-						bootbox.alert(data.message, function() {
-							// location.reload();
-                            $('.modal').modal('hide');
-						});
-					} else {
-						bootbox.alert(data.message);
-					};
-				},
-		    });
+                dataType: 'json',
+                type: 'post',
+                async:false,
+                processData: false,
+                contentType: false,
+                data: formData,
+                beforeSend: function() {
+                },
+                success: function(data) {
+                    hideLoading();
+                    if ( data.status == 1 ) {
+                        bootbox.alert(data.message, function() {
+                            // location.reload();
+                            $(modal).modal('hide');
+                        });
+                    } else {
+                        App.hideLoaderInContent( $(modal_body), data.message );
+                        // bootbox.alert(data.message);
+                    };
+                },
+            });
 		} else {
 			bootbox.alert('Harap isi lampiran terlebih dahulu.');
 		}
