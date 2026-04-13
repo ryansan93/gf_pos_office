@@ -528,6 +528,220 @@ class BillOfMaterial extends Public_Controller {
         display_json( $this->result );
     }
 
+    public function importForm()
+    {
+        $d_content['akses'] = $this->hakAkses;
+		$html = $this->load->view($this->pathView.'/importForm', $d_content, true);
+
+		echo $html;
+    }
+
+    public function import() {
+        $file = isset($_FILES['file']) ? $_FILES['file'] : null;
+
+        try {
+            if ( !empty($file) ) {
+                $upload_path = FCPATH . "//uploads/import_file/";
+                $moved = uploadFile($file, $upload_path);
+                if ( $moved ) {
+                    $path_name = $moved['path'];
+
+                    $data = $this->getDataExcelUsingSpreadSheet( $path_name );
+
+                    // cetak_r( $data, 1 );
+
+                    if ( !empty($data) && count($data) > 0 ) {
+                        $ket_belum_siap = '';
+
+                        /* CEK KODE MENU */
+                        $siap_injek = 1;
+                        foreach ($data as $key => $value) {
+                            $m_menu = new \Model\Storage\Menu_model();
+                            $d_menu = $m_menu->where('kode_menu', $value['kode_menu'])->first();
+
+                            if ( !$d_menu ) {
+                                $ket_belum_siap .= 'KODE MENU '.$value['kode_menu'].' TIDAK DI TEMUKAN<br>';
+                                // cetak_r('KODE MENU '.$value['kode_menu'].' TIDAK DI TEMUKAN');
+                                $siap_injek = 0;
+                            }
+                        }
+                        /* END - CEK KODE MENU */
+
+                        /* CEK KODE BARANG */
+                        $siap_injek = 1;
+                        foreach ($data as $key => $value) {
+                            if ( !empty($value['kode_item']) ) {
+                                $m_brg = new \Model\Storage\Item_model();
+                                $d_brg = $m_brg->where('kode', $value['kode_item'])->first();
+    
+                                if ( !$d_brg ) {
+                                    $ket_belum_siap .= 'KODE BARANG '.$value['kode_item'].' TIDAK DI TEMUKAN<br>';
+                                    // cetak_r('KODE BARANG '.$value['kode_item'].' TIDAK DI TEMUKAN');
+                                    $siap_injek = 0;
+                                }
+                            }
+                        }
+                        /* END - CEK KODE BARANG */
+
+                        /* INJEK */
+                        if ( $siap_injek == 1 ) {
+                            /* END - INJEK */
+                            foreach ($data as $key => $value) {
+                                $tanggal = null;
+                                if ( stristr($value['tanggal'], '/') !== false ) {
+                                    $_tanggal = explode('/',trim(preg_replace('/\s/u', ' ', $value['tanggal'])));
+                                    
+                                    $tahun = null;
+                                    $bulan = null;
+                                    $hari = null;
+                                    if ( count($_tanggal) < 3 ) {
+                                        $tahun = date("Y");
+                                        $bulan = ( strlen(preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-1])) > 1 ) ? preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-1]) : '0'.preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-1]);
+                                        $hari = ( strlen(preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2])) > 0 ) ? preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2]) : '0'.preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2]);
+                                    } else {
+                                        $tahun = preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-1]);
+                                        $bulan = ( strlen(preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2])) > 1 ) ? preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2]) : '0'.preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-2]);
+                                        $hari = ( strlen(preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-3])) > 0 ) ? preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-3]) : '0'.preg_replace('/\s/u', ' ', $_tanggal[count($_tanggal)-3]);
+                                    }
+
+                                    if ( $bulan > 12 ) {
+                                        $tanggal = $tahun.'-'.$hari.'-'.$bulan;
+                                    } else {
+                                        $tanggal = $tahun.'-'.$bulan.'-'.$hari;
+                                    }
+                                } else {
+                                    $tanggal = $value['tanggal'];
+                                }
+
+                                $m_bom = new \Model\Storage\Bom_model();
+                                $d_bom = $m_bom->where('tgl_berlaku', $tanggal)->where('menu_kode', $value['kode_menu'])->first();
+                    
+                                $bom_id = null;
+                    
+                                if ( !$d_bom ) {
+                                    $m_bom = new \Model\Storage\Bom_model();
+                                    $m_bom->tgl_berlaku = $tanggal;
+                                    $m_bom->menu_kode = $value['kode_menu'];
+                                    $m_bom->additional = 0;
+                                    $m_bom->nama = null;
+                                    $m_bom->jml_porsi = 1;
+                                    $m_bom->save();
+                    
+                                    $bom_id = $m_bom->id;
+                    
+                                    $deskripsi_log = 'di-injek oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                                    Modules::run( 'base/event/save', $m_bom, $deskripsi_log );
+                                } else {
+                                    $bom_id = $d_bom->id;
+                                }
+                    
+                                $m_bomd = new \Model\Storage\BomDet_model();
+                                $d_bomd = $m_bomd->where('id_header', $bom_id)->where('item_kode', $value['kode_item'])->first();
+
+                                if ( !$d_bomd ) {
+                                    $m_bd = new \Model\Storage\BomDet_model();
+                                    $m_bd->id_header = $bom_id;
+                                    $m_bd->item_kode = $value['kode_item'];
+                                    $m_bd->satuan = $value['satuan'];
+                                    $m_bd->pengali = 1;
+                                    $m_bd->jumlah = $value['qty'];
+                                    $m_bd->jenis = 'item';
+                                    $m_bd->save();
+
+                                    $deskripsi_log = 'di-import oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                                    Modules::run( 'base/event/save', $m_bd, $deskripsi_log, $bom_id );
+                                } else {
+                                    $m_bd = new \Model\Storage\BomDet_model();
+                                    $m_bd->where('id', $d_bomd->id)->update(
+                                        array(
+                                            'jumlah' => ($d_bomd->jumlah + $value['qty'])
+                                        )
+                                    );
+                                }
+                            }
+
+                            $this->result['status'] = 1;
+                            $this->result['message'] = 'Data berhasil di import.';
+                        } else {
+                            $this->result['message'] = 'Data belum lengkap, harap cek kembali.<br>'.$ket_belum_siap;
+                        }
+                    } else {
+                        $this->result['message'] = 'Data yang anda upload kosong.';
+                    }
+                } else {
+                    $this->result['message'] = 'File gagal terupload, segera hubungi tim IT.';
+                }
+            }
+        } catch (Exception $e) {
+            $this->result['message'] = 'GAGAL : '.$e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    public function downloadTemplate() {
+        $fileName = 'template_import_bom';
+        $arr_header = array('TGL_BERLAKU', 'KODE_MENU', 'KODE_ITEM', 'SATUAN', 'QTY');
+        $arr_column[0] = array(
+            'TGL_BERLAKU' => array('value' => '2026-03-01', 'data_type' => 'date', 'data_format' => 'yyyy-mm-dd'),
+            'KODE_MENU' => array('value' => 'MNU2309034', 'data_type' => 'string'),
+            'KODE_ITEM' => array('value' => 'BRG2302042', 'data_type' => 'string'),
+            'SATUAN' => array('value' => 'GRAM', 'data_type' => 'string'),
+            'QTY' => array('value' => '150', 'data_type' => 'decimal2')
+        );
+
+        Modules::run( 'base/ExportExcel/exportExcelUsingSpreadSheet', $fileName, $arr_header, $arr_column );
+
+        $this->load->helper('download');
+        force_download('export_excel/'.$fileName.'.xlsx', NULL);
+    }
+
+    public function getDataExcelUsingSpreadSheet( $path_name ) {
+        $path = 'uploads/import_file/'.$path_name;
+
+        $data = null;
+
+        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+        $spreadsheet = $reader->load($path, \PhpOffice\PhpSpreadsheet\Reader\IReader::LOAD_WITH_CHARTS); // Load file yang tadi diupload ke folder tmp
+        // $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path, \PhpOffice\PhpSpreadsheet\Reader\IReader::LOAD_WITH_CHARTS);
+        $sheet = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+        $numrow = 1;
+        $key = null;
+
+        foreach($sheet as $row){
+            // Ambil data pada excel sesuai Kolom
+            $tanggal = $row['A'];
+            $kode_menu = $row['B'];
+            $kode_item = $row['C'];
+            $satuan = $row['D'];
+            $qty = preg_replace('/\s/u', '', str_replace(',', '', $row['E']));
+            // Cek jika semua data tidak diisi
+            if($tanggal == "" && $kode_menu == "" && $kode_item == "" && $satuan == "" && $qty == "")
+            continue; // Lewat data pada baris ini (masuk ke looping selanjutnya / baris selanjutnya)
+            // Cek $numrow apakah lebih dari 1
+            // Artinya karena baris pertama adalah nama-nama kolom
+            // Jadi dilewat saja, tidak usah diimport
+            if($numrow > 1){
+                $key = str_replace('-', '', $tanggal).'|'.$kode_menu.'|'.$kode_item.'|'.$satuan;
+
+                if( !isset($data[ $key ]) ){
+                    $data[ $key ] = array(
+                        'tanggal' => $tanggal,
+                        'kode_menu' => $kode_menu,
+                        'kode_item' => $kode_item,
+                        'satuan' => $satuan,
+                        'qty' => (float) $qty
+                    );
+                } else {
+                    $data[ $key ]['qty'] += (float) $qty;
+                }
+            }
+            $numrow++; // Tambah 1 setiap kali looping
+        }
+
+        return $data;
+    }
+
     public function injekBomTr() {
         /* TR */
         $data = array(

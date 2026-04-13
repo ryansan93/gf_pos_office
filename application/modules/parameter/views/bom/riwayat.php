@@ -1,4 +1,8 @@
 <div class="col-xs-12 no-padding">
+	<button type="button" class="col-xs-12 btn btn-default pull-right" onclick="bom.importForm(this)" data-href="action" data-edit=""><i class="fa fa-upload"></i> Import Data</button>
+</div>
+<div class="col-xs-12 no-padding"><hr></div>
+<div class="col-xs-12 no-padding">
 	<button type="button" class="col-xs-12 btn btn-success pull-right" onclick="bom.changeTabActive(this)" data-href="action" data-edit=""><i class="fa fa-plus"></i> ADD</button>
 </div>
 
