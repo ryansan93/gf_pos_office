@@ -130,6 +130,12 @@ class Mutasi extends Public_Controller {
                     st.kode_trans = m.kode_mutasi and
                     st.item_kode = mi.item_kode
             left join
+                stok_harga sh
+                on
+                    sh.id_header = st.id_header and
+                    sh.item_kode = mi.item_kode
+            /*
+            left join
                 (
                     select sh1.* from stok_harga sh1
                     right join
@@ -140,6 +146,7 @@ class Mutasi extends Public_Controller {
                 on
                     sh.id_header = st.id_header and
                     sh.item_kode = mi.item_kode
+            */
             where
                 m.tgl_mutasi between '".$start_date."' and '".$end_date."'
                 ".$sql_gudang_asal."
@@ -149,7 +156,7 @@ class Mutasi extends Public_Controller {
                 m.kode_mutasi asc,
                 i.nama asc
         ";
-        cetak_r( $sql, 1 );
+        // cetak_r( $sql, 1 );
         $d_mutasi = $m_conf->hydrateRaw( $sql );
 
         $data = null;
