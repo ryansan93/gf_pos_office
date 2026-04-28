@@ -149,6 +149,7 @@ class Mutasi extends Public_Controller {
                 m.kode_mutasi asc,
                 i.nama asc
         ";
+        cetak_r( $sql, 1 );
         $d_mutasi = $m_conf->hydrateRaw( $sql );
 
         $data = null;
