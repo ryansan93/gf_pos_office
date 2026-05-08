@@ -140,7 +140,7 @@
 		$jml_baris += 1;
 		$print_tax = 0;
 	}
-	if ( $data_diskon > 0 ) {
+	if ( $data['diskon'] > 0 ) {
 		$jml_baris += 2;
 		$print_diskon = 0;
 	}
@@ -239,13 +239,13 @@
 								?>
 							<?php else: ?>
 								<?php if ( $print_tax == 0 || $print_diskon == 0 ): ?>
-									<?php if ( $tot_diskon > 0 ) { ?>
+									<?php if ( $data['diskon'] > 0 ) { ?>
 										<tr>
 											<td>&nbsp;</td>
 											<td>&nbsp;</td>
 											<td>&nbsp;</td>
 											<td>** DISCOUNT **</td>
-											<td align="right"></td>
+											<td align="right"><?php echo angkaDecimal($data['diskon']).'%'; ?></td>
 											<td align="right"><?php echo angkaDecimal($tot_diskon); ?></td>
 										</tr>
 										<tr>

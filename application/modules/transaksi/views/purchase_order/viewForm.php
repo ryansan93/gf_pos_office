@@ -52,6 +52,15 @@
 	</div>
 </div>
 
+<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
+	<div class="col-xs-3 no-padding">
+		<label class="control-label">Diskon</label>
+	</div>
+	<div class="col-xs-9 no-padding">
+		<label class="control-label">: <?php echo angkaDecimal($data['diskon']).'%'; ?></label>
+	</div>
+</div>
+
 <?php if ( $data['tax'] > 0 ): ?>
 	<div class="col-xs-12 no-padding" style="margin-bottom: 5px;">
 		<div class="col-xs-3 no-padding">

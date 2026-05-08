@@ -72,6 +72,17 @@
 	</div>
 </div>
 
+<div class="col-xs-12 no-padding">
+	<div class="col-xs-1 no-padding" style="margin-bottom: 5px; padding-right: 5px;">
+		<div class="col-xs-12 no-padding">
+			<label class="control-label">Diskon (%)</label>
+		</div>
+		<div class="col-xs-12 no-padding">
+			<input type="text" class="col-xs-12 form-control prs_diskon text-right" data-tipe="decimal" placeholder="Diskon (%)" data-required="1" onblur="po.hitDiskon()" value="0">
+		</div>
+	</div>
+</div>
+
 <?php if ( !empty($tax) ): ?>
 	<div class="col-xs-6 no-padding" style="margin-top: 5px;">
 		<div class="col-xs-12 no-padding">

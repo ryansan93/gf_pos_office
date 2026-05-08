@@ -84,6 +84,17 @@
 	</div>
 </div>
 
+<div class="col-xs-12 no-padding">
+	<div class="col-xs-1 no-padding" style="margin-bottom: 5px; padding-right: 5px;">
+		<div class="col-xs-12 no-padding">
+			<label class="control-label">Diskon (%)</label>
+		</div>
+		<div class="col-xs-12 no-padding">
+			<input type="text" class="col-xs-12 form-control prs_diskon text-right" data-tipe="decimal" placeholder="Diskon (%)" data-required="1" onblur="po.hitDiskon()" value="<?php echo angkaDecimal($data['diskon']); ?>">
+		</div>
+	</div>
+</div>
+
 <?php if ( !empty($tax) ): ?>
 	<div class="col-xs-6 no-padding" style="margin-top: 5px;">
 		<div class="col-xs-12 no-padding">
@@ -175,14 +186,14 @@
 							<input type="text" class="form-control text-right jumlah uppercase" placeholder="Jumlah" data-required="1" data-tipe="decimal" maxlength="12" onblur="po.hitTotal(this)" value="<?php echo (is_numeric( $v_det['jumlah'] ) && floor( $v_det['jumlah'] ) != $v_det['jumlah']) ? angkaDecimal($v_det['jumlah']) : angkaRibuan($v_det['jumlah']); ?>">
 						</td>
 						<td>
-							<input type="text" class="form-control text-right harga uppercase" placeholder="Harga" data-tipe="decimal" data-required="1" maxlength="14" onblur="po.hitTotal(this)" value="<?php echo (is_numeric( $v_det['harga'] ) && floor( $v_det['harga'] ) != $v_det['harga']) ? angkaDecimal($v_det['harga']) : angkaRibuan($v_det['harga']); ?>">
+							<input type="text" class="form-control text-right harga uppercase" placeholder="Harga" data-tipe="decimal" data-required="1" maxlength="14" onblur="po.hitTotal(this)" value="<?php echo (is_numeric( $v_det['harga_beli'] ) && floor( $v_det['harga_beli'] ) != $v_det['harga_beli']) ? angkaDecimal($v_det['harga_beli']) : angkaRibuan($v_det['harga_beli']); ?>">
 						</td>
 						<td>
 							<?php $bruto = $v_det['jumlah'] * $v_det['harga_beli']; ?>
 							<input type="text" class="form-control text-right nilai uppercase" placeholder="Nilai" data-tipe="decimal" data-required="1" maxlength="14" value="<?php echo (is_numeric( $bruto ) && floor( $bruto ) != $bruto) ? angkaDecimal($bruto) : angkaRibuan($bruto); ?>" disabled>
 						</td>
 						<td>
-							<input type="text" class="form-control text-right diskon uppercase" placeholder="Diskon" data-tipe="decimal" data-required="1" maxlength="14" onblur="po.hitTotal(this)" value="<?php echo (is_numeric( $v_det['diskon'] ) && floor( $v_det['diskon'] ) != $v_det['diskon']) ? angkaDecimal($v_det['diskon']) : angkaRibuan($v_det['diskon']); ?>">
+							<input type="text" class="form-control text-right diskon uppercase" placeholder="Diskon" data-tipe="decimal" data-required="1" maxlength="14" onblur="po.hitTotal(this)" value="<?php echo (is_numeric( $v_det['diskon'] ) && floor( $v_det['diskon'] ) != $v_det['diskon']) ? angkaDecimal($v_det['diskon']) : angkaRibuan($v_det['diskon']); ?>" disabled>
 						</td>
 						<td>
 							<?php $netto = $bruto - $v_det['diskon']; ?>

@@ -54,7 +54,7 @@ var po = {
             $(select_satuan).removeAttr('disabled');
             $(_tr).find('.jumlah').removeAttr('disabled');
             $(_tr).find('.harga').removeAttr('disabled');
-            $(_tr).find('.diskon').removeAttr('disabled');
+            // $(_tr).find('.diskon').removeAttr('disabled');
         });
     }, // end - setting_up
 
@@ -102,7 +102,7 @@ var po = {
                 $(select_satuan).removeAttr('disabled');
                 $(_tr).find('.jumlah').removeAttr('disabled');
                 $(_tr).find('.harga').removeAttr('disabled');
-                $(_tr).find('.diskon').removeAttr('disabled');
+                // $(_tr).find('.diskon').removeAttr('disabled');
             });
         });
     }, // end - addRow
@@ -226,22 +226,47 @@ var po = {
         }
     }, // end - getLists
 
+    hitDiskon: function() {
+        var table = $('table');
+        var tbody = $(table).find('tbody');
+
+        var prs_diskon = numeral.unformat($('input.prs_diskon').val());
+
+        $.map( $(tbody).find('tr'), function(tr) {
+            var bruto = numeral.unformat($(tr).find('input.nilai').val());
+            var diskon = (prs_diskon > 0) ? bruto * (prs_diskon/100) : 0;
+            var netto = bruto - diskon;
+
+            $(tr).find('.nilai').val( numeral.formatDec(bruto) );
+            $(tr).find('.diskon').val( numeral.formatDec(diskon) );
+            $(tr).find('.total').val( numeral.formatDec(netto) );
+        });
+
+        po.hitGrandTotal();
+    }, // end - hitDiskon
+
     hitTotal: function (elm) {
         var tr = $(elm).closest('tr');
+
+        var prs_diskon = numeral.unformat($('input.prs_diskon').val());
 
         var jumlah = numeral.unformat($(tr).find('.jumlah').val());
         var harga = numeral.unformat($(tr).find('.harga').val());
         var diskon = numeral.unformat($(tr).find('.diskon').val());
 
         var nilai = harga * jumlah;
+        var diskon = (prs_diskon > 0) ? nilai * (prs_diskon/100) : 0;
         var total = nilai - diskon;
 
         $(tr).find('.nilai').val( numeral.formatDec(nilai) );
+        $(tr).find('.diskon').val( numeral.formatDec(diskon) );
         $(tr).find('.total').val( numeral.formatDec(total) );
+
+        po.hitGrandTotal();
     }, // end - hitTotal
 
-    hitGrandTotal: function (elm) {
-        var table = $(elm).closest('table');
+    hitGrandTotal: function () {
+        var table = $('table');
         var tbody = $(table).find('tbody');
 
         var tot_bruto = 0;
@@ -258,9 +283,9 @@ var po = {
             tot_netto += netto;
         });
 
-        $(tbody).find('thead td.tot_bruto b').text( numeral.formatDec(tot_bruto) );
-        $(tbody).find('thead td.tot_diskon b').text( numeral.formatDec(tot_diskon) );
-        $(tbody).find('thead td.tot_netto b').text( numeral.formatDec(tot_netto) );
+        $(table).find('thead td.tot_bruto b').text( numeral.formatDec(tot_bruto) );
+        $(table).find('thead td.tot_diskon b').text( numeral.formatDec(tot_diskon) );
+        $(table).find('thead td.tot_netto b').text( numeral.formatDec(tot_netto) );
     }, // end - hitGrandTotal
 
 	save: function() {
@@ -302,6 +327,7 @@ var po = {
                         'tax_id': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-id') : null,
 						'tax': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-nilai') : null,
                         'bagian': $(dcontent).find('.bagian').val(),
+                        'diskon': numeral.unformat($(dcontent).find('.prs_diskon').val()),
 						'detail': detail
 					};
 
@@ -371,6 +397,7 @@ var po = {
                         'tax_id': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-id') : null,
                         'tax': ($(dcontent).find('.tax:checked').length > 0) ? $(dcontent).find('.tax').attr('data-nilai') : null,
                         'bagian': $(dcontent).find('.bagian').val(),
+                        'diskon': numeral.unformat($(dcontent).find('.prs_diskon').val()),
                         'detail': detail
                     };
 
