@@ -65,7 +65,9 @@ var hm = {
                 hideLoading();
 
             	$('.menu').html(html);
-	        	$('.menu').select2();
+	        	$('.menu').select2({
+					dropdownParent: $('.modal')
+				});
             }
         });
 	}, // end - getMenu
