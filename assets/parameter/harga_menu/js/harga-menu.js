@@ -64,8 +64,8 @@ var hm = {
             success: function(html) {
                 hideLoading();
 
-            	$('.menu').html(html);
-	        	$('.menu').select2({
+            	$('.modal .menu').html(html);
+	        	$('.modal .menu').select2({
 					dropdownParent: $('.modal')
 				});
             }
