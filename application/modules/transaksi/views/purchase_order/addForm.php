@@ -90,11 +90,19 @@
 		<table class="table table-bordered tbl_detail" style="margin-bottom: 0px;">
 			<thead>
 				<tr>
+					<td colspan="4"><b>TOTAL</b></td>
+					<td class="tot_bruto text-right"><b>0</b></td>
+					<td class="tot_diskon text-right"><b>0</b></td>
+					<td class="tot_netto text-right"><b>0</b></td>
+				</tr>
+				<tr>
 					<th class="col-xs-3">Item</th>
-					<th class="col-xs-2">Satuan</th>
+					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
-					<th class="col-xs-2">Harga Satuan (Rp.)</th>
-					<th class="col-xs-2">Total</th>
+					<th class="col-xs-1">Harga (Rp.)</th>
+					<th class="col-xs-2">Bruto (Rp.)</th>
+					<th class="col-xs-1">Diskon (Rp.)</th>
+					<th class="col-xs-2">Netto (Rp.)</th>
 					<th class="col-xs-1"></th>
 				</tr>
 			</thead>
@@ -118,6 +126,12 @@
 					</td>
 					<td>
 						<input type="text" class="form-control text-right harga uppercase" placeholder="Harga" data-tipe="decimal" data-required="1" maxlength="14" onblur="po.hitTotal(this)" disabled>
+					</td>
+					<td>
+						<input type="text" class="form-control text-right nilai uppercase" placeholder="Nilai" data-tipe="decimal" data-required="1" maxlength="14" disabled>
+					</td>
+					<td>
+						<input type="text" class="form-control text-right diskon uppercase" placeholder="Diskon" data-tipe="decimal" data-required="1" maxlength="14" onblur="po.hitTotal(this)" disabled>
 					</td>
 					<td>
 						<input type="text" class="form-control text-right total uppercase" placeholder="Total" data-tipe="decimal" data-required="1" maxlength="14" disabled>

@@ -107,12 +107,34 @@
 	<small>
 		<table class="table table-bordered tbl_detail" style="margin-bottom: 0px;">
 			<thead>
+				<?php 
+					$tot_bruto = 0;
+					$tot_diskon = 0;
+					$tot_netto = 0;
+					foreach ($data['detail'] as $k_det => $v_det) {
+						$bruto = $v_det['harga_beli'] * $v_det['jumlah'];
+						$diskon = $v_det['diskon'];
+						$netto = $bruto - $diskon;
+
+						$tot_bruto += $bruto;
+						$tot_diskon += $diskon;
+						$tot_netto += $netto;
+					}
+				?>
+				<tr>
+					<td colspan="4"><b>TOTAL</b></td>
+					<td class="tot_bruto text-right"><b><?php echo angkaDecimal($tot_bruto); ?></b></td>
+					<td class="tot_diskon text-right"><b><?php echo angkaDecimal($tot_diskon); ?></b></td>
+					<td class="tot_netto text-right"><b><?php echo angkaDecimal($tot_netto); ?></b></td>
+				</tr>
 				<tr>
 					<th class="col-xs-3">Item</th>
-					<th class="col-xs-2">Satuan</th>
+					<th class="col-xs-1">Satuan</th>
 					<th class="col-xs-1">Jumlah</th>
-					<th class="col-xs-2">Harga Satuan (Rp.)</th>
-					<th class="col-xs-2">Total</th>
+					<th class="col-xs-1">Harga (Rp.)</th>
+					<th class="col-xs-2">Bruto (Rp.)</th>
+					<th class="col-xs-1">Diskon (Rp.)</th>
+					<th class="col-xs-2">Netto (Rp.)</th>
 					<th class="col-xs-1"></th>
 				</tr>
 			</thead>
@@ -156,8 +178,15 @@
 							<input type="text" class="form-control text-right harga uppercase" placeholder="Harga" data-tipe="decimal" data-required="1" maxlength="14" onblur="po.hitTotal(this)" value="<?php echo (is_numeric( $v_det['harga'] ) && floor( $v_det['harga'] ) != $v_det['harga']) ? angkaDecimal($v_det['harga']) : angkaRibuan($v_det['harga']); ?>">
 						</td>
 						<td>
-							<?php $total = $v_det['jumlah'] * $v_det['harga']; ?>
-							<input type="text" class="form-control text-right total uppercase" placeholder="Total" data-tipe="decimal" data-required="1" maxlength="14" value="<?php echo (is_numeric( $total ) && floor( $total ) != $total) ? angkaDecimal($total) : angkaRibuan($total); ?>">
+							<?php $bruto = $v_det['jumlah'] * $v_det['harga_beli']; ?>
+							<input type="text" class="form-control text-right nilai uppercase" placeholder="Nilai" data-tipe="decimal" data-required="1" maxlength="14" value="<?php echo (is_numeric( $bruto ) && floor( $bruto ) != $bruto) ? angkaDecimal($bruto) : angkaRibuan($bruto); ?>" disabled>
+						</td>
+						<td>
+							<input type="text" class="form-control text-right diskon uppercase" placeholder="Diskon" data-tipe="decimal" data-required="1" maxlength="14" onblur="po.hitTotal(this)" value="<?php echo (is_numeric( $v_det['diskon'] ) && floor( $v_det['diskon'] ) != $v_det['diskon']) ? angkaDecimal($v_det['diskon']) : angkaRibuan($v_det['diskon']); ?>">
+						</td>
+						<td>
+							<?php $netto = $bruto - $v_det['diskon']; ?>
+							<input type="text" class="form-control text-right total uppercase" placeholder="Total" data-tipe="decimal" data-required="1" maxlength="14" value="<?php echo (is_numeric( $netto ) && floor( $netto ) != $netto) ? angkaDecimal($netto) : angkaRibuan($netto); ?>" disabled>
 						</td>
 						<td>
 							<div class="col-xs-12 no-padding">

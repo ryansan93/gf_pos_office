@@ -240,6 +240,8 @@ class PurchaseOrder extends Public_Controller {
         $params = $this->input->post('params');
 
         try {
+            // cetak_r( $params, 1 );
+
             $m_po = new \Model\Storage\Po_model();
             $now = $m_po->getDate();
 
@@ -261,10 +263,17 @@ class PurchaseOrder extends Public_Controller {
                 $m_poi = new \Model\Storage\PoItem_model();
                 $m_poi->po_no = $no_po;
                 $m_poi->item_kode = $v_det['item_kode'];
-                $m_poi->harga = $v_det['harga'];
+                $m_poi->harga_beli = $v_det['harga'];
                 $m_poi->jumlah = $v_det['jumlah'];
                 $m_poi->satuan = $v_det['satuan'];
                 $m_poi->pengali = $v_det['pengali'];
+                $m_poi->diskon = $v_det['diskon'];
+
+                $bruto = $v_det['harga'] * $v_det['jumlah'];
+                $netto = $bruto - $v_det['diskon'];
+                $harga = $netto / $v_det['jumlah'];
+
+                $m_poi->harga = round($harga, 2);
                 $m_poi->save();
             }
 
@@ -311,10 +320,17 @@ class PurchaseOrder extends Public_Controller {
                 $m_poi = new \Model\Storage\PoItem_model();
                 $m_poi->po_no = $no_po;
                 $m_poi->item_kode = $v_det['item_kode'];
-                $m_poi->harga = $v_det['harga'];
+                $m_poi->harga_beli = $v_det['harga'];
                 $m_poi->jumlah = $v_det['jumlah'];
                 $m_poi->satuan = $v_det['satuan'];
                 $m_poi->pengali = $v_det['pengali'];
+                $m_poi->diskon = $v_det['diskon'];
+
+                $bruto = $v_det['harga'] * $v_det['jumlah'];
+                $netto = $bruto - $v_det['diskon'];
+                $harga = $netto / $v_det['jumlah'];
+
+                $m_poi->harga = round($harga, 2);
                 $m_poi->save();
             }
 
@@ -380,7 +396,22 @@ class PurchaseOrder extends Public_Controller {
                 $data = $d_po->toArray();
             }
 
+            $data_diskon = 0;
+            $m_conf = new \Model\Storage\Conf();
+            $sql = "
+                select po_no, sum(diskon) as diskon from po_item where po_no = '".$no_po."' group by po_no
+            ";
+            $d_conf = $m_conf->hydrateRaw( $sql );
+            if ( $d_conf->count() > 0 ) {
+                $d_conf = $d_conf->toArray()[0];
+
+                if ( $d_conf['diskon'] > 0 ) {
+                    $data_diskon = 1;
+                }
+            }
+
             $content['data'] = $data;
+            $content['data_diskon'] = $data_diskon;
 
             $res_view_html = $this->load->view($this->pathView.'exportPdf', $content, true);
 

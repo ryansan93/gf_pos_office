@@ -134,16 +134,21 @@
 
 <?php 
 	$print_tax = 1;
+	$print_diskon = 1;
 	$jml_baris = count($data['detail']);
 	if ( $data['tax'] > 0 ) {
 		$jml_baris += 1;
 		$print_tax = 0;
 	}
+	if ( $data_diskon > 0 ) {
+		$jml_baris += 2;
+		$print_diskon = 0;
+	}
 	$jumlah_page = (isset($data['detail']) && !empty($data['detail'])) ? ceil($jml_baris / 12) : 0; 
 
 	// $jumlah_page = ceil(25 / 12); 
 ?>
-<?php $jumlah_cetak = 1; $grand_total = 0; ?>
+<?php $jumlah_cetak = 1; $tot_bruto = 0; $tot_diskon = 0; $tot_netto = 0; ?>
 <?php for ($i=0; $i < $jumlah_page; $i++) { ?>
 	<?php
 		$cls_page_break = "page-break";
@@ -213,7 +218,7 @@
 					</thead>
 					<tbody>
 						<?php $total = 0; ?>
-						<?php for ($j=1; $j <= 12; $j++) { ?>
+						<?php for ($j=1; $j <= 12;) { ?>
 							<?php $idx = (($i*12)+$j) - 1; ?>
 							<?php if ( isset($data['detail'][ $idx ]) ): ?>
 								<tr>
@@ -221,19 +226,48 @@
 									<td align="right"><?php echo angkaDecimal($data['detail'][ $idx ]['jumlah']); ?></td>
 									<td align="center"><?php echo $data['detail'][ $idx ]['satuan']; ?></td>
 									<td><?php echo $data['detail'][ $idx ]['item']['nama']; ?></td>
-									<td align="right"><?php echo angkaDecimal($data['detail'][ $idx ]['harga']); ?></td>
-									<td align="right"><?php echo angkaDecimal($data['detail'][ $idx ]['harga'] * $data['detail'][ $idx ]['jumlah']); ?></td>
+									<td align="right"><?php echo angkaDecimal($data['detail'][ $idx ]['harga_beli']); ?></td>
+									<td align="right"><?php echo angkaDecimal($data['detail'][ $idx ]['harga_beli'] * $data['detail'][ $idx ]['jumlah']); ?></td>
 								</tr>
 								<?php 
-									$total += $data['detail'][ $idx ]['harga'] * $data['detail'][ $idx ]['jumlah']; 
-									$grand_total += $data['detail'][ $idx ]['harga'] * $data['detail'][ $idx ]['jumlah'];
+									$total += $data['detail'][ $idx ]['harga_beli'] * $data['detail'][ $idx ]['jumlah']; 
+									$tot_bruto += $data['detail'][ $idx ]['harga_beli'] * $data['detail'][ $idx ]['jumlah'];
+									$tot_diskon += $data['detail'][ $idx ]['diskon'];
+									$tot_netto += ($data['detail'][ $idx ]['harga_beli'] * $data['detail'][ $idx ]['jumlah']) - $data['detail'][ $idx ]['diskon'];
+
+									$j++;
 								?>
 							<?php else: ?>
-								<?php if ( $print_tax == 0 ): ?>
+								<?php if ( $print_tax == 0 || $print_diskon == 0 ): ?>
+									<?php if ( $tot_diskon > 0 ) { ?>
+										<tr>
+											<td>&nbsp;</td>
+											<td>&nbsp;</td>
+											<td>&nbsp;</td>
+											<td>** DISCOUNT **</td>
+											<td align="right"></td>
+											<td align="right"><?php echo angkaDecimal($tot_diskon); ?></td>
+										</tr>
+										<tr>
+											<td>&nbsp;</td>
+											<td>&nbsp;</td>
+											<td>&nbsp;</td>
+											<td></td>
+											<td align="right"></td>
+											<td align="right"><?php echo angkaDecimal($tot_bruto - $tot_diskon); ?></td>
+										</tr>
+
+										<?php 
+											$print_diskon = 1;
+											$j++; 
+											$j++; 
+										?>
+									<?php } ?>
+
 									<?php if ( $data['tax'] > 0 ) { ?>
 										<?php
-											$tax_nilai = $grand_total * ($data['tax']/100);
-											$grand_total += $tax_nilai;
+											$tax_nilai = $tot_netto * ($data['tax']/100);
+											$tot_netto += $tax_nilai;
 
 											$print_tax = 1;
 										?>
@@ -245,6 +279,8 @@
 											<td align="right"><?php echo (is_numeric( $data['tax'] ) && floor( $data['tax'] ) != $data['tax']) ? angkaDecimal($data['tax']) : angkaRibuan($data['tax']).'%'; ?></td>
 											<td align="right"><?php echo angkaDecimal($tax_nilai); ?></td>
 										</tr>
+
+										<?php $j++; ?>
 									<?php } ?>
 								<?php else: ?>
 									<tr>
@@ -255,12 +291,14 @@
 										<td>&nbsp;</td>
 										<td>&nbsp;</td>
 									</tr>
+
+									<?php $j++; ?>
 								<?php endif ?>
 							<?php endif ?>
 						<?php } ?>
 						<tr>
 							<td colspan="5" style="text-align: right;"><b>TOTAL</b></td>
-							<td align="right"><?php echo angkaDecimal($grand_total); ?></td>
+							<td align="right"><?php echo angkaDecimal($tot_netto); ?></td>
 						</tr>
 					</tbody>
 				</table>
@@ -288,7 +326,7 @@
 								PURCHASING DEPT.
 							</td>
 							<td style="text-align: center; width: 25%;">
-								<?php echo $data['gudang']['branch']['nama']; ?>
+								<?php echo (isset($data['gudang']['branch']['nama']) && !empty($data['gudang']['branch']['nama'])) ? $data['gudang']['branch']['nama'] : ''; ?>
 								<br>
 								<br>
 								<br>

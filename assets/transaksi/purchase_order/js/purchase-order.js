@@ -54,6 +54,7 @@ var po = {
             $(select_satuan).removeAttr('disabled');
             $(_tr).find('.jumlah').removeAttr('disabled');
             $(_tr).find('.harga').removeAttr('disabled');
+            $(_tr).find('.diskon').removeAttr('disabled');
         });
     }, // end - setting_up
 
@@ -101,6 +102,7 @@ var po = {
                 $(select_satuan).removeAttr('disabled');
                 $(_tr).find('.jumlah').removeAttr('disabled');
                 $(_tr).find('.harga').removeAttr('disabled');
+                $(_tr).find('.diskon').removeAttr('disabled');
             });
         });
     }, // end - addRow
@@ -229,11 +231,37 @@ var po = {
 
         var jumlah = numeral.unformat($(tr).find('.jumlah').val());
         var harga = numeral.unformat($(tr).find('.harga').val());
+        var diskon = numeral.unformat($(tr).find('.diskon').val());
 
-        var total = harga * jumlah;
+        var nilai = harga * jumlah;
+        var total = nilai - diskon;
 
+        $(tr).find('.nilai').val( numeral.formatDec(nilai) );
         $(tr).find('.total').val( numeral.formatDec(total) );
     }, // end - hitTotal
+
+    hitGrandTotal: function (elm) {
+        var table = $(elm).closest('table');
+        var tbody = $(table).find('tbody');
+
+        var tot_bruto = 0;
+        var tot_diskon = 0;
+        var tot_netto = 0;
+
+        $.map( $(tbody).find('tr'), function(tr) {
+            var bruto = numeral.unformat($(tr).find('input.nilai').val());
+            var diskon = numeral.unformat($(tr).find('input.diskon').val());
+            var netto = numeral.unformat($(tr).find('input.total').val());
+
+            tot_bruto += bruto;
+            tot_diskon += diskon;
+            tot_netto += netto;
+        });
+
+        $(tbody).find('thead td.tot_bruto b').text( numeral.formatDec(tot_bruto) );
+        $(tbody).find('thead td.tot_diskon b').text( numeral.formatDec(tot_diskon) );
+        $(tbody).find('thead td.tot_netto b').text( numeral.formatDec(tot_netto) );
+    }, // end - hitGrandTotal
 
 	save: function() {
 		var dcontent = $('#action');
@@ -258,7 +286,8 @@ var po = {
                             'satuan': $(tr).find('.satuan').val(),
 							'pengali': $(tr).find('.satuan option:selected').attr('data-pengali'),
 							'jumlah': numeral.unformat($(tr).find('input.jumlah').val()),
-							'harga': numeral.unformat($(tr).find('input.harga').val())
+							'harga': numeral.unformat($(tr).find('input.harga').val()),
+							'diskon': numeral.unformat($(tr).find('input.diskon').val())
 						};
 
 						return _detail;
@@ -325,7 +354,8 @@ var po = {
                             'satuan': $(tr).find('.satuan').val(),
                             'pengali': $(tr).find('.satuan option:selected').attr('data-pengali'),
                             'jumlah': numeral.unformat($(tr).find('input.jumlah').val()),
-                            'harga': numeral.unformat($(tr).find('input.harga').val())
+                            'harga': numeral.unformat($(tr).find('input.harga').val()),
+							'diskon': numeral.unformat($(tr).find('input.diskon').val())
                         };
 
                         return _detail;

@@ -71,14 +71,18 @@
 			<thead>
 				<tr>
 					<th class="col-xs-4">Item</th>
-					<th class="col-xs-2">Satuan</th>
-					<th class="col-xs-2">Jumlah</th>
-					<th class="col-xs-2">Harga Satuan (Rp.)</th>
-					<th class="col-xs-2">Total</th>
+					<th class="col-xs-1">Satuan</th>
+					<th class="col-xs-1">Jumlah</th>
+					<th class="col-xs-1">Harga (Rp.)</th>
+					<th class="col-xs-2">Bruto (Rp.)</th>
+					<th class="col-xs-1">Diskon (Rp.)</th>
+					<th class="col-xs-2">Netto (Rp.)</th>
 				</tr>
 			</thead>
 			<tbody>
-				<?php $grand_total = 0; ?>
+				<?php $tot_bruto = 0; ?>
+				<?php $tot_diskon = 0; ?>
+				<?php $tot_netto = 0; ?>
 				<?php foreach ($data['detail'] as $k_det => $v_det): ?>
 					<tr>
 						<td>
@@ -91,17 +95,31 @@
 							<?php echo angkaDecimal($v_det['jumlah']); ?>
 						</td>
 						<td class="text-right">
-							<?php echo angkaDecimal($v_det['harga']); ?>
+							<?php echo angkaDecimal($v_det['harga_beli']); ?>
+						</td>
+						<?php
+							$bruto = $v_det['jumlah'] * $v_det['harga_beli'];
+							$netto = $bruto - $v_det['diskon'];
+						?>
+						<td class="text-right">
+							<?php echo angkaDecimal($bruto); ?>
 						</td>
 						<td class="text-right">
-							<?php echo angkaDecimal($v_det['jumlah'] * $v_det['harga']); ?>
+							<?php echo angkaDecimal($v_det['diskon']); ?>
+						</td>
+						<td class="text-right">
+							<?php echo angkaDecimal($netto); ?>
 						</td>
 					</tr>
-					<?php $grand_total += ($v_det['jumlah'] * $v_det['harga']); ?>
+					<?php $tot_bruto += $bruto; ?>
+					<?php $tot_diskon += $v_det['diskon']; ?>
+					<?php $tot_netto += $netto; ?>
 				<?php endforeach ?>
 				<tr>
 					<td colspan="4" class="text-right"><b>TOTAL</b></td>
-					<td class="text-right"><b><?php echo angkaDecimal($grand_total); ?></b></td>
+					<td class="text-right"><b><?php echo angkaDecimal($tot_bruto); ?></b></td>
+					<td class="text-right"><b><?php echo angkaDecimal($tot_diskon); ?></b></td>
+					<td class="text-right"><b><?php echo angkaDecimal($tot_netto); ?></b></td>
 				</tr>
 			</tbody>
 		</table>
