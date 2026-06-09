@@ -400,7 +400,8 @@ var terima = {
                 hideLoading();
                 if ( data.status == 1 ) {
                     bootbox.alert( data.message, function () {
-                        location.reload();
+                        // location.reload();
+                        terima.loadForm(kode, '');
                     });
                 } else {
                     bootbox.alert( data.message );
