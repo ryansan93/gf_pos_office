@@ -177,7 +177,8 @@ class MutasiStok extends Public_Controller {
                                 on
                                     st.id = s.id_header
                             where
-                                st.tanggal between '".$start_date."' and '".$end_date."' and
+                                -- st.tanggal between '".$start_date."' and '".$end_date."' and
+                                st.tanggal = '".$start_date."' and
                                 s.tanggal < '".$start_date."' and
                                 st.gudang_kode = '".$_gudang."'
                                 ".$sql_item."
@@ -214,7 +215,8 @@ class MutasiStok extends Public_Controller {
                             on
                                 s.id = strans.id_header
                         where
-                            st.tanggal between '".$start_date."' and '".$end_date."' and
+                            -- st.tanggal between '".$start_date."' and '".$end_date."' and
+                            st.tanggal = '".$start_date."' and
                             st.gudang_kode = '".$_gudang."'
                             ".$sql_item."
                         group by
@@ -388,7 +390,7 @@ class MutasiStok extends Public_Controller {
                 on
                     i.kode = isatuan.item_kode
         ";
-        cetak_r( $sql, 1 );
+        // cetak_r( $sql, 1 );
         $d_conf = $m_conf->hydrateRaw( $sql );
 
         $data = null;
