@@ -388,7 +388,7 @@ class MutasiStok extends Public_Controller {
                 on
                     i.kode = isatuan.item_kode
         ";
-        // cetak_r( $sql, 1 );
+        cetak_r( $sql, 1 );
         $d_conf = $m_conf->hydrateRaw( $sql );
 
         $data = null;
