@@ -680,6 +680,68 @@ class BillOfMaterial extends Public_Controller {
         display_json( $this->result );
     }
 
+    public function exportExcel()
+    {
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select
+                b.id,
+                b.tgl_berlaku,
+                b.nama as nama_bom,
+                b.additional,
+                b.jml_porsi,
+                m.kode_menu,
+                m.nama as nama_menu,
+                br.nama as nama_branch,
+                bd.item_kode,
+                i.nama as nama_item,
+                bd.satuan,
+                bd.jumlah,
+                bd.jenis as jenis_item
+            from bom b
+            left join menu m on b.menu_kode = m.kode_menu
+            left join branch br on m.branch_kode = br.kode_branch
+            left join bom_det bd on b.id = bd.id_header
+            left join (
+                select cast(kode as varchar(20)) as kode, nama, 'item' as jenis from item
+                union all
+                select cast(id as varchar(20)) as kode, nama, 'bom' as jenis from bom where additional = 1
+            ) i on bd.item_kode = i.kode and bd.jenis = i.jenis
+            order by
+                b.tgl_berlaku desc,
+                b.id,
+                bd.id
+        ";
+        $d_bom = $m_conf->hydrateRaw( $sql );
+
+        $fileName = 'export_bom_'.date('Ymd_His');
+        $arr_header = array('TGL_BERLAKU', 'BRANCH', 'MENU', 'NAMA_BOM', 'ADDITIONAL', 'JML_PORSI', 'KODE_ITEM', 'NAMA_ITEM', 'JENIS_ITEM', 'SATUAN', 'JUMLAH');
+        $arr_column = array();
+        if ( $d_bom->count() > 0 ) {
+            $d_bom = $d_bom->toArray();
+            foreach ($d_bom as $k => $v) {
+                $arr_column[] = array(
+                    'TGL_BERLAKU' => array('value' => $v['tgl_berlaku'], 'data_type' => 'date', 'data_format' => 'yyyy-mm-dd'),
+                    'BRANCH' => array('value' => !empty($v['nama_branch']) ? $v['nama_branch'] : '-', 'data_type' => 'string'),
+                    'MENU' => array('value' => !empty($v['nama_menu']) ? $v['nama_menu'] : '-', 'data_type' => 'string'),
+                    'NAMA_BOM' => array('value' => !empty($v['nama_bom']) ? $v['nama_bom'] : '-', 'data_type' => 'string'),
+                    'ADDITIONAL' => array('value' => ($v['additional'] == 1) ? 'Ya' : 'Tidak', 'data_type' => 'string'),
+                    'JML_PORSI' => array('value' => $v['jml_porsi'], 'data_type' => 'integer'),
+                    'KODE_ITEM' => array('value' => !empty($v['item_kode']) ? $v['item_kode'] : '-', 'data_type' => 'string'),
+                    'NAMA_ITEM' => array('value' => !empty($v['nama_item']) ? $v['nama_item'] : '-', 'data_type' => 'string'),
+                    'JENIS_ITEM' => array('value' => !empty($v['jenis_item']) ? $v['jenis_item'] : '-', 'data_type' => 'string'),
+                    'SATUAN' => array('value' => !empty($v['satuan']) ? $v['satuan'] : '-', 'data_type' => 'string'),
+                    'JUMLAH' => array('value' => !empty($v['jumlah']) ? (float) $v['jumlah'] : 0, 'data_type' => 'decimal2')
+                );
+            }
+        }
+
+        Modules::run( 'base/ExportExcel/exportExcelUsingSpreadSheet', $fileName, $arr_header, $arr_column );
+
+        $this->load->helper('download');
+        force_download('export_excel/'.$fileName.'.xlsx', NULL);
+    }
+
     public function downloadTemplate() {
         $fileName = 'template_import_bom';
         $arr_header = array('TGL_BERLAKU', 'KODE_MENU', 'KODE_ITEM', 'SATUAN', 'QTY');

@@ -489,6 +489,10 @@ var bom = {
         });
     }, // end - delete
 
+    exportExcel: function() {
+        window.location = 'parameter/BillOfMaterial/exportExcel';
+    }, // end - exportExcel
+
     setBindSHA1 : function(){
         $('input:file').off('change.sha1');
         $('input:file').on('change.sha1',function(){
