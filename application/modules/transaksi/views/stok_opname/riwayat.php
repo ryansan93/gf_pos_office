@@ -1,4 +1,8 @@
 <div class="col-xs-12 no-padding">
+	<button type="button" class="col-xs-12 btn btn-default pull-right" onclick="so.importForm()"><i class="fa fa-upload"></i> Injek Stok Opname</button>
+</div>
+
+<div class="col-xs-12 no-padding" style="margin-top: 5px;">
 	<button type="button" class="col-xs-12 btn btn-success pull-right" onclick="so.changeTabActive(this)" data-href="action" data-edit=""><i class="fa fa-plus"></i> ADD</button>
 </div>
 

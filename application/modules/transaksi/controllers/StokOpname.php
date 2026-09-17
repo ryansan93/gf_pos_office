@@ -458,6 +458,342 @@ class StokOpname extends Public_Controller {
         display_json( $this->result );
     }
 
+    /**************************************************************************************
+     * INJEK STOK OPNAME (import dari Excel) - harus di-cek dulu, baru bisa di-injek
+     **************************************************************************************/
+    public function importForm()
+    {
+        $d_content['akses'] = $this->hakAkses;
+        $html = $this->load->view($this->pathView . 'importForm', $d_content, TRUE);
+
+        echo $html;
+    }
+
+    public function downloadTemplateInjek()
+    {
+        $fileName = 'template_injek_stok_opname';
+        $arr_header = array('TANGGAL', 'GUDANG', 'KODE_ITEM', 'SATUAN', 'JUMLAH', 'HARGA');
+        $arr_column[0] = array(
+            'TANGGAL' => array('value' => '2026-05-01', 'data_type' => 'date', 'data_format' => 'yyyy-mm-dd'),
+            'GUDANG' => array('value' => 'GDG.GTR', 'data_type' => 'string'),
+            'KODE_ITEM' => array('value' => 'BRG2302018', 'data_type' => 'string'),
+            'SATUAN' => array('value' => 'KG', 'data_type' => 'string'),
+            'JUMLAH' => array('value' => '6', 'data_type' => 'decimal2'),
+            'HARGA' => array('value' => '30', 'data_type' => 'decimal2')
+        );
+        $arr_column[1] = array(
+            'TANGGAL' => array('value' => '2026-05-01', 'data_type' => 'date', 'data_format' => 'yyyy-mm-dd'),
+            'GUDANG' => array('value' => 'GDG.GTR', 'data_type' => 'string'),
+            'KODE_ITEM' => array('value' => 'BRG2302061', 'data_type' => 'string'),
+            'SATUAN' => array('value' => 'KG', 'data_type' => 'string'),
+            'JUMLAH' => array('value' => '0', 'data_type' => 'decimal2'),
+            'HARGA' => array('value' => '', 'data_type' => 'string')
+        );
+
+        Modules::run( 'base/ExportExcel/exportExcelUsingSpreadSheet', $fileName, $arr_header, $arr_column );
+
+        $this->load->helper('download');
+        force_download('export_excel/'.$fileName.'.xlsx', NULL);
+    }
+
+    /**
+     * Upload file excel & validasi kelengkapan data (gudang, kode barang, satuan).
+     * Kalau lengkap, path file disimpan di session supaya hanya file yang sudah lolos
+     * cek ini yang bisa diproses oleh injek().
+     */
+    public function cekInjek()
+    {
+        $file = isset($_FILES['file']) ? $_FILES['file'] : null;
+
+        try {
+            if ( !empty($file) ) {
+                $upload_path = FCPATH . "//uploads/import_file/";
+                $moved = uploadFile($file, $upload_path);
+
+                if ( $moved ) {
+                    $path_name = $moved['path'];
+
+                    $data = $this->getDataExcelInjek( $path_name );
+
+                    if ( !empty($data) && count($data) > 0 ) {
+                        list($err, $ket) = $this->validasiDataInjek( $data );
+
+                        if ( $err == 0 ) {
+                            $this->session->set_userdata('so_injek_path', $path_name);
+
+                            $this->result['status'] = 1;
+                            $this->result['message'] = 'Data lengkap ('.count($data).' baris), siap untuk di-injek.';
+                        } else {
+                            $this->session->unset_userdata('so_injek_path');
+
+                            $this->result['status'] = 2;
+                            $this->result['content'] = '<span><b>Data belum lengkap, harap cek kembali.</b><br><br>'.$ket.'</span>';
+                        }
+                    } else {
+                        $this->session->unset_userdata('so_injek_path');
+                        $this->result['message'] = 'Data yang anda upload kosong.';
+                    }
+                } else {
+                    $this->result['message'] = 'File gagal terupload, segera hubungi tim IT.';
+                }
+            }
+        } catch (Exception $e) {
+            $this->result['message'] = 'GAGAL : '.$e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    /**
+     * Injek data ke stok_opname / stok_opname_det. Hanya bisa berjalan kalau
+     * cekInjek() sudah dijalankan lebih dulu dan lolos validasi untuk file yang sama.
+     */
+    public function injek()
+    {
+        try {
+            $path_name = $this->session->userdata('so_injek_path');
+
+            if ( empty($path_name) ) {
+                $this->result['message'] = 'Harap Cek Data terlebih dahulu sebelum melakukan Injek.';
+            } else {
+                $data = $this->getDataExcelInjek( $path_name );
+
+                if ( !empty($data) && count($data) > 0 ) {
+                    list($err, $ket) = $this->validasiDataInjek( $data );
+
+                    if ( $err == 0 ) {
+                        foreach ($data as $key => $value) {
+                            $m_so = new \Model\Storage\StokOpname_model();
+                            $d_so = $m_so->where('tanggal', $value['tanggal'])->where('gudang_kode', $value['gudang_kode'])->first();
+
+                            $id_so = null;
+                            if ( $d_so ) {
+                                $id_so = $d_so->id;
+                            } else {
+                                $m_so = new \Model\Storage\StokOpname_model();
+                                $kode_stok_opname = $m_so->getNextIdRibuan();
+
+                                $m_so->tanggal = $value['tanggal'];
+                                $m_so->gudang_kode = $value['gudang_kode'];
+                                $m_so->kode_stok_opname = $kode_stok_opname;
+                                $m_so->save();
+
+                                $id_so = $m_so->id;
+
+                                $deskripsi_log = 'di-injek oleh ' . $this->userdata['detail_user']['nama_detuser'];
+                                Modules::run( 'base/event/save', $m_so, $deskripsi_log );
+                            }
+
+                            $m_is = new \Model\Storage\ItemSatuan_model();
+                            $d_is = $m_is->where('item_kode', $value['item_kode'])->where('satuan', $value['satuan'])->first();
+
+                            $pengali = $d_is ? $d_is->pengali : null;
+
+                            $harga = $value['harga'];
+                            if ( $harga === '' ) {
+                                $harga = $this->getHargaPosisiStok( $value['gudang_kode'], $value['item_kode'], $value['tanggal'] );
+                            }
+                            // Kalau tetap tidak ketemu (excel kosong & tidak ada harga posisi stok),
+                            // simpan NULL, jangan dipaksa jadi 0.
+                            $harga = ( $harga === null || $harga === '' ) ? null : (float) $harga;
+                            $harga_x_pengali = ( $harga === null ) ? null : ($harga * $pengali);
+
+                            $m_sod = new \Model\Storage\StokOpnameDet_model();
+                            $d_sod = $m_sod->where('id_header', $id_so)->where('item_kode', $value['item_kode'])->where('satuan', $value['satuan'])->first();
+
+                            if ( $d_sod ) {
+                                $m_sod = new \Model\Storage\StokOpnameDet_model();
+                                $m_sod->where('id', $d_sod->id)->update(
+                                    array(
+                                        'pengali' => $pengali,
+                                        'jumlah' => (float) $value['jumlah'],
+                                        'harga' => $harga_x_pengali
+                                    )
+                                );
+                            } else {
+                                $m_sod = new \Model\Storage\StokOpnameDet_model();
+                                $m_sod->id_header = $id_so;
+                                $m_sod->item_kode = $value['item_kode'];
+                                $m_sod->satuan = $value['satuan'];
+                                $m_sod->pengali = $pengali;
+                                $m_sod->jumlah = (float) $value['jumlah'];
+                                $m_sod->harga = $harga_x_pengali;
+                                $m_sod->save();
+                            }
+                        }
+
+                        $this->session->unset_userdata('so_injek_path');
+
+                        $this->result['status'] = 1;
+                        $this->result['message'] = 'Data berhasil di-injek.';
+                    } else {
+                        $this->session->unset_userdata('so_injek_path');
+
+                        $this->result['status'] = 2;
+                        $this->result['content'] = '<span><b>Data berubah / tidak valid lagi, harap Cek Data ulang.</b><br><br>'.$ket.'</span>';
+                    }
+                } else {
+                    $this->session->unset_userdata('so_injek_path');
+                    $this->result['message'] = 'Data yang akan di-injek kosong.';
+                }
+            }
+        } catch (Exception $e) {
+            $this->result['message'] = 'GAGAL : '.$e->getMessage();
+        }
+
+        display_json( $this->result );
+    }
+
+    /**
+     * Ambil data dari file excel sesuai format template: TANGGAL, GUDANG, KODE_ITEM, SATUAN, JUMLAH, HARGA
+     */
+    private function getDataExcelInjek( $path_name )
+    {
+        $path = 'uploads/import_file/'.$path_name;
+
+        $data = array();
+
+        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+        $spreadsheet = $reader->load($path, \PhpOffice\PhpSpreadsheet\Reader\IReader::LOAD_WITH_CHARTS);
+        $sheet = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+
+        $numrow = 1;
+        foreach ($sheet as $row) {
+            $tanggal = trim($row['A']);
+            $gudang_kode = trim($row['B']);
+            $item_kode = trim($row['C']);
+            $satuan = trim($row['D']);
+            $jumlah = trim(preg_replace('/\s/u', '', str_replace(',', '', $row['E'])));
+            $harga = trim(preg_replace('/\s/u', '', str_replace(',', '', $row['F'])));
+
+            // Lewati baris yang benar-benar kosong
+            if ( $tanggal == '' && $gudang_kode == '' && $item_kode == '' && $satuan == '' && $jumlah == '' && $harga == '' ) {
+                continue;
+            }
+
+            // Baris pertama adalah nama kolom, jadi dilewat
+            if ( $numrow > 1 ) {
+                if ( stristr($tanggal, '/') !== false ) {
+                    $_tanggal = explode('/', trim(preg_replace('/\s/u', ' ', $tanggal)));
+
+                    $tahun = $_tanggal[2];
+                    $bulan = ( strlen($_tanggal[1]) > 1 ) ? $_tanggal[1] : '0'.$_tanggal[1];
+                    $hari = ( strlen($_tanggal[0]) > 1 ) ? $_tanggal[0] : '0'.$_tanggal[0];
+
+                    $tanggal = ( $bulan > 12 ) ? $tahun.'-'.$hari.'-'.$bulan : $tahun.'-'.$bulan.'-'.$hari;
+                }
+
+                $data[] = array(
+                    'baris' => $numrow,
+                    'tanggal' => $tanggal,
+                    'gudang_kode' => $gudang_kode,
+                    'item_kode' => $item_kode,
+                    'satuan' => $satuan,
+                    'jumlah' => $jumlah,
+                    'harga' => $harga
+                );
+            }
+            $numrow++;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Validasi tiap baris data injek: gudang, kode barang, dan satuan harus sudah terdaftar.
+     * Return array($err, $keterangan) - $err = 1 kalau ada baris yang tidak valid.
+     */
+    private function validasiDataInjek( $data )
+    {
+        $err = 0;
+        $ket = null;
+
+        foreach ($data as $key => $value) {
+            $pesan = array();
+
+            if ( empty($value['tanggal']) ) {
+                $pesan[] = 'TANGGAL KOSONG';
+            }
+
+            if ( empty($value['gudang_kode']) ) {
+                $pesan[] = 'GUDANG KOSONG';
+            } else {
+                $m_gudang = new \Model\Storage\Gudang_model();
+                $d_gudang = $m_gudang->where('kode_gudang', $value['gudang_kode'])->first();
+
+                if ( !$d_gudang ) {
+                    $pesan[] = 'GUDANG '.$value['gudang_kode'].' TIDAK DITEMUKAN';
+                }
+            }
+
+            if ( empty($value['item_kode']) ) {
+                $pesan[] = 'KODE BARANG KOSONG';
+            } else {
+                $m_item = new \Model\Storage\Item_model();
+                $d_item = $m_item->where('kode', $value['item_kode'])->first();
+
+                if ( !$d_item ) {
+                    $pesan[] = 'KODE BRG '.$value['item_kode'].' TIDAK DITEMUKAN';
+                } else {
+                    $m_is = new \Model\Storage\ItemSatuan_model();
+                    $d_is = $m_is->where('item_kode', $value['item_kode'])->where('satuan', $value['satuan'])->first();
+
+                    if ( !$d_is ) {
+                        $pesan[] = 'SATUAN '.$value['satuan'].' PADA KODE BRG '.$value['item_kode'].' TIDAK DITEMUKAN';
+                    }
+                }
+            }
+
+            if ( !is_numeric($value['jumlah']) ) {
+                $pesan[] = 'JUMLAH TIDAK VALID';
+            }
+
+            // HARGA boleh kosong. Kalau kosong, akan diambil dari harga posisi stok terakhir;
+            // kalau harga posisi stok juga tidak ada, disimpan NULL (bukan 0).
+            if ( $value['harga'] !== '' && !is_numeric($value['harga']) ) {
+                $pesan[] = 'HARGA TIDAK VALID';
+            }
+
+            if ( count($pesan) > 0 ) {
+                $err = 1;
+                $ket .= ( empty($ket) ? '' : '<br>' ) . 'BARIS '.$value['baris'].' : '.implode(', ', $pesan);
+            }
+        }
+
+        return array($err, $ket);
+    }
+
+    /**
+     * Ambil harga posisi stok terakhir (harga beli terakhir) untuk item pada gudang tertentu,
+     * di tanggal tersebut atau sebelumnya. Sama seperti logika di report/PosisiStok.
+     */
+    private function getHargaPosisiStok( $gudang_kode, $item_kode, $tanggal )
+    {
+        $m_conf = new \Model\Storage\Conf();
+        $sql = "
+            select top 1 sh.harga from stok_harga sh
+            left join
+                stok_tanggal st
+                on
+                    sh.id_header = st.id
+            where
+                st.tanggal <= '".$tanggal."' and
+                sh.harga > 0 and
+                st.gudang_kode = '".$gudang_kode."' and
+                sh.item_kode = '".$item_kode."'
+            order by
+                st.tanggal desc
+        ";
+        $d_hrg = $m_conf->hydrateRaw( $sql );
+
+        $harga = null;
+        if ( $d_hrg->count() > 0 ) {
+            $harga = $d_hrg->toArray()[0]['harga'];
+        }
+
+        return $harga;
+    }
+
     public function hitungStokOpname()
     {
         $params = $this->input->post('params');

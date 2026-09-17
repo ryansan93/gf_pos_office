@@ -477,6 +477,130 @@ var so = {
 
         $(tr).find('td.total').text( numeral.formatDec(total) );
     }, // end - hitTotal
+
+    showNameFile : function(elm, isLable = 1) {
+        var _label = $(elm).closest('label');
+        var _a = _label.prev('a[name=dokumen]');
+        _a.removeClass('hide');
+        var _dataName = $(elm).data('name');
+        var _allowtypes = ['xlsx'];
+        var _type = $(elm).get(0).files[0]['name'].split('.').pop();
+        var _namafile = $(elm).val();
+        var _temp_url = URL.createObjectURL($(elm).get(0).files[0]);
+        _namafile = _namafile.substring(_namafile.lastIndexOf("\\") + 1, _namafile.length);
+
+        if (in_array(_type, _allowtypes)) {
+            if (isLable == 1) {
+                if (_a.length) {
+                    _a.attr('title', _namafile);
+                    _a.attr('href', _temp_url);
+                    if ( _dataName == 'name' ) {
+                        $(_a).text( _namafile );
+                    }
+                }
+            } else if (isLable == 0) {
+                $(elm).closest('label').attr('title', _namafile);
+            }
+            $(elm).attr('data-filename', _namafile);
+        } else {
+            $(elm).val('');
+            $(elm).closest('label').attr('title', '');
+            $(elm).attr('data-filename', '');
+            _a.addClass('hide');
+            bootbox.alert('Format file tidak sesuai. Mohon attach ulang.');
+        }
+
+        // setiap ganti file, hasil cek sebelumnya jadi tidak berlaku lagi
+        $(elm).closest('form').find('.hasil_cek').html('');
+        $(elm).closest('form').find('.btn-injek').attr('disabled', 'disabled');
+    }, // end - showNameFile
+
+    importForm: function() {
+        $.get('transaksi/StokOpname/importForm',{
+        },function(data){
+            var _options = {
+                className : 'veryWidth',
+                message : data,
+                size : 'large',
+            };
+            bootbox.dialog(_options).bind('shown.bs.modal', function(){
+                var modal_dialog = $(this).find('.modal-dialog');
+
+                $(modal_dialog).css({'max-width' : '40%'});
+                $(modal_dialog).css({'width' : '40%'});
+
+                var modal_header = $(this).find('.modal-header');
+                $(modal_header).css({'padding-top' : '0px'});
+
+                $('.modal').removeAttr('tabindex');
+            });
+        },'html');
+    }, // end - importForm
+
+    cekInjek: function(elm) {
+        var file_tmp = $('.file_lampiran').get(0).files ? $('.file_lampiran').get(0).files[0] : null;
+        var form = $(elm).closest('form');
+
+        if ( empty($('.file_lampiran').val()) ) {
+            bootbox.alert('Harap isi lampiran terlebih dahulu.');
+        } else {
+            var formData = new FormData();
+            formData.append('file', file_tmp);
+
+            $.ajax({
+                url: 'transaksi/StokOpname/cekInjek',
+                dataType: 'json',
+                type: 'post',
+                processData: false,
+                contentType: false,
+                data: formData,
+                beforeSend: function() { showLoading(); },
+                success: function(data) {
+                    hideLoading();
+                    if ( data.status == 1 ) {
+                        form.find('.hasil_cek').html('<div class="alert alert-success" style="margin-top: 10px;">'+data.message+'</div>');
+                        form.find('.btn-injek').removeAttr('disabled');
+                    } else if ( data.status == 2 ) {
+                        form.find('.hasil_cek').html('<div class="alert alert-danger" style="margin-top: 10px;">'+data.content+'</div>');
+                        form.find('.btn-injek').attr('disabled', 'disabled');
+                    } else {
+                        form.find('.hasil_cek').html('');
+                        form.find('.btn-injek').attr('disabled', 'disabled');
+                        bootbox.alert(data.message);
+                    }
+                }
+            });
+        }
+    }, // end - cekInjek
+
+    injek: function(elm) {
+        var modal = $(elm).closest('.modal');
+
+        bootbox.confirm('Apakah anda yakin ingin meng-injek data Stok Opname dari file ini ?', function (result) {
+            if ( result ) {
+                $.ajax({
+                    url: 'transaksi/StokOpname/injek',
+                    dataType: 'json',
+                    type: 'post',
+                    beforeSend: function() { showLoading(); },
+                    success: function(data) {
+                        hideLoading();
+                        if ( data.status == 1 ) {
+                            bootbox.alert(data.message, function() {
+                                $(modal).modal('hide');
+                                location.reload();
+                            });
+                        } else if ( data.status == 2 ) {
+                            $(modal).find('.hasil_cek').html('<div class="alert alert-danger" style="margin-top: 10px;">'+data.content+'</div>');
+                            $(modal).find('.btn-injek').attr('disabled', 'disabled');
+                        } else {
+                            bootbox.alert(data.message);
+                        };
+                    },
+                });
+            }
+        });
+    }, // end - injek
 };
 
 so.startUp();
